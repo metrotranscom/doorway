@@ -100,6 +100,7 @@ services:
       POSTGRES_PASSWORD: "bloom"
       POSTGRES_DB: "bloom"
       PG_DATA: /var/lib/postgresql/data
+    # Forward to 5433 in order to avoid collisions with any local Postgres instances on 5432
     ports:
       - "5433:5432"
     networks:

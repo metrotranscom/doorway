@@ -1,6 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Cache } from "cache-manager"
+import hash from "object-hash"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { In, Repository } from "typeorm"
 import { Listing } from "./entities/listing.entity"
@@ -39,8 +40,12 @@ export class ListingsService {
   }
 
   public async list(params: ListingsQueryParams): Promise<Pagination<Listing>> {
-    console.log("LISTINGS!!!")
-    console.log(this.cacheManager)
+    console.log(params)
+    const cacheResult = await this.cacheManager.get(hash(params))
+    if (cacheResult != null) {
+      console.log("using cache yes ✌🏼")
+      return cacheResult as Pagination<Listing>
+    }
     const innerFilteredQuery = this.listingRepository
       .createQueryBuilder("listings")
       .select("listings.id", "listings_id")
@@ -83,7 +88,7 @@ export class ListingsService {
       })
     }
 
-    return {
+    const result = {
       ...listingsPaginated,
       items: listingsPaginated.items.map(
         (listing) =>
@@ -95,6 +100,8 @@ export class ListingsService {
           } as Listing)
       ),
     }
+    await this.cacheManager.set(hash(params), result)
+    return result
   }
 
   async create(listingDto: ListingCreateDto) {

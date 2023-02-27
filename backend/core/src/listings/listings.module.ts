@@ -32,6 +32,8 @@ import { ListingsCronService } from "./listings-cron.service"
     TranslationsModule,
     ActivityLogModule,
     ApplicationFlaggedSetsModule,
+    // TODO make global  https://docs.nestjs.com/techniques/caching#global-cache-overrides
+    // todo use redis not memory
     CacheModule.register({
       ttl: 3600000, // 1 hour
       max: 3, // 3 items in cache?

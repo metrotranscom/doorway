@@ -9,7 +9,13 @@ try {
 if (process.env.NEW_RELIC_APP_NAME && process.env.NEW_RELIC_LICENSE_KEY) {
   require("newrelic")
 }
-import { ClassSerializerInterceptor, DynamicModule, INestApplication, Module } from "@nestjs/common"
+import {
+  CacheModule,
+  ClassSerializerInterceptor,
+  DynamicModule,
+  INestApplication,
+  Module,
+} from "@nestjs/common"
 import { TypeOrmModule } from "@nestjs/typeorm"
 // Use require because of the CommonJS/AMD style export.
 // See https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require
@@ -52,8 +58,8 @@ export function applicationSetup(app: INestApplication) {
 }
 
 @Module({
-  imports: [ActivityLogModule],
-  // imports: [ActivityLogModule, CacheModule.register()],
+  // imports: [ActivityLogModule],
+  imports: [ActivityLogModule, CacheModule.register()],
 })
 export class AppModule {
   static register(dbOptions): DynamicModule {

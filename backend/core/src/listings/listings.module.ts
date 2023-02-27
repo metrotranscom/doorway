@@ -1,4 +1,4 @@
-import { Logger, Module } from "@nestjs/common"
+import { CacheModule, Logger, Module } from "@nestjs/common"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { ListingsService } from "./listings.service"
 import { ListingsController } from "./listings.controller"
@@ -32,6 +32,10 @@ import { ListingsCronService } from "./listings-cron.service"
     TranslationsModule,
     ActivityLogModule,
     ApplicationFlaggedSetsModule,
+    CacheModule.register({
+      ttl: 3600000, // 1 hour
+      max: 3, // 3 items in cache?
+    }),
   ],
   providers: [ListingsService, ListingsCronService, Logger],
   exports: [ListingsService],

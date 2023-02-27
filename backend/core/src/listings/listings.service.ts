@@ -1,5 +1,6 @@
-import { Inject, Injectable, NotFoundException, Scope } from "@nestjs/common"
+import { CACHE_MANAGER, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
+import { Cache } from "cache-manager"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { In, Repository } from "typeorm"
 import { Listing } from "./entities/listing.entity"
@@ -29,7 +30,8 @@ export class ListingsService {
     private readonly translationService: TranslationsService,
     private readonly authzService: AuthzService,
     @Inject(REQUEST) private req: ExpressRequest,
-    private readonly afsService: ApplicationFlaggedSetsService
+    private readonly afsService: ApplicationFlaggedSetsService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   private getFullyJoinedQueryBuilder() {
@@ -37,6 +39,8 @@ export class ListingsService {
   }
 
   public async list(params: ListingsQueryParams): Promise<Pagination<Listing>> {
+    console.log("LISTINGS!!!")
+    console.log(this.cacheManager)
     const innerFilteredQuery = this.listingRepository
       .createQueryBuilder("listings")
       .select("listings.id", "listings_id")

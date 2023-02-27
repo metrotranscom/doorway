@@ -4263,10 +4263,10 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/cache-manager@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@types/cache-manager/-/cache-manager-3.4.0.tgz#414136ea3807a8cd071b8f20370c5df5dbffd382"
-  integrity sha512-XVbn2HS+O+Mk2SKRCjr01/8oD5p2Tv1fxxdBqJ0+Cl+UBNiz0WVY5rusHpMGx+qF6Vc2pnRwPVwSKbGaDApCpw==
+"@types/cache-manager@^4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@types/cache-manager/-/cache-manager-4.0.2.tgz#5e76dd9e7881c23f332c2f48e5f326bd05ba9ac9"
+  integrity sha512-fT5FMdzsiSX0AbgnS5gDvHl2Nco0h5zYyjwDQy4yPC7Ww6DeGMVKPRqIZtg9HOXDV2kkc18SL1B0N8f0BecrCA==
 
 "@types/connect@*":
   version "3.4.33"
@@ -6361,14 +6361,13 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
-cache-manager@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/cache-manager/-/cache-manager-3.4.0.tgz#6f352fa1ee95709878e3474e9ed8489ef751bba3"
-  integrity sha512-+WtL5sKHGngtnzTHNFA6+gC0wjpAAUmwmprXOSeaCBOkohM8Nh7GvV8fC90NFrDh7m3i87AshGd39/yYbWNtWA==
+cache-manager@^5.1.7:
+  version "5.1.7"
+  resolved "https://registry.yarnpkg.com/cache-manager/-/cache-manager-5.1.7.tgz#07946574567877bcc4224a3010f592d2443d0ba0"
+  integrity sha512-2W43F4ruaYb7dSiCOqkKtpnmn51/3DqxbKMMTxHfLa6qtj1letd8rr17/P/c7D7wYViqQLa+LetLCoKSVwBN1w==
   dependencies:
-    async "^3.2.0"
-    lodash "^4.17.20"
-    lru-cache "6.0.0"
+    lodash.clonedeep "^4.5.0"
+    lru-cache "^7.17.0"
 
 cacheable-request@^2.1.1:
   version "2.1.4"
@@ -12500,12 +12499,17 @@ lowercase-keys@^2.0.0:
   resolved "https://registry.yarnpkg.com/lowercase-keys/-/lowercase-keys-2.0.0.tgz#2603e78b7b4b0006cbca2fbcc8a3202558ac9479"
   integrity sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==
 
-lru-cache@6.0.0, lru-cache@^6.0.0:
+lru-cache@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-6.0.0.tgz#6d6fe6570ebd96aaf90fcad1dafa3b2566db3a94"
   integrity sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==
   dependencies:
     yallist "^4.0.0"
+
+lru-cache@^7.17.0:
+  version "7.17.0"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.17.0.tgz#00c7ba5919e5ea7c69ff94ddabbf32cb09ab805c"
+  integrity sha512-zSxlVVwOabhVyTi6E8gYv2cr6bXK+8ifYz5/uyJb9feXX6NACVDwY4p5Ut3WC3Ivo/QhpARHU3iujx2xGAYHbQ==
 
 luxon@^1.23.x:
   version "1.28.0"

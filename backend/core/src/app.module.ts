@@ -53,6 +53,7 @@ export function applicationSetup(app: INestApplication) {
 
 @Module({
   imports: [ActivityLogModule],
+  // imports: [ActivityLogModule, CacheModule.register()],
 })
 export class AppModule {
   static register(dbOptions): DynamicModule {

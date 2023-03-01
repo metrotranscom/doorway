@@ -1,5 +1,7 @@
 import { CacheModule, Logger, Module } from "@nestjs/common"
 import { TypeOrmModule } from "@nestjs/typeorm"
+import type { RedisClientOptions } from "redis"
+import * as redisStore from "cache-manager-redis-store"
 import { ListingsService } from "./listings.service"
 import { ListingsController } from "./listings.controller"
 import { Listing } from "./entities/listing.entity"
@@ -34,7 +36,14 @@ import { ListingsCronService } from "./listings-cron.service"
     ApplicationFlaggedSetsModule,
     // TODO make global  https://docs.nestjs.com/techniques/caching#global-cache-overrides
     // todo use redis not memory
-    CacheModule.register({
+    // CacheModule.register({
+    //   ttl: 3600000, // 1 hour
+    //   max: 3, // 3 items in cache?
+    // }),
+    CacheModule.register<RedisClientOptions>({
+      store: redisStore,
+      host: "localhost", //default host
+      port: 6379, //default port
       ttl: 3600000, // 1 hour
       max: 3, // 3 items in cache?
     }),

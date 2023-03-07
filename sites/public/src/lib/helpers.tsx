@@ -128,6 +128,8 @@ export const getListings = (listings) => {
     }
     return null
   }
+  console.log("pre-error")
+  console.log(typeof listings)
   return listings.map((listing: Listing, index) => {
     return (
       <ListingCard

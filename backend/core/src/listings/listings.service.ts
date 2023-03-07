@@ -52,7 +52,10 @@ export class ListingsService {
       .addSearchByListingNameCondition(params.search)
       .paginate(params.limit, params.page)
       .groupBy("listings.id")
-
+    // console.log("liann base")
+    // console.log(this.listingRepository.createQueryBuilder("listings"))
+    // console.log("liann params filter")
+    // console.log(params.filter)
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const user = this.req?.user as User
     if (user?.roles?.isJurisdictionalAdmin) {

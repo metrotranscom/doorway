@@ -57,6 +57,21 @@ export class ListingsController {
     return mapTo(PaginatedListingDto, await this.listingsService.list(queryParams))
   }
 
+  // TODO: Limit requests to defined fields
+  @Get("include_external")
+  @ApiExtraModels(ListingFilterParams)
+  @ApiOperation({
+    summary: "List listings and optionally call for external ones too",
+    operationId: "list_include_external",
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  public async getAllWithExternal(
+    @Query() queryParams: ListingsQueryParams
+  ): Promise<PaginatedListingDto[]> {
+    return mapTo(PaginatedListingDto, await this.listingsService.listWithExternal(queryParams))
+  }
+
   @Post()
   @ApiOperation({ summary: "Create listing", operationId: "create" })
   @UsePipes(new ListingCreateValidationPipe(defaultValidationPipeOptions))

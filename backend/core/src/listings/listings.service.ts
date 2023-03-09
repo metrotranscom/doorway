@@ -5,6 +5,7 @@ import { In, Repository } from "typeorm"
 import { Listing } from "./entities/listing.entity"
 import { getView } from "./views/view"
 import { summarizeUnits, summarizeUnitsByTypeAndRent } from "../shared/units-transformations"
+import { HttpModule } from "@nestjs/axios"
 import { Language, ListingReviewOrder } from "../../types"
 import { AmiChart } from "../ami-charts/entities/ami-chart.entity"
 import { ListingCreateDto } from "./dto/listing-create.dto"
@@ -91,6 +92,11 @@ export class ListingsService {
           } as Listing)
       ),
     }
+  }
+
+  public async listWithExternal(params: ListingsQueryParams): Promise<Pagination<Listing>[]> {
+    const listing_local = await this.list(params)
+    return [listing_local]
   }
 
   async create(listingDto: ListingCreateDto) {

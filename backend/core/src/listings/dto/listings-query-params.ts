@@ -92,11 +92,13 @@ export class ListingsQueryParams extends PaginationAllowsAllQueryParams {
 
   @Expose()
   @ApiProperty({
-    type: String,
-    example: "-some-id-jurisdiction",
+    name: "bloom_jurisdiction",
+    type: [String],
+    example: "[-some-id-jurisdiction[",
     required: false,
+    isArray: true,
   })
   @IsOptional({ groups: [ValidationsGroupsEnum.default] })
-  @IsString({ groups: [ValidationsGroupsEnum.default] })
-  bloom_jurisdiction?: string
+  @IsArray({ groups: [ValidationsGroupsEnum.default] })
+  bloom_jurisdiction?: string[]
 }

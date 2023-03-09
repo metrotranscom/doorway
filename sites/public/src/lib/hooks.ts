@@ -89,6 +89,7 @@ export async function fetchBaseListingData({
       filter: ListingFilterParams[]
       orderBy?: OrderByFieldsEnum[]
       orderDir?: OrderParam[]
+      bloom_jurisdiction?: string[]
     } = {
       view: "base",
       limit: "all",
@@ -100,7 +101,30 @@ export async function fetchBaseListingData({
     if (orderDir) {
       params.orderDir = orderDir
     }
-    const response = await axios.get(process.env.listingServiceUrl, {
+    let uri = process.env.listingServiceUrl
+    console.log("am i null")
+    if (process.env.BLOOM_JURISDICTIONS != null) {
+      console.log("not null wtf")
+      uri = process.env.BACKEND_API_BASE + process.env.LISTINGS_WITH_BLOOM_QUERY
+      console.log(uri)
+      const jds = await fetchBloomJurisdictionsByName()
+      const ids = jds.map((thing) => thing.id)
+      params.bloom_jurisdiction = ids
+      const response = await axios.get(uri, {
+        params,
+        paramsSerializer: (params) => {
+          console.log("the params to hack on")
+          console.log(qs.stringify(params))
+
+          return qs.stringify(params)
+        },
+      })
+
+      listings = response.data
+      console.log("length of listings" + listings.length.toString())
+      return listings[1].items
+    }
+    const response = await axios.get(uri, {
       params,
       paramsSerializer: (params) => {
         return qs.stringify(params)
@@ -159,4 +183,51 @@ export async function fetchJurisdictionByName() {
   }
 
   return jurisdiction
+}
+
+const bloomJurisdictions: Jurisdiction[] = []
+// TODO: put this on the backend
+export async function fetchBloomJurisdictionsByName() {
+  try {
+    if (bloomJurisdictions.length != 0) {
+      console.log("already exists is big")
+      return bloomJurisdictions
+    }
+    const jurisdictionNames = process.env.BLOOM_JURISDICTIONS
+    const jurisdictionsArr = jurisdictionNames.split(",")
+    // console.log("jurisdictionsArr.length")
+    // console.log(jurisdictionsArr.length)
+    // const jurisdictions_full = jurisdictionsArr.map(async (jurisdictionName) => {
+    //   console.log(`${process.env.BLOOM_API_BASE}/jurisdictions/byName/${jurisdictionName}`)
+    //   const jurisdictionRes = await axios.get(
+    //     `${process.env.BLOOM_API_BASE}/jurisdictions/byName/${jurisdictionName}`
+    //   )
+    //   console.log(jurisdictionRes?.data)
+    //   return jurisdictionRes?.data
+    // })
+    // bloomJurisdictions = jurisdictions_full
+    for (const jurisdictionName of jurisdictionsArr) {
+      const jurisdictionRes = await axios.get(
+        `${process.env.BLOOM_API_BASE}/jurisdictions/byName/${jurisdictionName}`
+      )
+      jurisdiction = jurisdictionRes?.data
+      console.log("pre-push length")
+      console.log(bloomJurisdictions.length)
+      bloomJurisdictions.push(jurisdiction)
+      // var jurisdictionRes = await axios.get(
+      //   `${process.env.backendApiBase}/jurisdictions/byName/${jurisdictionName}`
+      // )
+      // jurisdictions.push(jurisdictionRes?.data)
+    }
+    // const jurisdictionRes = await axios.get(
+    //   `${process.env.backendApiBase}/jurisdictions/byName/${jurisdictionName}`
+    // )
+    // jurisdiction = jurisdictionRes?.data
+    // return bloomJurisdictions
+  } catch (error) {
+    console.log("error = ", error)
+    return []
+  }
+
+  return bloomJurisdictions
 }

@@ -2,10 +2,12 @@ import { Inject, Injectable, NotFoundException, Scope } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { In, Repository } from "typeorm"
+import qs from "qs"
+import { catchError, firstValueFrom } from "rxjs"
 import { Listing } from "./entities/listing.entity"
 import { getView } from "./views/view"
 import { summarizeUnits, summarizeUnitsByTypeAndRent } from "../shared/units-transformations"
-import { HttpModule } from "@nestjs/axios"
+import { HttpService } from "@nestjs/axios"
 import { Language, ListingReviewOrder } from "../../types"
 import { AmiChart } from "../ami-charts/entities/ami-chart.entity"
 import { ListingCreateDto } from "./dto/listing-create.dto"
@@ -21,6 +23,7 @@ import { REQUEST } from "@nestjs/core"
 import { User } from "../auth/entities/user.entity"
 import { ApplicationFlaggedSetsService } from "../application-flagged-sets/application-flagged-sets.service"
 import { ListingsQueryBuilder } from "./db/listing-query-builder"
+import { Compare } from "src/shared/dto/filter.dto"
 
 @Injectable({ scope: Scope.REQUEST })
 export class ListingsService {
@@ -30,7 +33,8 @@ export class ListingsService {
     private readonly translationService: TranslationsService,
     private readonly authzService: AuthzService,
     @Inject(REQUEST) private req: ExpressRequest,
-    private readonly afsService: ApplicationFlaggedSetsService
+    private readonly afsService: ApplicationFlaggedSetsService,
+    private readonly httpService: HttpService
   ) {}
 
   private getFullyJoinedQueryBuilder() {
@@ -96,7 +100,42 @@ export class ListingsService {
 
   public async listWithExternal(params: ListingsQueryParams): Promise<Pagination<Listing>[]> {
     const listing_local = await this.list(params)
-    return [listing_local]
+    console.log("lianns vip what is listing_local")
+    console.log(listing_local)
+    const listWithExternalResponse = [listing_local]
+    if (params.bloom_jurisdiction != null && params.bloom_jurisdiction.length != 0) {
+      console.log("params bloom jurisdiction!")
+      // console.log(params)
+      // jurisdictions = params.bloom_jurisdiction
+      console.log("tjhe filter!!!")
+      const new_filters = []
+
+      for (const param of params.filter) {
+        // hack, change jurisdiction to be the external ones!
+        if (param.jurisdiction != null) {
+          param.jurisdiction = params.bloom_jurisdiction.join(",")
+          param.$comparison = Compare.IN
+        }
+        new_filters.push(param)
+      }
+      delete params.bloom_jurisdiction
+      // todo see if this is not necessary due to pass by reference
+      params.filter = new_filters
+      const res = await firstValueFrom(
+        this.httpService.get(process.env.BLOOM_API_BASE + "/listings", {
+          params: params,
+          paramsSerializer: (params) => {
+            // console.log(qs.stringify(params))
+            return qs.stringify(params)
+          },
+        })
+      )
+      console.log("RESPONSE!")
+      const listings_all = res?.data
+      listWithExternalResponse.push(listings_all)
+    }
+    console.log("listWithExternalResponse" + listWithExternalResponse.length.toString())
+    return listWithExternalResponse
   }
 
   async create(listingDto: ListingCreateDto) {

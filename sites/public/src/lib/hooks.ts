@@ -122,7 +122,7 @@ export async function fetchBaseListingData({
 
       listings = response.data
       console.log("length of listings" + listings.length.toString())
-      return listings[1].items
+      return listings[0].items.concat(listings[1].items)
     }
     const response = await axios.get(uri, {
       params,
@@ -210,10 +210,10 @@ export async function fetchBloomJurisdictionsByName() {
       const jurisdictionRes = await axios.get(
         `${process.env.BLOOM_API_BASE}/jurisdictions/byName/${jurisdictionName}`
       )
-      jurisdiction = jurisdictionRes?.data
+      const temp_jurisdiction = jurisdictionRes?.data
       console.log("pre-push length")
       console.log(bloomJurisdictions.length)
-      bloomJurisdictions.push(jurisdiction)
+      bloomJurisdictions.push(temp_jurisdiction)
       // var jurisdictionRes = await axios.get(
       //   `${process.env.backendApiBase}/jurisdictions/byName/${jurisdictionName}`
       // )

@@ -1,6 +1,6 @@
 
 # The deps stage will contain our source and all dependencies for development
-FROM node:14.17-alpine AS deps
+FROM node:18.14-alpine AS deps
 
 # WORKDIR doesn't need to be fancy, but it needs to be consistent
 WORKDIR /app
@@ -38,7 +38,7 @@ CMD yarn test
 #####################
 
 # The build stage builds the code using the dependencies from the deps stage
-FROM node:14.17-alpine AS build
+FROM node:18.14-alpine AS build
 
 WORKDIR /app
 
@@ -57,7 +57,7 @@ RUN yarn build
 #####################
 
 # The optimize stage contains only dependencies needed to run the service
-FROM node:14.17-alpine AS optimize
+FROM node:18.14-alpine AS optimize
 
 WORKDIR /app
 
@@ -78,7 +78,7 @@ RUN yarn install --frozen-lockfile --only=production
 #####################
 
 # The run stage contains an optimized image for running the application
-FROM node:14.17-alpine AS run
+FROM node:18.14-alpine AS run
 
 WORKDIR /app
 

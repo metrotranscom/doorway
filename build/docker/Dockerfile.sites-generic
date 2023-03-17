@@ -95,8 +95,6 @@ WORKDIR /app/sites/${SITE}
 # Build/compile
 RUN yarn build
 
-RUN ls -la ./.next
-
 
 #####################
 ##### NEW STAGE #####
@@ -147,8 +145,6 @@ COPY --chown=node:node \
 
 COPY --from=build --chown=node:node /app/sites/${SITE}/public ./public
 COPY --from=build --chown=node:node /app/sites/${SITE}/.next ./.next
-
-RUN ls -la .
 
 # Make sure to get the minimum dependencies
 COPY --from=optimize --chown=node:node /app/sites/${SITE}/node_modules ./node_modules

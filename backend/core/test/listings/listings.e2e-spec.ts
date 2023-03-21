@@ -70,6 +70,11 @@ describe("Listings", () => {
     expect(res.body.items.map((listing) => listing.id).length).toBeGreaterThan(0)
   })
 
+  it("should return all external + internal listings", async () => {
+    const res = await supertest(app.getHttpServer()).get("/listingsExternal").expect(200)
+    expect(res.body.items.map((listing) => listing.id).length).toBeGreaterThan(0)
+  })
+
   it("should return the first page of paginated listings", async () => {
     // Make the limit 1 less than the full number of listings, so that the first page contains all
     // but the last listing.

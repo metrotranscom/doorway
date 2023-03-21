@@ -93,6 +93,14 @@ export class ListingsService {
     }
   }
 
+  public async listIncludeExternal(params: ListingsQueryParams): Promise<Pagination<Listing>[]> {
+    const listingsLocal = await this.list(params)
+    //TODO: Get external listings
+    const listingsIncludeExternal = [listingsLocal]
+
+    return listingsIncludeExternal
+  }
+
   async create(listingDto: ListingCreateDto) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     await this.authzService.canOrThrow(this.req.user as User, "listing", authzActions.create, {

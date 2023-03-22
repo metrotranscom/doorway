@@ -93,10 +93,10 @@ export class ListingsService {
     }
   }
 
-  public async listIncludeExternal(params: ListingsQueryParams): Promise<Pagination<Listing>[]> {
+  public async listIncludeExternal(params: ListingsQueryParams): Promise<Pagination<Listing>> {
     const listingsLocal = await this.list(params)
     //TODO: Get external listings
-    const listingsIncludeExternal = [listingsLocal]
+    const listingsIncludeExternal = listingsLocal
 
     return listingsIncludeExternal
   }

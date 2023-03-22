@@ -65,9 +65,7 @@ export class ListingsController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
-  public async getAllWithExternal(
-    @Query() queryParams: ListingsQueryParams
-  ): Promise<PaginatedListingDto[]> {
+  public async getAllWithExternal(@Query() queryParams: ListingsQueryParams): Promise<PaginatedListingDto> {
     return mapTo(PaginatedListingDto, await this.listingsService.listIncludeExternal(queryParams))
   }
 

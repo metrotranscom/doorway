@@ -71,7 +71,7 @@ describe("Listings", () => {
   })
 
   it("should return all external + internal listings", async () => {
-    const res = await supertest(app.getHttpServer()).get("/listingsExternal").expect(200)
+    const res = await supertest(app.getHttpServer()).get("/listings/includeExternal").expect(200)
     expect(res.body.items.map((listing) => listing.id).length).toBeGreaterThan(0)
   })
 

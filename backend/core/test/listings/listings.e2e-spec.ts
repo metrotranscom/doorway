@@ -452,16 +452,15 @@ describe("Listings", () => {
     expect(listingsSearchResponse.body.items[0].name).toBe(newListingName)
   })
 
-  // TODO(nocommit): fund the api endpoint that this hits?
+  // Note: /listings/bloom/:id calls another external API.
+  // We should avoid writing e2e tests that call the Bloom API and instead
+  // write tests using the mockHttpService in
+  // listings.service.spec.ts.
   describe("/bloom", () => {
     describe("/:id", () => {
+      // This test is OK becuase it never makes it to the HTTP request phase.
       it("fails if the id is not a valid uuld", async () => {
         await supertest(app.getHttpServer()).get(`/listings/bloom/blah`).expect(400)
-      })
-
-      it("404s if the Bloom request is non-2xx", async () => {
-        const randomUuld = "db239da2-68cb-49d8-a331-fb9e666f8c14"
-        await supertest(app.getHttpServer()).get(`/listings/bloom/${randomUuld}`).expect(404)
       })
     })
   })

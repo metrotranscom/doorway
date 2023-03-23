@@ -392,4 +392,16 @@ describe("ListingsService", () => {
       )
     })
   })
+
+  describe("getListingsExternal", () => {
+    it("should return the same as /listings", async() => {
+      mockListingsRepo.createQueryBuilder
+        .mockReturnValueOnce(mockInnerQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder)
+
+      const listingsIncludeExternal = await service.listIncludeExternal({})
+
+      expect(listingsIncludeExternal.items).toEqual(mockListings)
+    })
+  })
 })

@@ -184,6 +184,7 @@ describe("ListingsService", () => {
     }).compile()
 
     service = await module.resolve(ListingsService)
+    // httpService = module.get(HttpService)
   })
 
   afterEach(() => {

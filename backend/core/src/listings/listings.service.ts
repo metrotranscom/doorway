@@ -1,11 +1,18 @@
 import { HttpService } from "@nestjs/axios"
-import { Inject, Injectable, NotFoundException, Scope } from "@nestjs/common"
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  Scope,
+} from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { In, Repository } from "typeorm"
 import qs from "qs"
-import { firstValueFrom } from "rxjs"
+import { firstValueFrom, catchError } from "rxjs"
+
 import { Listing } from "./entities/listing.entity"
 import { getView } from "./views/view"
 import { summarizeUnits, summarizeUnitsByTypeAndRent } from "../shared/units-transformations"
@@ -185,19 +192,30 @@ export class ListingsService {
     queryParams: ListingsRetrieveQueryParams
   ) {
     const response = await firstValueFrom(
-      this.httpService.get(
-        this.configService.get<string>("BLOOM_API_BASE") +
-          this.configService.get<string>("BLOOM_LISTINGS_QUERY") +
-          "/" +
-          listingId,
-        {
-          headers: { language: lang },
-          params: queryParams,
-          paramsSerializer: (params) => {
-            return qs.stringify(params)
-          },
-        }
-      )
+      this.httpService
+        .get(
+          this.configService.get<string>("BLOOM_API_BASE") +
+            this.configService.get<string>("BLOOM_LISTINGS_QUERY") +
+            "/" +
+            listingId,
+          {
+            headers: { language: lang },
+            params: queryParams,
+            paramsSerializer: (params) => {
+              return qs.stringify(params)
+            },
+          }
+        )
+        .pipe(
+          catchError((error) => {
+            if (error.response) {
+              throw new NotFoundException("Bloom did not return a result")
+            } else {
+              // If there is no response, there was most likely a problem on our end.
+              throw new InternalServerErrorException()
+            }
+          })
+        )
     )
     return response.data
   }

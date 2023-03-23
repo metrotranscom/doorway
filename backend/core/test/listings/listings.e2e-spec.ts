@@ -452,14 +452,16 @@ describe("Listings", () => {
     expect(listingsSearchResponse.body.items[0].name).toBe(newListingName)
   })
 
+  // TODO(nocommit): fund the api endpoint that this hits?
   describe("/bloom", () => {
     describe("/:id", () => {
-      it("errors if the id is not valid uuld", async () => {
-        const listingsSearchResponse = await supertest(app.getHttpServer())
-          .get(`/listings/bloom/blah`)
-          .expect(200)
+      it("fails if the id is not a valid uuld", async () => {
+        await supertest(app.getHttpServer()).get(`/listings/bloom/blah`).expect(400)
+      })
 
-        expect(listingsSearchResponse.error).toBe("Bad Request")
+      it("404s if the Bloom request is non-2xx", async () => {
+        const randomUuld = "db239da2-68cb-49d8-a331-fb9e666f8c14"
+        await supertest(app.getHttpServer()).get(`/listings/bloom/${randomUuld}`).expect(404)
       })
     })
   })

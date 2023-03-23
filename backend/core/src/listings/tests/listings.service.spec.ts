@@ -110,7 +110,6 @@ const mockHttpService = {
     })
   }),
 }
-
 const mockQueryBuilder = {
   select: jest.fn().mockReturnThis(),
   leftJoin: jest.fn().mockReturnThis(),
@@ -185,7 +184,6 @@ describe("ListingsService", () => {
     }).compile()
 
     service = await module.resolve(ListingsService)
-    // httpService = module.get(HttpService)
   })
 
   afterEach(() => {

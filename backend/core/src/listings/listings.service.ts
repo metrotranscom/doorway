@@ -1,7 +1,11 @@
+import { HttpService } from "@nestjs/axios"
 import { Inject, Injectable, NotFoundException, Scope } from "@nestjs/common"
+import { ConfigService } from "@nestjs/config"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { In, Repository } from "typeorm"
+import qs from "qs"
+import { firstValueFrom } from "rxjs"
 import { Listing } from "./entities/listing.entity"
 import { getView } from "./views/view"
 import { summarizeUnits, summarizeUnitsByTypeAndRent } from "../shared/units-transformations"
@@ -20,6 +24,7 @@ import { REQUEST } from "@nestjs/core"
 import { User } from "../auth/entities/user.entity"
 import { ApplicationFlaggedSetsService } from "../application-flagged-sets/application-flagged-sets.service"
 import { ListingsQueryBuilder } from "./db/listing-query-builder"
+import { ListingsRetrieveQueryParams } from "./dto/listings-retrieve-query-params"
 
 @Injectable({ scope: Scope.REQUEST })
 export class ListingsService {
@@ -29,7 +34,9 @@ export class ListingsService {
     private readonly translationService: TranslationsService,
     private readonly authzService: AuthzService,
     @Inject(REQUEST) private req: ExpressRequest,
-    private readonly afsService: ApplicationFlaggedSetsService
+    private readonly afsService: ApplicationFlaggedSetsService,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {}
 
   private getFullyJoinedQueryBuilder() {
@@ -170,6 +177,29 @@ export class ListingsService {
 
     await this.addUnitsSummarized(result)
     return result
+  }
+
+  async findOneFromBloom(
+    listingId: string,
+    lang: Language = Language.en,
+    queryParams: ListingsRetrieveQueryParams
+  ) {
+    const response = await firstValueFrom(
+      this.httpService.get(
+        this.configService.get<string>("BLOOM_API_BASE") +
+          this.configService.get<string>("BLOOM_LISTINGS_QUERY") +
+          "/" +
+          listingId,
+        {
+          headers: { language: lang },
+          params: queryParams,
+          paramsSerializer: (params) => {
+            return qs.stringify(params)
+          },
+        }
+      )
+    )
+    return response.data
   }
 
   private async addUnitsSummarized(listing: Listing) {

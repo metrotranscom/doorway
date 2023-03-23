@@ -1,3 +1,4 @@
+import { HttpModule } from "@nestjs/axios"
 import { Test } from "@nestjs/testing"
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm"
 import supertest from "supertest"
@@ -50,6 +51,7 @@ describe("Listings", () => {
         ApplicationMethodsModule,
         PaperApplicationsModule,
         TypeOrmModule.forFeature([MultiselectQuestion]),
+        HttpModule,
       ],
     }).compile()
 
@@ -448,6 +450,18 @@ describe("Listings", () => {
 
     expect(listingsSearchResponse.body.items.length).toBe(1)
     expect(listingsSearchResponse.body.items[0].name).toBe(newListingName)
+  })
+
+  describe("/bloom", () => {
+    describe("/:id", () => {
+      it("errors if the id is not valid uuld", async () => {
+        const listingsSearchResponse = await supertest(app.getHttpServer())
+          .get(`/listings/bloom/blah`)
+          .expect(200)
+
+        expect(listingsSearchResponse.error).toBe("Bad Request")
+      })
+    })
   })
 
   afterEach(() => {

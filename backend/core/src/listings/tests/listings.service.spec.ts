@@ -434,4 +434,23 @@ describe("ListingsService", () => {
       )
     })
   })
+
+  describe("listIncludeExternal", () => {
+    it("should return the same as /listings", async () => {
+      mockListingsRepo.createQueryBuilder
+        .mockReturnValueOnce(mockInnerQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder)
+      const listIncludeExternalResponse = await service.list({})
+
+      // It's not clear why, but you have to re-mock with mockReturnValueOnce.
+      // mockReturnValue on its own will not work.
+      // TODO to look into this and update with a more correct method.
+      mockListingsRepo.createQueryBuilder
+        .mockReturnValueOnce(mockInnerQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder)
+      const listResponse = await service.listIncludeExternal({})
+
+      expect(listIncludeExternalResponse).toEqual(listResponse)
+    })
+  })
 })

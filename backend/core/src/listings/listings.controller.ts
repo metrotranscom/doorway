@@ -57,6 +57,20 @@ export class ListingsController {
     return mapTo(PaginatedListingDto, await this.listingsService.list(queryParams))
   }
 
+  @Get("includeExternal")
+  @ApiExtraModels(ListingFilterParams)
+  @ApiOperation({
+    summary: "List listings and optionally include external listings",
+    operationId: "listIncludeExternal",
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  public async getAllWithExternal(
+    @Query() queryParams: ListingsQueryParams
+  ): Promise<PaginatedListingDto> {
+    return mapTo(PaginatedListingDto, await this.listingsService.listIncludeExternal(queryParams))
+  }
+
   @Post()
   @ApiOperation({ summary: "Create listing", operationId: "create" })
   @UsePipes(new ListingCreateValidationPipe(defaultValidationPipeOptions))

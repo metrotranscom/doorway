@@ -1,6 +1,5 @@
 import { SetStateAction } from "react"
 import { t, CloudinaryUpload, TimeFieldPeriod } from "@bloom-housing/ui-components"
-import { cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 dayjs.extend(utc)
@@ -161,7 +160,6 @@ export const createDate = (formDate: { year: string; month: string; day: string 
 
 interface FileUploaderParams {
   file: File
-  setCloudinaryData: (data: SetStateAction<{ id: string; url: string }>) => void
   setProgressValue: (value: SetStateAction<number>) => void
 }
 
@@ -171,11 +169,7 @@ interface FileUploaderParams {
  * uploading the file to Cloudinary, setting progress along the way and the
  * id/url of the file when the upload is complete.
  */
-export const cloudinaryFileUploader = async ({
-  file,
-  setCloudinaryData,
-  setProgressValue,
-}: FileUploaderParams) => {
+export const cloudinaryFileUploader = async ({ file, setProgressValue }: FileUploaderParams) => {
   const cloudName = process.env.cloudinaryCloudName
   const uploadPreset = process.env.cloudinarySignedPreset
 
@@ -198,7 +192,7 @@ export const cloudinaryFileUploader = async ({
 
   setProgressValue(3)
 
-  void CloudinaryUpload({
+  const response = await CloudinaryUpload({
     signature,
     apiKey: process.env.cloudinaryKey,
     timestamp,
@@ -209,13 +203,10 @@ export const cloudinaryFileUploader = async ({
     cloudName,
     uploadPreset,
     tag,
-  }).then((response) => {
-    setProgressValue(100)
-    setCloudinaryData({
-      id: response.data.public_id,
-      url: cloudinaryUrlFromId(response.data.public_id),
-    })
   })
+
+  setProgressValue(100)
+  return response.data.public_id
 }
 
 export function formatIncome(value: number, currentType: IncomePeriod, returnType: IncomePeriod) {

@@ -30,6 +30,7 @@ import {
   Language,
 } from "@bloom-housing/backend-core/types"
 import { FormListing } from "../../../../lib/listings/formTypes"
+import { cloudinaryPdfFromId } from "@bloom-housing/shared-helpers"
 
 interface Methods {
   digital: ApplicationMethodCreate
@@ -108,7 +109,11 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    void (await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue }))
+    const generatedId = await cloudinaryFileUploader({ file, setProgressValue })
+    setCloudinaryData({
+      id: generatedId,
+      url: cloudinaryPdfFromId(generatedId),
+    })
   }
 
   /*

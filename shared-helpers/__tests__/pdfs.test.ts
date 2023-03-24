@@ -6,7 +6,7 @@ afterEach(cleanup)
 
 describe("pdfs helpers", () => {
   it("should format cloudinary url", () => {
-    expect(cloudinaryPdfFromId("1234", "exygy")).toBe(
+    expect(cloudinaryPdfFromId("1234")).toBe(
       `https://res.cloudinary.com/exygy/image/upload/1234.pdf`
     )
   })
@@ -15,7 +15,7 @@ describe("pdfs helpers", () => {
       { type: ListingEventType.lotteryResults, file: { fileId: "1234", label: "cloudinaryPDF" } },
       { type: ListingEventType.openHouse, file: { fileId: "5678", label: "cloudinaryPDF" } },
     ] as ListingEvent[]
-    expect(pdfUrlFromListingEvents(listingEvents, ListingEventType.lotteryResults, "exygy")).toBe(
+    expect(pdfUrlFromListingEvents(listingEvents, ListingEventType.lotteryResults)).toBe(
       `https://res.cloudinary.com/exygy/image/upload/1234.pdf`
     )
   })
@@ -23,17 +23,13 @@ describe("pdfs helpers", () => {
     const listingEvents = [
       { type: ListingEventType.lotteryResults, file: { fileId: "1234" } },
     ] as ListingEvent[]
-    expect(pdfUrlFromListingEvents(listingEvents, ListingEventType.lotteryResults, "exygy")).toBe(
-      null
-    )
+    expect(pdfUrlFromListingEvents(listingEvents, ListingEventType.lotteryResults)).toBe(null)
   })
   it("should return null if no event of type exists", () => {
     const listingEvents = [
       { type: ListingEventType.lotteryResults },
       { type: ListingEventType.openHouse },
     ] as ListingEvent[]
-    expect(pdfUrlFromListingEvents(listingEvents, ListingEventType.publicLottery, "exygy")).toBe(
-      null
-    )
+    expect(pdfUrlFromListingEvents(listingEvents, ListingEventType.publicLottery)).toBe(null)
   })
 })

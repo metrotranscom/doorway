@@ -149,10 +149,7 @@ export const ListingView = (props: ListingProps) => {
     buildingSelectionCriteria = (
       <p>
         <a
-          href={cloudinaryPdfFromId(
-            listing.buildingSelectionCriteriaFile.fileId,
-            process.env.cloudinaryCloudName
-          )}
+          href={cloudinaryPdfFromId(listing.buildingSelectionCriteriaFile.fileId)}
           className={"text-blue-700"}
         >
           {t("listings.moreBuildingSelectionCriteria")}
@@ -327,10 +324,7 @@ export const ListingView = (props: ListingProps) => {
           return {
             fileURL: paperApp?.file?.fileId.includes("https")
               ? paperApp?.file?.fileId
-              : cloudinaryPdfFromId(
-                  paperApp?.file?.fileId || "",
-                  process.env.cloudinaryCloudName || ""
-                ),
+              : cloudinaryPdfFromId(paperApp?.file?.fileId || ""),
             languageString: t(`languages.${paperApp.language}`),
           }
         }) ?? null
@@ -583,11 +577,7 @@ export const ListingView = (props: ListingProps) => {
         <div className="mx-4">
           <DownloadLotteryResults
             resultsDate={dayjs(lotteryResults?.startTime).format("MMMM D, YYYY")}
-            pdfURL={pdfUrlFromListingEvents(
-              [lotteryResults],
-              ListingEventType.lotteryResults,
-              process.env.cloudinaryCloudName
-            )}
+            pdfURL={pdfUrlFromListingEvents([lotteryResults], ListingEventType.lotteryResults)}
             buttonText={t("listings.lotteryResults.downloadResults")}
           />
           {!applicationsClosed && getWaitlist()}
@@ -733,11 +723,7 @@ export const ListingView = (props: ListingProps) => {
               <ApplicationStatus content={appStatusContent} subContent={appStatusSubContent} />
               <DownloadLotteryResults
                 resultsDate={dayjs(lotteryResults?.startTime).format("MMMM D, YYYY")}
-                pdfURL={pdfUrlFromListingEvents(
-                  [lotteryResults],
-                  ListingEventType.lotteryResults,
-                  process.env.cloudinaryCloudName
-                )}
+                pdfURL={pdfUrlFromListingEvents([lotteryResults], ListingEventType.lotteryResults)}
                 buttonText={t("listings.lotteryResults.downloadResults")}
               />
               {openHouseEvents && (

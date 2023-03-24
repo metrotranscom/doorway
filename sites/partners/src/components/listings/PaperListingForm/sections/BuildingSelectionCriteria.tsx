@@ -15,7 +15,7 @@ import {
   StandardTableData,
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
-import { cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
+import { cloudinaryPdfFromId, cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
 import { cloudinaryFileUploader } from "../../../../lib/helpers"
 
 const LotteryResults = () => {
@@ -189,7 +189,11 @@ const LotteryResults = () => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    void (await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue }))
+    const generatedId = await cloudinaryFileUploader({ file, setProgressValue })
+    setCloudinaryData({
+      id: generatedId,
+      url: cloudinaryPdfFromId(generatedId),
+    })
   }
 
   return (

@@ -17,7 +17,7 @@ import {
   ListingEventType,
 } from "@bloom-housing/backend-core/types"
 import { cloudinaryFileUploader } from "../../../../lib/helpers"
-import { cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
+import { cloudinaryPdfFromId, cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
 
 interface LotteryResultsProps {
   submitCallback: (data: { events: ListingEvent[] }) => void
@@ -130,7 +130,11 @@ const LotteryResults = (props: LotteryResultsProps) => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    void (await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue }))
+    const generatedId = await cloudinaryFileUploader({ file, setProgressValue })
+    setCloudinaryData({
+      id: generatedId,
+      url: cloudinaryPdfFromId(generatedId),
+    })
   }
 
   return (

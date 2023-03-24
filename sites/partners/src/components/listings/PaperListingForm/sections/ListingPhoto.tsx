@@ -149,7 +149,11 @@ const ListingPhoto = () => {
     Pass the file for the dropzone callback along to the uploader
   */
   const photoUploader = async (file: File) => {
-    void (await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue }))
+    const generatedId = await cloudinaryFileUploader({ file, setProgressValue })
+    setCloudinaryData({
+      id: generatedId,
+      url: cloudinaryUrlFromId(generatedId),
+    })
   }
 
   return (

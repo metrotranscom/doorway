@@ -107,7 +107,10 @@ export class ListingsService {
     }
   }
 
-  public async listIncludeExternal(params: ListingsQueryParams): Promise<Pagination<Listing>> {
+  public async listIncludeExternal(
+    bloomJurisdictions: string[],
+    params: ListingsQueryParams
+  ): Promise<Pagination<Listing>> {
     return await this.list(params)
   }
 

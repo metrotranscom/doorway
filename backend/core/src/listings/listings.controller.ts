@@ -28,6 +28,7 @@ import { ListingCreateDto } from "./dto/listing-create.dto"
 import { ListingUpdateDto } from "./dto/listing-update.dto"
 import { ListingFilterParams } from "./dto/listing-filter-params"
 import { ListingsQueryParams } from "./dto/listings-query-params"
+import { DoorwayListingsExternalQueryParams } from "./dto/doorway-listings-external-query-params"
 import { ListingsRetrieveQueryParams } from "./dto/listings-retrieve-query-params"
 import { ListingCreateValidationPipe } from "./validation-pipes/listing-create-validation-pipe"
 import { ListingUpdateValidationPipe } from "./validation-pipes/listing-update-validation-pipe"
@@ -58,7 +59,7 @@ export class ListingsController {
   }
 
   @Get("includeExternal")
-  @ApiExtraModels(ListingFilterParams)
+  @ApiExtraModels(ListingFilterParams, ListingsQueryParams)
   @ApiOperation({
     summary: "List listings and optionally include external listings",
     operationId: "listIncludeExternal",
@@ -66,9 +67,17 @@ export class ListingsController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
   public async getAllWithExternal(
-    @Query() queryParams: ListingsQueryParams
+    @Query() queryParams: DoorwayListingsExternalQueryParams
   ): Promise<PaginatedListingDto> {
-    return mapTo(PaginatedListingDto, await this.listingsService.listIncludeExternal(queryParams))
+    // See doorway-listings-external-query-params.ts for more context on this
+    const jurisdictions: string[] = queryParams.bloomJurisdiction
+    delete queryParams.bloomJurisdiction
+    mapTo(ListingsQueryParams, queryParams)
+
+    return mapTo(
+      PaginatedListingDto,
+      await this.listingsService.listIncludeExternal(jurisdictions, queryParams)
+    )
   }
 
   @Post()

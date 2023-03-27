@@ -15,8 +15,7 @@ import {
   StandardTableData,
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
-import { cloudinaryPdfFromId, cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
-import { cloudinaryFileUploader } from "../../../../lib/helpers"
+import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
 
 const LotteryResults = () => {
   const formMethods = useFormContext()
@@ -37,6 +36,7 @@ const LotteryResults = () => {
     id: "",
     url: "",
   })
+  const cloudinaryFileService = new CloudinaryFileService()
   const resetDrawerState = () => {
     setProgressValue(0)
     setCloudinaryData({
@@ -110,7 +110,7 @@ const LotteryResults = () => {
   */
   const criteriaTableRows: StandardTableData = []
   if (listingCriteriaFile?.fileId && listingCriteriaFile.fileId != "") {
-    const listingPhotoUrl = cloudinaryUrlFromId(listingCriteriaFile.fileId)
+    const listingPhotoUrl = cloudinaryFileService.getDownloadUrlForPhoto(listingCriteriaFile.fileId)
 
     criteriaTableRows.push({
       preview: {
@@ -189,10 +189,10 @@ const LotteryResults = () => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    const generatedId = await cloudinaryFileUploader({ file, setProgressValue })
+    const generatedId = await cloudinaryFileService.putFile("cloudinaryPDF", file, setProgressValue)
     setCloudinaryData({
       id: generatedId,
-      url: cloudinaryPdfFromId(generatedId),
+      url: cloudinaryFileService.getDownloadUrlForPhoto(generatedId),
     })
   }
 

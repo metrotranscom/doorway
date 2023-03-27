@@ -18,19 +18,14 @@ import {
   StandardTableData,
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
-import {
-  cloudinaryFileUploader,
-  fieldMessage,
-  fieldHasError,
-  YesNoAnswer,
-} from "../../../../lib/helpers"
+import { fieldMessage, fieldHasError, YesNoAnswer } from "../../../../lib/helpers"
 import {
   ApplicationMethodCreate,
   ApplicationMethodType,
   Language,
 } from "@bloom-housing/backend-core/types"
 import { FormListing } from "../../../../lib/listings/formTypes"
-import { cloudinaryPdfFromId } from "@bloom-housing/shared-helpers"
+import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
 
 interface Methods {
   digital: ApplicationMethodCreate
@@ -109,10 +104,15 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    const generatedId = await cloudinaryFileUploader({ file, setProgressValue })
+    const cloudinaryFileService = new CloudinaryFileService()
+    const generatedId = await cloudinaryFileService.putFile(
+      selectedLanguage,
+      file,
+      setProgressValue
+    )
     setCloudinaryData({
       id: generatedId,
-      url: cloudinaryPdfFromId(generatedId),
+      url: cloudinaryFileService.getDownloadUrlForPdf(generatedId),
     })
   }
 

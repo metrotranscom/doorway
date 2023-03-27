@@ -41,7 +41,6 @@ import {
   ExpandableSection,
 } from "@bloom-housing/ui-components"
 import {
-  cloudinaryPdfFromId,
   getOccupancyDescription,
   imageUrlFromListing,
   occupancyTable,
@@ -59,6 +58,7 @@ import { getGenericAddress, openInFuture } from "../../lib/helpers"
 import { GetApplication } from "./GetApplication"
 import { DownloadLotteryResults } from "./DownloadLotteryResults"
 import { SubmitApplication } from "./SubmitApplication"
+import { CloudinaryFileService } from "../../../../../shared-services/files/cloudinary-file.service"
 
 interface ListingProps {
   listing: Listing
@@ -73,6 +73,7 @@ export const ListingView = (props: ListingProps) => {
     content: appStatusContent,
     subContent: appStatusSubContent,
   } = useGetApplicationStatusProps(listing)
+  const cloudinaryFileService = new CloudinaryFileService()
 
   const appOpenInFuture = openInFuture(listing)
   const hasNonReferralMethods = listing?.applicationMethods
@@ -149,7 +150,9 @@ export const ListingView = (props: ListingProps) => {
     buildingSelectionCriteria = (
       <p>
         <a
-          href={cloudinaryPdfFromId(listing.buildingSelectionCriteriaFile.fileId)}
+          href={cloudinaryFileService.getDownloadUrlForPdf(
+            listing.buildingSelectionCriteriaFile.fileId
+          )}
           className={"text-blue-700"}
         >
           {t("listings.moreBuildingSelectionCriteria")}
@@ -324,7 +327,7 @@ export const ListingView = (props: ListingProps) => {
           return {
             fileURL: paperApp?.file?.fileId.includes("https")
               ? paperApp?.file?.fileId
-              : cloudinaryPdfFromId(paperApp?.file?.fileId || ""),
+              : cloudinaryFileService.getDownloadUrlForPdf(paperApp?.file?.fileId || ""),
             languageString: t(`languages.${paperApp.language}`),
           }
         }) ?? null

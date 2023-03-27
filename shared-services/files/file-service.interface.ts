@@ -1,6 +1,6 @@
 import { SetStateAction } from "react"
 
-interface FileServiceInterface {
+export interface FileServiceInterface {
   putFile(
     key: string,
     file: File,

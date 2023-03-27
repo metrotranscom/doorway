@@ -16,8 +16,7 @@ import {
   ListingEventCreate,
   ListingEventType,
 } from "@bloom-housing/backend-core/types"
-import { cloudinaryFileUploader } from "../../../../lib/helpers"
-import { cloudinaryPdfFromId, cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
+import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
 
 interface LotteryResultsProps {
   submitCallback: (data: { events: ListingEvent[] }) => void
@@ -37,6 +36,7 @@ const LotteryResults = (props: LotteryResultsProps) => {
     id: "",
     url: "",
   })
+  const cloudinaryFileService = new CloudinaryFileService()
 
   const listingEvents = watch("events")
   const uploadedPDF = listingEvents.find(
@@ -45,7 +45,10 @@ const LotteryResults = (props: LotteryResultsProps) => {
 
   useEffect(() => {
     if (uploadedPDF) {
-      setCloudinaryData({ url: cloudinaryUrlFromId(uploadedPDF.file?.fileId), id: uploadedPDF.id })
+      setCloudinaryData({
+        url: cloudinaryFileService.getDownloadUrlForPhoto(uploadedPDF.file?.fileId),
+        id: uploadedPDF.id,
+      })
       // Don't allow a new one to be uploaded if one already exists so setting progress to 100%
       setProgressValue(100)
     }
@@ -130,10 +133,10 @@ const LotteryResults = (props: LotteryResultsProps) => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    const generatedId = await cloudinaryFileUploader({ file, setProgressValue })
+    const generatedId = await cloudinaryFileService.putFile("cloudinaryPDF", file, setProgressValue)
     setCloudinaryData({
       id: generatedId,
-      url: cloudinaryPdfFromId(generatedId),
+      url: cloudinaryFileService.getDownloadUrlForPhoto(generatedId),
     })
   }
 

@@ -1,4 +1,5 @@
 import { ListingEvent, ListingEventType } from "@bloom-housing/backend-core/types"
+import { CloudinaryFileService } from "../../../shared-services/files/cloudinary-file.service"
 
 export const cloudinaryPdfFromId = (publicId: string) => {
   const cloudName = process.env.cloudinaryCloudName || process.env.CLOUDINARY_CLOUD_NAME
@@ -10,9 +11,10 @@ export const pdfUrlFromListingEvents = (
   listingEventType: ListingEventType
 ) => {
   const event = events.find((event) => event?.type === listingEventType)
+  const cloudinaryFileService = new CloudinaryFileService()
   if (event) {
     return event.file?.label == "cloudinaryPDF"
-      ? cloudinaryPdfFromId(event.file.fileId)
+      ? cloudinaryFileService.getDownloadUrlForPdf(event.file.fileId)
       : event.url ?? null
   }
   return null

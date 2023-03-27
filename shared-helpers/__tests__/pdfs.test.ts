@@ -5,12 +5,26 @@ import { cloudinaryPdfFromId, pdfUrlFromListingEvents } from "../src/utilities/p
 afterEach(cleanup)
 
 describe("pdfs helpers", () => {
+  const OLD_ENV = process.env
+
+  beforeEach(() => {
+    jest.resetModules()
+    process.env = { ...OLD_ENV }
+  })
+
+  afterAll(() => {
+    process.env = OLD_ENV
+  })
+
   it("should format cloudinary url", () => {
+    process.env.CLOUDINARY_CLOUD_NAME = "exygy"
     expect(cloudinaryPdfFromId("1234")).toBe(
       `https://res.cloudinary.com/exygy/image/upload/1234.pdf`
     )
   })
+
   it("should return correct pdf url for event if event type exists and file is cloudinary type", () => {
+    process.env.CLOUDINARY_CLOUD_NAME = "exygy"
     const listingEvents = [
       { type: ListingEventType.lotteryResults, file: { fileId: "1234", label: "cloudinaryPDF" } },
       { type: ListingEventType.openHouse, file: { fileId: "5678", label: "cloudinaryPDF" } },
@@ -19,6 +33,7 @@ describe("pdfs helpers", () => {
       `https://res.cloudinary.com/exygy/image/upload/1234.pdf`
     )
   })
+
   it("should return null if event type exists but is not cloudinary type", () => {
     const listingEvents = [
       { type: ListingEventType.lotteryResults, file: { fileId: "1234" } },

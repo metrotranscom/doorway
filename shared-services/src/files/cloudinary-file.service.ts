@@ -1,6 +1,6 @@
 import { SetStateAction } from "react"
 import { cloudinaryPdfFromId, cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
-import { cloudinaryFileUploader } from "../../sites/partners/src/lib/helpers"
+import { cloudinaryFileUploader } from "../../../sites/partners/src/lib/helpers"
 import { FileServiceInterface } from "./file-service.interface"
 
 export class CloudinaryFileService implements FileServiceInterface {

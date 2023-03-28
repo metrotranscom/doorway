@@ -1,5 +1,5 @@
 import { ListingEvent, ListingEventType } from "@bloom-housing/backend-core/types"
-import { CloudinaryFileService } from "../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 export const cloudinaryPdfFromId = (publicId: string) => {
   const cloudName = process.env.cloudinaryCloudName || process.env.CLOUDINARY_CLOUD_NAME

@@ -7,7 +7,7 @@ import {
   TableThumbnail,
 } from "@bloom-housing/ui-components"
 import { ListingContext } from "../../ListingContext"
-import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 const DetailListingPhoto = () => {
   const listing = useContext(ListingContext)

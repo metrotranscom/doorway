@@ -15,7 +15,7 @@ import {
   StandardTableData,
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
-import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 const LotteryResults = () => {
   const formMethods = useFormContext()

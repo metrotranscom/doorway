@@ -58,7 +58,7 @@ import { getGenericAddress, openInFuture } from "../../lib/helpers"
 import { GetApplication } from "./GetApplication"
 import { DownloadLotteryResults } from "./DownloadLotteryResults"
 import { SubmitApplication } from "./SubmitApplication"
-import { CloudinaryFileService } from "../../../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 interface ListingProps {
   listing: Listing

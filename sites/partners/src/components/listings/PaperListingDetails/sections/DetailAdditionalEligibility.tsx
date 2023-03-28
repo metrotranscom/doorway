@@ -9,7 +9,7 @@ import {
 } from "@bloom-housing/ui-components"
 import { ListingContext } from "../../ListingContext"
 import { getDetailFieldString } from "./helpers"
-import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 const DetailAdditionalEligibility = () => {
   const listing = useContext(ListingContext)

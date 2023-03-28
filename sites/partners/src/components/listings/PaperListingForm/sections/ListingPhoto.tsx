@@ -14,7 +14,7 @@ import {
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
 import { fieldHasError } from "../../../../lib/helpers"
-import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 /**
  *

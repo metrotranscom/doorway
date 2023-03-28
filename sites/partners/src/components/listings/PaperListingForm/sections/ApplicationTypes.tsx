@@ -25,7 +25,7 @@ import {
   Language,
 } from "@bloom-housing/backend-core/types"
 import { FormListing } from "../../../../lib/listings/formTypes"
-import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 interface Methods {
   digital: ApplicationMethodCreate

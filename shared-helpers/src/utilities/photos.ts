@@ -1,5 +1,5 @@
 import { Asset, Listing } from "@bloom-housing/backend-core/types"
-import { CloudinaryFileService } from "../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 export const cloudinaryUrlFromId = (publicId: string, size = 400) => {
   const cloudName = process.env.cloudinaryCloudName || process.env.CLOUDINARY_CLOUD_NAME

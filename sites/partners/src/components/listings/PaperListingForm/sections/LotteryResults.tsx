@@ -16,7 +16,7 @@ import {
   ListingEventCreate,
   ListingEventType,
 } from "@bloom-housing/backend-core/types"
-import { CloudinaryFileService } from "../../../../../../../shared-services/files/cloudinary-file.service"
+import { CloudinaryFileService } from "@bloom-housing/shared-services"
 
 interface LotteryResultsProps {
   submitCallback: (data: { events: ListingEvent[] }) => void

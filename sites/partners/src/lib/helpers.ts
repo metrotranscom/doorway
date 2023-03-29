@@ -91,6 +91,12 @@ export const convertDataToPst = (dateObj: Date, type: ApplicationSubmissionType)
       time,
     }
   }
+
+  // We should never reach this statement since all existing application submission types are covered above.
+  return {
+    date: t("t.n/a"),
+    time: t("t.n/a"),
+  }
 }
 
 export const stringToNumber = (str: string | number | undefined): number => {
@@ -170,8 +176,8 @@ interface FileUploaderParams {
  * id/url of the file when the upload is complete.
  */
 export const cloudinaryFileUploader = async ({ file, setProgressValue }: FileUploaderParams) => {
-  const cloudName = process.env.cloudinaryCloudName
-  const uploadPreset = process.env.cloudinarySignedPreset
+  const cloudName = process.env.cloudinaryCloudName || ""
+  const uploadPreset = process.env.cloudinarySignedPreset || ""
 
   setProgressValue(1)
 

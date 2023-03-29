@@ -1,10 +1,30 @@
 # AWS CodeBuild config
 
-# For now, this is just a placeholder to test the CodeBuild setup
+# Builds the backend site with Docker and the image to ECR. 
+# TODO: add public and private sites.
 
 version: 0.2
 
+env:
+  variables:
+    IMAGE_TAG: "latest-test" # TODO: change to latest?
+    IMAGE_REPO_NAME_BACKEND: "doorway-nonprod/backend"
+
 phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
   build:
     commands:
-      - echo here goes nothing
+      - echo Build started on `date`
+      - echo Building the _BACKEND_ Docker image...          
+      - docker build -f build/docker/Dockerfile.backend -t $IMAGE_REPO_NAME_BACKEND:$IMAGE_TAG ./backend/core
+      - docker tag $IMAGE_REPO_NAME_BACKEND:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME_BACKEND:$IMAGE_TAG      
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME_BACKEND:$IMAGE_TAG

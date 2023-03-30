@@ -1,5 +1,5 @@
 // Using a record lets us enforce that all types are handled in addFilter
-import { ListingFilterKeys } from "../../.."
+import { ListingFilterKeys } from "../types/listing-filter-keys-enum";
 
 export const filterTypeToFieldMap: Record<keyof typeof ListingFilterKeys, string> = {
   status: "listings.status",

@@ -125,8 +125,8 @@ describe("Listings", () => {
 
   it("should have the Bay Area jurisdiction", async () => {
     const jurisdictions = await jurisdictionsRepository.find()
-    const nonBayArea = jurisdictions.find((jurisdiction) => jurisdiction.name === "Bay Area")
-    expect(nonBayArea).not.toBe(undefined)
+    const bayArea = jurisdictions.find((jurisdiction) => jurisdiction.name === "Bay Area")
+    expect(bayArea).not.toBe(undefined)
   })
 
   it("should have listings associated with the Bay Area", async () => {

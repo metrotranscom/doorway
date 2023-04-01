@@ -7,7 +7,7 @@ import { ValidationsGroupsEnum } from "../../shared/types/validations-groups-enu
 // These are the parameters for /listings/getExternal. ListingsQueryParams are
 // extracted from these query params and passed through to each jurisdiction.
 // Ideally these params would contain an instance of listingQueryParams, but
-// becuase NestJS does not properly validate nested query param decorators,
+// becuase NestJS has hard time validating very nested query param decorators,
 // we extend ListingsQueryParams and will delete the bloomJurisdiction param
 // before passing onto /listings.
 export class DoorwayListingsExternalQueryParams extends ListingsQueryParams {

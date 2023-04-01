@@ -69,8 +69,9 @@ export class ListingsController {
   public async getAllWithExternal(
     @Query() queryParams: DoorwayListingsExternalQueryParams
   ): Promise<ListingIncludeExternalResponse> {
-    // See doorway-listings-external-query-params.ts for more context on this
     const jurisdictions: string[] = queryParams.bloomJurisdiction
+    // See doorway-listings-external-query-params.ts for more context on why
+    // we delete this part of the params and typecast.
     delete queryParams.bloomJurisdiction
     mapTo(ListingsQueryParams, queryParams)
 

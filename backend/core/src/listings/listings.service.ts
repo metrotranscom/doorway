@@ -133,18 +133,17 @@ export class ListingsService {
       return {}
     }
     // Transform params to Bloom-friendly ones
-    const bloomFriendlyListingsQueryParams = this.createBloomFriendlyListingsQueryParams(params)
+    const bloomParamsNoJurisdiction = this.copyParamsForBloom(params)
     // begin build all http requests
     const httpRequests: Promise<AxiosResponse>[] = []
     for (const jurisdiction of bloomJurisdictions) {
       const newFilter = [
-        ...(bloomFriendlyListingsQueryParams.filter || []),
+        ...(bloomParamsNoJurisdiction.filter || []),
         {
           jurisdiction: jurisdiction,
           $comparison: Compare["="],
         },
       ]
-
       httpRequests.push(
         firstValueFrom(
           this.httpService
@@ -153,7 +152,7 @@ export class ListingsService {
                 this.configService.get<string>("BLOOM_LISTINGS_QUERY"),
               {
                 params: {
-                  ...bloomFriendlyListingsQueryParams,
+                  ...bloomParamsNoJurisdiction,
                   filter: newFilter,
                 },
                 paramsSerializer: (params) => {
@@ -185,7 +184,7 @@ export class ListingsService {
     return response
   }
 
-  private createBloomFriendlyListingsQueryParams(params: ListingsQueryParams): ListingsQueryParams {
+  private copyParamsForBloom(params: ListingsQueryParams): ListingsQueryParams {
     if (!params.filter) {
       return params
     }

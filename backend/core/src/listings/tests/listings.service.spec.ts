@@ -457,17 +457,15 @@ describe("ListingsService", () => {
       mockListingsRepo.createQueryBuilder
         .mockReturnValueOnce(mockInnerQueryBuilder)
         .mockReturnValueOnce(mockQueryBuilder)
-
-      const expectedNeighborhood = "Fox Creek"
       const queryParams: DoorwayListingsExternalQueryParams = {
         filter: [
           {
-            jurisdiction: "i_am_a_doorway_id",
             $comparison: Compare["="],
+            jurisdiction: "i_am_a_doorway_id",
           },
           {
             $comparison: Compare["="],
-            neighborhood: expectedNeighborhood,
+            neighborhood: "Fox Creek",
           },
         ],
       }
@@ -480,7 +478,7 @@ describe("ListingsService", () => {
             filter: [
               {
                 $comparison: Compare["="],
-                neighborhood: expectedNeighborhood,
+                neighborhood: "Fox Creek",
               },
               {
                 $comparison: Compare["="],

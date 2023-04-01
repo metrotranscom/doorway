@@ -445,7 +445,6 @@ describe("Listings", () => {
         view: "base",
       }
       const query = qs.stringify(queryParams)
-      console.log(process.env.BLOOM_API_BASE)
       const res = await supertest(app.getHttpServer())
         .get(`/listings/includeExternal?${query}`)
         .expect(200)

@@ -448,9 +448,16 @@ describe("ListingsService", () => {
       mockListingsRepo.createQueryBuilder
         .mockReturnValueOnce(mockInnerQueryBuilder)
         .mockReturnValueOnce(mockQueryBuilder)
-      const listResponse = await service.listIncludeExternal({})
+      const listResponse = await service.listIncludeExternal([], {})
+      expect(listIncludeExternalResponse).toEqual(listResponse.local)
+    })
 
-      expect(listIncludeExternalResponse).toEqual(listResponse)
+    it("a different test", async () => {
+      mockListingsRepo.createQueryBuilder
+        .mockReturnValueOnce(mockInnerQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder)
+      const listResponse = await service.listIncludeExternal([], {})
+      expect(listResponse.local).not.toBeEmpty
     })
   })
 })

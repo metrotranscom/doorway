@@ -432,6 +432,23 @@ describe("Listings", () => {
     })
   })
 
+  describe("/includeExternal", () => {
+    // TODO liann figure out what to do about hitting endpoint
+    it("respects the pagination params", async () => {
+      const queryParams = {
+        limit: 1,
+        page: 1,
+        view: "base",
+      }
+      const query = qs.stringify(queryParams)
+      console.log(process.env.BLOOM_API_BASE)
+      const res = await supertest(app.getHttpServer())
+        .get(`/listings/includeExternal?${query}`)
+        .expect(200)
+      expect(res.body.local.items.length).toBe(1)
+    })
+  })
+
   afterEach(() => {
     jest.clearAllMocks()
   })

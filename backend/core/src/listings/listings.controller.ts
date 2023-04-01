@@ -15,7 +15,7 @@ import {
   Headers,
   ParseUUIDPipe,
 } from "@nestjs/common"
-import { ListingsService } from "./listings.service"
+import { ListingsService, ListingIncludeExternalResponse } from "./listings.service"
 import { ApiBearerAuth, ApiExtraModels, ApiOperation, ApiTags } from "@nestjs/swagger"
 import { ListingDto } from "./dto/listing.dto"
 import { ResourceType } from "../auth/decorators/resource-type.decorator"
@@ -68,16 +68,13 @@ export class ListingsController {
   @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
   public async getAllWithExternal(
     @Query() queryParams: DoorwayListingsExternalQueryParams
-  ): Promise<PaginatedListingDto> {
+  ): Promise<ListingIncludeExternalResponse> {
     // See doorway-listings-external-query-params.ts for more context on this
     const jurisdictions: string[] = queryParams.bloomJurisdiction
     delete queryParams.bloomJurisdiction
     mapTo(ListingsQueryParams, queryParams)
 
-    return mapTo(
-      PaginatedListingDto,
-      await this.listingsService.listIncludeExternal(jurisdictions, queryParams)
-    )
+    return await this.listingsService.listIncludeExternal(jurisdictions, queryParams)
   }
 
   @Post()

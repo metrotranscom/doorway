@@ -33,6 +33,12 @@ import { ApplicationFlaggedSetsService } from "../application-flagged-sets/appli
 import { ListingsQueryBuilder } from "./db/listing-query-builder"
 import { ListingsRetrieveQueryParams } from "./dto/listings-retrieve-query-params"
 
+type JurisdictionIdToExternalResponse = { [Identifier: string]: Pagination<Listing> }
+export type ListingIncludeExternalResponse = {
+  local: Pagination<Listing>
+  external?: JurisdictionIdToExternalResponse
+}
+
 @Injectable({ scope: Scope.REQUEST })
 export class ListingsService {
   constructor(
@@ -110,10 +116,21 @@ export class ListingsService {
   public async listIncludeExternal(
     bloomJurisdictions: string[],
     params: ListingsQueryParams
-  ): Promise<Pagination<Listing>> {
-    return await this.list(params)
+  ): Promise<ListingIncludeExternalResponse> {
+    return {
+      local: await this.list(params),
+      external: await this.listExternal(bloomJurisdictions, params),
+    }
   }
 
+  private async listExternal(
+    bloomJurisdictions: string[],
+    params: ListingsQueryParams
+  ): Promise<JurisdictionIdToExternalResponse> {
+    const blah = await this.list(params)
+    // temporary placeholder
+    return { "123": blah }
+  }
   async create(listingDto: ListingCreateDto) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     await this.authzService.canOrThrow(this.req.user as User, "listing", authzActions.create, {

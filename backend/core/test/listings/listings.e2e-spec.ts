@@ -432,8 +432,12 @@ describe("Listings", () => {
     })
   })
 
+  // Note: /listings/includeExternal calls another external API.
+  // We should avoid writing e2e tests that call the Bloom API and instead
+  // write tests using the mockHttpService in
+  // listings.service.spec.ts.
   describe("/includeExternal", () => {
-    // TODO liann figure out what to do about hitting endpoint
+    // This test is OK because it doesn't call Bloom (has no bloomJurisdiction)
     it("respects the pagination params", async () => {
       const queryParams = {
         limit: 1,
@@ -446,6 +450,7 @@ describe("Listings", () => {
         .get(`/listings/includeExternal?${query}`)
         .expect(200)
       expect(res.body.local.items.length).toBe(1)
+      expect(res.body.external).toEqual({})
     })
   })
 

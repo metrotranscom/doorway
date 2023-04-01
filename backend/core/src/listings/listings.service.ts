@@ -189,18 +189,15 @@ export class ListingsService {
     if (!params.filter) {
       return params
     }
-    const bloomFriendlyListingsQueryParams = {
+    const paramCopy = {
       ...params,
     }
-
     // Note on .filter.filter: Confusingly bloomFriendlyListingsQueryParams is
     // an object with a key of "filter" which contains an array. Then the
     // array.prototype."filter" method is used which has an unfortunate name
     // collision.
-    bloomFriendlyListingsQueryParams.filter.filter((param) => param.jurisdiction != null)
-
-    console.log(bloomFriendlyListingsQueryParams)
-    return bloomFriendlyListingsQueryParams
+    paramCopy.filter = paramCopy.filter.filter((param) => !param.jurisdiction)
+    return paramCopy
   }
 
   async create(listingDto: ListingCreateDto) {

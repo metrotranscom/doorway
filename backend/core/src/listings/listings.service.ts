@@ -32,6 +32,8 @@ import { User } from "../auth/entities/user.entity"
 import { ApplicationFlaggedSetsService } from "../application-flagged-sets/application-flagged-sets.service"
 import { ListingsQueryBuilder } from "./db/listing-query-builder"
 import { ListingsRetrieveQueryParams } from "./dto/listings-retrieve-query-params"
+import { AxiosResponse } from "axios"
+import { Compare } from "../shared/dto/filter.dto"
 
 type JurisdictionIdToExternalResponse = { [Identifier: string]: Pagination<Listing> }
 export type ListingIncludeExternalResponse = {
@@ -127,10 +129,80 @@ export class ListingsService {
     bloomJurisdictions: string[],
     params: ListingsQueryParams
   ): Promise<JurisdictionIdToExternalResponse> {
-    const blah = await this.list(params)
-    // temporary placeholder
-    return { "123": blah }
+    if (bloomJurisdictions == null || bloomJurisdictions.length == 0) {
+      return {}
+    }
+    // Transform params to Bloom-friendly ones
+    const bloomFriendlyListingsQueryParams = this.createBloomFriendlyListingsQueryParams(params)
+    // begin build all http requests
+    const httpRequests: Promise<AxiosResponse>[] = []
+    for (const jurisdiction of bloomJurisdictions) {
+      const newFilter = [
+        ...(bloomFriendlyListingsQueryParams.filter || []),
+        {
+          jurisdiction: jurisdiction,
+          $comparison: Compare["="],
+        },
+      ]
+
+      httpRequests.push(
+        firstValueFrom(
+          this.httpService
+            .get(
+              this.configService.get<string>("BLOOM_API_BASE") +
+                this.configService.get<string>("BLOOM_LISTINGS_QUERY"),
+              {
+                params: {
+                  ...bloomFriendlyListingsQueryParams,
+                  filter: newFilter,
+                },
+                paramsSerializer: (params) => {
+                  return qs.stringify(params)
+                },
+              }
+            )
+            .pipe(
+              catchError((error) => {
+                if (error.response) {
+                  throw new NotFoundException("Bloom /listings did not return a result")
+                } else {
+                  // If there is no response, there was most likely a problem on our end.
+                  throw new InternalServerErrorException()
+                }
+              })
+            )
+        )
+      )
+    }
+    httpRequests.reverse()
+    const results = await Promise.all(httpRequests)
+
+    const response: JurisdictionIdToExternalResponse = {}
+    results.forEach((result, index) => {
+      response[bloomJurisdictions[index]] = result.data
+    })
+
+    return response
   }
+
+  private createBloomFriendlyListingsQueryParams(params: ListingsQueryParams): ListingsQueryParams {
+    if (!params.filter) {
+      return params
+    }
+    const bloomFriendlyListingsQueryParams = {
+      ...params,
+    }
+
+    // Note on .filter.filter: Confusingly bloomFriendlyListingsQueryParams is
+    // an object with a key of "filter" which contains an array. Then the
+    // array.prototype."filter" method is used which has an unfortunate name
+    // collision.
+    bloomFriendlyListingsQueryParams.filter.filter((param) => param.jurisdiction != null)
+
+    console.log(bloomFriendlyListingsQueryParams)
+    return bloomFriendlyListingsQueryParams
+  }
+
   async create(listingDto: ListingCreateDto) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     await this.authzService.canOrThrow(this.req.user as User, "listing", authzActions.create, {

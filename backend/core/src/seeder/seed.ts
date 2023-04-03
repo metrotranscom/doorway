@@ -199,7 +199,7 @@ const seedListings = async (
     listing.applicationMethods = [applicationMethods]
     // Namespace all Doorway seeded listings to better understand what is
     // local vs. not
-    listing.name = "[🚪] " + listing.name
+    listing.name = "[doorway] " + listing.name
     await listingRepository.save(listing)
 
     seeds.push(listing)

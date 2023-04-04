@@ -112,14 +112,11 @@ export async function fetchBaseListingData({
           return qs.stringify(params)
         },
       })
-
       const listingsWithExternal = response.data
       let allListings = listingsWithExternal.local.items
       for (const k in listingsWithExternal.external) {
-        console.log(listingsWithExternal.external[k].items.length)
         allListings = allListings.concat(listingsWithExternal.external[k].items)
       }
-
       return allListings
     }
     const response = await axios.get(process.env.listingServiceUrl, {

@@ -7,7 +7,12 @@ import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { MetaTags } from "../components/shared/MetaTags"
 import { getListings } from "../lib/helpers"
-import { fetchClosedListings, fetchOpenListings } from "../lib/hooks"
+import {
+  fetchJurisdictionByName,
+  fetchBloomJurisdictionsByName,
+  fetchClosedListings,
+  fetchOpenListings,
+} from "../lib/hooks"
 
 export interface ListingsProps {
   openListings: Listing[]
@@ -72,6 +77,8 @@ export default function ListingsPage(props: ListingsProps) {
 }
 
 export async function getServerSideProps() {
+  // Call this now to avoid race conditions from calling openListings and closedListings at the same time
+  await Promise.all([fetchJurisdictionByName(), fetchBloomJurisdictionsByName()])
   const openListings = fetchOpenListings()
   const closedListings = fetchClosedListings()
 

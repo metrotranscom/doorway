@@ -174,14 +174,15 @@ export async function fetchBloomJurisdictionsByName() {
   try {
     for (const jurisdictionName of process.env.bloomJurisdictionNames) {
       const jurisdictionRes = await axios.get(
-        `${process.env.BLOOM_API_BASE}${process.env.BLOOM_JURISDICTIONS_QUERY}/${jurisdictionName}`
+        `${process.env.bloomJurisdictionsUrl}/${jurisdictionName}`
       )
-      // TODO add some more validation here
       bloomJurisdictions.push(jurisdictionRes?.data)
     }
   } catch (error) {
-    console.log("error = ", error)
-    return []
+    console.log("Error fetching Bloom jurisdictions, will not include")
+    console.log("message = ", error)
+    // clear the jurisdictions array to avoid undefined behavior
+    bloomJurisdictions.length = 0
   }
 
   return bloomJurisdictions

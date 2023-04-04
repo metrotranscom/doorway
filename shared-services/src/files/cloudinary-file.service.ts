@@ -1,4 +1,3 @@
-import { SetStateAction } from "react"
 import { cloudinaryPdfFromId, cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
 import { cloudinaryFileUploader } from "../../../sites/partners/src/lib/helpers"
 import { FileServiceInterface } from "./file-service.interface"
@@ -7,7 +6,7 @@ export class CloudinaryFileService implements FileServiceInterface {
   async putFile(
     key: string,
     file: File,
-    setProgressValue: (value: SetStateAction<number>) => void
+    setProgressValue: (value: number) => void
   ): Promise<string> {
     const id = await cloudinaryFileUploader({ file, setProgressValue })
     return id

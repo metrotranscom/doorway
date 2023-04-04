@@ -133,7 +133,14 @@ const LotteryResults = (props: LotteryResultsProps) => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    const generatedId = await cloudinaryFileService.putFile("cloudinaryPDF", file, setProgressValue)
+    const setProgressValueCallback = (value: number) => {
+      setProgressValue(value)
+    }
+    const generatedId = await cloudinaryFileService.putFile(
+      "cloudinaryPDF",
+      file,
+      setProgressValueCallback
+    )
     setCloudinaryData({
       id: generatedId,
       url: cloudinaryFileService.getDownloadUrlForPhoto(generatedId),

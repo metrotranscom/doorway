@@ -105,10 +105,13 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
   */
   const pdfUploader = async (file: File) => {
     const cloudinaryFileService = new CloudinaryFileService()
+    const setProgressValueCallback = (value: number) => {
+      setProgressValue(value)
+    }
     const generatedId = await cloudinaryFileService.putFile(
       selectedLanguage,
       file,
-      setProgressValue
+      setProgressValueCallback
     )
     setCloudinaryData({
       id: generatedId,

@@ -1,4 +1,3 @@
-import { SetStateAction } from "react"
 import { t, CloudinaryUpload, TimeFieldPeriod } from "@bloom-housing/ui-components"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
@@ -161,7 +160,7 @@ export const createDate = (formDate: { year: string; month: string; day: string 
 
 interface FileUploaderParams {
   file: File
-  setProgressValue: (value: SetStateAction<number>) => void
+  setProgressValue: (value: number) => void
 }
 
 /**

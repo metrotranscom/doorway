@@ -77,7 +77,9 @@ export default function ListingsPage(props: ListingsProps) {
 }
 
 export async function getServerSideProps() {
-  // Call this now to avoid race conditions from calling openListings and closedListings at the same time
+  // Hack alert: fetchOpenListings and fetchClosedListings call these two
+  // async functions concurrently, which causes a race condition, so
+  // calling these first avoids that situation.
   await Promise.all([fetchJurisdictionByName(), fetchBloomJurisdictionsByName()])
   const openListings = fetchOpenListings()
   const closedListings = fetchClosedListings()

@@ -102,22 +102,16 @@ export async function fetchBaseListingData({
       params.orderDir = orderDir
     }
 
-    if (process.env.BLOOM_JURISDICTIONS != null) {
+    if (process.env.bloomJurisdictionNames != null) {
       const jurisdictions = await fetchBloomJurisdictionsByName()
       params.bloomJurisdiction = jurisdictions.map((jurisdiction) => jurisdiction.id)
 
-      const response = await axios.get(
-        process.env.BACKEND_API_BASE + process.env.BLOOM_LISTINGS_QUERY,
-        {
-          params,
-          paramsSerializer: (params) => {
-            console.log("the params to hack on")
-            console.log(qs.stringify(params))
-
-            return qs.stringify(params)
-          },
-        }
-      )
+      const response = await axios.get(process.env.listingsWithExternalServiceUrl, {
+        params,
+        paramsSerializer: (params) => {
+          return qs.stringify(params)
+        },
+      })
 
       const listingsWithExternal = response.data
       let allListings = listingsWithExternal.local.items
@@ -178,9 +172,7 @@ export async function fetchBloomJurisdictionsByName() {
   }
 
   try {
-    const jurisdictionNames = process.env.BLOOM_JURISDICTIONS
-    const jurisdictionsArr = jurisdictionNames.split(",")
-    for (const jurisdictionName of jurisdictionsArr) {
+    for (const jurisdictionName of process.env.bloomJurisdictionNames) {
       const jurisdictionRes = await axios.get(
         `${process.env.BLOOM_API_BASE}${process.env.BLOOM_JURISDICTIONS_QUERY}/${jurisdictionName}`
       )

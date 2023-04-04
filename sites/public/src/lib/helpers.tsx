@@ -129,6 +129,7 @@ export const getListings = (listings) => {
     }
     return null
   }
+  console.log(typeof listings)
   return listings.map((listing: Listing, index) => {
     return (
       <ListingCard

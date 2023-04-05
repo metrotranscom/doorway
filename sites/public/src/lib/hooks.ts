@@ -102,7 +102,7 @@ export async function fetchBaseListingData({
       params.orderDir = orderDir
     }
 
-    if (process.env.bloomJurisdictionNames != null) {
+    if (process.env.bloomJurisdictionNames.length != 0) {
       const jurisdictions = await fetchBloomJurisdictionsByName()
       params.bloomJurisdiction = jurisdictions.map((jurisdiction) => jurisdiction.id)
 

@@ -280,12 +280,12 @@ describe("Listings", () => {
     const listings = res.body.items
 
     // The Coliseum seed has the soonest applicationDueDate (1 day in the future)
-    expect(listings[0].name).toBe("Test: Coliseum")
+    expect(listings[0].name).toBe("[doorway] Test: Coliseum")
 
     // Triton and "Default, No Preferences" share the next-soonest applicationDueDate
     const secondListing = listings[1]
     const thirdListing = listings[2]
-    expect(thirdListing.name).toBe("Test: Default, No Preferences")
+    expect(thirdListing.name).toBe("[doorway] Test: Default, No Preferences")
 
     const secondListingAppDueDate = new Date(secondListing.applicationDueDate)
     const thirdListingAppDueDate = new Date(thirdListing.applicationDueDate)
@@ -429,6 +429,27 @@ describe("Listings", () => {
       it("fails if the id is not a valid uuld", async () => {
         await supertest(app.getHttpServer()).get(`/listings/bloom/blah`).expect(400)
       })
+    })
+  })
+
+  // Note: /listings/includeExternal calls another external API.
+  // We should avoid writing e2e tests that call the Bloom API and instead
+  // write tests using the mockHttpService in
+  // listings.service.spec.ts.
+  describe("/includeExternal", () => {
+    // This test is OK because it doesn't call Bloom (has no bloomJurisdiction)
+    it("respects the pagination params", async () => {
+      const queryParams = {
+        limit: 1,
+        page: 1,
+        view: "base",
+      }
+      const query = qs.stringify(queryParams)
+      const res = await supertest(app.getHttpServer())
+        .get(`/listings/includeExternal?${query}`)
+        .expect(200)
+      expect(res.body.local.items.length).toBe(1)
+      expect(res.body.external).toEqual({})
     })
   })
 

@@ -11,7 +11,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { In, Repository } from "typeorm"
 import qs from "qs"
-import { firstValueFrom, catchError } from "rxjs"
+import { firstValueFrom, catchError, of } from "rxjs"
 
 import { Listing } from "./entities/listing.entity"
 import { getView } from "./views/view"
@@ -132,7 +132,6 @@ export class ListingsService {
     if (bloomJurisdictions == null || bloomJurisdictions.length == 0) {
       return {}
     }
-    // Transform params to Bloom-friendly ones
     const bloomParamsNoJurisdiction = this.copyParamsForBloom(params)
     // begin build all http requests
     const httpRequests: Promise<AxiosResponse>[] = []
@@ -163,7 +162,8 @@ export class ListingsService {
             .pipe(
               catchError((error) => {
                 if (error.response) {
-                  throw new NotFoundException("Bloom /listings did not return a result")
+                  console.error(`Error from Bloom with jurisdiction ${jurisdiction}`)
+                  return of(error)
                 } else {
                   // If there is no response, there was most likely a problem on our end.
                   throw new InternalServerErrorException()
@@ -178,7 +178,9 @@ export class ListingsService {
 
     const response: JurisdictionIdToExternalResponse = {}
     results.forEach((result, index) => {
-      response[bloomJurisdictions[index]] = result.data
+      if (result.status == 200) {
+        response[bloomJurisdictions[index]] = result.data
+      }
     })
 
     return response

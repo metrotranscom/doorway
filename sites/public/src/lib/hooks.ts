@@ -103,6 +103,8 @@ export async function fetchBaseListingData({
     }
 
     if (process.env.bloomJurisdictionNames.length != 0) {
+      // This function early returns if the jurisdictions have already been.
+      // fetched from the Bloom API.
       const jurisdictions = await fetchBloomJurisdictionsByName()
       params.bloomJurisdiction = jurisdictions.map((jurisdiction) => jurisdiction.id)
 

@@ -2,10 +2,14 @@ import { Injectable } from "@nestjs/common"
 import { cloudinaryPdfFromId, cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
 import { FileServiceInterface } from "./file-service.interface"
 import { CloudinaryFileUploader } from "./cloudinary-file-uploader"
+import type { CloudinaryConfig } from "./file-service.provider"
 
 @Injectable()
 export class CloudinaryFileService implements FileServiceInterface {
-  constructor(private readonly cloudinaryFileUploader: CloudinaryFileUploader) {}
+  constructor(
+    readonly cloudinaryFileUploader: CloudinaryFileUploader,
+    readonly cloudinaryConfig: CloudinaryConfig
+  ) {}
 
   async putFile(
     key: string,

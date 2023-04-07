@@ -9,11 +9,11 @@ import {
 } from "@bloom-housing/ui-components"
 import { ListingContext } from "../../ListingContext"
 import { getDetailFieldString } from "./helpers"
-import { CloudinaryFileService, CloudinaryFileUploader } from "@bloom-housing/shared-services"
+import { FileServiceProvider } from "@bloom-housing/shared-services"
 
 const DetailAdditionalEligibility = () => {
   const listing = useContext(ListingContext)
-  const cloudinaryFileService = new CloudinaryFileService(new CloudinaryFileUploader())
+  const cloudinaryFileService = new FileServiceProvider().getService()
 
   return (
     <GridSection

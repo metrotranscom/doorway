@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from "react"
 import Head from "next/head"
 import { ListingsGroup, PageHeader, t } from "@bloom-housing/ui-components"
-import { ListingWithDoorwayFields } from "../../types/ListingWithDoorwayFields"
+import { ListingWithSourceMetadata } from "../../types/ListingWithSourceMetadata"
 import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
@@ -15,8 +15,8 @@ import {
 } from "../lib/hooks"
 
 export interface ListingsProps {
-  openListings: ListingWithDoorwayFields[]
-  closedListings: ListingWithDoorwayFields[]
+  openListings: ListingWithSourceMetadata[]
+  closedListings: ListingWithSourceMetadata[]
 }
 
 const openListings = (listings) => {

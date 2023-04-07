@@ -15,7 +15,7 @@ import {
 import { ParsedUrlQuery } from "querystring"
 import { AppSubmissionContext } from "./applications/AppSubmissionContext"
 import { getListingApplicationStatus } from "./helpers"
-import { ListingWithDoorwayFields } from "../../types/ListingWithDoorwayFields"
+import { ListingWithSourceMetadata } from "../../types/ListingWithSourceMetadata"
 
 export const useRedirectToPrevPage = (defaultPath = "/") => {
   const router = useRouter()
@@ -116,15 +116,15 @@ export async function fetchBaseListingData({
         },
       })
       const listingsWithExternal = response.data
-      let allListings: ListingWithDoorwayFields[] = listingsWithExternal.local.items.map(
-        (item: ListingWithDoorwayFields) => {
+      let allListings: ListingWithSourceMetadata[] = listingsWithExternal.local.items.map(
+        (item: ListingWithSourceMetadata) => {
           item.isBloomListing = false
           return item
         }
       )
       for (const k in listingsWithExternal.external) {
         allListings = allListings.concat(
-          listingsWithExternal.external[k].items.map((item: ListingWithDoorwayFields) => {
+          listingsWithExternal.external[k].items.map((item: ListingWithSourceMetadata) => {
             item.isBloomListing = true
             return item
           })

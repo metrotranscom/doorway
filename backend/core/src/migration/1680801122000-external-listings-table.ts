@@ -7,7 +7,7 @@ export class externalListingsTable1680801122000 implements MigrationInterface {
 
     // For importing external listings
     await queryRunner.query(
-        `CREATE TABLE "external_listings" (
+        `CREATE TABLE "external_listings_flat" (
           "listing_id" uuid NOT NULL, 
           "listing_assets" jsonb NOT NULL, 
           "listing_units_available" integer, 
@@ -345,7 +345,7 @@ export class externalListingsTable1680801122000 implements MigrationInterface {
             "utilities_phone", 
             "utilities_internet"
 
-          FROM "external_listings"
+          FROM "external_listings_flat"
         )
       )`
     )  

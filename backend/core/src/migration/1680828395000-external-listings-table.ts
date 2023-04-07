@@ -5,19 +5,6 @@ export class externalListings1680828395000 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
 
-    /*
-      Search on: 
-      Rent - MAX()
-      Number of bedrooms - unit_type.num_bedrooms
-      County - countyCode; building_address.county
-      City [P1] - building_address.city
-      Reserved Community type (veteran, senior, etc) - reserved_community_types.name (specialNeeds, senior55, senior62)
-      Proximity to geographic location? (ie >5 miles from place of work) - building_address.latitude, building_address.longitude
-      Occupancy / Household size [P1+] - household_size_max, household_size_min
-      Income range requirement [P1+] - units[].monthlyIncomeMin, 
-      Application type (open, wait list, lottery) [P2+]
-    */
-
     // For importing external listings
     await queryRunner.query(
       `CREATE TABLE "external_listings" (
@@ -39,14 +26,16 @@ export class externalListings1680828395000 implements MigrationInterface {
 
         -- additional fields for filtering/sorting
         "county" text,
-        "min_monthly_rent" integer, -- the lowest rent across all units
-        "max_monthly_rent" integer, -- the highest rent across all units
+        "city" text,
+        "reserved_community_type_name" text,
+        "min_monthly_rent" text, -- the lowest rent across all units
+        "max_monthly_rent" text, -- the highest rent across all units
         "min_bedrooms" integer, -- the lowest number of bedrooms across all units
         "max_bedrooms" integer, -- the highest number of bedrooms across all units
         "min_bathrooms" integer, -- the lowest number of bathrooms across all units
         "max_bathrooms" integer, -- the highest number of bathrooms across all units
-        "min_monthly_income_min" integer, -- the lowest available minimum monthly income for all units
-        "max_monthly_income_min" integer, -- the highest available minimum monthly income for all units
+        "min_monthly_income_min" text, -- the lowest available minimum monthly income for all units
+        "max_monthly_income_min" text, -- the highest available minimum monthly income for all units
         "min_occupancy" integer, -- the lowest occupancy available across all units
         "max_occupancy" integer, -- the highest occupancy available across all units
         "min_sq_feet" numeric(8,2), -- the lowest amount of square footage across all units
@@ -91,6 +80,8 @@ export class externalListings1680828395000 implements MigrationInterface {
       
         -- additional fields needed for filtering/sorting
         "county",
+        "city",
+        "reserved_community_type_name",
         "min_monthly_rent", -- the lowest rent across all units
         "max_monthly_rent", -- the highest rent across all units
         "min_bedrooms", -- the lowest number of bedrooms across all units
@@ -139,8 +130,8 @@ export class externalListings1680828395000 implements MigrationInterface {
           
             -- filter/sort criteria
             addr.county,
-            --CAST(units.min_monthly_rent AS integer),
-            --CAST(units.max_monthly_rent AS integer),
+            addr.city,
+            rct.name,
             units.min_monthly_rent,
             units.max_monthly_rent,
             units.min_bedrooms,
@@ -255,15 +246,14 @@ export class externalListings1680828395000 implements MigrationInterface {
           LEFT JOIN (
             SELECT 
               listing_id,
-              -- cast to ensure we aren't doing lexicographical sorting
-              MIN(CAST(monthly_rent AS integer)) as "min_monthly_rent", 
-              MAX(CAST(monthly_rent AS integer)) AS "max_monthly_rent",
+              MIN(monthly_rent) as "min_monthly_rent", 
+              MAX(monthly_rent) AS "max_monthly_rent",
               MIN(u.num_bedrooms) AS "min_bedrooms",
               MAX(u.num_bedrooms) AS "max_bedrooms",
               MIN(u.num_bathrooms) AS "min_bathrooms",
               MAX(u.num_bathrooms) AS "max_bathrooms",
-              MIN(CAST(monthly_income_min AS integer)) AS "min_monthly_income_min",
-              MAX(CAST(monthly_income_min AS integer)) AS "max_monthly_income_min",
+              MIN(monthly_income_min) AS "min_monthly_income_min",
+              MAX(monthly_income_min) AS "max_monthly_income_min",
               MIN(min_occupancy) AS "min_occupancy",
               MAX(max_occupancy) AS "max_occupancy",
               MIN(sq_feet) AS "min_sq_feet",
@@ -360,6 +350,8 @@ export class externalListings1680828395000 implements MigrationInterface {
             "closed_at", 
       
             "county",
+            "city",
+            "reserved_community_type_name",
             "min_monthly_rent",
             "max_monthly_rent",
             "min_bedrooms",

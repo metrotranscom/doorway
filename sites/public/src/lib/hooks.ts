@@ -125,7 +125,7 @@ export async function fetchBaseListingData({
       for (const k in listingsWithExternal.external) {
         allListings = allListings.concat(
           listingsWithExternal.external[k].items.map((item: ListingWithDoorwayFields) => {
-            item.isBloomListing = false
+            item.isBloomListing = true
             return item
           })
         )

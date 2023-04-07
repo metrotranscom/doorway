@@ -198,6 +198,19 @@ export async function fetchBloomJurisdictionsByName() {
   return bloomJurisdictions
 }
 
+export async function getBloomJurisdictionById(jurisdictionId: string) {
+  try {
+    if (bloomJurisdictions.length == 0) {
+      await fetchBloomJurisdictionsByName()
+    }
+    return bloomJurisdictions.find((jurisdiction) => jurisdiction.id == jurisdictionId)
+  } catch (error) {
+    console.log("error = ", error)
+  }
+
+  return jurisdiction
+}
+
 export async function fetchJurisdictionByName() {
   try {
     if (jurisdiction) {

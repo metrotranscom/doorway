@@ -156,21 +156,18 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
   }
 
   public async getManyAndCount(): Promise<[Listing[], number]> {
-    const results = await this.getRawMany()
-    const count = await this.getCount()
-
-    const listings: Listing[] = []
-
-    console.log("results retrieved")
-    console.log(`Listings fetched: ${results.length}`)
-    console.log(`Total listings available: ${count}`)
+    // run both queries at the same time to improve performance
+    const [results, count] = await Promise.all([
+      this.getRawMany(),
+      this.getCount()
+    ])
 
     // Our version of typeorm is too old to use any of the transformers available in newer versions
     // We'll do it ourselves instead
     const transformer = new CombinedListingTransformer()
     
-    results.forEach( (result) => {
-      listings.push(transformer.transform(result))
+    const listings: Listing[] = results.map( (result) => {
+      return transformer.transform(result)
     })
 
     return [listings, count]

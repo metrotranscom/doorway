@@ -19,14 +19,18 @@ export class externalListings1680828395000 implements MigrationInterface {
         "name" text NOT NULL, 
         "waitlist_current_size" integer, 
         "waitlist_max_size" integer, 
+        "is_waitlist_open" boolean, 
         "status" text NOT NULL DEFAULT 'active', 
         "review_order_type" text, 
         "published_at" TIMESTAMP WITH TIME ZONE, 
         "closed_at" TIMESTAMP WITH TIME ZONE, 
+        "updated_at" TIMESTAMP WITH TIME ZONE,
 
         -- additional fields for filtering/sorting
+        -- not all will be needed if we decide to filter by json objects instead
         "county" text,
         "city" text,
+        "neighborhood" text,
         "reserved_community_type_name" text,
         "min_monthly_rent" text, -- the lowest rent across all units
         "max_monthly_rent" text, -- the highest rent across all units
@@ -59,6 +63,71 @@ export class externalListings1680828395000 implements MigrationInterface {
       )`
     )
 
+    // For filtering by neighborhood
+    await queryRunner.query(
+      `CREATE INDEX external_listings_neighboorhood ON external_listings USING hash (neighborhood)`
+    )
+
+    // For filtering by num_bedrooms
+    await queryRunner.query(
+      `CREATE INDEX external_listings_num_bedrooms ON external_listings USING btree ((units->>'num_bedrooms'))`
+    )
+
+    // For filtering by zip code
+    await queryRunner.query(
+      `CREATE INDEX external_listings_zip_code ON external_listings USING hash ((building_address->>'zip_code'))`
+    )
+
+    // For filtering by jurisdiction id
+    await queryRunner.query(
+      `CREATE INDEX external_listings_jurisdiction_id ON external_listings USING hash ((jurisdiction->>'id'))`
+    )
+
+    // For filtering by county
+    await queryRunner.query(
+      `CREATE INDEX external_listings_county ON external_listings USING hash (county)`
+    )
+    
+    // For filtering and ordering by name
+    await queryRunner.query(
+      `CREATE INDEX external_listings_name ON external_listings USING btree (name)`
+    )
+
+    // For filtering and ordering by status
+    await queryRunner.query(
+      `CREATE INDEX external_listings_status ON external_listings USING btree (status)`
+    )
+
+    // For ordering by is_waitlist_open
+    await queryRunner.query(
+      `CREATE INDEX external_listings_is_waitlist_open ON external_listings USING btree (is_waitlist_open)`
+    )
+
+    // For ordering by units_available
+    await queryRunner.query(
+      `CREATE INDEX external_listings_units_available ON external_listings USING btree (units_available)`
+    )
+
+    // For ordering by published_at
+    await queryRunner.query(
+      `CREATE INDEX external_listings_published_at ON external_listings USING btree (published_at)`
+    )
+
+    // For ordering by updated_at
+    await queryRunner.query(
+      `CREATE INDEX external_listings_updated_at ON external_listings USING btree (updated_at)`
+    )
+
+    // For ordering by closed_at
+    await queryRunner.query(
+      `CREATE INDEX external_listings_closed_at ON external_listings USING btree (closed_at)`
+    )
+
+    // For ordering by application_due_date
+    await queryRunner.query(
+      `CREATE INDEX external_listings_application_due_date ON external_listings USING btree (application_due_date)`
+    )
+
     // Create a queryable view combining local and external listings, flattened for searching
     await queryRunner.query(
       `CREATE VIEW "combined_listings" (
@@ -73,14 +142,17 @@ export class externalListings1680828395000 implements MigrationInterface {
         "name", 
         "waitlist_current_size", 
         "waitlist_max_size", 
+        "is_waitlist_open",
         "status", 
         "review_order_type", 
         "published_at", 
         "closed_at", 
+        "updated_at", 
       
         -- additional fields needed for filtering/sorting
         "county",
         "city",
+        "neighborhood", 
         "reserved_community_type_name",
         "min_monthly_rent", -- the lowest rent across all units
         "max_monthly_rent", -- the highest rent across all units
@@ -123,14 +195,17 @@ export class externalListings1680828395000 implements MigrationInterface {
             l.name,
             l.waitlist_current_size,
             l.waitlist_max_size,
+            l.is_waitlist_open,
             CAST(l.status AS text),
             CAST(l.review_order_type AS text),
             l.published_at,
             l.closed_at,
+            l.updated_at,
           
             -- filter/sort criteria
             addr.county,
             addr.city,
+            l.neighborhood,
             rct.name,
             units.min_monthly_rent,
             units.max_monthly_rent,
@@ -344,13 +419,16 @@ export class externalListings1680828395000 implements MigrationInterface {
             "name", 
             "waitlist_current_size", 
             "waitlist_max_size", 
+            "is_waitlist_open",
             "status", 
             "review_order_type", 
             "published_at", 
             "closed_at", 
-      
+            "updated_at", 
+          
             "county",
             "city",
+            "neighborhood", 
             "reserved_community_type_name",
             "min_monthly_rent",
             "max_monthly_rent",

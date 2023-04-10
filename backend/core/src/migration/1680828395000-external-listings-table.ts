@@ -475,7 +475,7 @@ export class externalListings1680828395000 implements MigrationInterface {
             "building_address",
             "features",
             "utilities",
-            null, -- leasing_agents
+            null, -- leasing_agents; not available in base view and probably not useful anyway
             true
           FROM "external_listings"
         )

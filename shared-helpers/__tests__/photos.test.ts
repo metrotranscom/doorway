@@ -6,7 +6,7 @@ afterEach(cleanup)
 
 describe("photos helper", () => {
   const OLD_ENV = process.env
-  process.env.CLOUDINARY_CLOUD_NAME = "exygy"
+  process.env.cloudinaryCloudName = "exygy"
 
   afterAll(() => {
     process.env = OLD_ENV

@@ -204,6 +204,13 @@ export class ListingDto extends OmitType(Listing, [
   @IsString({ groups: [ValidationsGroupsEnum.default] })
   @Transform(
     (value, obj: Listing) => {
+
+      // use the provided url slug, if any
+      // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
+      if(obj.urlSlug) {
+        return obj.urlSlug
+      }
+
       return listingUrlSlug(obj)
     },
     { toClassOnly: true }

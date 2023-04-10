@@ -1,8 +1,7 @@
 import { Asset, Listing } from "@bloom-housing/backend-core/types"
 import { FileServiceProvider } from "@bloom-housing/shared-services"
 
-export const cloudinaryUrlFromId = (publicId: string, size = 400) => {
-  const cloudName = process.env.cloudinaryCloudName || process.env.CLOUDINARY_CLOUD_NAME
+export const cloudinaryUrlFromId = (publicId: string, cloudName: string, size = 400) => {
   return `https://res.cloudinary.com/${cloudName}/image/upload/w_${size},c_limit,q_65/${publicId}.jpg`
 }
 

@@ -13,7 +13,7 @@ describe("pdfs helpers", () => {
   })
 
   it("should format cloudinary url", () => {
-    expect(cloudinaryPdfFromId("1234")).toBe(
+    expect(cloudinaryPdfFromId("1234", "exygy")).toBe(
       `https://res.cloudinary.com/exygy/image/upload/1234.pdf`
     )
   })

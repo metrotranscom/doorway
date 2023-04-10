@@ -1,19 +1,7 @@
 import { CloudinaryFileService } from "./cloudinary-file.service"
 import { CloudinaryFileUploader } from "./cloudinary-file-uploader"
 import { FileServiceInterface } from "./file-service.interface"
-
-export enum FileServiceTypeEnum {
-  cloudinary = "cloudinary",
-}
-
-export interface CloudinaryConfig {
-  cloudinaryCloudName: string
-}
-
-interface FileConfig {
-  fileServiceType: FileServiceTypeEnum
-  cloudinaryConfig: CloudinaryConfig
-}
+import { FileConfig, FileServiceTypeEnum } from "./file-config"
 
 export class FileServiceProvider {
   service: FileServiceInterface
@@ -36,6 +24,9 @@ export class FileServiceProvider {
           new CloudinaryFileUploader(),
           fileConfig.cloudinaryConfig
         )
+        break
+      default:
+        throw new Error("Unknown file service type")
     }
   }
 

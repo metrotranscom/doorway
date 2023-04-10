@@ -28,6 +28,7 @@ export class CombinedListingTransformer {
         listing.reviewOrderType = result.review_order_type
         listing.publishedAt = result.published_at
         listing.closedAt = result.closed_at
+        listing.updatedAt = result.updated_at
   
         // jurisdiction
         listing.jurisdiction = mapTo(Jurisdiction, result.jurisdiction)

@@ -115,6 +115,17 @@ export class ListingsService {
     }
   }
 
+  public async listCombined(params: ListingsQueryParams): Promise<Pagination<Listing>> {
+    const qb = this.listingRepository.createCombinedListingsQueryBuilder("listings")
+
+    qb.addFilters(params.filter)
+      .addOrderConditions(params.orderBy, params.orderDir)
+      .addSearchByListingNameCondition(params.search)
+      .paginate(params.limit, params.page)
+
+    return await qb.getManyPaginated()
+  }
+
   public async listIncludeExternal(
     bloomJurisdictions: string[],
     params: ListingsQueryParams

@@ -74,6 +74,21 @@ export class ListingsController {
     return await this.listingsService.listIncludeExternal(jurisdictions, queryParams)
   }
 
+  @Get("combined")
+  @ApiExtraModels(ListingFilterParams, ListingsQueryParams)
+  @ApiOperation({
+    summary: "List all local and external listings",
+    operationId: "listCombined",
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  public async getCombined(
+    @Query() queryParams: ListingsQueryParams
+  ): Promise<PaginatedListingDto> {
+    mapTo(ListingsQueryParams, queryParams, { excludeExtraneousValues: true })
+    return mapTo(PaginatedListingDto, await this.listingsService.listCombined(queryParams))
+  }
+
   @Post()
   @ApiOperation({ summary: "Create listing", operationId: "create" })
   @UsePipes(new ListingCreateValidationPipe(defaultValidationPipeOptions))

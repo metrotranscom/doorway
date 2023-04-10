@@ -181,6 +181,7 @@ export class externalListings1680828395000 implements MigrationInterface {
         "building_address",
         "features",
         "utilities",
+        "leasing_agents",
         "is_external" -- whether the listing is external or not
       ) AS (
         (
@@ -292,6 +293,9 @@ export class externalListings1680828395000 implements MigrationInterface {
                 )
               ELSE NULL
             END AS "utilities",
+
+            -- leasing_agents
+            agents.json,
           
             false -- is_external
         
@@ -407,6 +411,21 @@ export class externalListings1680828395000 implements MigrationInterface {
             GROUP BY listing_id
           ) as imgs
           ON l.id = imgs.listing_id
+
+          -- leasing agents
+          LEFT JOIN (
+            SELECT
+              la.listings_id,
+              jsonb_agg(
+                jsonb_build_object(
+                  'id', la.user_accounts_id
+                )
+              ) AS "json"
+            FROM listings_leasing_agents_user_accounts la
+            GROUP BY la.listings_id
+          ) as agents
+          ON l.id = agents.listings_id
+
         ) UNION (
           SELECT 
             "id",
@@ -456,6 +475,7 @@ export class externalListings1680828395000 implements MigrationInterface {
             "building_address",
             "features",
             "utilities",
+            null, -- leasing_agents
             true
           FROM "external_listings"
         )

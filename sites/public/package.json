@@ -15,7 +15,7 @@
     "build": "next build",
     "test": "concurrently \"yarn dev\" \"cypress open\"",
     "lianntest": "cypress run --spec \"cypress/integration/navigation.spec.ts\"",
-    "test:headless:smoke2": "yarn dev & sleep 20 && cypress run --spec \"cypress/integration/navigation.spec.ts\"",
+    "test:headless:smoke2": "yarn dev & wait-on http-get://localhost:3000/ && cypress run --spec \"cypress/integration/navigation.spec.ts\"",
     "test:headless": "concurrently \"yarn dev\" \"cypress run\"",
     "test:headless:smoke": "concurrently \"yarn dev\" \"cypress run --spec \"cypress/integration/navigation.spec.ts\"\"",
     "test:coverage": "yarn nyc report --reporter=text-summary --check-coverage",

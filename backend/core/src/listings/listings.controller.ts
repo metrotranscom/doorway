@@ -74,6 +74,7 @@ export class ListingsController {
     return await this.listingsService.listIncludeExternal(jurisdictions, queryParams)
   }
 
+  // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
   @Get("combined")
   @ApiExtraModels(ListingFilterParams, ListingsQueryParams)
   @ApiOperation({

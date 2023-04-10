@@ -15,6 +15,7 @@ type OrderByConditionData = {
   nulls?: "NULLS LAST" | "NULLS FIRST"
 }
 
+// REMOVE_WHEN_EXTERNAL_NOT_NEEDED
 export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
   limitValue?: number | "all"
   pageValue?: number

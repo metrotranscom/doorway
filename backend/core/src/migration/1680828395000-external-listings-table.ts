@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm"
 
+// REMOVE_WHEN_EXTERNAL_NOT_NEEDED
 export class externalListings1680828395000 implements MigrationInterface {
   name = "externalListings1680828395000"
 

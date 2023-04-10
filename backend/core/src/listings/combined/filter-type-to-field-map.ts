@@ -1,5 +1,6 @@
 import { ListingFilterKeys } from "../../.."
 
+// REMOVE_WHEN_EXTERNAL_NOT_NEEDED
 export const combinedListingFilterTypeToFieldMap: Record<keyof typeof ListingFilterKeys, string> = {
   status: "status",
   name: "name",

@@ -1410,7 +1410,8 @@ export class ListingsService {
   }
 
   /**
-   * List listings
+   * List combined internal and external listings
+   * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
    */
   listCombined(
     params: {

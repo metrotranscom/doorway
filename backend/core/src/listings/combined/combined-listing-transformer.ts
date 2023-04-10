@@ -9,6 +9,7 @@ import { ListingImage } from "../entities/listing-image.entity";
 import { ListingUtilities } from "../entities/listing-utilities.entity";
 import { Listing } from "../entities/listing.entity";
 
+// REMOVE_WHEN_EXTERNAL_NOT_NEEDED
 export class CombinedListingTransformer {
 
     public transform(result):Listing {

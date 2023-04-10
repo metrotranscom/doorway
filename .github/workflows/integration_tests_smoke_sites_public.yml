@@ -1,4 +1,4 @@
-name: Integration tests for sites/public
+name: Smoke tests (integration) for sites/public
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   unit-tests-for-sites-public:
-    name: Run unit tests for sites/public
+    name: Run smoke tests for sites/public
     runs-on: ubuntu-latest
 
     steps:
@@ -44,8 +44,8 @@ jobs:
       - name: Remove a dir that causes tests to fail
         working-directory: ./sites/public
         run: rm -rf .nyc_output
-
+      
       # Tests
       - name: Run integration tests
         working-directory: ./sites/public
-        run: yarn test:headless
+        run: yarn dev & sleep 20 && yarn test:headless

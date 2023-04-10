@@ -1,9 +1,6 @@
 name: Unit tests for sites/public
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
 
 jobs:

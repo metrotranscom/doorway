@@ -15,8 +15,6 @@ type OrderByConditionData = {
   nulls?: "NULLS LAST" | "NULLS FIRST"
 }
 
-// fields to add: updated_at, neighborhood, is_waitlist_open, leasing_agent_id, zip_code, neighborhood, num_bedrooms
-
 export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
   limitValue?: number | "all"
   pageValue?: number

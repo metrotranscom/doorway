@@ -1,10 +1,11 @@
-name: Unit tests for sites/public
+name: Integration tests for sites/public
 
 on:
   pull_request:
     branches:
       - main
   push:
+
 
 jobs:
   unit-tests-for-sites-public:
@@ -40,6 +41,11 @@ jobs:
         working-directory: ./sites/public
         run: yarn
 
+      - name: Remove a dir that causes tests to fail
+        working-directory: ./sites/public
+        run: rm -rf .nyc_output
+
       # Tests
-      - name: yarn unit test sites/public
-        run: yarn test:app:public:unit
+      - name: Run integration tests
+        working-directory: ./sites/public
+        run: yarn test:headless

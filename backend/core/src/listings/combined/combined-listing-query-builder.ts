@@ -165,12 +165,7 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
     // Our version of typeorm is too old to use any of the transformers available in newer versions
     // We'll do it ourselves instead
     const transformer = new CombinedListingTransformer()
-    
-    const listings: Listing[] = results.map( (result) => {
-      return transformer.transform(result)
-    })
-
-    return [listings, count]
+    return [transformer.transformAll(results), count]
   }
 
   public async getManyPaginated(): Promise<Pagination<Listing>> {

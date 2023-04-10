@@ -9,8 +9,17 @@ import { ListingImage } from "../entities/listing-image.entity";
 import { ListingUtilities } from "../entities/listing-utilities.entity";
 import { Listing } from "../entities/listing.entity";
 
-// REMOVE_WHEN_EXTERNAL_NOT_NEEDED
+/**
+ * Converts raw table row from combined_listings view into a Listing object
+ * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
+ */
 export class CombinedListingTransformer {
+
+    public transformAll(results):Listing[] {
+      return results.map( (result) => {
+        return this.transform(result)
+      })
+    }
 
     public transform(result):Listing {
         const mapToOpts = { excludeExtraneousValues: true }

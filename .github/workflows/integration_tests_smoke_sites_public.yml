@@ -1,9 +1,6 @@
 name: Smoke tests (integration) for sites/public
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
 
 
@@ -48,4 +45,4 @@ jobs:
       # Tests
       - name: Run integration tests
         working-directory: ./sites/public
-        run: yarn dev & sleep 20 && yarn test:headless
+        run: yarn dev & sleep 20 && yarn lianntest

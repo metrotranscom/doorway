@@ -52,7 +52,7 @@ export class externalListings1680828395000 implements MigrationInterface {
         "url_slug" text,
 
         -- json objects direct from api results
-        "unit_summaries" jsonb, -- might not be needed since it can be generated from units
+        "units_summarized" jsonb, -- might not be needed since it can be generated from units
         "images" jsonb,
         "multiselect_questions" jsonb,
         "jurisdiction" jsonb,
@@ -173,7 +173,7 @@ export class externalListings1680828395000 implements MigrationInterface {
         "url_slug", -- only available on external listings
       
         -- json objects direct from api results
-        "unit_summaries", -- might not be needed
+        "units_summarized", -- might not be needed
         "images",
         "multiselect_questions",
         "jurisdiction",
@@ -225,7 +225,7 @@ export class externalListings1680828395000 implements MigrationInterface {
             units.highest_floor,
           
             null, -- url_slug, intentionally null
-            null, -- unit_summaries, intentionally null
+            null, -- units_summarized, intentionally null
             imgs.json AS "images",
             msq.json AS "multiselect_questions",
           
@@ -467,7 +467,7 @@ export class externalListings1680828395000 implements MigrationInterface {
       
             "url_slug",
       
-            "unit_summaries",
+            "units_summarized",
             "images",
             "multiselect_questions",
             "jurisdiction",

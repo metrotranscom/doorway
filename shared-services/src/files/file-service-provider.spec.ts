@@ -8,6 +8,7 @@ import { FileServiceProvider } from "./file-service.provider"
 declare const expect: jest.Expect
 
 process.env.CLOUDINARY_CLOUD_NAME = "exygy"
+process.env.CLOUDINARY_UPLOAD_PRESET = "test"
 let provider: FileServiceProvider
 
 describe("FileServiceProvider", () => {

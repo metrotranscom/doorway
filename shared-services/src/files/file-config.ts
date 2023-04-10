@@ -4,6 +4,7 @@ export enum FileServiceTypeEnum {
 
 export class CloudinaryConfig {
   cloudinaryCloudName: string
+  cloudinaryUploadPreset: string
 }
 
 export class FileConfig {

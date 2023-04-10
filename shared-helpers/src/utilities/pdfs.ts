@@ -1,8 +1,7 @@
 import { ListingEvent, ListingEventType } from "@bloom-housing/backend-core/types"
 import { FileServiceProvider } from "@bloom-housing/shared-services"
 
-export const cloudinaryPdfFromId = (publicId: string) => {
-  const cloudName = process.env.cloudinaryCloudName || process.env.CLOUDINARY_CLOUD_NAME
+export const cloudinaryPdfFromId = (publicId: string, cloudName: string) => {
   return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.pdf`
 }
 

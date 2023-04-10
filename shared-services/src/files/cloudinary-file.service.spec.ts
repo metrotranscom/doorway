@@ -19,6 +19,7 @@ const cloudinaryFileUploaderMock = {
 }
 const cloudinaryConfig: CloudinaryConfig = {
   cloudinaryCloudName: "exygy",
+  cloudinaryUploadPreset: "test",
 }
 
 describe("CloudinaryFileService", () => {

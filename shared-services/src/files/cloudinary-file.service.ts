@@ -16,13 +16,18 @@ export class CloudinaryFileService implements FileServiceInterface {
     file: File,
     setProgressValue: (value: number) => void
   ): Promise<string> {
-    const id = await this.cloudinaryFileUploader.uploadCloudinaryFile(file, setProgressValue)
+    const id = await this.cloudinaryFileUploader.uploadCloudinaryFile(
+      file,
+      setProgressValue,
+      this.cloudinaryConfig.cloudinaryCloudName,
+      this.cloudinaryConfig.cloudinaryUploadPreset
+    )
     return id
   }
   getDownloadUrlForPhoto(id: string, size = 400): string {
     return cloudinaryUrlFromId(id, this.cloudinaryConfig.cloudinaryCloudName, size)
   }
   getDownloadUrlForPdf(id: string): string {
-    return cloudinaryPdfFromId(id)
+    return cloudinaryPdfFromId(id, this.cloudinaryConfig.cloudinaryCloudName)
   }
 }

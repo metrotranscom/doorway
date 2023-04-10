@@ -10,7 +10,8 @@ export class FileServiceProvider {
     const fileConfig: FileConfig = {
       fileServiceType: FileServiceTypeEnum.cloudinary,
       cloudinaryConfig: {
-        cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
+        cloudinaryCloudName: process.env.cloudinaryCloudName || "",
+        cloudinaryUploadPreset: process.env.cloudinarySignedPreset || "",
       },
     }
     return fileConfig

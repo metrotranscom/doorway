@@ -1408,6 +1408,49 @@ export class ListingsService {
       axios(configs, resolve, reject)
     })
   }
+
+  /**
+   * List listings
+   */
+  listCombined(
+    params: {
+      /**  */
+      page?: number
+      /**  */
+      limit?: number | "all"
+      /**  */
+      filter?: ListingFilterParams[]
+      /**  */
+      view?: string
+      /**  */
+      orderBy?: any | null[]
+      /**  */
+      orderDir?: any | null[]
+      /**  */
+      search?: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<PaginatedListing> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings/combined"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+      configs.params = {
+        page: params["page"],
+        limit: params["limit"],
+        filter: params["filter"],
+        view: params["view"],
+        orderBy: params["orderBy"],
+        orderDir: params["orderDir"],
+        search: params["search"],
+      }
+      let data = null
+
+      configs.data = data
+      axios(configs, resolve, reject)
+    })
+  }
+
   /**
    * Get listing by id
    */

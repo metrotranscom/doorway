@@ -1,0 +1,11 @@
+{
+  "name": "bloom-etl",
+  "version": "1.0.0",
+  "description": "A background task to import listings from the Bloom backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chris Casto <chriscasto@google.com>",
+  "license": "ISC"
+}

@@ -8,7 +8,7 @@ export class externalListings1680828395000 implements MigrationInterface {
 
     // For importing external listings
     await queryRunner.query(
-      `CREATE TABLE "external_listings_old" (
+      `CREATE TABLE "external_listings" (
         -- listing fields available in base view
         "id" uuid NOT NULL,
         "assets" jsonb NOT NULL, 
@@ -66,72 +66,72 @@ export class externalListings1680828395000 implements MigrationInterface {
 
     // For filtering by neighborhood
     await queryRunner.query(
-      `CREATE INDEX external_listings_neighboorhood ON external_listings_old USING hash (neighborhood)`
+      `CREATE INDEX external_listings_neighboorhood ON external_listings USING hash (neighborhood)`
     )
 
     // For filtering by num_bedrooms
     await queryRunner.query(
-      `CREATE INDEX external_listings_num_bedrooms ON external_listings_old USING btree ((units->>'num_bedrooms'))`
+      `CREATE INDEX external_listings_num_bedrooms ON external_listings USING btree ((units->>'num_bedrooms'))`
     )
 
     // For filtering by zip code
     await queryRunner.query(
-      `CREATE INDEX external_listings_zip_code ON external_listings_old USING hash ((building_address->>'zip_code'))`
+      `CREATE INDEX external_listings_zip_code ON external_listings USING hash ((building_address->>'zip_code'))`
     )
 
     // For filtering by jurisdiction id
     await queryRunner.query(
-      `CREATE INDEX external_listings_jurisdiction_id ON external_listings_old USING hash ((jurisdiction->>'id'))`
+      `CREATE INDEX external_listings_jurisdiction_id ON external_listings USING hash ((jurisdiction->>'id'))`
     )
 
     // For filtering by county
     await queryRunner.query(
-      `CREATE INDEX external_listings_county ON external_listings_old USING hash (county)`
+      `CREATE INDEX external_listings_county ON external_listings USING hash (county)`
     )
     
     // For filtering and ordering by name
     await queryRunner.query(
-      `CREATE INDEX external_listings_name ON external_listings_old USING btree (name)`
+      `CREATE INDEX external_listings_name ON external_listings USING btree (name)`
     )
 
     // For filtering and ordering by status
     await queryRunner.query(
-      `CREATE INDEX external_listings_status ON external_listings_old USING btree (status)`
+      `CREATE INDEX external_listings_status ON external_listings USING btree (status)`
     )
 
     // For ordering by is_waitlist_open
     await queryRunner.query(
-      `CREATE INDEX external_listings_is_waitlist_open ON external_listings_old USING btree (is_waitlist_open)`
+      `CREATE INDEX external_listings_is_waitlist_open ON external_listings USING btree (is_waitlist_open)`
     )
 
     // For ordering by units_available
     await queryRunner.query(
-      `CREATE INDEX external_listings_units_available ON external_listings_old USING btree (units_available)`
+      `CREATE INDEX external_listings_units_available ON external_listings USING btree (units_available)`
     )
 
     // For ordering by published_at
     await queryRunner.query(
-      `CREATE INDEX external_listings_published_at ON external_listings_old USING btree (published_at)`
+      `CREATE INDEX external_listings_published_at ON external_listings USING btree (published_at)`
     )
 
     // For ordering by updated_at
     await queryRunner.query(
-      `CREATE INDEX external_listings_updated_at ON external_listings_old USING btree (updated_at)`
+      `CREATE INDEX external_listings_updated_at ON external_listings USING btree (updated_at)`
     )
 
     // For ordering by closed_at
     await queryRunner.query(
-      `CREATE INDEX external_listings_closed_at ON external_listings_old USING btree (closed_at)`
+      `CREATE INDEX external_listings_closed_at ON external_listings USING btree (closed_at)`
     )
 
     // For ordering by application_due_date
     await queryRunner.query(
-      `CREATE INDEX external_listings_application_due_date ON external_listings_old USING btree (application_due_date)`
+      `CREATE INDEX external_listings_application_due_date ON external_listings USING btree (application_due_date)`
     )
 
     // Create a queryable view combining local and external listings, flattened for searching
     await queryRunner.query(
-      `CREATE VIEW "combined_listings_old" (
+      `CREATE VIEW "combined_listings" (
         -- listing fields available in base view
         "id",
         "assets", 
@@ -478,14 +478,14 @@ export class externalListings1680828395000 implements MigrationInterface {
             "utilities",
             null, -- leasing_agents; not available in base view and probably not useful anyway
             true
-          FROM "external_listings_old"
+          FROM "external_listings"
         )
       )`
     )
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE "external_listings_old"`)
-    await queryRunner.query(`DROP VIEW "combined_listings_old"`)
+    await queryRunner.query(`DROP TABLE "external_listings"`)
+    await queryRunner.query(`DROP VIEW "combined_listings"`)
   }
 }

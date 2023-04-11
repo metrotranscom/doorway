@@ -1,3 +1,4 @@
+import { UnitsSummarized } from "../../units/types/units-summarized";
 import { ViewColumn, ViewEntity } from "typeorm";
 
 const viewQuery = `(
@@ -17,6 +18,7 @@ const viewQuery = `(
     CAST(l.review_order_type AS text),
     l.published_at,
     l.closed_at,
+    l.updated_at,
     l.last_application_update_at,
   
     -- filter/sort criteria
@@ -259,6 +261,7 @@ const viewQuery = `(
     "review_order_type", 
     "published_at", 
     "closed_at", 
+    "updated_at",
     "last_application_update_at", 
   
     "county",
@@ -296,6 +299,10 @@ const viewQuery = `(
   FROM "external_listings"
 )`
 
+/**
+ * This entity is only used to generate the combined_listings view
+ * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
+ */
 @ViewEntity({ name: "combined_listings", expression: viewQuery })
 export class CombinedListing {
   @ViewColumn()
@@ -329,7 +336,7 @@ export class CombinedListing {
   waitlistMaxSize: number
 
   @ViewColumn({ name: "is_waitlist_open" })
-  isWaitlistOpen: number
+  isWaitlistOpen: boolean
 
   @ViewColumn()
   status: string
@@ -343,9 +350,11 @@ export class CombinedListing {
   @ViewColumn({ name: "closed_at" })
   closedAt: string
 
-  // TODO: change name
   @ViewColumn({ name: "updated_at" })
   updatedAt: string
+
+  @ViewColumn({ name: "last_application_update_at" })
+  lastApplicationUpdateAt: string
 
   @ViewColumn()
   county: string
@@ -363,7 +372,7 @@ export class CombinedListing {
   urlSlug: string
 
   @ViewColumn({ name: "units_summarized" })
-  unitsSummarized: any
+  unitsSummarized: UnitsSummarized
 
   @ViewColumn()
   images: string

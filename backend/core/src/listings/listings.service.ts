@@ -117,7 +117,7 @@ export class ListingsService {
 
   // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
   public async listCombined(params: ListingsQueryParams): Promise<Pagination<Listing>> {
-    const qb = this.listingRepository.createCombinedListingsQueryBuilder("listings")
+    const qb = this.listingRepository.createCombinedListingsQueryBuilder("combined")
 
     qb.addFilters(params.filter)
       .addOrderConditions(params.orderBy, params.orderDir)

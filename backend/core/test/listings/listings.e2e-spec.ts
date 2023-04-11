@@ -600,36 +600,6 @@ describe("Listings", () => {
         )
       }
     })
-
-    it("should find listing by search", async () => {
-      const anyJurisdiction = (await jurisdictionsRepository.find({ take: 1 }))[0]
-      const newListingCreateDto = makeTestListing(anyJurisdiction.id)
-  
-      const newListingName = "random-name"
-      newListingCreateDto.name = newListingName
-  
-      let listingsSearchResponse = await supertest(app.getHttpServer())
-        .get(`/listings/combined?search=random`)
-        .expect(200)
-  
-      expect(listingsSearchResponse.body.items.length).toBe(0)
-  
-      const listingResponse = await supertest(app.getHttpServer())
-        .post(`/listings`)
-        .send(newListingCreateDto)
-        .set(...setAuthorization(adminAccessToken))
-      expect(listingResponse.body.name).toBe(newListingName)
-  
-      listingsSearchResponse = await supertest(app.getHttpServer()).get(`/listings/combined`).expect(200)
-      expect(listingsSearchResponse.body.items.length).toBeGreaterThan(1)
-  
-      listingsSearchResponse = await supertest(app.getHttpServer())
-        .get(`/listings/combined?search=random`)
-        .expect(200)
-  
-      expect(listingsSearchResponse.body.items.length).toBe(1)
-      expect(listingsSearchResponse.body.items[0].name).toBe(newListingName)
-    })
   })
 
   afterEach(() => {

@@ -6,18 +6,6 @@ import {
   PrimaryColumn
 } from "typeorm"
 import { Expose, Type } from "class-transformer"
-import {
-  IsBoolean,
-  IsDate,
-  IsDefined,
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength,
-  ValidateNested,
-} from "class-validator"
-import { ValidationsGroupsEnum } from "../../shared/types/validations-groups-enum"
 import { Jurisdiction } from "../../jurisdictions/entities/jurisdiction.entity"
 import { ReservedCommunityType } from "../../reserved-community-type/entities/reserved-community-type.entity"
 import { AssetCreateDto } from "../../assets/dto/asset.dto"
@@ -29,6 +17,12 @@ import { ListingUtilities } from "../entities/listing-utilities.entity"
 import { Unit } from "../../units/entities/unit.entity"
 import { ListingMultiselectQuestion } from "../../multiselect-question/entities/listing-multiselect-question.entity"
 
+/**
+ * This entity is only used to generate the external_listings table. No queries
+ * are ever run against it directly.
+ * 
+ * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
+ */
 @Entity({ name: "external_listings" })
 class ExternalListing extends BaseEntity {
 
@@ -106,6 +100,12 @@ class ExternalListing extends BaseEntity {
   @Type(() => Date)
   closedAt?: Date | null
 
+  @Column({ type: "timestamptz", name: "updated_at", nullable: true })
+  @Index()
+  @Expose()
+  @Type(() => Date)
+  updatedAt?: Date | null
+
   @Column({ type: "timestamptz", name: "last_application_update_at", nullable: true, default: "1970-01-01" })
   @Expose()
   @Type(() => Date)
@@ -164,7 +164,6 @@ class ExternalListing extends BaseEntity {
   reservedCommunityType?: ReservedCommunityType
 
   @Column({ type: "jsonb" })
-  //units: any[]
   units: Unit[]
 
   @Column({ type: "jsonb", name: "building_address" })

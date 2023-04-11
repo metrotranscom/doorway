@@ -7,8 +7,8 @@ import { FileServiceProvider } from "./file-service.provider"
 // see: https://github.com/cypress-io/cypress/issues/1319#issuecomment-593500345
 declare const expect: jest.Expect
 
-process.env.CLOUDINARY_CLOUD_NAME = "exygy"
-process.env.CLOUDINARY_UPLOAD_PRESET = "test"
+process.env.cloudinaryCloudName = "exygy"
+process.env.cloudinaryUploadPreset = "test"
 let provider: FileServiceProvider
 
 describe("FileServiceProvider", () => {

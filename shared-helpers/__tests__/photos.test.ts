@@ -13,8 +13,8 @@ describe("photos helper", () => {
   })
 
   it("should return correct cloudinary url", () => {
-    expect(cloudinaryUrlFromId("1234", "exygy")).toBe(
-      `https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/1234.jpg`
+    expect(cloudinaryUrlFromId("1234", "test")).toBe(
+      `https://res.cloudinary.com/test/image/upload/w_400,c_limit,q_65/1234.jpg`
     )
   })
 

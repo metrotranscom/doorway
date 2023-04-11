@@ -2,10 +2,17 @@
   "name": "bloom-etl",
   "version": "1.0.0",
   "description": "A background task to import listings from the Bloom backend",
-  "main": "index.js",
+  "main": ".build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "import:run": "node ./.build/index.js"
   },
   "author": "Chris Casto <chriscasto@google.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "5.0.4",
+    "pg": "8.10.0",
+    "axios": "1.3.5"
+  }
 }

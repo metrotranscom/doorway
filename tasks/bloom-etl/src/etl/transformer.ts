@@ -1,7 +1,7 @@
 
 function jsonOrNull(value: any): string | null {
   if (value == null)
-    return null
+    return "null"
 
   return JSON.stringify(value)
 }
@@ -29,6 +29,7 @@ export const defaultMap = {
   neighborhood: (obj) => null, // not available on view=base but needed for filtering
   reserved_community_type_name: (obj) => obj.reservedCommunityType?.name,
 
+  /* probably not needed, but keeping just in case
   min_monthly_rent: (obj) => {
     if (!Array.isArray(obj.units)) {
       return null
@@ -64,20 +65,6 @@ export const defaultMap = {
 
     return max
   },
-
-  /* not sure whether any of these are actually needed
-  min_bedrooms
-  max_bedrooms
-  min_bathrooms
-  max_bathrooms
-  min_monthly_income_min
-  max_monthly_income_min
-  min_occupancy
-  max_occupancy
-  min_sq_feet
-  max_sq_feet
-  lowest_floor
-  highest_floor
   */
 
   url_slug: "urlSlug",
@@ -86,12 +73,11 @@ export const defaultMap = {
   images: (obj) => jsonOrNull(obj.images),
   multiselect_questions: (obj) => jsonOrNull(obj.listingMultiselectQuestions),
   jurisdiction: (obj) => jsonOrNull(obj.jurisdiction),
-  reserved_tommunity_type: (obj) => jsonOrNull(obj.reservedCommunityType),
+  reserved_community_type: (obj) => jsonOrNull(obj.reservedCommunityType),
   units: (obj) => jsonOrNull(obj.units),
   building_address: (obj) => jsonOrNull(obj.buildingAddress),
   features: (obj) => jsonOrNull(obj.features),
   utilities: (obj) => jsonOrNull(obj.utilities),
-  
 }
 
 export class Transformer {
@@ -112,6 +98,16 @@ export class Transformer {
         return func(obj)
       default: throw new Error(`Unexpected map type [${type}]`)
     }
+  }
+
+  public mapAll(listings: Array<any>): Array<any> {
+    const rows = listings.map( (listing) => {
+      return this.mapObjToRow(listing)
+    })
+
+    console.log(`Transform Results: ${rows.length} listings converted into table rows`)
+
+    return rows
   }
 
   public mapObjToRow(obj: any): any {

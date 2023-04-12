@@ -1,66 +1,54 @@
-import { Client } from "pg"
+import { Knex, knex } from "knex"
 
 export type DbConfig = {
-  user: string,
-  host: string,
-  database: string,
-  password: string
+  client: string,
+  connection: string
 }
 
-
 export class Loader {
-  client: Client
+  knex: Knex
   table: string
+  txn: Knex.TransactionProvider
 
   constructor(config: DbConfig, table: string) {
-    this.client = new Client(config)
+    this.knex = knex(config)
+    //this.client = new Client(config)
     this.table = table
   }
 
-  public async connect() {
-    await this.client.connect()
+  public async open() {
+    // set up the transaction
+    console.log(`Loader: initializing transaction`)
+    this.txn = await this.knex.transactionProvider()
   }
 
   public async load(rows: any) {
+    // start the transaction
+    const txn = await this.txn()
 
     try {
-      await this.client.query('BEGIN')
-      await this.client.query(`TRUNCATE TABLE "${this.table}"`)
-
-      await this.client.query('COMMIT')
+      // remove all existing records
+      console.log(`Truncating records from table "${this.table}"`)
+      await txn.raw(`TRUNCATE TABLE "${this.table}"`)
+      // add new recrods
+      console.log(`Adding ${rows.length} new rows into table`)
+      await txn(this.table).insert(rows)
+      // save changes
+      console.log(`Committing database changes`)
+      await txn.commit()
+      console.log(`Load Results: import complete`)
     } catch(e) {
-      await this.client.query('ROLLBACK')
+      await txn.rollback()
       throw e
     }
   }
 
-  public async closeConnection() {
-    this.client.end().catch( (error) => {
-      console.log(error)
-    })
-  }
-}
-
-class Insert {
-  table: string
-
-  construct(table: string) {
-    this.table = table
-  }
-
-  public setValues(values: any) {
-
-  }
-
-  public getParams(values: any) {
-
-  }
-
-  public toString(): string {
-    let query = `INSERT INTO "${this.table}" (`
-
-    query += ") VALUES ("
-
-    return query + ")"
+  public async close() {
+    try {
+      console.log(`Loader: closing database connection`)
+      this.knex.destroy()
+    } catch (e) {
+      console.log(e)
+    }
   }
 }

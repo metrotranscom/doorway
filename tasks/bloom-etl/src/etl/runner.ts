@@ -15,20 +15,31 @@ export class Runner {
   }
 
   public async init() {
-    await this.loader.connect()
+    await this.loader.open()
   }
 
   public async run() {
-    const results = await this.extractor.extract()
+    try {
+      console.log("---- INITIALIZING RUNNER ----")
+      await this.init()
 
-    const rows = results.map( (listing) => {
-      return this.transformer.mapObjToRow(listing)
-    })
+      console.log("---- FETCHING LISTINGS ----")
+      const results = await this.extractor.extract()
 
-    await this.loader.load(rows)
+      console.log("---- TRANSFORMING LISTINGS ----")
+      const rows = await this.transformer.mapAll(results)
+
+      console.log("---- LOADING NEW LISTINGS INTO DATABASE ----")
+      await this.loader.load(rows)
+    } catch (e) {
+      throw e
+    } finally {
+      console.log("---- SHUTTING DOWN RUNNER ----")
+      await this.shutdown()
+    }
   }
 
   public async shutdown() {
-    this.loader.closeConnection()
+    this.loader.close()
   }
 }

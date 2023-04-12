@@ -1,27 +1,41 @@
-
 import { Extractor } from "./src/etl/extractor"
 import { Transformer, defaultMap } from "./src/etl/transformer"
 import { Loader } from "./src/etl/loader"
 import { Runner } from "./src/etl/runner"
 
+// No need to retrieve these dynamically since they never change
+const jurisdictions = [
+  {
+    id: "3d0a7a32-345e-4ca6-86d8-66e51d6082db",
+    name: "San Jose"
+  },
+  {
+    id: "3328e8df-e064-4d9c-99cc-467ba43dd2de",
+    name: "San Mateo"
+  },
+  {
+    id: "bab6cb4f-7a5a-4ee5-b327-0c2508807780",
+    name: "Alameda"
+  },
+]
+
+// This is also unlikely to change during the lifetime of this task
 const url = {
   base: "https://proxy.housingbayarea.org",
   path: "/listings"
 }
 
-const jurisdictions = [
-  "3d0a7a32-345e-4ca6-86d8-66e51d6082db", // San Jose
-  "3328e8df-e064-4d9c-99cc-467ba43dd2de", // San Mateo
-  "bab6cb4f-7a5a-4ee5-b327-0c2508807780", // Alameda
-]
-
 const dbConfig = {
-  user: "bloom-dev",
-  host: "localhost",
-  database: "bloom",
-  password: process.env.PGPASSWORD
+  client: "pg",
+  connection: process.env.IMPORT_DB_CONN_STRING
 }
 
+/* 
+This is set in backend/core, and since changing a table name is a significant
+effort, it's assumed that 1) it is very unlikely to happen over the short 
+lifetime of this task and 2) requiring a change to a var name somewhere in the 
+same repo is actually less intrusive than changing an env var elsewhere.
+*/
 const tableName = "external_listings"
 
 const runner = new Runner(
@@ -30,10 +44,6 @@ const runner = new Runner(
   new Loader(dbConfig, tableName)
 )
 
-runner.init().then( () =>
-  runner.run()
-).then( () => {
-  runner.shutdown()
-}).catch( (error) => {
+runner.run().catch( (error) => {
   console.log(error)
 })

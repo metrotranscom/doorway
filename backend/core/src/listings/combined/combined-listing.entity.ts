@@ -309,6 +309,7 @@ export class CombinedListing {
   id: string
 
   @ViewColumn()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   assets: any
 
   @ViewColumn({ name: "household_size_min" })
@@ -378,24 +379,31 @@ export class CombinedListing {
   images: string
 
   @ViewColumn({ name: "multiselect_questions" })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   multiselectQuestions: any
 
   @ViewColumn()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jurisdiction: any
 
   @ViewColumn({ name: "reserved_community_type" })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reservedCommunityType: any
 
   @ViewColumn({ name: "building_address" })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildingAddress: any
 
   @ViewColumn()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   features: any
 
   @ViewColumn()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   utilities: any
 
   @ViewColumn({ name: "leasing_agents" })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   leasingAgents: any[]
 
   @ViewColumn({ name: "is_external" })

@@ -16,6 +16,7 @@ type OrderByConditionData = {
 }
 
 // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
   limitValue?: number | "all"
   pageValue?: number

@@ -44,15 +44,18 @@ export class CombinedListingTransformer {
     listing.jurisdiction = mapTo(Jurisdiction, result.jurisdiction)
 
     // units
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     listing.units = mapTo(Unit, result.units as Array<any>)
 
     // images
     listing.images =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       result.images == null ? null : mapTo(ListingImage, result.images as Array<any>, mapToOpts)
 
     // multiselect questions
     listing.listingMultiselectQuestions = mapTo(
       ListingMultiselectQuestion,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       result.multiselect_questions as Array<any>,
       mapToOpts
     )

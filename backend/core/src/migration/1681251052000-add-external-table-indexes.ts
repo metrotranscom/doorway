@@ -9,17 +9,17 @@ export class externalListingIndexes1681251052000 implements MigrationInterface {
 
     // For filtering by num_bedrooms
     await queryRunner.query(
-      `CREATE INDEX external_listings_num_bedrooms ON external_listings_old USING btree ((units->>'num_bedrooms'))`
+      `CREATE INDEX external_listings_num_bedrooms ON external_listings USING btree ((units->>'num_bedrooms'))`
     )
 
     // For filtering by zip code
     await queryRunner.query(
-      `CREATE INDEX external_listings_zip_code ON external_listings_old USING hash ((building_address->>'zip_code'))`
+      `CREATE INDEX external_listings_zip_code ON external_listings USING hash ((building_address->>'zip_code'))`
     )
 
     // For filtering by jurisdiction id
     await queryRunner.query(
-      `CREATE INDEX external_listings_jurisdiction_id ON external_listings_old USING hash ((jurisdiction->>'id'))`
+      `CREATE INDEX external_listings_jurisdiction_id ON external_listings USING hash ((jurisdiction->>'id'))`
     )
   }
 

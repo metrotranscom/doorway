@@ -134,49 +134,49 @@ class ExternalListing extends BaseEntity {
 
   @Column({ type: "text", name: "url_slug" })
   @Expose()
-  urlSlug?: string | null
+  urlSlug: string
 
   // END SEARCH FIELDS
   // BEGIN COMPOSITE FIELDS
 
-  @Column({ type: "jsonb", name: "units_summarized" })
+  @Column({ type: "jsonb", name: "units_summarized", nullable: true })
   @Expose()
   unitsSummarized: UnitsSummarized | undefined
 
-  @Column({ type: "jsonb" })
+  @Column({ type: "jsonb", nullable: true })
   @Expose()
   @Type(() => ListingImage)
   images?: ListingImage[] | null
 
-  @Column({ type: "jsonb", name: "multiselect_questions" })
+  @Column({ type: "jsonb", name: "multiselect_questions", nullable: true })
   @Expose()
   @Type(() => ListingMultiselectQuestion)
   multiselectQuestions?: ListingMultiselectQuestion[]
 
-  @Column({ type: "jsonb" })
+  @Column({ type: "jsonb", nullable: true })
   @Expose()
   @Type(() => Jurisdiction)
-  jurisdiction: Jurisdiction
+  jurisdiction?: Jurisdiction
 
-  @Column({ type: "jsonb", name: "reserved_community_type" })
+  @Column({ type: "jsonb", name: "reserved_community_type", nullable: true })
   @Expose()
   @Type(() => ReservedCommunityType)
   reservedCommunityType?: ReservedCommunityType
 
-  @Column({ type: "jsonb" })
-  units: Unit[]
+  @Column({ type: "jsonb", nullable: true })
+  units?: Unit[]
 
-  @Column({ type: "jsonb", name: "building_address" })
+  @Column({ type: "jsonb", name: "building_address", nullable: true })
   @Expose()
   @Type(() => Address)
-  buildingAddress: Address
+  buildingAddress?: Address
 
-  @Column({ type: "jsonb" })
+  @Column({ type: "jsonb", nullable: true })
   @Expose()
   @Type(() => ListingFeatures)
   features?: ListingFeatures
 
-  @Column({ type: "jsonb" })
+  @Column({ type: "jsonb", nullable: true })
   @Expose()
   @Type(() => ListingUtilities)
   utilities?: ListingUtilities

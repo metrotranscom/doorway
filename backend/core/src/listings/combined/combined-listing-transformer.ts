@@ -68,7 +68,10 @@ export class CombinedListingTransformer {
     )
 
     // building address
-    listing.buildingAddress = mapTo(Address, result.building_address as object, mapToOpts)
+    listing.buildingAddress = 
+      result.building_address == null 
+        ? null 
+        : mapTo(Address, result.building_address as object, mapToOpts)
 
     // features
     listing.features =
@@ -81,10 +84,11 @@ export class CombinedListingTransformer {
         : mapTo(ListingUtilities, result.utilities as object, mapToOpts)
 
     // unit summaries
-    //listing.unitsSummary = mapTo(UnitsSummary, result.unit_summaries)
-    listing.unitsSummarized = {
-      ...result.units_summarized,
-      byUnitTypeAndRent: summarizeUnitsByTypeAndRent(listing.units, listing),
+    if (Array.isArray(listing.units)) {
+      listing.unitsSummarized = {
+        ...result.units_summarized,
+        byUnitTypeAndRent: summarizeUnitsByTypeAndRent(listing.units, listing),
+      }
     }
 
     return listing

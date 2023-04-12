@@ -45,4 +45,4 @@ jobs:
       # Tests
       - name: Run integration tests
         working-directory: ./sites/public
-        run: yarn test:headless:smoke2
+        run: yarn test:headless:smoke

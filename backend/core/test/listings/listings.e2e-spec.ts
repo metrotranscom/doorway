@@ -455,7 +455,6 @@ describe("Listings", () => {
 
   // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
   describe("/listings/combined", () => {
-
     it("should return all listings", async () => {
       const res = await supertest(app.getHttpServer()).get("/listings/combined").expect(200)
       expect(res.body.items.map((listing) => listing.id).length).toBeGreaterThan(0)
@@ -486,7 +485,7 @@ describe("Listings", () => {
       let query = qs.stringify(queryParams)
       let res = await supertest(app.getHttpServer()).get(`/listings/combined?${query}`).expect(200)
       const totalItems = res.body.meta.totalItems
-  
+
       queryParams = {
         limit: totalItems - 1,
         page: 2,
@@ -532,21 +531,23 @@ describe("Listings", () => {
     })
 
     it("defaults to sorting listings by applicationDueDate", async () => {
-      const res = await supertest(app.getHttpServer()).get(`/listings/combined?limit=all`).expect(200)
+      const res = await supertest(app.getHttpServer())
+        .get(`/listings/combined?limit=all`)
+        .expect(200)
       const listings = res.body.items
-  
+
       // The Coliseum seed has the soonest applicationDueDate (1 day in the future)
       expect(listings[0].name).toBe("[doorway] Test: Coliseum")
-  
+
       // Triton and "Default, No Preferences" share the next-soonest applicationDueDate
       const secondListing = listings[1]
       const thirdListing = listings[2]
       expect(thirdListing.name).toBe("[doorway] Test: Default, No Preferences")
-  
+
       const secondListingAppDueDate = new Date(secondListing.applicationDueDate)
       const thirdListingAppDueDate = new Date(thirdListing.applicationDueDate)
       expect(secondListingAppDueDate.getDate()).toEqual(thirdListingAppDueDate.getDate())
-  
+
       // Verify that listings with null applicationDueDate's appear at the end.
       const lastListing = listings[listings.length - 1]
       expect(lastListing.applicationDueDate).toBeNull()
@@ -559,14 +560,16 @@ describe("Listings", () => {
       for (let i = 0; i < res.body.items.length - 1; ++i) {
         const currentUpdatedAt = new Date(res.body.items[i].updatedAt)
         const nextUpdatedAt = new Date(res.body.items[i + 1].updatedAt)
-  
+
         // Verify that each listing's updatedAt timestamp is more recent than the next listing's.
         expect(currentUpdatedAt.getTime()).toBeGreaterThan(nextUpdatedAt.getTime())
       }
     })
 
     it("fails if orderBy param doesn't conform to one of the enum values", async () => {
-      await supertest(app.getHttpServer()).get(`/listings/combined?orderBy=notAValidOrderByParam`).expect(400)
+      await supertest(app.getHttpServer())
+        .get(`/listings/combined?orderBy=notAValidOrderByParam`)
+        .expect(400)
     })
 
     it("sorts results within a page, and across sequential pages", async () => {
@@ -574,23 +577,23 @@ describe("Listings", () => {
       const firstPage = await supertest(app.getHttpServer())
         .get(`/listings/combined?orderBy[0]=mostRecentlyUpdated&orderDir[0]=DESC&limit=5&page=1`)
         .expect(200)
-  
+
       // Verify that listings on the first page are ordered from most to least recently updated.
       for (let i = 0; i < 4; ++i) {
         const currentUpdatedAt = new Date(firstPage.body.items[i].updatedAt)
         const nextUpdatedAt = new Date(firstPage.body.items[i + 1].updatedAt)
-  
+
         // Verify that each listing's updatedAt timestamp is more recent than the next listing's.
         expect(currentUpdatedAt.getTime()).toBeGreaterThan(nextUpdatedAt.getTime())
       }
-  
+
       const lastListingOnFirstPageUpdateTimestamp = new Date(firstPage.body.items[4].updatedAt)
-  
+
       // Get the second page of 5 results
       const secondPage = await supertest(app.getHttpServer())
         .get(`/listings/combined?orderBy[0]=mostRecentlyUpdated&orderDir[0]=DESC&limit=5&page=2`)
         .expect(200)
-  
+
       // Verify that each of the listings on the second page was less recently updated than the last
       // first-page listing.
       for (const secondPageListing of secondPage.body.items) {

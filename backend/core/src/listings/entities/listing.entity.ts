@@ -665,12 +665,12 @@ class Listing extends BaseEntity {
   @Type(() => Date)
   lastApplicationUpdateAt?: Date | null
 
-  /** 
+  /**
    * This is only added to enable passing directly from external listings since
    * the generation code may be different between local and external listings.
-   * 
+   *
    * No column is needed or wanted
-   * 
+   *
    * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
    */
   urlSlug?: string | null

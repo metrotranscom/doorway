@@ -1,5 +1,5 @@
 import { Listing } from "../entities/listing.entity"
-import { QueryRunner, SelectQueryBuilder } from "typeorm"
+import { SelectQueryBuilder } from "typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { CombinedListingTransformer } from "./combined-listing-transformer"
 import { ListingFilterParams } from "../dto/listing-filter-params"
@@ -8,6 +8,7 @@ import { combinedListingFilterTypeToFieldMap } from "./filter-type-to-field-map"
 import { OrderByFieldsEnum } from "../types/listing-orderby-enum"
 import { OrderParam } from "../../applications/types/order-param"
 import { HttpException, HttpStatus } from "@nestjs/common"
+import { CombinedListing } from "./combined-listing.entity"
 
 type OrderByConditionData = {
   orderBy: string
@@ -16,8 +17,7 @@ type OrderByConditionData = {
 }
 
 // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
+export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedListing> {
   limitValue?: number | "all"
   pageValue?: number
   addUnitSummaryFlag?: boolean
@@ -76,34 +76,6 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
     return this
   }
 
-  /**
-   * Override the super method to substitute a hard-coded value for countSql.
-   * This may be a breaking change if any other counts are needed against more
-   * complex queries, but is necessary without an Alias.  Can potentially be
-   * made unnecessary by manuallying injecting an Alias and metadata
-   *
-   * @param queryRunner
-   * @returns number
-   */
-  protected async executeCountQuery(queryRunner: QueryRunner): Promise<number> {
-    const countSql = "COUNT(*)"
-
-    const results = await this.clone()
-      .orderBy()
-      .groupBy()
-      .offset(undefined)
-      .limit(undefined)
-      .skip(undefined)
-      .take(undefined)
-      .select(countSql, "cnt")
-      .setOption("disable-global-order")
-      .loadRawResults(queryRunner)
-
-    if (!results || !results[0] || !results[0]["cnt"]) return 0
-
-    return parseInt(results[0]["cnt"])
-  }
-
   addFilters(filters?: ListingFilterParams[]) {
     if (!filters) {
       return this
@@ -154,7 +126,7 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
     return this
   }
 
-  public async getManyAndCount(): Promise<[Listing[], number]> {
+  public async getManyListingsAndCount(): Promise<[Listing[], number]> {
     // run both queries at the same time to improve performance
     const [results, count] = await Promise.all([this.getRawMany(), this.getCount()])
 
@@ -164,8 +136,29 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
     return [transformer.transformAll(results), count]
   }
 
+  /*
+  protected async executeEntitiesAndRawResults(
+    queryRunner: QueryRunner,
+  ): Promise<{ entities: any[]; raw: any[] }> {
+    const results = await super.executeEntitiesAndRawResults(queryRunner)
+    console.log(results.raw.length)
+    console.log(results.entities.length)
+    console.log(this.expressionMap.mainAlias.metadata.columns)
+    console.log(this.expressionMap.mainAlias.metadata.propertiesMap)
+    return results
+  }
+  */
+
   public async getManyPaginated(): Promise<Pagination<Listing>> {
-    const [listings, count] = await this.getManyAndCount()
+    const [listings, count] = await this.getManyListingsAndCount()
+
+    /*
+    const [combinedListings, count] = await this.getManyAndCount()
+
+    const listings = combinedListings.map( (combined) => {
+      return combined.toListing()
+    })
+    //*/
 
     const shouldPaginate = CombinedListingsQueryBuilder.shouldPaginate(
       this.limitValue,

@@ -1,5 +1,18 @@
 import { UnitsSummarized } from "../../units/types/units-summarized"
-import { ViewColumn, ViewEntity } from "typeorm"
+import { PrimaryColumn, ViewColumn, ViewEntity } from "typeorm"
+import { ListingFeatures } from "../entities/listing-features.entity"
+import { ListingUtilities } from "../entities/listing-utilities.entity"
+import { Address } from "../../shared/entities/address.entity"
+import { Jurisdiction } from "../../jurisdictions/entities/jurisdiction.entity"
+import { ReservedCommunityType } from "../../reserved-community-type/entities/reserved-community-type.entity"
+import { ListingMultiselectQuestion } from "../../multiselect-question/entities/listing-multiselect-question.entity"
+import { ListingImage } from "../entities/listing-image.entity"
+import { User } from "../../auth/entities/user.entity"
+import { Unit } from "../../units/entities/unit.entity"
+import { Listing } from "../entities/listing.entity"
+import { summarizeUnitsByTypeAndRent } from "../../shared/units-transformations"
+import { ListingReviewOrder, ListingStatus } from "../../../types"
+import { AssetCreateDto } from "../../assets/dto/asset.dto"
 
 const viewQuery = `(
   SELECT
@@ -306,11 +319,11 @@ const viewQuery = `(
 @ViewEntity({ name: "combined_listings", expression: viewQuery })
 export class CombinedListing {
   @ViewColumn()
+  @PrimaryColumn()
   id: string
 
   @ViewColumn()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  assets: any
+  assets: AssetCreateDto[]
 
   @ViewColumn({ name: "household_size_min" })
   houseHoldSizeMin: number
@@ -322,10 +335,10 @@ export class CombinedListing {
   unitsAvailable: number
 
   @ViewColumn({ name: "application_due_date" })
-  applicationDueDate: string
+  applicationDueDate: Date
 
   @ViewColumn({ name: "application_open_date" })
-  applicationOpenDate: string
+  applicationOpenDate: Date
 
   @ViewColumn()
   name: string
@@ -340,22 +353,22 @@ export class CombinedListing {
   isWaitlistOpen: boolean
 
   @ViewColumn()
-  status: string
+  status: ListingStatus
 
   @ViewColumn({ name: "review_order_type" })
-  reviewOrderType: string
+  reviewOrderType: ListingReviewOrder
 
   @ViewColumn({ name: "published_at" })
-  publishedAt: string
+  publishedAt: Date
 
   @ViewColumn({ name: "closed_at" })
-  closedAt: string
+  closedAt: Date
 
   @ViewColumn({ name: "updated_at" })
-  updatedAt: string
+  updatedAt: Date
 
   @ViewColumn({ name: "last_application_update_at" })
-  lastApplicationUpdateAt: string
+  lastApplicationUpdateAt: Date
 
   @ViewColumn()
   county: string
@@ -373,39 +386,93 @@ export class CombinedListing {
   urlSlug: string
 
   @ViewColumn({ name: "units_summarized" })
-  unitsSummarized: UnitsSummarized
+  units?: Unit[]
+
+  @ViewColumn({ name: "units_summarized" })
+  unitsSummarized?: UnitsSummarized
 
   @ViewColumn()
-  images: string
+  images?: ListingImage[] | null
 
   @ViewColumn({ name: "multiselect_questions" })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  multiselectQuestions: any
+  multiselectQuestions?: ListingMultiselectQuestion[]
 
   @ViewColumn()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  jurisdiction: any
+  jurisdiction: Jurisdiction
 
   @ViewColumn({ name: "reserved_community_type" })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  reservedCommunityType: any
+  reservedCommunityType?: ReservedCommunityType
 
   @ViewColumn({ name: "building_address" })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buildingAddress: any
+  buildingAddress: Address
 
   @ViewColumn()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  features: any
+  features?: ListingFeatures
 
   @ViewColumn()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  utilities: any
+  utilities?: ListingUtilities
 
   @ViewColumn({ name: "leasing_agents" })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  leasingAgents: any[]
+  leasingAgents: User[]
 
   @ViewColumn({ name: "is_external" })
   isExternal: boolean
+
+  /**
+   * Creates a Listing object based on data in the CombinedListing object
+   * @returns Listing
+   */
+  public toListing(): Listing {
+    const listing = new Listing()
+
+    listing.id = this.id
+    listing.assets = this.assets
+    listing.unitsAvailable = this.unitsAvailable
+    listing.applicationDueDate = this.applicationDueDate
+    listing.applicationOpenDate = this.applicationOpenDate
+    listing.name = this.name
+    listing.waitlistCurrentSize = this.waitlistCurrentSize
+    listing.waitlistMaxSize = this.waitlistMaxSize
+    listing.status = this.status
+    listing.reviewOrderType = this.reviewOrderType
+    listing.publishedAt = this.publishedAt
+    listing.closedAt = this.closedAt
+    listing.updatedAt = this.updatedAt
+    listing.urlSlug = this.urlSlug
+
+    // jurisdiction
+    listing.jurisdiction = this.jurisdiction
+
+    // units
+    listing.units = this.units
+
+    // images
+    listing.images = this.images
+
+    // multiselect questions
+    listing.listingMultiselectQuestions = this.multiselectQuestions
+
+    // reserved community type
+    listing.reservedCommunityType = this.reservedCommunityType
+
+    // building address
+    listing.buildingAddress = this.buildingAddress
+
+    // features
+    listing.features = this.features
+
+    // utilities
+    listing.utilities = this.utilities
+
+    // unit summaries
+    if (this.unitsSummarized) {
+      listing.unitsSummarized = this.unitsSummarized
+    } else if (Array.isArray(this.units)) {
+      const unitsSummarized = new UnitsSummarized()
+      unitsSummarized.byUnitTypeAndRent = summarizeUnitsByTypeAndRent(listing.units, listing)
+      listing.unitsSummarized = unitsSummarized
+    }
+
+    return listing
+  }
 }

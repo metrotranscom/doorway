@@ -1,10 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  Index,
-  PrimaryColumn
-} from "typeorm"
+import { BaseEntity, Column, Entity, Index, PrimaryColumn } from "typeorm"
 import { Expose, Type } from "class-transformer"
 import { Jurisdiction } from "../../jurisdictions/entities/jurisdiction.entity"
 import { ReservedCommunityType } from "../../reserved-community-type/entities/reserved-community-type.entity"
@@ -20,12 +14,10 @@ import { ListingMultiselectQuestion } from "../../multiselect-question/entities/
 /**
  * This entity is only used to generate the external_listings table. No queries
  * are ever run against it directly.
- * 
  * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
  */
 @Entity({ name: "external_listings" })
 class ExternalListing extends BaseEntity {
-
   // BEGIN LISTING FIELDS
 
   @PrimaryColumn("uuid")
@@ -106,7 +98,12 @@ class ExternalListing extends BaseEntity {
   @Type(() => Date)
   updatedAt?: Date | null
 
-  @Column({ type: "timestamptz", name: "last_application_update_at", nullable: true, default: "1970-01-01" })
+  @Column({
+    type: "timestamptz",
+    name: "last_application_update_at",
+    nullable: true,
+    default: "1970-01-01",
+  })
   @Expose()
   @Type(() => Date)
   lastApplicationUpdateAt?: Date | null
@@ -128,7 +125,7 @@ class ExternalListing extends BaseEntity {
   @Expose()
   neighborhood?: string | null
 
-  @Column({ type: "text", name: "reserved_community_type_name", nullable: true})
+  @Column({ type: "text", name: "reserved_community_type_name", nullable: true })
   @Expose()
   reservedCommunityTypeName?: string | null
 

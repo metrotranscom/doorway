@@ -1,5 +1,5 @@
-import { UnitsSummarized } from "../../units/types/units-summarized";
-import { ViewColumn, ViewEntity } from "typeorm";
+import { UnitsSummarized } from "../../units/types/units-summarized"
+import { ViewColumn, ViewEntity } from "typeorm"
 
 const viewQuery = `(
   SELECT

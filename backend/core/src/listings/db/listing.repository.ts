@@ -26,9 +26,7 @@ export class ListingRepository extends Repository<Listing> {
   public createCombinedListingsQueryBuilder(alias: string): CombinedListingsQueryBuilder {
     const conn = this.manager.connection
 
-    const qb = conn.createQueryBuilder()
-      .select()
-      .from("combined_listings", alias)
+    const qb = conn.createQueryBuilder().select().from("combined_listings", alias)
 
     return new CombinedListingsQueryBuilder(qb)
   }

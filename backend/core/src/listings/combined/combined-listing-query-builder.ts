@@ -78,27 +78,25 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
   /**
    * Override the super method to substitute a hard-coded value for countSql.
    * This may be a breaking change if any other counts are needed against more
-   * complex queries, but is necessary without an Alias.  Can potentially be 
+   * complex queries, but is necessary without an Alias.  Can potentially be
    * made unnecessary by manuallying injecting an Alias and metadata
-   * 
-   * @param queryRunner 
+   *
+   * @param queryRunner
    * @returns number
    */
-  protected async executeCountQuery(
-    queryRunner: QueryRunner,
-  ): Promise<number> {
+  protected async executeCountQuery(queryRunner: QueryRunner): Promise<number> {
     const countSql = "COUNT(*)"
 
     const results = await this.clone()
-        .orderBy()
-        .groupBy()
-        .offset(undefined)
-        .limit(undefined)
-        .skip(undefined)
-        .take(undefined)
-        .select(countSql, "cnt")
-        .setOption("disable-global-order")
-        .loadRawResults(queryRunner)
+      .orderBy()
+      .groupBy()
+      .offset(undefined)
+      .limit(undefined)
+      .skip(undefined)
+      .take(undefined)
+      .select(countSql, "cnt")
+      .setOption("disable-global-order")
+      .loadRawResults(queryRunner)
 
     if (!results || !results[0] || !results[0]["cnt"]) return 0
 
@@ -157,10 +155,7 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
 
   public async getManyAndCount(): Promise<[Listing[], number]> {
     // run both queries at the same time to improve performance
-    const [results, count] = await Promise.all([
-      this.getRawMany(),
-      this.getCount()
-    ])
+    const [results, count] = await Promise.all([this.getRawMany(), this.getCount()])
 
     // Our version of typeorm is too old to use any of the transformers available in newer versions
     // We'll do it ourselves instead
@@ -169,15 +164,13 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
   }
 
   public async getManyPaginated(): Promise<Pagination<Listing>> {
-    let listings: Listing[], count: number
-    [listings, count] = await this.getManyAndCount()
-    
-    //*
+    const [listings, count] = await this.getManyAndCount()
+
     const shouldPaginate = CombinedListingsQueryBuilder.shouldPaginate(
       this.limitValue,
       this.pageValue
     )
-    
+
     const itemsPerPage = shouldPaginate ? (this.limitValue as number) : listings.length
     const totalItems = shouldPaginate ? count : listings.length
     const currentPage = shouldPaginate ? this.pageValue : 1
@@ -189,7 +182,7 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<any> {
       totalItems: totalItems,
       totalPages: Math.ceil(totalItems / itemsPerPage), // will be 1 if no pagination
     }
-    
+
     return {
       items: listings,
       meta: paginationInfo,

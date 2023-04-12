@@ -1,14 +1,16 @@
+import { Listing } from "src/types"
 
 function jsonOrNull(value: any): string | null {
-  if (value == null)
-    return "null"
+  if (value == null) return "null"
 
   return JSON.stringify(value)
 }
 
+type resolveFunction = (listing: Listing) => string | number | boolean | null
+
 export const defaultMap = {
   id: "id",
-  assets: (obj) => jsonOrNull(obj.assets),
+  assets: (listing: Listing) => jsonOrNull(listing.assets),
   // household_size_min
   // household_size_max
   units_available: "unitsAvailable",
@@ -17,17 +19,17 @@ export const defaultMap = {
   name: "name",
   waitlist_current_size: "waitlistCurrentSize",
   waitlist_max_size: "waitlistMaxSize",
-  is_waitlist_open: (obj) => true, // not available on view=base but needed for sorting
+  is_waitlist_open: (listing: Listing) => true, // not available on view=base but needed for sorting
   status: "status",
   review_order_type: "reviewOrderType",
   published_at: "publishedAt",
   closed_at: "closedAt",
-  updated_at: (obj) => null, // not available on view=base but needed for sorting
+  updated_at: (listing: Listing) => null, // not available on view=base but needed for sorting
 
   county: "countyCode",
-  city: (obj) => obj.buildingAddress?.city,
-  neighborhood: (obj) => null, // not available on view=base but needed for filtering
-  reserved_community_type_name: (obj) => obj.reservedCommunityType?.name,
+  city: (listing: Listing) => listing.buildingAddress?.city,
+  neighborhood: (listing: Listing) => null, // not available on view=base but needed for filtering
+  reserved_community_type_name: (listing: Listing) => listing.reservedCommunityType?.name,
 
   /* probably not needed, but keeping just in case
   min_monthly_rent: (obj) => {
@@ -69,15 +71,15 @@ export const defaultMap = {
 
   url_slug: "urlSlug",
 
-  units_summarized: (obj) => jsonOrNull(obj.unitsSummarized),
-  images: (obj) => jsonOrNull(obj.images),
-  multiselect_questions: (obj) => jsonOrNull(obj.listingMultiselectQuestions),
-  jurisdiction: (obj) => jsonOrNull(obj.jurisdiction),
-  reserved_community_type: (obj) => jsonOrNull(obj.reservedCommunityType),
-  units: (obj) => jsonOrNull(obj.units),
-  building_address: (obj) => jsonOrNull(obj.buildingAddress),
-  features: (obj) => jsonOrNull(obj.features),
-  utilities: (obj) => jsonOrNull(obj.utilities),
+  units_summarized: (listing: Listing) => jsonOrNull(listing.unitsSummarized),
+  images: (listing: Listing) => jsonOrNull(listing.images),
+  multiselect_questions: (listing: Listing) => jsonOrNull(listing.listingMultiselectQuestions),
+  jurisdiction: (listing: Listing) => jsonOrNull(listing.jurisdiction),
+  reserved_community_type: (listing: Listing) => jsonOrNull(listing.reservedCommunityType),
+  units: (listing: Listing) => jsonOrNull(listing.units),
+  building_address: (listing: Listing) => jsonOrNull(listing.buildingAddress),
+  features: (listing: Listing) => jsonOrNull(listing.features),
+  utilities: (listing: Listing) => jsonOrNull(listing.utilities),
 }
 
 export class Transformer {
@@ -90,18 +92,20 @@ export class Transformer {
   private getMappedValue(key: string, value: any, obj: any): any {
     const type = typeof value
 
-    switch (type) {
-      case "string":
-        return obj[value]
-      case "function": 
-        const func = value as Function
-        return func(obj)
-      default: throw new Error(`Unexpected map type [${type}]`)
+    // eslint complained when I used a switch here
+    if (type == "string") {
+      return obj[value as string]
     }
+
+    if (type == "function") {
+      return (value as resolveFunction)(obj)
+    }
+    
+    throw new Error(`Unexpected map type [${type}]`)
   }
 
   public mapAll(listings: Array<any>): Array<any> {
-    const rows = listings.map( (listing) => {
+    const rows = listings.map((listing) => {
       return this.mapObjToRow(listing)
     })
 

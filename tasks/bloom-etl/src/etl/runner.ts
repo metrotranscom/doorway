@@ -7,32 +7,29 @@ export class Runner {
   transformer: Transformer
   loader: Loader
 
-
   constructor(extractor: Extractor, transformer: Transformer, loader: Loader) {
     this.extractor = extractor
     this.transformer = transformer
     this.loader = loader
   }
 
-  public async init() {
-    await this.loader.open()
+  public init() {
+    this.loader.open()
   }
 
   public async run() {
     try {
       console.log("---- INITIALIZING RUNNER ----")
-      await this.init()
+      this.init()
 
       console.log("---- FETCHING LISTINGS ----")
       const results = await this.extractor.extract()
 
       console.log("---- TRANSFORMING LISTINGS ----")
-      const rows = await this.transformer.mapAll(results)
+      const rows = this.transformer.mapAll(results)
 
       console.log("---- LOADING NEW LISTINGS INTO DATABASE ----")
       await this.loader.load(rows)
-    } catch (e) {
-      throw e
     } finally {
       console.log("---- SHUTTING DOWN RUNNER ----")
       await this.shutdown()
@@ -40,6 +37,6 @@ export class Runner {
   }
 
   public async shutdown() {
-    this.loader.close()
+    await this.loader.close()
   }
 }

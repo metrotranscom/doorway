@@ -1,9 +1,5 @@
 import { Knex, knex } from "knex"
-
-export type DbConfig = {
-  client: string,
-  connection: string
-}
+import { DbConfig } from "src/types"
 
 export class Loader {
   knex: Knex
@@ -16,10 +12,10 @@ export class Loader {
     this.table = table
   }
 
-  public async open() {
+  public open() {
     // set up the transaction
     console.log(`Loader: initializing transaction`)
-    this.txn = await this.knex.transactionProvider()
+    this.txn = this.knex.transactionProvider()
   }
 
   public async load(rows: any) {
@@ -37,7 +33,7 @@ export class Loader {
       console.log(`Committing database changes`)
       await txn.commit()
       console.log(`Load Results: import complete`)
-    } catch(e) {
+    } catch (e) {
       await txn.rollback()
       throw e
     }
@@ -46,7 +42,7 @@ export class Loader {
   public async close() {
     try {
       console.log(`Loader: closing database connection`)
-      this.knex.destroy()
+      await this.knex.destroy()
     } catch (e) {
       console.log(e)
     }

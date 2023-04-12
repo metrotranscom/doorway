@@ -68,9 +68,9 @@ export class CombinedListingTransformer {
     )
 
     // building address
-    listing.buildingAddress = 
-      result.building_address == null 
-        ? null 
+    listing.buildingAddress =
+      result.building_address == null
+        ? null
         : mapTo(Address, result.building_address as object, mapToOpts)
 
     // features

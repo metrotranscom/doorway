@@ -27,6 +27,7 @@ COPY --chown=node:node backend/core ./backend/core
 
 # And shared helpers
 COPY --chown=node:node shared-helpers ./shared-helpers
+COPY --chown=node:node shared-services ./shared-services
 
 
 #####################

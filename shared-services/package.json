@@ -16,7 +16,7 @@
       "prettier": "prettier --write \"**/*.ts\""
     },
     "dependencies": {
-      "@bloom-housing/shared-helpers": "^7.5.0"
+	"@bloom-housing/shared-helpers": "file:../shared-helpers"
     },
     "devDependencies": {
       "@babel/core": "^7.21.3",

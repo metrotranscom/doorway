@@ -46,5 +46,5 @@ const runner = new Runner(
 )
 
 runner.run().catch( (error) => {
-  console.log(error)
+  console.error(error)
 })

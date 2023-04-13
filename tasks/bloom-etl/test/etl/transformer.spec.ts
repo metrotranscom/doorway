@@ -1,44 +1,35 @@
 import { Transformer, defaultMap } from "../../.build/src/etl/transformer"
+import { Listing } from "../../src/types"
 
 describe('Transformer', () => {
 
   it('should treat a string value as a property name', () => {
     const transformer = new Transformer({
-      value: "myPropertyName"
+      value: "name"
     })
 
-    const testValue = "some-test-value"
+    const listing = new Listing()
+    listing.name = "some-test-value"
 
-    const result = transformer.mapObjToRow({
-      myPropertyName: testValue
-    })
+    const result = transformer.mapListingToRow(listing)
 
-    expect(result).toHaveProperty('value', testValue)
+    //console.log(result)
+
+    expect(result).toHaveProperty('value', listing.name)
   })
 
   it('should call a function to get a value', () => {
     const transformer = new Transformer({
-      sum: obj => obj.x + obj.y
+      combined_id: (listing: Listing) => listing.id + "-" + listing.name
     })
 
-    const result = transformer.mapObjToRow({
-      x: 1,
-      y: 5
-    })
+    const listing = new Listing()
+    listing.id = "listing-id"
+    listing.name = "listing-name"
 
-    expect(result).toHaveProperty('sum', 6)
-  })
+    const result = transformer.mapListingToRow(listing)
 
-  it('should error on an unexpected map value', () => {
-    const transformer = new Transformer({
-      num: 3
-    })
-
-    expect( () => {
-      const result = transformer.mapObjToRow({
-        foo: 'bar'
-      })
-    }).toThrow()
+    expect(result).toHaveProperty('combined_id', listing.id + "-" + listing.name)
   })
 
   it('should map all results', () => {
@@ -46,17 +37,13 @@ describe('Transformer', () => {
       name: 'name'
     })
 
-    const result = transformer.mapAll([
-      {
-        name: "test1"
-      },
-      {
-        name: "test2",
-      },
-      {
-        name: "test3",
-      },
-    ])
+    const listings = ["test1", "test2", "test3"].map( name => {
+      const listing = new Listing()
+      listing.name = name
+      return listing
+    })
+
+    const result = transformer.mapAll(listings)
 
     expect(result).toHaveLength(3)
   })

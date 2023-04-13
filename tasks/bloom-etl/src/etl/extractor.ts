@@ -1,10 +1,9 @@
 import axios from "axios"
-import { Jurisdiction, Response, UrlInfo } from "../types"
+import { Jurisdiction, Listing, Response, UrlInfo } from "../types"
 
 export class Extractor {
   urlInfo: UrlInfo
   jurisdictions: Array<Jurisdiction>
-  //endpoints: Array<string>
 
   constructor(urlInfo: UrlInfo, jurisdictions: Array<Jurisdiction>) {
     this.urlInfo = urlInfo
@@ -22,7 +21,7 @@ export class Extractor {
     return url + `&filter[1][$comparison]==&filter[1][jurisdiction]=${id}`
   }
 
-  public async extract(): Promise<Array<any>> {
+  public async extract(): Promise<Array<Listing>> {
     const actions = []
 
     this.jurisdictions.forEach((jurisdiction: Jurisdiction) => {

@@ -343,9 +343,10 @@ async function seed() {
       password: "abcdef",
       passwordConfirmation: "abcdef",
       jurisdictions: [bayAreaJurisdiction],
+      agreedToTermsOfService: true,
     })
   )
-  await userRepo.save(bayAreaAdmin)
+  await userRepo.save({ ...bayAreaAdmin, agreedToTermsOfService: true })
   await userService.confirm({ token: bayAreaAdmin.confirmationToken })
 
   const bayAreaAdminRoles: UserRoles = {

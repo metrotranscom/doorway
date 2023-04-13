@@ -1,4 +1,5 @@
 import { Listing } from "@bloom-housing/backend-core/types"
+import { FileServiceProvider } from "@bloom-housing/shared-services"
 import { cleanup } from "@testing-library/react"
 import { cloudinaryUrlFromId, imageUrlFromListing } from "../src/utilities/photos"
 
@@ -7,6 +8,10 @@ afterEach(cleanup)
 describe("photos helper", () => {
   const OLD_ENV = process.env
   process.env.cloudinaryCloudName = "exygy"
+
+  beforeAll(() => {
+    FileServiceProvider.create()
+  })
 
   afterAll(() => {
     process.env = OLD_ENV

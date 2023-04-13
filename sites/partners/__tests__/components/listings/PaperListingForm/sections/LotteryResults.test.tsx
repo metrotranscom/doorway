@@ -7,6 +7,7 @@ import LotteryResults from "../../../../../src/components/listings/PaperListingF
 import { FormProvider, useForm } from "react-hook-form"
 import { formDefaults, FormListing } from "../../../../../src/lib/listings/formTypes"
 import { ListingEvent, ListingEventType } from "@bloom-housing/backend-core"
+import { FileServiceProvider } from "@bloom-housing/shared-services"
 
 const FormComponent = ({ children, values }: { values?: FormListing; children }) => {
   const formMethods = useForm<FormListing>({
@@ -21,6 +22,7 @@ const server = setupServer()
 // Enable API mocking before tests.
 beforeAll(() => {
   server.listen()
+  FileServiceProvider.create()
 })
 
 // Reset any runtime request handlers we may add during the tests.

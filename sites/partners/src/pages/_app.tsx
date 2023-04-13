@@ -6,6 +6,7 @@ import "@bloom-housing/ui-components/src/global/css-imports.scss"
 import "@bloom-housing/ui-components/src/global/app-css.scss"
 import { addTranslation, NavigationContext, GenericRouter } from "@bloom-housing/ui-components"
 import { AuthProvider, ConfigProvider, RequireLogin } from "@bloom-housing/shared-helpers"
+import { FileServiceProvider } from "@bloom-housing/shared-services"
 
 // TODO: Make these not-global
 import "ag-grid-community/dist/styles/ag-grid.css"
@@ -19,6 +20,8 @@ const signInMessage = "Login is required to view this page."
 function BloomApp({ Component, router, pageProps }: AppProps) {
   const { locale } = router
   const skipLoginRoutes = ["/forgot-password", "/reset-password", "/users/confirm", "/users/terms"]
+
+  FileServiceProvider.create()
 
   useMemo(() => {
     addTranslation(translations.general, true)

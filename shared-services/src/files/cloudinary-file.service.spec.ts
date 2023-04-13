@@ -1,7 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { CloudinaryFileUploader } from "./cloudinary-file-uploader"
 import { CloudinaryFileService } from "./cloudinary-file.service"
-import { FileServiceProvider } from "./file-service.provider"
 import { CloudinaryConfig } from "./file-config"
 
 // Cypress brings in Chai types for the global expect, but we want to use jest
@@ -31,7 +30,6 @@ describe("CloudinaryFileService", () => {
           provide: CloudinaryFileUploader,
           useValue: cloudinaryFileUploaderMock,
         },
-        FileServiceProvider,
         {
           provide: CloudinaryConfig,
           useValue: cloudinaryConfig,

@@ -23,8 +23,16 @@ describe("FileServiceProvider", () => {
     expect(provider).toBeDefined()
   })
 
-  it("should return Cloudinary file service", () => {
-    const service = provider.getService()
+  it("should return Cloudinary file service for public service", () => {
+    FileServiceProvider.create()
+    const service = FileServiceProvider.getPublicUploadService()
+    expect(service).toBeDefined()
+    expect(service).toBeInstanceOf(CloudinaryFileService)
+  })
+
+  it("should return Cloudinary file service for private service", () => {
+    FileServiceProvider.create()
+    const service = FileServiceProvider.getPrivateUploadService()
     expect(service).toBeDefined()
     expect(service).toBeInstanceOf(CloudinaryFileService)
   })

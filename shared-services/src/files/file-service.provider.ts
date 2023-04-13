@@ -4,9 +4,10 @@ import { FileServiceInterface } from "./file-service.interface"
 import { FileConfig, FileServiceTypeEnum } from "./file-config"
 
 export class FileServiceProvider {
-  service: FileServiceInterface
+  static publicUploadService: FileServiceInterface
+  static privateUploadService: FileServiceInterface
 
-  private configure(): FileConfig {
+  private static configure(): FileConfig {
     const fileConfig: FileConfig = {
       fileServiceType: FileServiceTypeEnum.cloudinary,
       cloudinaryConfig: {
@@ -17,11 +18,15 @@ export class FileServiceProvider {
     return fileConfig
   }
 
-  private create(): void {
+  public static create(): void {
     const fileConfig = this.configure()
     switch (fileConfig.fileServiceType) {
       case FileServiceTypeEnum.cloudinary:
-        this.service = new CloudinaryFileService(
+        this.publicUploadService = new CloudinaryFileService(
+          new CloudinaryFileUploader(),
+          fileConfig.cloudinaryConfig
+        )
+        this.privateUploadService = new CloudinaryFileService(
           new CloudinaryFileUploader(),
           fileConfig.cloudinaryConfig
         )
@@ -31,10 +36,11 @@ export class FileServiceProvider {
     }
   }
 
-  public getService(): FileServiceInterface {
-    if (this.service === undefined) {
-      this.create()
-    }
-    return this.service
+  public static getPublicUploadService(): FileServiceInterface {
+    return this.publicUploadService
+  }
+
+  public static getPrivateUploadService(): FileServiceInterface {
+    return this.privateUploadService
   }
 }

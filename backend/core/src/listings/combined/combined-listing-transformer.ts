@@ -39,6 +39,7 @@ export class CombinedListingTransformer {
     listing.closedAt = result.closed_at
     listing.updatedAt = result.updated_at
     listing.urlSlug = result.url_slug
+    listing.isExternal = result.is_external
 
     // jurisdiction
     listing.jurisdiction = mapTo(Jurisdiction, result.jurisdiction)

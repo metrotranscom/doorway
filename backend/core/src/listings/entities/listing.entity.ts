@@ -673,7 +673,17 @@ class Listing extends BaseEntity {
    *
    * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
    */
-  urlSlug?: string | null
+  urlSlug?: string
+
+  /**
+   * This is used to signal to the frontend whether the listing is internal or
+   * external.
+   *
+   * No column is needed or wanted
+   *
+   * REMOVE_WHEN_EXTERNAL_NOT_NEEDED
+   */
+  isExternal?: boolean = false // this should never be true for local listings
 }
 
 export { Listing as default, Listing }

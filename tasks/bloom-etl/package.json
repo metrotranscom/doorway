@@ -5,7 +5,7 @@
   "main": ".build/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest --config ./jest.json --runInBand --detectOpenHandles",
+    "test": "jest --runInBand --detectOpenHandles",
     "test:cov": "jest --coverage",
     "import:run": "node ./.build/index.js"
   },

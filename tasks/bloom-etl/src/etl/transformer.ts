@@ -31,44 +31,6 @@ export const defaultMap = {
   neighborhood: (listing: Listing) => null, // not available on view=base but needed for filtering
   reserved_community_type_name: (listing: Listing) => listing.reservedCommunityType?.name,
 
-  /* probably not needed, but keeping just in case
-  min_monthly_rent: (obj) => {
-    if (!Array.isArray(obj.units)) {
-      return null
-    }
-
-    let min = 99999999999
-
-    obj.units.forEach( (unit) => {
-      const rent = parseFloat(unit.monthlyRent) // it's a string for some reason
-
-      if (rent < min) {
-        min = rent
-      }
-    })
-
-    return min
-  },
-
-  max_monthly_rent: (obj) => {
-    if (!Array.isArray(obj.units)) {
-      return null
-    }
-
-    let max = 0
-
-    obj.units.forEach( (unit) => {
-      const rent = parseFloat(unit.monthlyRent) // it's a string for some reason
-
-      if (rent > max) {
-        max = rent
-      }
-    })
-
-    return max
-  },
-  */
-
   url_slug: "urlSlug",
 
   units_summarized: (listing: Listing) => jsonOrNull(listing.unitsSummarized),

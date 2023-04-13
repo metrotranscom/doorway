@@ -17,6 +17,7 @@ import ApplicationConductor, {
 } from "../lib/applications/ApplicationConductor"
 import { translations, overrideTranslations } from "../lib/translations"
 import LinkComponent from "../components/core/LinkComponent"
+import { FileServiceProvider } from "@bloom-housing/shared-services"
 
 function BloomApp({ Component, router, pageProps }: AppProps) {
   const { locale } = router
@@ -27,6 +28,8 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
   const [savedListing, setSavedListing] = useState(() => {
     return loadSavedListing()
   })
+
+  FileServiceProvider.create()
 
   const conductor = useMemo(() => {
     return new ApplicationConductor(application, savedListing)

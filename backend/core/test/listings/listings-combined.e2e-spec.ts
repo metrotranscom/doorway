@@ -4,21 +4,12 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm"
 import supertest from "supertest"
 import { ListingsModule } from "../../src/listings/listings.module"
 import { applicationSetup } from "../../src/app.module"
-import { ListingDto } from "../../src/listings/dto/listing.dto"
 import { getUserAccessToken } from "../utils/get-user-access-token"
 import { setAuthorization } from "../utils/set-authorization-helper"
-import { AssetCreateDto } from "../../src/assets/dto/asset.dto"
-import { ApplicationMethodCreateDto } from "../../src/application-methods/dto/application-method.dto"
-import { ApplicationMethodType } from "../../src/application-methods/types/application-method-type-enum"
-import { ApplicationSection, Language } from "../../types"
 import { AssetsModule } from "../../src/assets/assets.module"
 import { ApplicationMethodsModule } from "../../src/application-methods/applications-methods.module"
 import { PaperApplicationsModule } from "../../src/paper-applications/paper-applications.module"
-import { ListingEventCreateDto } from "../../src/listings/dto/listing-event.dto"
-import { ListingEventType } from "../../src/listings/types/listing-event-type-enum"
-import { Listing } from "../../src/listings/entities/listing.entity"
 import qs from "qs"
-import { ListingUpdateDto } from "../../src/listings/dto/listing-update.dto"
 import { MultiselectQuestion } from "../../src//multiselect-question/entities/multiselect-question.entity"
 import { Repository } from "typeorm"
 import { INestApplication } from "@nestjs/common"
@@ -27,7 +18,6 @@ import { makeTestListing } from "../utils/make-test-listing"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import dbOptions from "../../ormconfig.test"
-import { MultiselectQuestionDto } from "../../src/multiselect-question/dto/multiselect-question.dto"
 
 // Cypress brings in Chai types for the global expect, but we want to use jest
 // expect here so we need to re-declare it.
@@ -221,31 +211,33 @@ describe("CombinedListings", () => {
     it("should find listing by search", async () => {
       const anyJurisdiction = (await jurisdictionsRepository.find({ take: 1 }))[0]
       const newListingCreateDto = makeTestListing(anyJurisdiction.id)
-  
-       // must be different than the value in Listing test
+
+      // must be different than the value in Listing test
       const newListingName = "combined-random-name"
       newListingCreateDto.name = newListingName
-  
+
       let listingsSearchResponse = await supertest(app.getHttpServer())
-        .get(`/listings/combined?search=random`)
+        .get(`/listings/combined?search=combined`)
         .expect(200)
-  
+
       expect(listingsSearchResponse.body.items.length).toBe(0)
-  
+
       // post to local listings endpoint, not combined
       const listingResponse = await supertest(app.getHttpServer())
         .post(`/listings`)
         .send(newListingCreateDto)
         .set(...setAuthorization(adminAccessToken))
       expect(listingResponse.body.name).toBe(newListingName)
-  
-      listingsSearchResponse = await supertest(app.getHttpServer()).get(`/listings/combined`).expect(200)
-      expect(listingsSearchResponse.body.items.length).toBeGreaterThan(1)
-  
+
       listingsSearchResponse = await supertest(app.getHttpServer())
-        .get(`/listings/combined?search=random`)
+        .get(`/listings/combined`)
         .expect(200)
-  
+      expect(listingsSearchResponse.body.items.length).toBeGreaterThan(1)
+
+      listingsSearchResponse = await supertest(app.getHttpServer())
+        .get(`/listings/combined?search=combined`)
+        .expect(200)
+
       expect(listingsSearchResponse.body.items.length).toBe(1)
       expect(listingsSearchResponse.body.items[0].name).toBe(newListingName)
     })
@@ -256,7 +248,7 @@ describe("CombinedListings", () => {
 
       newListingCreateDto.name = "is-external-test"
       newListingCreateDto.isExternal = true // set explicitly to verify
-  
+
       // post to local listings endpoint, not combined
       const listingResponse = await supertest(app.getHttpServer())
         .post(`/listings`)

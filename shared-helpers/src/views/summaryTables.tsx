@@ -142,7 +142,7 @@ interface UnitTablesProps {
 }
 
 export const UnitTables = (props: UnitTablesProps) => {
-  const unitSummaries = props.unitSummaries || []
+  const unitSummaries = props.unitSummaries || props.unitSummaries[]
 
   const unitsHeaders = {
     number: "t.unit",
@@ -192,7 +192,7 @@ export const UnitTables = (props: UnitTablesProps) => {
         }
 
         if (unitSummary.floorRange && unitSummary.floorRange.min) {
-          floorSection = `, ${formatRange(unitSummary.floorRange, true)} 
+          floorSection = `, ${formatRange(unitSummary.floorRange, true)}
               ${
                 unitSummary.floorRange.max > unitSummary.floorRange.min
                   ? t("t.floors")

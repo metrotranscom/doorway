@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode"
+import jwtDecode, { JwtPayload } from "jwt-decode"
 
 export const ACCESS_TOKEN_LOCAL_STORAGE_KEY = "@bht"
 
@@ -12,6 +12,6 @@ export const clearToken = (storageType: string) =>
   getStorage(storageType).removeItem(ACCESS_TOKEN_LOCAL_STORAGE_KEY)
 
 export const getTokenTtl = (token: string) => {
-  const { exp = 0 } = jwtDecode(token)
+  const { exp = 0 } = jwtDecode<JwtPayload>(token)
   return new Date(exp * 1000).valueOf() - new Date().valueOf()
 }

@@ -16,10 +16,11 @@
     "prettier": "prettier --write \"**/*.ts\""
   },
   "dependencies": {
-      "@bloom-housing/backend-core": "file:../backend/core",
-      "@bloom-housing/shared-services": "file:../shared-services",
+    "@bloom-housing/backend-core": "file:../backend/core",
+    "@bloom-housing/shared-services": "file:../shared-services",
     "@bloom-housing/ui-components": "^12.0.2",
     "axios-cookiejar-support": "4.0.6",
+    "jwt-decode": "^3.1.2",
     "tough-cookie": "4.1.2"
   },
   "devDependencies": {

@@ -45,21 +45,17 @@ export class CombinedListingTransformer {
     listing.jurisdiction = mapTo(Jurisdiction, result.jurisdiction)
 
     // units
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    listing.units = mapTo(Unit, result.units as Array<any>)
+    listing.units = Array.isArray(result.units) ? mapTo(Unit, result.units as Array<object>) : []
 
     // images
-    listing.images =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      result.images == null ? null : mapTo(ListingImage, result.images as Array<any>, mapToOpts)
+    listing.images = Array.isArray(result.images)
+      ? mapTo(ListingImage, result.images as Array<object>, mapToOpts)
+      : []
 
     // multiselect questions
-    listing.listingMultiselectQuestions = mapTo(
-      ListingMultiselectQuestion,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      result.multiselect_questions as Array<any>,
-      mapToOpts
-    )
+    listing.listingMultiselectQuestions = Array.isArray(result.multiselect_questions)
+      ? mapTo(ListingMultiselectQuestion, result.multiselect_questions as Array<object>, mapToOpts)
+      : []
 
     // reserved community type
     listing.reservedCommunityType = mapTo(
@@ -69,20 +65,13 @@ export class CombinedListingTransformer {
     )
 
     // building address
-    listing.buildingAddress =
-      result.building_address == null
-        ? null
-        : mapTo(Address, result.building_address as object, mapToOpts)
+    listing.buildingAddress = mapTo(Address, result.building_address as object, mapToOpts)
 
     // features
-    listing.features =
-      result.features == null ? null : mapTo(ListingFeatures, result.features as object, mapToOpts)
+    listing.features = mapTo(ListingFeatures, result.features as object, mapToOpts)
 
     // utilities
-    listing.utilities =
-      result.utilities == null
-        ? null
-        : mapTo(ListingUtilities, result.utilities as object, mapToOpts)
+    listing.utilities = mapTo(ListingUtilities, result.utilities as object, mapToOpts)
 
     // unit summaries
     if (Array.isArray(listing.units)) {

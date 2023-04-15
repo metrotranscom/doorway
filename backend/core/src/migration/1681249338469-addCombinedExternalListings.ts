@@ -184,13 +184,15 @@ export class addCombinedExternalListings1681249338469 implements MigrationInterf
           'maxOccupancy', u.max_occupancy,
           'minOccupancy', u.min_occupancy,
           'monthlyRent', u.monthly_rent,
-          'sqFeet', u.sq_feet,
-          'monthlyRentAsPercentOfIncome', u.monthly_rent_as_percent_of_income,
+          --'sqFeet', u.sq_feet,
+          --'monthlyRentAsPercentOfIncome', u.monthly_rent_as_percent_of_income,
+          'sqFeet', CAST(u.sq_feet as text),
+          'monthlyRentAsPercentOfIncome', CAST(u.monthly_rent_as_percent_of_income as text),
           'unitType', json_build_object(
             'id', u.unit_type_id,
             'name', t.name
           ),
-          'amiChartOverrides', 
+          'amiChartOverride', 
           CASE
             WHEN ami.id IS NOT NULL THEN json_build_object(
               'id', u.ami_chart_override_id,

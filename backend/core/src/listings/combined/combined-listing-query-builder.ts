@@ -2,13 +2,13 @@ import { Listing } from "../entities/listing.entity"
 import { SelectQueryBuilder } from "typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { CombinedListingTransformer } from "./combined-listing-transformer"
-import { ListingFilterParams } from "../dto/listing-filter-params"
 import { addFilters } from "../../shared/query-filter"
 import { combinedListingFilterTypeToFieldMap } from "./filter-type-to-field-map"
 import { OrderByFieldsEnum } from "../types/listing-orderby-enum"
 import { OrderParam } from "../../applications/types/order-param"
 import { HttpException, HttpStatus } from "@nestjs/common"
 import { CombinedListing } from "./combined-listing.entity"
+import { CombinedListingFilterParams } from "./combined-listing-filter-params"
 
 type OrderByConditionData = {
   orderBy: string
@@ -53,9 +53,6 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
           orderDir,
           nulls: "NULLS LAST",
         }
-      // not sure what listings.marketingType refers to?
-      //case OrderByFieldsEnum.marketingType:
-      //  return { orderBy: "listings.marketingType", orderDir }
       case OrderByFieldsEnum.applicationDates:
       case undefined:
         // Default to ordering by applicationDates (i.e. applicationDueDate
@@ -76,11 +73,11 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
     return this
   }
 
-  addFilters(filters?: ListingFilterParams[]) {
+  addFilters(filters?: CombinedListingFilterParams[]) {
     if (!filters) {
       return this
     }
-    addFilters<Array<ListingFilterParams>, typeof combinedListingFilterTypeToFieldMap>(
+    addFilters<Array<CombinedListingFilterParams>, typeof combinedListingFilterTypeToFieldMap>(
       filters,
       combinedListingFilterTypeToFieldMap,
       this
@@ -113,15 +110,18 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
   }
 
   paginate(limit?: number | "all", page?: number) {
-    this.limitValue = limit
-    this.pageValue = page
+    const realLimit = limit == "all" || limit > 0 ? limit : 10 // set a default limit
+    const realPage = page > 0 ? page : 1 // set a default page
 
-    if (CombinedListingsQueryBuilder.shouldPaginate(limit, page)) {
+    this.limitValue = realLimit
+    this.pageValue = realPage
+
+    if (CombinedListingsQueryBuilder.shouldPaginate(realLimit, realPage)) {
       // Calculate the number of listings to skip (because they belong to lower page numbers).
-      const offset = (page - 1) * (limit as number)
+      const offset = (realPage - 1) * (realLimit as number)
       // Add the limit and offset to the inner query, so we only do the full
       // join on the listings we want to show.
-      this.offset(offset).limit(limit as number)
+      this.offset(offset).limit(realLimit as number)
     }
     return this
   }
@@ -136,29 +136,8 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
     return [transformer.transformAll(results), count]
   }
 
-  /*
-  protected async executeEntitiesAndRawResults(
-    queryRunner: QueryRunner,
-  ): Promise<{ entities: any[]; raw: any[] }> {
-    const results = await super.executeEntitiesAndRawResults(queryRunner)
-    console.log(results.raw.length)
-    console.log(results.entities.length)
-    console.log(this.expressionMap.mainAlias.metadata.columns)
-    console.log(this.expressionMap.mainAlias.metadata.propertiesMap)
-    return results
-  }
-  */
-
   public async getManyPaginated(): Promise<Pagination<Listing>> {
     const [listings, count] = await this.getManyListingsAndCount()
-
-    /*
-    const [combinedListings, count] = await this.getManyAndCount()
-
-    const listings = combinedListings.map( (combined) => {
-      return combined.toListing()
-    })
-    //*/
 
     const shouldPaginate = CombinedListingsQueryBuilder.shouldPaginate(
       this.limitValue,

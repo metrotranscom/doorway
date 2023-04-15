@@ -256,6 +256,95 @@ describe("CombinedListings", () => {
         .set(...setAuthorization(adminAccessToken))
       expect(listingResponse.body.isExternal).toBe(false)
     })
+
+    it("should properly apply isExternal filter", async () => {
+      const queryParams = {
+        // we're only interested in the totals, so no need to fetch more than 1
+        limit: 1,
+        page: 1,
+        view: "base",
+      }
+      const localQuery = qs.stringify(queryParams)
+      const localRes = await supertest(app.getHttpServer())
+        .get(`/listings?${localQuery}`)
+        .expect(200)
+
+      const localCount = localRes.body.meta.totalItems
+
+      // fetch internal only
+      const combinedLocalQuery = qs.stringify({
+        filter: [{ $comparison: "=", isExternal: false }],
+      })
+      const combinedLocalRes = await supertest(app.getHttpServer())
+        .get(`/listings/combined?${combinedLocalQuery}`)
+        .expect(200)
+
+      const combinedLocalCount = combinedLocalRes.body.meta.totalItems
+
+      // there should be the same number of internal listings pulled from both endpoints
+      expect(localCount).toBe(combinedLocalCount)
+
+      // fetch external only
+      const combinedExternalQuery = qs.stringify({
+        filter: [{ $comparison: "=", isExternal: true }],
+      })
+      const combinedExternalRes = await supertest(app.getHttpServer())
+        .get(`/listings/combined?${combinedExternalQuery}`)
+        .expect(200)
+
+      const combinedExternalCount = combinedExternalRes.body.meta.totalItems
+
+      // fetch all combined listings
+      const combinedAllQuery = localQuery // same query as before
+      const combinedAllRes = await supertest(app.getHttpServer())
+        .get(`/listings/combined?${combinedAllQuery}`)
+        .expect(200)
+
+      const combinedAllCount = combinedAllRes.body.meta.totalItems
+      expect(combinedExternalCount).toBe(combinedAllCount - combinedLocalCount)
+    })
+
+    /*
+      Blocking for now
+      Non-deterministic ordering of array values causes failure, so each item
+      will need to be mapped and compared based on id rather than trust item order
+
+      ex: listings.units might have units in a different order for the same listing
+
+    it("should return the same object structure as /listings?view=base", async () => {
+      let queryParams = {
+        limit: "all",
+        view: "base",  // /listings/combined always returns view=base
+
+        // we have to sort by name to ensure consistency
+        // application_due_date is identical for some seed listings
+        orderBy: ["name", "mostRecentlyUpdated"],
+        orderDir: ["DESC", "DESC"]
+      }
+      const localQuery = qs.stringify(queryParams)
+      let localRes = await supertest(app.getHttpServer()).get(`/listings?${localQuery}`).expect(200)
+
+      // make sure we are only comparing local listings
+      const combinedQuery = qs.stringify({
+        ...queryParams,
+        filter: [ { '$comparison': '=', isExternal: false } ],
+      })
+      let combinedRes = await supertest(app.getHttpServer()).get(`/listings/combined?${combinedQuery}`).expect(200)
+
+      expect(localRes.body.items.length).toBe(combinedRes.body.items.length)
+
+      combinedRes.body.items.forEach( (result, idx) => {
+        const localListing = localRes.body.items[idx]
+
+        // ignore props on result from combined endpoint
+        delete result.updatedAt
+        delete result.showWaitlist
+       
+
+        expect(localListing).toEqual(result)
+      })
+    })
+    */
   })
 
   afterEach(() => {

@@ -34,6 +34,7 @@ import { ListingsQueryBuilder } from "./db/listing-query-builder"
 import { ListingsRetrieveQueryParams } from "./dto/listings-retrieve-query-params"
 import { AxiosResponse } from "axios"
 import { Compare } from "../shared/dto/filter.dto"
+import { CombinedListingsQueryParams } from "./combined/combined-listings-query-params"
 
 type JurisdictionIdToExternalResponse = { [Identifier: string]: Pagination<Listing> }
 export type ListingIncludeExternalResponse = {
@@ -116,7 +117,7 @@ export class ListingsService {
   }
 
   // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
-  public async listCombined(params: ListingsQueryParams): Promise<Pagination<Listing>> {
+  public async listCombined(params: CombinedListingsQueryParams): Promise<Pagination<Listing>> {
     const qb = this.listingRepository.createCombinedListingsQueryBuilder("combined")
 
     qb.addFilters(params.filter)

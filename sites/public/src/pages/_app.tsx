@@ -32,6 +32,12 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
     return new ApplicationConductor(application, savedListing)
   }, [application, savedListing])
 
+  // fix for rehydration
+  const [hasMounted, setHasMounted] = useState(false)
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   useMemo(() => {
     addTranslation(translations.general, true)
     if (locale && locale !== "en" && translations[locale]) {
@@ -91,7 +97,7 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
         <ConfigProvider apiUrl={process.env.backendApiBase}>
           <AuthProvider>
             <LoggedInUserIdleTimeout onTimeout={() => conductor.reset()} />
-            <Component {...pageProps} />
+            {hasMounted && <Component {...pageProps} />}
           </AuthProvider>
         </ConfigProvider>
       </AppSubmissionContext.Provider>

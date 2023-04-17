@@ -5,7 +5,7 @@ import { importListing, ListingImport, UnitsSummaryImport } from "./import-helpe
 import * as client from "../types/src/backend-swagger"
 import {
   AddressCreate,
-  ListingMarketingTypeEnum,
+//   ListingMarketingTypeEnum,
   ListingStatus,
   serviceOptions,
 } from "../types/src/backend-swagger"
@@ -39,12 +39,12 @@ async function main() {
     timeout: 10000,
   })
 
-  const hrdIds: Set<string> = new Set(
-    (await new client.ListingsService().list({ limit: "all" })).items.map(
-      (listing) => listing.hrdId
-    )
-  )
-  console.log(`Got ${hrdIds.size} HRD ids.`)
+//   const hrdIds: Set<string> = new Set(
+//     (await new client.ListingsService().list({ limit: "all" })).items.map(
+//       (listing) => listing.hrdId
+//     )
+//   )
+//   console.log(`Got ${hrdIds.size} HRD ids.`)
 
   // Regex used to parse the AMI from an AMI column name
   const amiColumnRegex = /(\d+) Pct AMI/ // e.g. 30 Pct AMI
@@ -60,19 +60,19 @@ async function main() {
       .on("data", (listingFields) => {
         const listingName: string = listingFields["Project Name"].trim()
         // Exclude listings that are not "regulated" affordable housing
-        const affordabilityStatus: string = listingFields["Affordability status"]
-        if (affordabilityStatus?.toLowerCase() !== "regulated") {
-          console.log(
-            `Skipping listing because it is not *regulated* affordable housing: ${listingName}`
-          )
-          return
-        }
+        // const affordabilityStatus: string = listingFields["Affordability status"]
+        // if (affordabilityStatus?.toLowerCase() !== "regulated") {
+        //   console.log(
+        //     `Skipping listing because it is not *regulated* affordable housing: ${listingName}`
+        //   )
+        //   return
+        // }
 
         // Exclude listings that are already present in the db, based on HRD id.
-        if (hrdIds.has(listingFields["HRDID"])) {
-          console.log(`Skipping ${listingName} because it's already in the database.`)
-          return
-        }
+        // if (hrdIds.has(listingFields["HRDID"])) {
+        //   console.log(`Skipping ${listingName} because it's already in the database.`)
+        //   return
+        // }
 
         // Exclude listings that are not at the stage of housing people.
         // Some listings are in the "development pipeline" and should not yet be shown to
@@ -104,8 +104,8 @@ async function main() {
     const address: AddressCreate = {
       street: listingFields["Project Address"],
       zipCode: listingFields["Zip Code"],
-      city: "Detroit",
-      state: "MI",
+      city: listingFields["City"],
+      state: listingFields["State"],
       longitude: listingFields["Longitude"],
       latitude: listingFields["Latitude"],
     }
@@ -165,33 +165,33 @@ async function main() {
       leasingAgentEmail = listingFields["Manager Email"]
     }
 
-    let reservedCommunityTypeName: string = null
-    const hudClientGroup = listingFields["HUD Client group"].toLowerCase()
-    if (["wholly physically handicapped", "wholly physically disabled"].includes(hudClientGroup)) {
-      reservedCommunityTypeName = "specialNeeds"
-    } else if (hudClientGroup === "wholly elderly housekeeping") {
-      reservedCommunityTypeName = "senior62"
-    }
+    // let reservedCommunityTypeName: string = null
+    // const hudClientGroup = listingFields["HUD Client group"].toLowerCase()
+    // if (["wholly physically handicapped", "wholly physically disabled"].includes(hudClientGroup)) {
+    //   reservedCommunityTypeName = "specialNeeds"
+    // } else if (hudClientGroup === "wholly elderly housekeeping") {
+    //   reservedCommunityTypeName = "senior62"
+    // }
 
     const listing: ListingImport = {
-      name: listingFields["Project Name"],
-      hrdId: listingFields["HRDID"],
+      jurisdictionName: listingFields["Jurisdiction Name"],
+      name: listingFields["Listing Name"],
+      listingMultiselectQuestions:[],
+      developer: listingFields["Housing Developer"],
+    //   TODO: ADD PHOTOs
       buildingAddress: address,
-      region: listingFields["Region"],
-      ownerCompany: listingFields["Owner Company"],
-      managementCompany: listingFields["Management Company"],
-      leasingAgentName: listingFields["Manager Contact"],
-      leasingAgentPhone: listingFields["Manager Phone"],
-      managementWebsite: listingFields["Management Website"],
+      neighborhood: listingFields["Neigborhood"],
+      yearBuilt: listingFields["YearBuilt"],
+      leasingAgentName: listingFields["Leasing Agent Name"],
+    //   leasingAgentPhone: listingFields["Leasing Agent Phone"],
+    //   managementWebsite: listingFields["Management Website"],
       leasingAgentEmail: leasingAgentEmail,
-      phoneNumber: listingFields["Property Phone"],
-      amiPercentageMin: amiPercentageMin,
-      amiPercentageMax: amiPercentageMax,
+      leasingAgentPhone: listingFields["Leasing Agent Phone"],
+    //   amiPercentageMin: amiPercentageMin,
+    //   amiPercentageMax: amiPercentageMax,
       status: ListingStatus.active,
       // unitsSummary: unitsSummaries,
-      jurisdictionName: "Detroit",
-      reservedCommunityTypeName: reservedCommunityTypeName,
-      neighborhood: listingFields["Neighborhood"],
+      reservedCommunityTypeName: listingFields["Reserved Community Type"],
 
       // The following fields are only set because they are required
       units: [],
@@ -203,7 +203,6 @@ async function main() {
       displayWaitlistSize: false,
       depositMin: "",
       depositMax: "",
-      developer: "",
       digitalApplication: false,
       images: [],
       isWaitlistOpen: true,
@@ -211,8 +210,8 @@ async function main() {
       referralOpportunity: false,
       rentalAssistance: "",
       reviewOrderType: ListingReviewOrder.firstComeFirstServe,
-      listingPreferences: [],
-      marketingType: ListingMarketingTypeEnum.marketing,
+    //   listingPreferences: [],
+    //   marketingType: ListingMarketingTypeEnum.marketing,
     }
 
     try {

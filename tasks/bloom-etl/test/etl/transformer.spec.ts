@@ -1,10 +1,10 @@
-import { Transformer, defaultMap } from "../../.build/src/etl/transformer"
+import { DefaultTransformer, defaultMap } from "../../src/etl"
 import { Listing } from "../../src/types"
 
-describe('Transformer', () => {
+describe('DefaultTransformer', () => {
 
-  it('should treat a string value as a property name', () => {
-    const transformer = new Transformer({
+  it('treats a string value as a property name', () => {
+    const transformer = new DefaultTransformer({
       value: "name"
     })
 
@@ -18,8 +18,8 @@ describe('Transformer', () => {
     expect(result).toHaveProperty('value', listing.name)
   })
 
-  it('should call a function to get a value', () => {
-    const transformer = new Transformer({
+  it('calls a function to get a value', () => {
+    const transformer = new DefaultTransformer({
       combined_id: (listing: Listing) => listing.id + "-" + listing.name
     })
 
@@ -32,8 +32,8 @@ describe('Transformer', () => {
     expect(result).toHaveProperty('combined_id', listing.id + "-" + listing.name)
   })
 
-  it('should map all results', () => {
-    const transformer = new Transformer({
+  it('maps all results', () => {
+    const transformer = new DefaultTransformer({
       name: 'name'
     })
 

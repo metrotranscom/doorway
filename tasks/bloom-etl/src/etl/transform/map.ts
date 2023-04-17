@@ -1,4 +1,4 @@
-import { Listing } from "src/types"
+import { Listing } from "../../types"
 
 function jsonOrNull(value: any): string | null {
   if (value == null) return "null"
@@ -6,9 +6,9 @@ function jsonOrNull(value: any): string | null {
   return JSON.stringify(value)
 }
 
-type ResolveFunction = (listing: Listing) => string | number | boolean | null
-type MapValue = string | ResolveFunction
-type RecordMap = Record<string, MapValue>
+export type ResolveFunction = (listing: Listing) => string | number | boolean | null
+export type MapValue = string | ResolveFunction
+export type RecordMap = Record<string, MapValue>
 
 export const defaultMap: RecordMap = {
   id: "id",
@@ -44,47 +44,4 @@ export const defaultMap: RecordMap = {
   building_address: (listing: Listing) => jsonOrNull(listing.buildingAddress),
   features: (listing: Listing) => jsonOrNull(listing.features),
   utilities: (listing: Listing) => jsonOrNull(listing.utilities),
-}
-
-export class Transformer {
-  map: RecordMap
-
-  constructor(map: RecordMap) {
-    this.map = map
-  }
-
-  private getMappedValue(key: string, value: MapValue, obj: any): any {
-    const type = typeof value
-
-    // eslint complained when I used a switch here
-    if (type == "string") {
-      return obj[value as string]
-    }
-
-    if (type == "function") {
-      return (value as ResolveFunction)(obj)
-    }
-    
-    throw new Error(`Unexpected map type [${type}]`)
-  }
-
-  public mapAll(listings: Array<Listing>): Array<any> {
-    const rows = listings.map((listing) => {
-      return this.mapListingToRow(listing)
-    })
-
-    console.log(`Transform Results: ${rows.length} listings converted into table rows`)
-
-    return rows
-  }
-
-  public mapListingToRow(listing: Listing): any {
-    const row = {}
-
-    for (const [key, value] of Object.entries(this.map)) {
-      row[key] = this.getMappedValue(key, value, listing)
-    }
-
-    return row
-  }
 }

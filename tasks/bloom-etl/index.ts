@@ -1,10 +1,7 @@
-import { Extractor } from "./src/etl/extractor"
-import { Transformer, defaultMap } from "./src/etl/transformer"
-import { Loader } from "./src/etl/loader"
-import { Runner } from "./src/etl/runner"
+import { Runner, DefaultExtractor, DefaultTransformer, DefaultLoader, defaultMap } from "./src/etl"
 import { DbConfig, Jurisdiction, UrlInfo } from "./src/types"
 
-// No need to retrieve these dynamically since they never change
+// No need to retrieve these dynamically since they never change, per Exygy
 const jurisdictions: Array<Jurisdiction> = [
   {
     id: "3d0a7a32-345e-4ca6-86d8-66e51d6082db",
@@ -40,9 +37,9 @@ actually less intrusive than changing an env var elsewhere.
 const tableName = "external_listings"
 
 const runner = new Runner(
-  new Extractor(url, jurisdictions),
-  new Transformer(defaultMap),
-  new Loader(dbConfig, tableName)
+  new DefaultExtractor(url, jurisdictions),
+  new DefaultTransformer(defaultMap),
+  new DefaultLoader(dbConfig, tableName)
 )
 
 runner.run().catch( (error) => {

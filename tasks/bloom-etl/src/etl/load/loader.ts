@@ -1,7 +1,8 @@
 import { Knex, knex } from "knex"
-import { DbConfig } from "src/types"
+import { DbConfig } from "../../types"
+import { LoaderInterface } from "./loader-interface"
 
-export class Loader {
+export class DefaultLoader implements LoaderInterface {
   knex: Knex
   table: string
   txn: Knex.TransactionProvider
@@ -18,7 +19,7 @@ export class Loader {
     this.txn = this.knex.transactionProvider()
   }
 
-  public async load(rows: any) {
+  public async load(rows: Array<object>) {
     // start the transaction
     const txn = await this.txn()
 

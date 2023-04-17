@@ -1,7 +1,8 @@
 import axios from "axios"
-import { Jurisdiction, Listing, Response, UrlInfo } from "../types"
+import { Jurisdiction, Listing, Response, UrlInfo } from "../../types"
+import { ExtractorInterface } from "./extractor-interface"
 
-export class Extractor {
+export class DefaultExtractor implements ExtractorInterface {
   urlInfo: UrlInfo
   jurisdictions: Array<Jurisdiction>
 

@@ -1,13 +1,11 @@
-import { Extractor } from "./extractor"
-import { Transformer } from "./transformer"
-import { Loader } from "./loader"
+import { ExtractorInterface, TransformerInterface, LoaderInterface } from "./"
 
 export class Runner {
-  extractor: Extractor
-  transformer: Transformer
-  loader: Loader
+  extractor: ExtractorInterface
+  transformer: TransformerInterface
+  loader: LoaderInterface
 
-  constructor(extractor: Extractor, transformer: Transformer, loader: Loader) {
+  constructor(extractor: ExtractorInterface, transformer: TransformerInterface, loader: LoaderInterface) {
     this.extractor = extractor
     this.transformer = transformer
     this.loader = loader

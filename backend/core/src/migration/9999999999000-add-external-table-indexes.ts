@@ -1,8 +1,8 @@
 import { MigrationInterface, QueryRunner } from "typeorm"
 
 // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
-export class externalListingIndexes1681251052000 implements MigrationInterface {
-  name = "externalListingIndexes1681251052000"
+export class externalListingIndexes9999999999000 implements MigrationInterface {
+  name = "externalListingIndexes9999999999000"
 
   public async up(queryRunner: QueryRunner): Promise<void> {
 

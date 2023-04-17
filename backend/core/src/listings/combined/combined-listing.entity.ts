@@ -50,7 +50,7 @@ jsonb_build_object(
 
 -- reserved_community_type; may not exist
 CASE
-  WHEN feat.id IS NOT NULL THEN 
+  WHEN rct.id IS NOT NULL THEN 
     jsonb_build_object(
       'name', rct.name,
       'id', rct.id
@@ -138,20 +138,6 @@ ON l.building_address_id = addr.id
 LEFT JOIN (
 SELECT 
   listing_id,
-  MIN(monthly_rent) as "min_monthly_rent", 
-  MAX(monthly_rent) AS "max_monthly_rent",
-  MIN(u.num_bedrooms) AS "min_bedrooms",
-  MAX(u.num_bedrooms) AS "max_bedrooms",
-  MIN(u.num_bathrooms) AS "min_bathrooms",
-  MAX(u.num_bathrooms) AS "max_bathrooms",
-  MIN(monthly_income_min) AS "min_monthly_income_min",
-  MAX(monthly_income_min) AS "max_monthly_income_min",
-  MIN(min_occupancy) AS "min_occupancy",
-  MAX(max_occupancy) AS "max_occupancy",
-  MIN(sq_feet) AS "min_sq_feet",
-  MAX(sq_feet) AS "max_sq_feet",
-  MIN(floor) as "lowest_floor",
-  MAX(floor) as "highest_floor",
   jsonb_agg(
     jsonb_build_object(
       'id', u.id,
@@ -257,14 +243,11 @@ const externalSelect = `SELECT
 "closed_at", 
 "updated_at",
 "last_application_update_at", 
-
 "county",
 "city",
 "neighborhood", 
 "reserved_community_type_name",
-
 "url_slug",
-
 "units_summarized",
 "images",
 "multiselect_questions",

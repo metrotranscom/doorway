@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { CloudinaryFileUploader } from "./cloudinary-file-uploader"
 import { CloudinaryFileService } from "./cloudinary-file.service"
-import { CloudinaryConfig } from "./file-config"
+import { CloudinaryFileServiceConfig } from "./file-service-config"
 
 // Cypress brings in Chai types for the global expect, but we want to use jest
 // expect here so we need to re-declare it.
@@ -16,7 +16,7 @@ const cloudinaryFileUploaderMock = {
     })
   },
 }
-const cloudinaryConfig: CloudinaryConfig = {
+const cloudinaryFileServiceConfig: CloudinaryFileServiceConfig = {
   cloudinaryCloudName: "exygy",
   cloudinaryUploadPreset: "test",
 }
@@ -31,8 +31,8 @@ describe("CloudinaryFileService", () => {
           useValue: cloudinaryFileUploaderMock,
         },
         {
-          provide: CloudinaryConfig,
-          useValue: cloudinaryConfig,
+          provide: CloudinaryFileServiceConfig,
+          useValue: cloudinaryFileServiceConfig,
         },
       ],
     }).compile()

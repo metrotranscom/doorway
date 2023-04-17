@@ -1,20 +1,33 @@
 import { ListingEventType, ListingEvent } from "@bloom-housing/backend-core/types"
-import { FileServiceProvider } from "@bloom-housing/shared-services"
+import {
+  FileProviderConfig,
+  FileServiceProvider,
+  FileServiceTypeEnum,
+} from "@bloom-housing/shared-services"
 import { cleanup } from "@testing-library/react"
 import { cloudinaryPdfFromId, pdfUrlFromListingEvents } from "../src/utilities/pdfs"
 
 afterEach(cleanup)
 
 describe("pdfs helpers", () => {
-  const OLD_ENV = process.env
-  process.env.cloudinaryCloudName = "exygy"
-
   beforeAll(() => {
-    FileServiceProvider.create()
-  })
-
-  afterAll(() => {
-    process.env = OLD_ENV
+    const fileProviderConfig: FileProviderConfig = {
+      publicService: {
+        fileServiceType: FileServiceTypeEnum.cloudinary,
+        cloudinaryConfig: {
+          cloudinaryCloudName: "exygy",
+          cloudinaryUploadPreset: "testUploadPreset",
+        },
+      },
+      privateService: {
+        fileServiceType: FileServiceTypeEnum.cloudinary,
+        cloudinaryConfig: {
+          cloudinaryCloudName: "exygy",
+          cloudinaryUploadPreset: "testUploadPreset",
+        },
+      },
+    }
+    FileServiceProvider.configure(fileProviderConfig)
   })
 
   it("should format cloudinary url", () => {

@@ -18,6 +18,7 @@ import { makeTestListing } from "../utils/make-test-listing"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import dbOptions from "../../ormconfig.test"
+import { getExternalListingSeedData } from "../../src/seeder/seeds/listings/external-listings-seed"
 
 // Cypress brings in Chai types for the global expect, but we want to use jest
 // expect here so we need to re-declare it.
@@ -140,34 +141,45 @@ describe("CombinedListings", () => {
         .expect(200)
       const listings = res.body.items
 
-      // The Coliseum seed has the soonest applicationDueDate (1 day in the future)
-      expect(listings[0].name).toBe("[doorway] Test: Coliseum")
+      // start at the beginning of the epoch
+      let lastDueDate = new Date(0)
+      let expectNull = false
 
-      // Triton and "Default, No Preferences" share the next-soonest applicationDueDate
-      const secondListing = listings[1]
-      const thirdListing = listings[2]
-      expect(thirdListing.name).toBe("[doorway] Test: Default, No Preferences")
+      listings.forEach((listing) => {
+        if (expectNull) {
+          expect(listing.applicationDueDate).toBeNull()
+        } else {
+          // if not null, compare with last date
+          if (listing.applicationDueDate != null) {
+            const listingDate = new Date(listing.applicationDueDate)
 
-      const secondListingAppDueDate = new Date(secondListing.applicationDueDate)
-      const thirdListingAppDueDate = new Date(thirdListing.applicationDueDate)
-      expect(secondListingAppDueDate.getDate()).toEqual(thirdListingAppDueDate.getDate())
+            expect(listingDate.getTime()).toBeGreaterThanOrEqual(lastDueDate.getTime())
 
-      // Verify that listings with null applicationDueDate's appear at the end.
-      const lastListing = listings[listings.length - 1]
-      expect(lastListing.applicationDueDate).toBeNull()
+            lastDueDate = listingDate
+          } else if (expectNull == false) {
+            // if null, flag that all subsequent must be as well
+            expectNull = true
+          }
+        }
+      })
     })
 
     it("sorts listings by most recently updated when that orderBy param is set", async () => {
       const res = await supertest(app.getHttpServer())
-        .get(`/listings/combined?orderBy[0]=mostRecentlyUpdated&orderDir[0]=DESC&limit=all`)
+        .get(`/listings/combined?orderBy[0]=mostRecentlyUpdated&orderDir[0]=ASC&limit=all`)
         .expect(200)
-      for (let i = 0; i < res.body.items.length - 1; ++i) {
-        const currentUpdatedAt = new Date(res.body.items[i].updatedAt)
-        const nextUpdatedAt = new Date(res.body.items[i + 1].updatedAt)
 
-        // Verify that each listing's updatedAt timestamp is more recent than the next listing's.
-        expect(currentUpdatedAt.getTime()).toBeGreaterThan(nextUpdatedAt.getTime())
-      }
+      // start at the beginning of the epoch
+      let lastTime = new Date(0)
+      const listings = res.body.items
+
+      listings.forEach((listing) => {
+        const listingDate = new Date(listing.updatedAt)
+
+        expect(listingDate.getTime()).toBeGreaterThanOrEqual(lastTime.getTime())
+
+        lastTime = listingDate
+      })
     })
 
     it("fails if orderBy param doesn't conform to one of the enum values", async () => {
@@ -257,7 +269,7 @@ describe("CombinedListings", () => {
       expect(listingResponse.body.isExternal).toBe(false)
     })
 
-    it("should properly apply isExternal filter", async () => {
+    it("properly applies isExternal filter", async () => {
       const queryParams = {
         // we're only interested in the totals, so no need to fetch more than 1
         limit: 1,
@@ -304,7 +316,7 @@ describe("CombinedListings", () => {
       expect(combinedExternalCount).toBe(combinedAllCount - combinedLocalCount)
     })
 
-    it("should return the same object structure as /listings?view=base", async () => {
+    it("returns the same object structure as /listings?view=base", async () => {
       const queryParams = {
         limit: "all",
         view: "base", // /listings/combined always returns view=base
@@ -374,6 +386,68 @@ describe("CombinedListings", () => {
         delete localListing.unitsSummarized
 
         expect(localListing).toEqual(result)
+      })
+    })
+
+    it("returns the same object structure as seed data", async () => {
+      // get external listings only
+      const getExternalQuery = qs.stringify({
+        limit: "all",
+        filter: [{ $comparison: "=", isExternal: true }],
+      })
+      const getExternalRes = await supertest(app.getHttpServer())
+        .get(`/listings/combined?${getExternalQuery}`)
+        .expect(200)
+
+      const externalCount = getExternalRes.body.meta.totalItems
+      const seedData = getExternalListingSeedData()
+
+      // the number of external listings should match seed data
+      expect(seedData.length).toBe(externalCount)
+
+      // sort listings and seed data by id
+      const sortListings = (a, b) => {
+        return a.id.localeCompare(b.id)
+      }
+
+      const listings = getExternalRes.body.items
+      listings.sort(sortListings)
+      seedData.sort(sortListings)
+
+      getExternalRes.body.items.forEach((listing, idx) => {
+        const seed = seedData[idx]
+
+        // remove some fields
+        ;[
+          // ignore dates because they are dynamically generated by the seed
+          "applicationOpenDate",
+          "applicationDueDate",
+          "publishedAt",
+          "updatedAt",
+          "closedAt",
+          "lastApplicationUpdateAt",
+
+          // these are dynamically generated by the listing
+          "unitsSummarized",
+          "countyCode",
+          "showWaitlist",
+
+          // this is only set on the view
+          "isExternal",
+
+          // not included in base listing view
+          "householdSizeMin",
+          "householdSizeMax",
+          "isWaitlistOpen",
+          "reservedCommunityTypeName",
+        ].forEach((field) => {
+          delete listing[field]
+          delete seed[field]
+        })
+
+        // serde should be consistent, so shouldn't need to sort subitems
+
+        expect(listing).toEqual(seed)
       })
     })
   })

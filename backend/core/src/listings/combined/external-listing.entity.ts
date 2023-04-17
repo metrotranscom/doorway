@@ -1,15 +1,22 @@
 import { BaseEntity, Column, Entity, Index, PrimaryColumn } from "typeorm"
 import { Expose, Type } from "class-transformer"
-import { Jurisdiction } from "../../jurisdictions/entities/jurisdiction.entity"
-import { ReservedCommunityType } from "../../reserved-community-type/entities/reserved-community-type.entity"
+//import { Jurisdiction } from "../../jurisdictions/entities/jurisdiction.entity"
+//import { ReservedCommunityType } from "../../reserved-community-type/entities/reserved-community-type.entity"
 import { AssetCreateDto } from "../../assets/dto/asset.dto"
-import { Address } from "../../shared/entities/address.entity"
+// import { Address } from "../../shared/entities/address.entity"
 import { UnitsSummarized } from "../../units/types/units-summarized"
-import { ListingFeatures } from "../entities/listing-features.entity"
-import { ListingImage } from "../entities/listing-image.entity"
-import { ListingUtilities } from "../entities/listing-utilities.entity"
+// import { ListingFeatures } from "../entities/listing-features.entity"
+// import { ListingImage } from "../entities/listing-image.entity"
+// import { ListingUtilities } from "../entities/listing-utilities.entity"
 import { Unit } from "../../units/entities/unit.entity"
 import { ListingMultiselectQuestion } from "../../multiselect-question/entities/listing-multiselect-question.entity"
+import { ListingImageDto } from "../dto/listing-image.dto"
+// import { ListingMultiselectQuestionDto } from "src/multiselect-question/dto/listing-multiselect-question.dto"
+import { JurisdictionDto } from "../../jurisdictions/dto/jurisdiction.dto"
+import { ReservedCommunityTypeDto } from "../../reserved-community-type/dto/reserved-community-type.dto"
+import { AddressDto } from "../../shared/dto/address.dto"
+import { ListingFeaturesDto } from "../dto/listing-features.dto"
+import { ListingUtilitiesDto } from "../dto/listing-utilities.dto"
 
 /**
  * This entity is only used to generate the external_listings table. No queries
@@ -142,41 +149,48 @@ class ExternalListing extends BaseEntity {
 
   @Column({ type: "jsonb", nullable: true })
   @Expose()
-  @Type(() => ListingImage)
-  images?: ListingImage[] | null
+  @Type(() => ListingImageDto)
+  images?: ListingImageDto[] | null
+
+  /*
+  @Column({ type: "jsonb", name: "multiselect_questions", nullable: true })
+  @Expose()
+  @Type(() => ListingMultiselectQuestionDto)
+  multiselectQuestions?: ListingMultiselectQuestionDto[]
+  */
 
   @Column({ type: "jsonb", name: "multiselect_questions", nullable: true })
   @Expose()
   @Type(() => ListingMultiselectQuestion)
-  multiselectQuestions?: ListingMultiselectQuestion[]
+  listingMultiselectQuestions?: Array<Omit<ListingMultiselectQuestion, "listing">>
 
   @Column({ type: "jsonb", nullable: true })
   @Expose()
-  @Type(() => Jurisdiction)
-  jurisdiction?: Jurisdiction
+  @Type(() => JurisdictionDto)
+  jurisdiction?: JurisdictionDto
 
   @Column({ type: "jsonb", name: "reserved_community_type", nullable: true })
   @Expose()
-  @Type(() => ReservedCommunityType)
-  reservedCommunityType?: ReservedCommunityType
+  @Type(() => ReservedCommunityTypeDto)
+  reservedCommunityType?: ReservedCommunityTypeDto
 
   @Column({ type: "jsonb", nullable: true })
   units?: Unit[]
 
   @Column({ type: "jsonb", name: "building_address", nullable: true })
   @Expose()
-  @Type(() => Address)
-  buildingAddress?: Address
+  @Type(() => AddressDto)
+  buildingAddress?: AddressDto
 
   @Column({ type: "jsonb", nullable: true })
   @Expose()
-  @Type(() => ListingFeatures)
-  features?: ListingFeatures
+  @Type(() => ListingFeaturesDto)
+  features?: ListingFeaturesDto
 
   @Column({ type: "jsonb", nullable: true })
   @Expose()
-  @Type(() => ListingUtilities)
-  utilities?: ListingUtilities
+  @Type(() => ListingUtilitiesDto)
+  utilities?: ListingUtilitiesDto
 }
 
 export { ExternalListing }

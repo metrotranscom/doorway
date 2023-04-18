@@ -1,7 +1,7 @@
 import { DefaultTransformer, defaultMap } from "../../src/etl"
 import { Listing } from "../../src/types"
 
-describe('DefaultTransformer', () => {
+describe('Transformer', () => {
 
   it('treats a string value as a property name', () => {
     const transformer = new DefaultTransformer({

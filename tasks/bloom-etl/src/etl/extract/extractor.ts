@@ -1,12 +1,14 @@
-import axios from "axios"
+import { Axios } from "axios"
 import { Jurisdiction, Listing, Response, UrlInfo } from "../../types"
 import { ExtractorInterface } from "./extractor-interface"
 
 export class DefaultExtractor implements ExtractorInterface {
+  axios: Axios
   urlInfo: UrlInfo
   jurisdictions: Array<Jurisdiction>
 
-  constructor(urlInfo: UrlInfo, jurisdictions: Array<Jurisdiction>) {
+  constructor(axios: Axios, urlInfo: UrlInfo, jurisdictions: Array<Jurisdiction>) {
+    this.axios = axios
     this.urlInfo = urlInfo
     this.jurisdictions = jurisdictions
   }
@@ -30,7 +32,7 @@ export class DefaultExtractor implements ExtractorInterface {
       const endpoint = this.constructEndpoint(jurisdiction.id)
 
       actions.push(
-        axios
+        this.axios
           .get<Response>(endpoint)
           .catch((error) => {
             console.log(error)

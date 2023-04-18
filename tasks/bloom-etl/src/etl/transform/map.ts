@@ -9,6 +9,7 @@ function jsonOrNull(value: any): string | null {
 export type ResolveFunction = (listing: Listing) => string | number | boolean | null
 export type MapValue = string | ResolveFunction
 export type RecordMap = Record<string, MapValue>
+export type RecordValue = string | number | boolean | object
 
 export const defaultMap: RecordMap = {
   id: "id",

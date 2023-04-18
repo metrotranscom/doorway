@@ -1,7 +1,6 @@
 import { Listing } from "../../types"
-import { MapValue, RecordMap, ResolveFunction } from "./map"
+import { MapValue, RecordMap, ResolveFunction, RecordValue } from "./map"
 import { TransformerInterface } from "./transformer-interface"
-
 
 export class DefaultTransformer implements TransformerInterface {
   map: RecordMap
@@ -10,7 +9,7 @@ export class DefaultTransformer implements TransformerInterface {
     this.map = map
   }
 
-  private getMappedValue(key: string, value: MapValue, obj: any): any {
+  private getMappedValue(key: string, value: MapValue, obj: Listing): RecordValue {
     const type = typeof value
 
     // eslint complained when I used a switch here
@@ -21,8 +20,6 @@ export class DefaultTransformer implements TransformerInterface {
     if (type == "function") {
       return (value as ResolveFunction)(obj)
     }
-    
-    throw new Error(`Unexpected map type [${type}]`)
   }
 
   public mapAll(listings: Array<Listing>): Array<object> {

@@ -60,7 +60,18 @@ module.exports = withBundleAnalyzer(
       config.module.rules.push({
         test: /\.md$/,
         type: "asset/source",
-      })
+      },
+        {
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: "ts-loader",
+              options: {
+                transpileOnly: true,
+              },
+            },
+          ],
+        })
       return config
     },
     // Uncomment line below before building when using symlink for UI-C

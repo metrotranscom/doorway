@@ -36,6 +36,10 @@ export class FileServiceProvider {
   }
 
   private static validate(fileProviderConfig: FileProviderConfig): void {
+    if (this.privateUploadService !== undefined || this.publicUploadService !== undefined) {
+      console.log("File service is already configured")
+      return
+    }
     if (fileProviderConfig.publicService === undefined) {
       throw new Error("Public service not defined")
     }
@@ -66,12 +70,6 @@ export class FileServiceProvider {
       cloudinaryFileServiceConfig.cloudinaryCloudName === ""
     ) {
       throw new Error("Cloudinary cloud name should be specified")
-    }
-    if (
-      cloudinaryFileServiceConfig.cloudinaryUploadPreset === undefined ||
-      cloudinaryFileServiceConfig.cloudinaryUploadPreset === ""
-    ) {
-      throw new Error("Cloudinary upload preset should be specified")
     }
   }
 

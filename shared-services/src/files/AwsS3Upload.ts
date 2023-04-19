@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios, { Method } from "axios"
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
@@ -24,8 +24,18 @@ export const AwsS3Upload = async ({
   const url = await getSignedUrl(client, command, { expiresIn: 3600 })
   const data = new FormData()
   data.append("file", file)
+  const response = await axiosUpload("put", url, data, onUploadProgress)
+  return response
+}
+
+export const axiosUpload = async (
+  method: Method,
+  url: string,
+  data: FormData,
+  onUploadProgress: (progress: number) => void
+) => {
   const response = await axios.request({
-    method: "put",
+    method: method,
     url: url,
     data: data,
     onUploadProgress: (p) => {

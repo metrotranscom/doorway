@@ -1,5 +1,6 @@
 export enum FileServiceTypeEnum {
   cloudinary = "cloudinary",
+  aws_s3 = "aws_s3",
 }
 
 export class CloudinaryFileServiceConfig {
@@ -7,9 +8,14 @@ export class CloudinaryFileServiceConfig {
   cloudinaryUploadPreset: string
 }
 
+export class AwsS3FileServiceConfig {
+  bucketName: string
+}
+
 export class FileServiceConfig {
   fileServiceType: FileServiceTypeEnum
   cloudinaryConfig: CloudinaryFileServiceConfig
+  awsS3Config: AwsS3FileServiceConfig
 }
 
 export class FileProviderConfig {

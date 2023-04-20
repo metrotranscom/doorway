@@ -1,27 +1,38 @@
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals"
 import { ExtractorInterface, LoaderInterface, Runner, TransformerInterface } from "../../src/etl/"
-import { Listing } from '../../src/types';
+import { Listing } from "../../src/types"
+import { Logger } from "../../src/etl/logger"
 
-describe('Runner', () => {
+describe("Runner", () => {
   const mockExtractor: jest.Mocked<ExtractorInterface> = {
+    setLogger: jest.fn(),
+    getLogger: jest.fn(() => new Logger()),
     extract: jest.fn(async () => {
       return Promise.resolve([])
-    })
+    }),
   }
 
   const mockTransformer: jest.Mocked<TransformerInterface> = {
-    mapAll: jest.fn( (listings: Array<Listing>): Array<object> => {
-      return []
-    })
+    setLogger: jest.fn(),
+    getLogger: jest.fn(() => new Logger()),
+    mapAll: jest.fn(
+      /* eslint-disable @typescript-eslint/no-unused-vars */
+      (listings: Array<Listing>): Array<object> => {
+        // listings is required by method signature but never used
+        return []
+      }
+    ),
   }
 
   const mockLoader: jest.Mocked<LoaderInterface> = {
-    open: jest.fn( () => { }),
-    load: jest.fn( (listings: Array<Listing>) => { }),
-    close: jest.fn( () => { })
+    setLogger: jest.fn(),
+    getLogger: jest.fn(() => new Logger()),
+    open: jest.fn(),
+    load: jest.fn(),
+    close: jest.fn(),
   }
 
-  beforeEach( () => {
+  beforeEach(() => {
     mockExtractor.extract.mockClear()
     mockTransformer.mapAll.mockClear()
     mockLoader.open.mockClear()
@@ -29,16 +40,15 @@ describe('Runner', () => {
     mockLoader.close.mockClear()
   })
 
-  it('should shut down if failed', async () => {
-    const runner = new Runner(
-      mockExtractor,
-      mockTransformer,
-      mockLoader
-    )
+  it("should shut down if failed", async () => {
+    const runner = new Runner(mockExtractor, mockTransformer, mockLoader)
+    runner.enableOutputLogging(false)
 
-    const shutdownSpy = jest.spyOn(runner, 'shutdown')
+    const shutdownSpy = jest.spyOn(runner, "shutdown")
 
-    mockExtractor.extract.mockImplementationOnce( () => { throw new Error('extractor') } )
+    mockExtractor.extract.mockImplementationOnce(() => {
+      throw new Error("extractor")
+    })
 
     // this actually causes an error to be thrown in the test?
     //expect( async () => { await runner.run() } ).toThrow('extractor')
@@ -55,16 +65,13 @@ describe('Runner', () => {
     expect(shutdownSpy.mock.calls.length).toBe(1)
   })
 
-  it('should invoke all methods', async () => {
-    const runner = new Runner(
-      mockExtractor,
-      mockTransformer,
-      mockLoader
-    )
+  it("should invoke all methods", async () => {
+    const runner = new Runner(mockExtractor, mockTransformer, mockLoader)
+    runner.enableOutputLogging(false)
 
     // spy on runner methods
-    const initSpy = jest.spyOn(runner, 'init')
-    const shutdownSpy = jest.spyOn(runner, 'shutdown')
+    const initSpy = jest.spyOn(runner, "init")
+    const shutdownSpy = jest.spyOn(runner, "shutdown")
 
     await runner.run()
 

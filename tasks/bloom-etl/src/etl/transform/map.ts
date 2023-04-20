@@ -1,6 +1,6 @@
 import { Listing } from "../../types"
 
-function jsonOrNull(value: any): string | null {
+function jsonOrNull(value: object | string | number | boolean | null): string | null {
   if (value == null) return "null"
 
   return JSON.stringify(value)
@@ -22,16 +22,16 @@ export const defaultMap: RecordMap = {
   name: "name",
   waitlist_current_size: "waitlistCurrentSize",
   waitlist_max_size: "waitlistMaxSize",
-  is_waitlist_open: (listing: Listing) => true, // not available on view=base but needed for sorting
+  is_waitlist_open: "isWaitlistOpen", // not available on view=base but needed for sorting
   status: "status",
   review_order_type: "reviewOrderType",
   published_at: "publishedAt",
   closed_at: "closedAt",
-  updated_at: (listing: Listing) => null, // not available on view=base but needed for sorting
+  updated_at: "updatedAt", // not available on view=base but needed for sorting
 
   county: "countyCode",
   city: (listing: Listing) => listing.buildingAddress?.city,
-  neighborhood: (listing: Listing) => null, // not available on view=base but needed for filtering
+  neighborhood: "neighborhood", // not available on view=base but needed for filtering
   reserved_community_type_name: (listing: Listing) => listing.reservedCommunityType?.name,
 
   url_slug: "urlSlug",

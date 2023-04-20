@@ -23,5 +23,17 @@
     "@babel/preset-typescript": "^7.21.4",
     "babel-jest": "^29.5.0",
     "jest": "^29.5.0"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env", {
+          "targets": {
+            "node": "current" 
+          } 
+        }
+      ], 
+      "@babel/preset-typescript"
+    ]
   }
 }

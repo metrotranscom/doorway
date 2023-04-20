@@ -1,21 +1,21 @@
-import { Knex, knex } from "knex"
-import { DbConfig } from "../../types"
+import { Knex } from "knex"
 import { LoaderInterface } from "./loader-interface"
+import { BaseStage } from "../base-stage"
 
-export class DefaultLoader implements LoaderInterface {
+export class Loader extends BaseStage implements LoaderInterface {
   knex: Knex
   table: string
   txn: Knex.TransactionProvider
 
-  constructor(config: DbConfig, table: string) {
-    this.knex = knex(config)
-    //this.client = new Client(config)
+  constructor(knex: Knex, table: string) {
+    super()
+    this.knex = knex
     this.table = table
   }
 
   public open() {
     // set up the transaction
-    console.log(`Loader: initializing transaction`)
+    this.log(`Loader: initializing transaction`)
     this.txn = this.knex.transactionProvider()
   }
 
@@ -25,16 +25,19 @@ export class DefaultLoader implements LoaderInterface {
 
     try {
       // remove all existing records
-      console.log(`Truncating records from table "${this.table}"`)
+      this.log(`Truncating records from table "${this.table}"`)
       await txn.raw(`TRUNCATE TABLE "${this.table}"`)
-      // add new recrods
-      console.log(`Adding ${rows.length} new rows into table`)
+
+      // add new records
+      this.log(`Adding ${rows.length} new rows into table`)
       await txn(this.table).insert(rows)
+
       // save changes
-      console.log(`Committing database changes`)
+      this.log(`Committing database changes`)
       await txn.commit()
-      console.log(`Load Results: import complete`)
+      this.log(`Load Results: import complete`)
     } catch (e) {
+      this.log(`Rolling back changes`)
       await txn.rollback()
       throw e
     }
@@ -42,10 +45,10 @@ export class DefaultLoader implements LoaderInterface {
 
   public async close() {
     try {
-      console.log(`Loader: closing database connection`)
+      this.log(`Loader: closing database connection`)
       await this.knex.destroy()
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 }

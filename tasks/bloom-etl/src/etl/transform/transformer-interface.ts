@@ -1,6 +1,6 @@
-import {  Listing } from "../../types"
+import { Listing } from "../../types"
+import { BaseStageInterface } from "../base-stage-interface"
 
-export interface TransformerInterface {
-  //mapListingToRow(listing: Listing): any
+export interface TransformerInterface extends BaseStageInterface {
   mapAll(listings: Array<Listing>): Array<object>
 }

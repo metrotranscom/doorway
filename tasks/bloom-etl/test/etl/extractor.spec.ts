@@ -1,10 +1,9 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { DefaultExtractor } from "../../src/etl"
-import { Response } from "../../src/types";
+import axios from "axios"
+import { Extractor } from "../../src/etl"
 
 const urlInfo = {
   base: "https://base-url",
-  path: "/path"
+  path: "/path",
 }
 
 const jurisdictions = [
@@ -13,8 +12,8 @@ const jurisdictions = [
     name: "External Jurisdiction 1",
   },
   {
-    id: "second",
-    name: "External Jurisdiction 2"
+    id: "bee730c3-31df-4026-8412-322a79bef8e1",
+    name: "External Jurisdiction 2",
   },
 ]
 
@@ -58,10 +57,7 @@ const listings = [
         },
       },
     ],
-    jurisdiction: {
-      id: "d98fd25b-df6c-4f6a-b93f-bbd347b9da69",
-      name: "External Jurisdiction",
-    },
+    jurisdiction: jurisdictions[0],
     reservedCommunityType: {
       id: "8cf689ba-c820-4d61-a8ee-d76387a0e85a",
       name: "senior62",
@@ -146,10 +142,7 @@ const listings = [
     urlSlug: "test_external_listing_empty",
     images: [],
     listingMultiselectQuestions: [],
-    jurisdiction: {
-      id: "d98fd25b-df6c-4f6a-b93f-bbd347b9da69",
-      name: "External Jurisdiction",
-    },
+    jurisdiction: jurisdictions[1],
     reservedCommunityType: null,
     units: [],
     buildingAddress: {
@@ -166,119 +159,84 @@ const listings = [
   },
 ]
 
-describe('Extractor', () => {
+describe("Extractor", () => {
+  jest.mock("axios")
 
-  //const extractor = new DefaultExtractor(urlInfo, jurisdictions);
+  const mockAxios = jest.fn().mockReturnValue({
+    get: jest.fn().mockImplementation((endpoint) => {
+      // get the jurisdiction id from the endpoint url
+      const regex = /\[jurisdiction\]=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
+      const matches = endpoint.match(regex)
+      const jurisdictionId = matches.length > 1 ? matches[1] : null
 
-  /*
-  jest.mock('axios', () => (
-    {
-      get: jest.fn((url) => {
-        return Promise.resolve({
-          data: { items: [] },
-          status: 200,
-          statusText: 'ok',
-          headers: '',
-          config: {},
-        })
-      })
-    }
-  ))
-  //*/
-  /*
-  jest.mock('axios', () => jest.fn()
-    .mockImplementation( (url) => {
+      // filter out the listings that match the jurisdictionId
+      const endpointListings = jurisdictionId
+        ? listings.filter((listing) => listing.jurisdiction.id == jurisdictionId)
+        : []
+
       return Promise.resolve({
-        data: {
-          items: []
-        }
+        data: { items: endpointListings },
+        status: 200,
+        statusText: "ok",
+        headers: "",
+        config: {},
       })
-    })
+    }),
+  })(
+    // required for TS to be aware of mock methods/props
+    axios as jest.Mocked<typeof axios>
   )
-  */
-  jest.mock('axios')
-  const mockedAxios = axios as jest.Mocked<typeof axios>
-  /*
-  mockedAxios.get = jest.fn( <T, AxiosResponse<T, any>, any>(url, config?: AxiosRequestConfig): Promise<AxiosResponse<T, any>> => {
-    return Promise.resolve({
-      data: { items: [] },
-      status: 200,
-      statusText: 'ok',
-      headers: '',
-      config: {},
-    })
-  })
-  */
-  const extractor = new DefaultExtractor(mockedAxios, urlInfo, jurisdictions);
 
-  beforeAll( () => {
-    //console.log(mockedAxios)
-    console.log(Object.keys(mockedAxios))
+  beforeEach(() => {
+    mockAxios.get.mockClear()
   })
 
-  beforeEach( () => {
-    //mockedAxios.get.mockReset()
-    //jest.resetAllMocks()
+  it("should generate the correct endpoint url", async () => {
+    const jurisdiction = jurisdictions[0]
+    const extractor = new Extractor(mockAxios, urlInfo, [jurisdiction])
+    extractor.getLogger().printLogs = false
+
+    await extractor.extract()
+
+    // only one jurisdiction
+    expect(mockAxios.get).toHaveBeenCalledTimes(1)
+    const endpoint = mockAxios.get.mock.lastCall[0]
+
+    // should start with url
+    expect(endpoint.startsWith(`${urlInfo.base}${urlInfo.path}`)).toBe(true)
+    // and contain jurisdiction id
+    expect(endpoint).toEqual(expect.stringContaining(jurisdiction.id))
   })
 
-  it('generates the correct endpoint url', async () => {
-
-    /*
-    mockedAxios.get.mockImplementationOnce( (url) => {
-      return Promise.resolve({
-        data: {
-          items: []
-        }
-      })
-    })
-    */
-
-    
-    /*
-    mockedAxios.get.mockImplementation( (url) => {
-      return Promise.resolve([])
-    })
-    //*/
-
-    // the endpoint starts with base+path
-
-    // the endpoint contains the jurisdiction id
+  it("should extract valid results", async () => {
+    const extractor = new Extractor(mockAxios, urlInfo, jurisdictions)
+    extractor.getLogger().printLogs = false
 
     const results = await extractor.extract()
 
-    //console.log(Object.keys(mockedAxios.get))
+    // get is called for each jurisdiction
+    expect(mockAxios.get).toHaveBeenCalledTimes(jurisdictions.length)
 
-    //const constructEndpoint = jest.spyOn(extractor, 'constructEndpoint')
+    // all listings should be returned
+    expect(results.length).toBe(listings.length)
 
-    // should be called once per jurisdiction
-    //expect(mockedAxios.get).toHaveBeenCalledTimes(jurisdictions.length)
-    expect(results.length).toBe(0)
+    // sort listings and results to ensure consistent order
+    const sortListings = (a, b) => {
+      return a.id.localeCompare(b.id)
+    }
+
+    // make sure results are identical
+    expect(results.sort(sortListings)).toEqual(listings.sort(sortListings))
   })
 
-  it('should extract valid results', async () => {
+  it("should fail on fetch error", async () => {
+    const extractor = new Extractor(mockAxios, urlInfo, jurisdictions)
+    extractor.getLogger().printLogs = false
 
-    
-
-    mockedAxios.get.mockImplementationOnce( (url) => {
-      return Promise.resolve({
-        data: {
-          items: []
-        }
-      })
+    mockAxios.get.mockImplementationOnce(() => {
+      throw new Error("get")
     })
 
-    // axios.get() should be called once per jurisdiction
-
-    // the length of the output should equal the sum of all test listing objects
-
-    // the value for each output object should match the input
-
-    const results = extractor.extract()
-
-    //expect(results).toEqual(listings)
-  })
-
-  it('should fail on invalid results', async () => {
-    
+    await expect(extractor.extract()).rejects.toThrow("get")
   })
 })

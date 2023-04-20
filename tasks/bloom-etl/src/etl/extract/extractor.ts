@@ -1,13 +1,15 @@
 import { Axios } from "axios"
 import { Jurisdiction, Listing, Response, UrlInfo } from "../../types"
 import { ExtractorInterface } from "./extractor-interface"
+import { BaseStage } from "../base-stage"
 
-export class DefaultExtractor implements ExtractorInterface {
+export class Extractor extends BaseStage implements ExtractorInterface {
   axios: Axios
   urlInfo: UrlInfo
   jurisdictions: Array<Jurisdiction>
 
   constructor(axios: Axios, urlInfo: UrlInfo, jurisdictions: Array<Jurisdiction>) {
+    super()
     this.axios = axios
     this.urlInfo = urlInfo
     this.jurisdictions = jurisdictions
@@ -28,14 +30,14 @@ export class DefaultExtractor implements ExtractorInterface {
     const actions = []
 
     this.jurisdictions.forEach((jurisdiction: Jurisdiction) => {
-      console.log(`Fetching listings for [${jurisdiction.name}]`)
+      this.log(`Fetching listings for [${jurisdiction.name}]`)
       const endpoint = this.constructEndpoint(jurisdiction.id)
 
       actions.push(
         this.axios
           .get<Response>(endpoint)
           .catch((error) => {
-            console.log(error)
+            this.log(error)
             throw new Error("Unexpected HTTP error")
           })
           .then((response) => {
@@ -53,14 +55,14 @@ export class DefaultExtractor implements ExtractorInterface {
       responses.forEach((result) => {
         const respItems = result.response.data.items
 
-        console.log(`Retrieved ${respItems.length} listings from [${result.jurisdiction.name}]`)
+        this.log(`Retrieved ${respItems.length} listings from [${result.jurisdiction.name}]`)
 
         respItems.forEach((listing) => {
           items.push(listing)
         })
       })
 
-      console.log(
+      this.log(
         `Extract Results: ${items.length} listings fetched from ${this.jurisdictions.length} jurisdictions`
       )
 

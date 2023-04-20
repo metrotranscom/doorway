@@ -1,27 +1,26 @@
-import { DefaultTransformer, defaultMap } from "../../src/etl"
+import { Transformer } from "../../src/etl"
 import { Listing } from "../../src/types"
 
-describe('Transformer', () => {
-
-  it('treats a string value as a property name', () => {
-    const transformer = new DefaultTransformer({
-      value: "name"
+describe("Transformer", () => {
+  it("treats a string value as a property name", () => {
+    const transformer = new Transformer({
+      value: "name",
     })
+    transformer.getLogger().printLogs = false
 
     const listing = new Listing()
     listing.name = "some-test-value"
 
     const result = transformer.mapListingToRow(listing)
 
-    //console.log(result)
-
-    expect(result).toHaveProperty('value', listing.name)
+    expect(result).toHaveProperty("value", listing.name)
   })
 
-  it('calls a function to get a value', () => {
-    const transformer = new DefaultTransformer({
-      combined_id: (listing: Listing) => listing.id + "-" + listing.name
+  it("calls a function to get a value", () => {
+    const transformer = new Transformer({
+      combined_id: (listing: Listing) => listing.id + "-" + listing.name,
     })
+    transformer.getLogger().printLogs = false
 
     const listing = new Listing()
     listing.id = "listing-id"
@@ -29,15 +28,16 @@ describe('Transformer', () => {
 
     const result = transformer.mapListingToRow(listing)
 
-    expect(result).toHaveProperty('combined_id', listing.id + "-" + listing.name)
+    expect(result).toHaveProperty("combined_id", listing.id + "-" + listing.name)
   })
 
-  it('maps all results', () => {
-    const transformer = new DefaultTransformer({
-      name: 'name'
+  it("maps all results", () => {
+    const transformer = new Transformer({
+      name: "name",
     })
+    transformer.getLogger().printLogs = false
 
-    const listings = ["test1", "test2", "test3"].map( name => {
+    const listings = ["test1", "test2", "test3"].map((name) => {
       const listing = new Listing()
       listing.name = name
       return listing

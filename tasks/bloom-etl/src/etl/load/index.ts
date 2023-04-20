@@ -1,7 +1,4 @@
-import { DefaultLoader } from "./loader"
+import { Loader } from "./loader"
 import { LoaderInterface } from "./loader-interface"
 
-export {
-  DefaultLoader,
-  LoaderInterface
-}
+export { Loader, LoaderInterface }

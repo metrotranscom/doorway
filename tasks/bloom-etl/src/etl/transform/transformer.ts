@@ -1,11 +1,13 @@
 import { Listing } from "../../types"
 import { MapValue, RecordMap, ResolveFunction, RecordValue } from "./map"
 import { TransformerInterface } from "./transformer-interface"
+import { BaseStage } from "../base-stage"
 
-export class DefaultTransformer implements TransformerInterface {
+export class Transformer extends BaseStage implements TransformerInterface {
   map: RecordMap
 
   constructor(map: RecordMap) {
+    super()
     this.map = map
   }
 
@@ -27,12 +29,12 @@ export class DefaultTransformer implements TransformerInterface {
       return this.mapListingToRow(listing)
     })
 
-    console.log(`Transform Results: ${rows.length} listings converted into table rows`)
+    this.log(`Transform Results: ${rows.length} listings converted into table rows`)
 
     return rows
   }
 
-  public mapListingToRow(listing: Listing): any {
+  public mapListingToRow(listing: Listing): object {
     const row = {}
 
     for (const [key, value] of Object.entries(this.map)) {

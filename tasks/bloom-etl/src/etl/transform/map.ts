@@ -1,6 +1,18 @@
 import { Listing } from "../../types"
 
-function jsonOrNull(value: object | string | number | boolean | null): string | null {
+/*
+  This may not strictly be needed anymore, as the original implementation
+  returned a null literal rather than the string "null", which is what
+  JSON.stringify itself returns for a null value.  This behavior was changed
+  due to some inserts being rejected for a NOT NULL constraint on some fields.
+  Those fields have since been updated in the table, but since the unmarshalling
+  behavor of JSON.parse converts the string "null" into a null literal, there's
+  no immediate need to change it back.  This function remains to provide a thin
+  layer of abstraction over the serialization of objects.
+
+  JSON.stringify takes type `any`, but we use `unknown` to avoid linter errors
+*/
+export function jsonOrNull(value: unknown): string | null {
   if (value == null) return "null"
 
   return JSON.stringify(value)

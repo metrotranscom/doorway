@@ -24,7 +24,7 @@ export class Listing {
   neighborhood: string
   reservedCommunityType: { name: string }
   urlSlug: string
-  unitsSummarized?: Array<Record<string, unknown>>
+  unitsSummarized?: Array<Record<string, unknown>> | null
   images: Array<Record<string, unknown>>
   listingMultiselectQuestions: Array<Record<string, unknown>>
   jurisdiction: { name: string; id: string }

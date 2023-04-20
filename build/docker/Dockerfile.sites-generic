@@ -25,8 +25,9 @@ COPY --chown=node:node sites/${SITE} ./sites/${SITE}
 # It turns out we do have a hard dependency on backend/core :(
 COPY --chown=node:node backend/core ./backend/core
 
-# And shared helpers
+# And shared
 COPY --chown=node:node shared-helpers ./shared-helpers
+COPY --chown=node:node shared-services ./shared-services
 
 
 #####################
@@ -132,6 +133,7 @@ COPY --from=optimize --chown=node:node /app/sites/${SITE}/node_modules ./sites/$
 # Bring in our local dependencies
 COPY --from=build /app/backend/core ./backend/core
 COPY --from=build /app/shared-helpers ./shared-helpers
+COPY --from=build /app/shared-services ./shared-services
 
 # Switch to our site
 WORKDIR /app/sites/${SITE}

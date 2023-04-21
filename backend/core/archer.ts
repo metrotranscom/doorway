@@ -320,6 +320,7 @@ export const ArcherListing: Listing = {
     createdAt: new Date(),
     updatedAt: new Date(),
     city: "San Jose",
+    county: "San Jose",
     street: "98 Archer Street",
     zipCode: "95112",
     state: "CA",

@@ -54,6 +54,7 @@ const BuildingDetails = ({
 
   interface BuildingAddress {
     city: string
+    county: string
     state: string
     street: string
     zipCode: string
@@ -206,7 +207,6 @@ const BuildingDetails = ({
             }}
             register={register}
           />
-          <p className="field-sub-note">{t("listings.requiredToPublish")}</p>
         </GridCell>
         <GridCell>
           <ViewItem
@@ -270,6 +270,31 @@ const BuildingDetails = ({
             type={"number"}
             register={register}
           />
+        </GridCell>
+      </GridSection>
+      <GridSection columns={3}>
+        <GridCell>
+          <Field
+            label={t("application.contact.county")}
+            name={"buildingAddress.county"}
+            id={"buildingAddress.county"}
+            placeholder={t("application.contact.county")}
+            error={
+              !!getAddressErrorMessage(
+                "buildingAddress.county",
+                fieldMessage(errors?.buildingAddress?.county)
+              )
+            }
+            errorMessage={getAddressErrorMessage(
+              "buildingAddress.county",
+              fieldMessage(errors?.buildingAddress?.county)
+            )}
+            inputProps={{
+              onChange: () => clearErrors("buildingAddress"),
+            }}
+            register={register}
+          />
+          <p className="field-sub-note">{t("listings.requiredToPublish")}</p>
         </GridCell>
       </GridSection>
       <GridSection columns={3}>

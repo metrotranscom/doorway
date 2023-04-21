@@ -53,6 +53,7 @@ export const getExternalListingSeedData = () => {
       lastApplicationUpdateAt: getDate(-1),
       reservedCommunityTypeName: "senior62",
       urlSlug: "test_external_listing_full",
+      neighborhood: "Park Place",
       images: [],
       listingMultiselectQuestions: [
         {
@@ -154,6 +155,7 @@ export const getExternalListingSeedData = () => {
       lastApplicationUpdateAt: getDate(-1),
       reservedCommunityTypeName: null,
       urlSlug: "test_external_listing_empty",
+      neighborhood: null,
       images: [],
       listingMultiselectQuestions: [],
       jurisdiction: {

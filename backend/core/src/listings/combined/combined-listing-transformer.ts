@@ -33,6 +33,7 @@ export class CombinedListingTransformer {
     listing.name = result.name
     listing.waitlistCurrentSize = result.waitlist_current_size
     listing.waitlistMaxSize = result.waitlist_max_size
+    listing.isWaitlistOpen = result.is_waitlist_open
     listing.status = result.status
     listing.reviewOrderType = result.review_order_type
     listing.publishedAt = result.published_at
@@ -40,6 +41,7 @@ export class CombinedListingTransformer {
     listing.updatedAt = result.updated_at
     listing.urlSlug = result.url_slug
     listing.isExternal = result.is_external
+    listing.neighborhood = result.neighborhood
 
     // jurisdiction
     listing.jurisdiction = mapTo(Jurisdiction, result.jurisdiction)

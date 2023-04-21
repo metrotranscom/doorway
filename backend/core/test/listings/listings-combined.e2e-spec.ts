@@ -20,6 +20,8 @@ import { makeTestListing } from "../utils/make-test-listing"
 import dbOptions from "../../ormconfig.test"
 import { getExternalListingSeedData } from "../../src/seeder/seeds/listings/external-listings-seed"
 
+import cookieParser from "cookie-parser"
+
 // Cypress brings in Chai types for the global expect, but we want to use jest
 // expect here so we need to re-declare it.
 // see: https://github.com/cypress-io/cypress/issues/1319#issuecomment-593500345
@@ -29,7 +31,6 @@ jest.setTimeout(30000)
 // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
 describe("CombinedListings", () => {
   let app: INestApplication
-  let questionRepository: Repository<MultiselectQuestion>
   let adminAccessToken: string
   let jurisdictionsRepository: Repository<Jurisdiction>
 
@@ -49,10 +50,8 @@ describe("CombinedListings", () => {
 
     app = moduleRef.createNestApplication()
     app = applicationSetup(app)
+    app.use(cookieParser())
     await app.init()
-    questionRepository = app.get<Repository<MultiselectQuestion>>(
-      getRepositoryToken(MultiselectQuestion)
-    )
     adminAccessToken = await getUserAccessToken(app, "admin@example.com", "abcdef")
     jurisdictionsRepository = moduleRef.get<Repository<Jurisdiction>>(
       getRepositoryToken(Jurisdiction)
@@ -361,8 +360,7 @@ describe("CombinedListings", () => {
         const localListing = localRes.body.items[idx]
 
         // ignore props on result from combined endpoint
-        delete result.updatedAt
-        delete result.showWaitlist
+        delete result.showWaitlist // this is a generated value
 
         // sort units
         result.units.sort(sortUnits)

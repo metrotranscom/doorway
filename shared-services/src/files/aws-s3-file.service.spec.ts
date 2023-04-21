@@ -20,6 +20,9 @@ const awsS3FileUploaderMock = {
 const s3ClientMock = jest.fn()
 const awsS3FileServiceConfig: AwsS3FileServiceConfig = {
   bucketName: "test",
+  accessKey: "key",
+  secretKey: "secret",
+  region: "region",
 }
 
 describe("AwsS3FileService", () => {
@@ -55,5 +58,17 @@ describe("AwsS3FileService", () => {
     const id = await service.putFile("file", new File(["content"], "filename"), callbackFn)
     const expectedId = "fileId"
     expect(id).toEqual(expectedId)
+  })
+
+  it("should return download url for photo", () => {
+    const url = service.getDownloadUrlForPhoto("12345")
+    const expectedUrl = "https://test.s3.region.amazonaws.com/12345"
+    expect(url).toEqual(expectedUrl)
+  })
+
+  it("should return download url for pdf", () => {
+    const url = service.getDownloadUrlForPdf("12345")
+    const expectedUrl = "https://test.s3.region.amazonaws.com/12345"
+    expect(url).toEqual(expectedUrl)
   })
 })

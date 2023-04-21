@@ -17,47 +17,79 @@ export class FileServiceProvider {
 
   public static configure(fileProviderConfig: FileProviderConfig): void {
     this.validate(fileProviderConfig)
+    if (this.privateUploadService !== undefined || this.publicUploadService !== undefined) {
+      console.log("File service is already configured")
+      return
+    }
     switch (fileProviderConfig.publicService.fileServiceType) {
       case FileServiceTypeEnum.cloudinary:
-        this.publicUploadService = new CloudinaryFileService(
-          new CloudinaryFileUploader(),
-          fileProviderConfig.publicService.cloudinaryConfig
-        )
+        // We explicitly have to check if the config is set, even if we have
+        // already validated it above, otherwise the parameter we pass is of type
+        // CloudinaryFileServiceConfig | undefined
+        if (fileProviderConfig.publicService.cloudinaryConfig) {
+          this.publicUploadService = new CloudinaryFileService(
+            new CloudinaryFileUploader(),
+            fileProviderConfig.publicService.cloudinaryConfig
+          )
+        } else {
+          throw new Error("Cloudinary config should be specified")
+        }
         break
       case FileServiceTypeEnum.aws_s3:
-        this.publicUploadService = new AwsS3FileService(
-          new AwsS3FileUploader(),
-          fileProviderConfig.publicService.awsS3Config,
-          new S3Client({})
-        )
+        if (fileProviderConfig.publicService.awsS3Config) {
+          this.publicUploadService = new AwsS3FileService(
+            new AwsS3FileUploader(),
+            fileProviderConfig.publicService.awsS3Config,
+            new S3Client({
+              region: fileProviderConfig.publicService.awsS3Config.region,
+              credentials: {
+                accessKeyId: fileProviderConfig.publicService.awsS3Config.accessKey,
+                secretAccessKey: fileProviderConfig.publicService.awsS3Config.secretKey,
+              },
+            })
+          )
+        } else {
+          throw new Error("AWS S3 config should be specified")
+        }
         break
       default:
         throw new Error("Unknown file service type for public service")
     }
     switch (fileProviderConfig.privateService.fileServiceType) {
       case FileServiceTypeEnum.cloudinary:
-        this.privateUploadService = new CloudinaryFileService(
-          new CloudinaryFileUploader(),
-          fileProviderConfig.privateService.cloudinaryConfig
-        )
+        if (fileProviderConfig.privateService.cloudinaryConfig) {
+          this.privateUploadService = new CloudinaryFileService(
+            new CloudinaryFileUploader(),
+            fileProviderConfig.privateService.cloudinaryConfig
+          )
+        } else {
+          throw new Error("Cloudinary config should be specified")
+        }
         break
       case FileServiceTypeEnum.aws_s3:
-        this.privateUploadService = new AwsS3FileService(
-          new AwsS3FileUploader(),
-          fileProviderConfig.privateService.awsS3Config,
-          new S3Client({})
-        )
+        if (fileProviderConfig.privateService.awsS3Config) {
+          this.privateUploadService = new AwsS3FileService(
+            new AwsS3FileUploader(),
+            fileProviderConfig.privateService.awsS3Config,
+            new S3Client({
+              region: fileProviderConfig.privateService.awsS3Config.region,
+              credentials: {
+                accessKeyId: fileProviderConfig.privateService.awsS3Config.accessKey,
+                secretAccessKey: fileProviderConfig.privateService.awsS3Config.secretKey,
+              },
+            })
+          )
+        } else {
+          throw new Error("AWS S3 config should be specified")
+        }
         break
       default:
         throw new Error("Unknown file service type for private service")
     }
+    console.log("Configured file service with " + fileProviderConfig.publicService.fileServiceType)
   }
 
   private static validate(fileProviderConfig: FileProviderConfig): void {
-    if (this.privateUploadService !== undefined || this.publicUploadService !== undefined) {
-      console.log("File service is already configured")
-      return
-    }
     // Validate overall config
     if (fileProviderConfig.publicService === undefined) {
       throw new Error("Public service not defined")
@@ -116,6 +148,15 @@ export class FileServiceProvider {
       awsS3FileServiceConfig.bucketName === ""
     ) {
       throw new Error("AWS S3 bucket name should be specified")
+    }
+    if (awsS3FileServiceConfig.region === undefined || awsS3FileServiceConfig.region === "") {
+      throw new Error("AWS S3 region should be specified")
+    }
+    if (awsS3FileServiceConfig.accessKey === undefined || awsS3FileServiceConfig.accessKey === "") {
+      throw new Error("AWS S3 access key should be specified")
+    }
+    if (awsS3FileServiceConfig.secretKey === undefined || awsS3FileServiceConfig.secretKey === "") {
+      throw new Error("AWS S3 secret key should be specified")
     }
   }
 

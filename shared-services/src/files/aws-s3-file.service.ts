@@ -2,8 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { AwsS3FileUploader } from "./aws-s3-file-uploader"
 import { AwsS3FileServiceConfig } from "./file-service-config"
 import { FileServiceInterface } from "./file-service.interface"
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3"
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+import { S3Client } from "@aws-sdk/client-s3"
 
 @Injectable()
 export class AwsS3FileService implements FileServiceInterface {
@@ -26,15 +25,17 @@ export class AwsS3FileService implements FileServiceInterface {
     )
     return id
   }
-  async getDownloadUrlForPhoto(id: string): Promise<string> {
-    const getObjectCommand = new GetObjectCommand({
+  getDownloadUrlForPhoto(id: string): string {
+    return `https://${this.awsS3FileServiceConfig.bucketName}.s3.${this.awsS3FileServiceConfig.region}.amazonaws.com/${id}`
+    /*const getObjectCommand = new GetObjectCommand({
       Bucket: this.awsS3FileServiceConfig.bucketName,
       Key: id,
+      ResponseContentType: "image/jpeg"
     })
-    return await getSignedUrl(this.s3Client, getObjectCommand, { expiresIn: 3600 })
+    return await getSignedUrl(this.s3Client, getObjectCommand, { expiresIn: 3600 })*/
   }
-  async getDownloadUrlForPdf(id: string): Promise<string> {
-    // There is no difference in the logic for retrieving pictures and pdfs in S3
+  getDownloadUrlForPdf(id: string): string {
+    // The download URL is the same regardless of the file type
     return this.getDownloadUrlForPhoto(id)
   }
 }

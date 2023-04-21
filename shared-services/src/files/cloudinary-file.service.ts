@@ -24,14 +24,10 @@ export class CloudinaryFileService implements FileServiceInterface {
     )
     return id
   }
-  getDownloadUrlForPhoto(id: string, size = 400): Promise<string> {
-    return Promise.resolve(
-      cloudinaryUrlFromId(id, this.cloudinaryFileServiceConfig.cloudinaryCloudName, size)
-    )
+  getDownloadUrlForPhoto(id: string, size = 400): string {
+    return cloudinaryUrlFromId(id, this.cloudinaryFileServiceConfig.cloudinaryCloudName, size)
   }
-  getDownloadUrlForPdf(id: string): Promise<string> {
-    return Promise.resolve(
-      cloudinaryPdfFromId(id, this.cloudinaryFileServiceConfig.cloudinaryCloudName)
-    )
+  getDownloadUrlForPdf(id: string): string {
+    return cloudinaryPdfFromId(id, this.cloudinaryFileServiceConfig.cloudinaryCloudName)
   }
 }

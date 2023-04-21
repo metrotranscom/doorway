@@ -43,20 +43,20 @@ describe("CloudinaryFileService", () => {
     expect(service).toBeDefined()
   })
 
-  it("should return download url for photo", async () => {
-    const url = await service.getDownloadUrlForPhoto("12345")
+  it("should return download url for photo", () => {
+    const url = service.getDownloadUrlForPhoto("12345")
     const expectedUrl = "https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/12345.jpg"
     expect(url).toEqual(expectedUrl)
   })
 
-  it("should return download url for photo with size", async () => {
-    const url = await service.getDownloadUrlForPhoto("12345", 600)
+  it("should return download url for photo with size", () => {
+    const url = service.getDownloadUrlForPhoto("12345", 600)
     const expectedUrl = "https://res.cloudinary.com/exygy/image/upload/w_600,c_limit,q_65/12345.jpg"
     expect(url).toEqual(expectedUrl)
   })
 
-  it("should return download url for pdf", async () => {
-    const url = await service.getDownloadUrlForPdf("12345")
+  it("should return download url for pdf", () => {
+    const url = service.getDownloadUrlForPdf("12345")
     const expectedUrl = "https://res.cloudinary.com/exygy/image/upload/12345.pdf"
     expect(url).toEqual(expectedUrl)
   })

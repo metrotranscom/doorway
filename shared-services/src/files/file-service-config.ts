@@ -10,12 +10,15 @@ export class CloudinaryFileServiceConfig {
 
 export class AwsS3FileServiceConfig {
   bucketName: string
+  accessKey: string
+  secretKey: string
+  region: string
 }
 
 export class FileServiceConfig {
   fileServiceType: FileServiceTypeEnum
-  cloudinaryConfig: CloudinaryFileServiceConfig
-  awsS3Config: AwsS3FileServiceConfig
+  cloudinaryConfig?: CloudinaryFileServiceConfig
+  awsS3Config?: AwsS3FileServiceConfig
 }
 
 export class FileProviderConfig {

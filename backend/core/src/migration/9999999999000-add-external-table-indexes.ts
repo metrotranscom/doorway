@@ -6,7 +6,6 @@ export class externalListingIndexes9999999999000 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
 
-    /*
     // For filtering by num_bedrooms
     await queryRunner.query(
       `CREATE INDEX external_listings_num_bedrooms ON external_listings USING btree ((units->>'num_bedrooms'))`
@@ -21,7 +20,6 @@ export class externalListingIndexes9999999999000 implements MigrationInterface {
     await queryRunner.query(
       `CREATE INDEX external_listings_jurisdiction_id ON external_listings USING hash ((jurisdiction->>'id'))`
     )
-    */
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

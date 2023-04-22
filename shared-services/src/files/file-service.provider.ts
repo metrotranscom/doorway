@@ -15,12 +15,12 @@ export class FileServiceProvider {
   static publicUploadService: FileServiceInterface
   static privateUploadService: FileServiceInterface
 
-  public static configure(fileProviderConfig: FileProviderConfig): void {
-    this.validate(fileProviderConfig)
+  public static configure(fileProviderConfig: FileProviderConfig): void { 
     if (this.privateUploadService !== undefined || this.publicUploadService !== undefined) {
       console.log("File service is already configured")
       return
     }
+    this.validate(fileProviderConfig)
     switch (fileProviderConfig.publicService.fileServiceType) {
       case FileServiceTypeEnum.cloudinary:
         // We explicitly have to check if the config is set, even if we have

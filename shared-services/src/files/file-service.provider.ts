@@ -15,7 +15,7 @@ export class FileServiceProvider {
   static publicUploadService: FileServiceInterface
   static privateUploadService: FileServiceInterface
 
-  public static configure(fileProviderConfig: FileProviderConfig): void { 
+  public static configure(fileProviderConfig: FileProviderConfig): void {
     if (this.privateUploadService !== undefined || this.publicUploadService !== undefined) {
       console.log("File service is already configured")
       return

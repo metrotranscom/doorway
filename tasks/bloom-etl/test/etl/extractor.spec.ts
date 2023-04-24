@@ -165,7 +165,8 @@ describe("Extractor", () => {
   const mockAxios = jest.fn().mockReturnValue({
     get: jest.fn().mockImplementation((endpoint) => {
       // get the jurisdiction id from the endpoint url
-      const regex = /\[jurisdiction\]=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
+      const regex =
+        /\[jurisdiction\]=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/
       const matches = endpoint.match(regex)
       const jurisdictionId = matches.length > 1 ? matches[1] : null
 

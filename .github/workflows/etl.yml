@@ -1,6 +1,7 @@
-name: Bloom ETL Lint
+name: ETL
 
 # This is mostly copied from the root lint action (lint.yml)
+
 # It's kept separate to: 
 # 1) make it easy to remove when no longer needed;
 # 2) make it easy to break out into a separate repo before then if needed;
@@ -16,7 +17,7 @@ on:
 
 jobs:
   run-etl-linter:
-    name: Run linters on ETL code
+    name: Lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,3 +38,25 @@ jobs:
 
       - name: Run linters
         run: yarn lint
+  
+  run-etl-tests:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tasks/bloom-etl
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+
+      - name: Install Node.js dependencies
+        run: yarn install
+
+      - name: Run tests
+        run: yarn test

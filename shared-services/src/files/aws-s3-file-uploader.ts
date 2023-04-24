@@ -15,7 +15,6 @@ export class AwsS3FileUploader {
     setProgressValue: (value: number) => void,
     bucketName: string
   ): Promise<string> {
-    setProgressValue(1)
     setProgressValue(3)
     const key = `listingPhoto-${uuidv4()}`
     await AwsS3Upload({

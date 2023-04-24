@@ -52,5 +52,6 @@ module.exports = {
     "migration/",
     "**/*.stories.tsx",
     "**/.eslintrc.js",
+    "tasks/bloom-etl"
   ],
 }

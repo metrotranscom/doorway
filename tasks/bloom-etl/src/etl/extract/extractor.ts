@@ -8,6 +8,7 @@ export class Extractor extends BaseStage implements ExtractorInterface {
   urlInfo: UrlInfo
   jurisdictions: Array<Jurisdiction>
 
+  // This constructor uses dependency injection for axios to enable easier mocking
   constructor(axios: Axios, urlInfo: UrlInfo, jurisdictions: Array<Jurisdiction>) {
     super()
     this.axios = axios
@@ -16,14 +17,15 @@ export class Extractor extends BaseStage implements ExtractorInterface {
   }
 
   private constructEndpoint(id: string) {
-    // Construct endpoint urls that gets base info for all listings for each jurisdiction individually
-    // This enables us to maximize cache hits on the Bloom side
-    const url =
+    // Construct endpoint urls that get base info for all listings for each
+    // jurisdiction individually rather than all at once. This enables us to
+    // parallelize fetches and maximize cache hits on the external API
+    return (
       this.urlInfo.base +
       this.urlInfo.path +
-      "?view=base&limit=all&filter[0][$comparison]==&filter[0][status]=active"
-
-    return url + `&filter[1][$comparison]==&filter[1][jurisdiction]=${id}`
+      "?view=base&limit=all&filter[0][$comparison]==&filter[0][status]=active" +
+      `&filter[1][$comparison]==&filter[1][jurisdiction]=${id}`
+    )
   }
 
   public async extract(): Promise<Array<Listing>> {

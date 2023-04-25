@@ -11,16 +11,22 @@ export class Transformer extends BaseStage implements TransformerInterface {
     this.map = map
   }
 
-  private getMappedValue(key: string, value: MapValue, obj: Listing): RecordValue {
+  private getMappedValue(value: MapValue, listing: Listing): RecordValue {
     const type = typeof value
 
     // eslint complained when I used a switch here
+    // if the map value is a string, treat it as the property to get from the listing
+    // ie value = "id", return listing["id"]
     if (type == "string") {
-      return obj[value as string]
+      return listing[value as string]
     }
 
+    // if it's a ResolveFunction, call the function, passing in the listing and
+    // using the return value
+    // this provides a way to generate values that do not map to a single property
+    // ie return value(listing)
     if (type == "function") {
-      return (value as ResolveFunction)(obj)
+      return (value as ResolveFunction)(listing)
     }
   }
 
@@ -38,7 +44,7 @@ export class Transformer extends BaseStage implements TransformerInterface {
     const row = {}
 
     for (const [key, value] of Object.entries(this.map)) {
-      row[key] = this.getMappedValue(key, value, listing)
+      row[key] = this.getMappedValue(value, listing)
     }
 
     return row

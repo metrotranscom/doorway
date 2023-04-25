@@ -26,8 +26,6 @@ export type RecordValue = string | number | boolean | object
 export const defaultMap: RecordMap = {
   id: "id",
   assets: (listing: Listing) => jsonOrNull(listing.assets),
-  // household_size_min
-  // household_size_max
   units_available: "unitsAvailable",
   application_due_date: "applicationDueDate",
   application_open_date: "applicationOpenDate",

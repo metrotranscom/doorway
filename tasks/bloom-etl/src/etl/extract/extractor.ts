@@ -37,7 +37,9 @@ export class Extractor extends BaseStage implements ExtractorInterface {
         this.axios
           .get<ListingResponse>(endpoint)
           .catch((error) => {
-            this.logger.error(`Unexpected HTTP error fetching listings for jurisdiction [${jurisdiction.name}]`)
+            this.logger.error(
+              `Unexpected HTTP error fetching listings for jurisdiction [${jurisdiction.name}]`
+            )
             this.logger.error(`Error URL: [${endpoint}]`)
             throw error
           })

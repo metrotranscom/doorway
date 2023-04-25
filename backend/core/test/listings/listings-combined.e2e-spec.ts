@@ -534,7 +534,6 @@ describe("CombinedListings", () => {
     })
 
     it("should properly apply bedrooms filter", async () => {
-      // this fictional city is set in external listings seed
       const minBedrooms = 2
       const gteFilter = [{ $comparison: ">=", bedrooms: minBedrooms }]
 

@@ -30,25 +30,29 @@ export class Runner {
   }
 
   public async run() {
+    const logger = this.logger
+
     try {
-      this.logger.log("---- INITIALIZING RUNNER ----")
+      logger.log("---- INITIALIZING RUNNER ----")
       this.init()
 
-      this.logger.log("---- FETCHING LISTINGS ----")
+      logger.log("---- FETCHING LISTINGS ----")
       const results = await this.extractor.extract()
 
-      this.logger.log("---- TRANSFORMING LISTINGS ----")
+      logger.log("---- TRANSFORMING LISTINGS ----")
       const rows = this.transformer.mapAll(results)
 
-      this.logger.log("---- LOADING NEW LISTINGS INTO DATABASE ----")
+      logger.log("---- LOADING NEW LISTINGS INTO DATABASE ----")
 
       // the await is required to keep shutdown from happening before load completes
       // we want shutdown to happen in the finally block rather than catching on each op
       /* eslint-disable @typescript-eslint/await-thenable */
       await this.loader.load(rows)
-      this.logger.log("---- ETL RUN COMPLETE ----")
+      logger.log("---- ETL RUN COMPLETE ----")
+    } catch (e) {
+      logger.error(e)
     } finally {
-      this.logger.log("---- SHUTTING DOWN RUNNER ----")
+      logger.log("---- SHUTTING DOWN RUNNER ----")
       this.shutdown()
     }
   }

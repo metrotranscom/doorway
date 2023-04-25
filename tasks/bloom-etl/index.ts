@@ -44,6 +44,4 @@ const runner = new Runner(
   new Loader(knex(dbConfig), tableName)
 )
 
-runner.run().catch((error) => {
-  console.error(error)
-})
+void runner.run()

@@ -6,8 +6,7 @@ import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-he
 import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { MetaTags } from "../components/shared/MetaTags"
-import { ListingsMap } from "../components/listings/ListingsMap"
-import { ListingsList } from "../components/listings/ListingsList"
+import { ListingsCombined } from "../components/listings/ListingsCombined"
 import {
   fetchJurisdictionByName,
   fetchBloomJurisdictionsByName,
@@ -43,10 +42,7 @@ export default function ListingsPage(props: ListingsProps) {
 
       <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
       <PageHeader title={t("pageTitle.rent")} />
-      <div className="listings-combined">
-        <ListingsMap listings={props.openListings}></ListingsMap>
-        <ListingsList listings={props.openListings}></ListingsList>
-      </div>
+      <ListingsCombined listings={props.openListings} />
     </Layout>
   )
 }

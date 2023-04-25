@@ -9,7 +9,8 @@ type ListingsMapProps = {
 const containerStyle = {
   display: "block",
   width: "100%",
-  height: "300px",
+  height: "100%",
+  position: "relative",
 }
 
 const center = {
@@ -43,11 +44,9 @@ const ListingsMap = (props: ListingsMapProps) => {
   })
 
   return isLoaded ? (
-    <section>
-      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={9}>
-        {markers}
-      </GoogleMap>
-    </section>
+    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={9}>
+      {markers}
+    </GoogleMap>
   ) : (
     <></>
   )

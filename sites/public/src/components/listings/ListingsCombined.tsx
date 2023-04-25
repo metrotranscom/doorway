@@ -19,7 +19,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => (
     <div style={{ flex: "1" }}>
       <ListingsMap listings={props.listings} />
     </div>
-    <div style={{ overflowY: "auto", width: "400px" }}>
+    <div style={{ overflowY: "auto", width: "600px" }}>
       <ListingsList listings={props.listings}></ListingsList>
     </div>
   </div>

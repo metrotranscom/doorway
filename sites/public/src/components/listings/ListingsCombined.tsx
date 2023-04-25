@@ -9,8 +9,9 @@ type ListingsCombinedProps = {
 const parentStyle = {
   display: "flex",
   alignItems: "stretch",
-  // TODO -- make this better
-  height: "calc(100vh - 500px)",
+  // This is a not-ideal way to do "fill window minus header+footer" however I can't find another way to do this.
+  // TODO: update header+footer to a not-magic number
+  height: "calc(100vh - 450px)",
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => (

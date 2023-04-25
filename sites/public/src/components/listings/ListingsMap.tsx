@@ -39,6 +39,7 @@ const ListingsMap = (props: ListingsMapProps) => {
         position={{ lat: listing.buildingAddress.latitude, lng: listing.buildingAddress.longitude }}
         label={label}
         onClick={() => (window.location.href = uri)}
+        key={label}
       ></Marker>
     )
   })

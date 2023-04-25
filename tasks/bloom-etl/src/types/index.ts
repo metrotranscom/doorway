@@ -1,4 +1,4 @@
-export { Response } from "./response"
+export { ListingResponse, JurisdictionResponse } from "./response"
 export { Listing } from "./listing"
 export { Jurisdiction } from "./jurisdiction"
 export { UrlInfo } from "./url-info"

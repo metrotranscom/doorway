@@ -1,17 +1,21 @@
 import { ExtractorInterface, TransformerInterface, LoaderInterface } from "./"
+import { JurisdictionResolverInterface } from "./extract/jurisdiction-resolver-interface"
 import { Logger } from "./logger"
 
 export class Runner {
+  jurisdictionResolver: JurisdictionResolverInterface
   extractor: ExtractorInterface
   transformer: TransformerInterface
   loader: LoaderInterface
   logger: Logger
 
   constructor(
+    jurisdictionResolver: JurisdictionResolverInterface,
     extractor: ExtractorInterface,
     transformer: TransformerInterface,
     loader: LoaderInterface
   ) {
+    this.jurisdictionResolver = jurisdictionResolver
     this.extractor = extractor
     this.transformer = transformer
     this.loader = loader
@@ -36,8 +40,11 @@ export class Runner {
       logger.log("---- INITIALIZING RUNNER ----")
       this.init()
 
+      logger.log("---- FETCHING JURISDICTIONS ----")
+      const jurisdictions = await this.jurisdictionResolver.fetchJurisdictions()
+
       logger.log("---- FETCHING LISTINGS ----")
-      const results = await this.extractor.extract()
+      const results = await this.extractor.extract(jurisdictions)
 
       logger.log("---- TRANSFORMING LISTINGS ----")
       const rows = this.transformer.mapAll(results)

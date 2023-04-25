@@ -1,6 +1,11 @@
 import { Listing } from "./listing"
+import { Jurisdiction } from "./jurisdiction"
 
-export class Response {
+export class JurisdictionResponse {
+  data: Jurisdiction[]
+}
+
+export class ListingResponse {
   items: Listing[]
   meta: {
     currentPage: number

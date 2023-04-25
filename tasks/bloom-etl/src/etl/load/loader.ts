@@ -20,6 +20,9 @@ export class Loader extends BaseStage implements LoaderInterface {
   }
 
   public async load(rows: Array<object>) {
+    // don't do anything else if there are no rows to add
+    if (rows.length < 1) return []
+
     // start the transaction
     const txn = await this.txn()
 

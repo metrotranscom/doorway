@@ -1,19 +1,17 @@
 import { Axios } from "axios"
-import { Jurisdiction, Listing, Response, UrlInfo } from "../../types"
+import { Jurisdiction, Listing, ListingResponse, UrlInfo } from "../../types"
 import { ExtractorInterface } from "./extractor-interface"
 import { BaseStage } from "../base-stage"
 
 export class Extractor extends BaseStage implements ExtractorInterface {
   axios: Axios
   urlInfo: UrlInfo
-  jurisdictions: Array<Jurisdiction>
 
   // This constructor uses dependency injection for axios to enable easier mocking
-  constructor(axios: Axios, urlInfo: UrlInfo, jurisdictions: Array<Jurisdiction>) {
+  constructor(axios: Axios, urlInfo: UrlInfo) {
     super()
     this.axios = axios
     this.urlInfo = urlInfo
-    this.jurisdictions = jurisdictions
   }
 
   private constructEndpoint(id: string) {
@@ -28,16 +26,16 @@ export class Extractor extends BaseStage implements ExtractorInterface {
     )
   }
 
-  public async extract(): Promise<Array<Listing>> {
+  public async extract(jurisdictions: Jurisdiction[]): Promise<Array<Listing>> {
     const actions = []
 
-    this.jurisdictions.forEach((jurisdiction: Jurisdiction) => {
+    jurisdictions.forEach((jurisdiction: Jurisdiction) => {
       this.log(`Fetching listings for [${jurisdiction.name}]`)
       const endpoint = this.constructEndpoint(jurisdiction.id)
 
       actions.push(
         this.axios
-          .get<Response>(endpoint)
+          .get<ListingResponse>(endpoint)
           .catch((error) => {
             this.log(error)
             throw new Error("Unexpected HTTP error")
@@ -65,7 +63,7 @@ export class Extractor extends BaseStage implements ExtractorInterface {
       })
 
       this.log(
-        `Extract Results: ${items.length} listings fetched from ${this.jurisdictions.length} jurisdictions`
+        `Extract Results: ${items.length} listings fetched from ${jurisdictions.length} jurisdictions`
       )
 
       return items

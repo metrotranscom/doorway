@@ -194,10 +194,10 @@ describe("Extractor", () => {
 
   it("should generate the correct endpoint url", async () => {
     const jurisdiction = jurisdictions[0]
-    const extractor = new Extractor(mockAxios, urlInfo, [jurisdiction])
+    const extractor = new Extractor(mockAxios, urlInfo)
     extractor.getLogger().printLogs = false
 
-    await extractor.extract()
+    await extractor.extract([jurisdiction])
 
     // only one jurisdiction
     expect(mockAxios.get).toHaveBeenCalledTimes(1)
@@ -210,10 +210,10 @@ describe("Extractor", () => {
   })
 
   it("should extract valid results", async () => {
-    const extractor = new Extractor(mockAxios, urlInfo, jurisdictions)
+    const extractor = new Extractor(mockAxios, urlInfo)
     extractor.getLogger().printLogs = false
 
-    const results = await extractor.extract()
+    const results = await extractor.extract(jurisdictions)
 
     // get is called for each jurisdiction
     expect(mockAxios.get).toHaveBeenCalledTimes(jurisdictions.length)
@@ -231,13 +231,13 @@ describe("Extractor", () => {
   })
 
   it("should fail on fetch error", async () => {
-    const extractor = new Extractor(mockAxios, urlInfo, jurisdictions)
+    const extractor = new Extractor(mockAxios, urlInfo)
     extractor.getLogger().printLogs = false
 
     mockAxios.get.mockImplementationOnce(() => {
       throw new Error("get")
     })
 
-    await expect(extractor.extract()).rejects.toThrow("get")
+    await expect(extractor.extract(jurisdictions)).rejects.toThrow("get")
   })
 })

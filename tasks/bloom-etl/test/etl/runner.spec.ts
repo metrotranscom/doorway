@@ -1,13 +1,29 @@
 import { jest } from "@jest/globals"
-import { ExtractorInterface, LoaderInterface, Runner, TransformerInterface } from "../../src/etl/"
+import {
+  JurisdictionResolverInterface,
+  ExtractorInterface,
+  LoaderInterface,
+  Runner,
+  TransformerInterface,
+} from "../../src/etl/"
 import { Listing } from "../../src/types"
 import { Logger } from "../../src/etl/logger"
 
 describe("Runner", () => {
+  const mockJurisdictionResolver: jest.Mocked<JurisdictionResolverInterface> = {
+    setLogger: jest.fn(),
+    getLogger: jest.fn(() => new Logger()),
+    fetchJurisdictions: jest.fn(async () => {
+      return Promise.resolve([])
+    }),
+  }
+
   const mockExtractor: jest.Mocked<ExtractorInterface> = {
     setLogger: jest.fn(),
     getLogger: jest.fn(() => new Logger()),
-    extract: jest.fn(async () => {
+    // needed for method signature, but we don't do anything with it
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    extract: jest.fn(async (jurisdictions) => {
       return Promise.resolve([])
     }),
   }
@@ -33,6 +49,7 @@ describe("Runner", () => {
   }
 
   beforeEach(() => {
+    mockJurisdictionResolver.fetchJurisdictions.mockClear()
     mockExtractor.extract.mockClear()
     mockTransformer.mapAll.mockClear()
     mockLoader.open.mockClear()
@@ -41,23 +58,17 @@ describe("Runner", () => {
   })
 
   it("should shut down if failed", async () => {
-    const runner = new Runner(mockExtractor, mockTransformer, mockLoader)
+    const runner = new Runner(mockJurisdictionResolver, mockExtractor, mockTransformer, mockLoader)
     runner.enableOutputLogging(false)
 
     const shutdownSpy = jest.spyOn(runner, "shutdown")
 
     mockExtractor.extract.mockImplementationOnce(() => {
-      throw new Error("extractor")
+      throw new Error("this is an expected error on the extractor")
     })
 
-    // this actually causes an error to be thrown in the test?
-    //expect( async () => { await runner.run() } ).toThrow('extractor')
-
-    try {
-      await runner.run()
-    } catch (e) {
-      // do nothing
-    }
+    // runner catches all errors and logs them
+    await runner.run()
 
     // loader shouldn't be called if extractor throws an error
     expect(mockLoader.load.mock.calls.length).toBe(0)
@@ -66,7 +77,7 @@ describe("Runner", () => {
   })
 
   it("should invoke all methods", async () => {
-    const runner = new Runner(mockExtractor, mockTransformer, mockLoader)
+    const runner = new Runner(mockJurisdictionResolver, mockExtractor, mockTransformer, mockLoader)
     runner.enableOutputLogging(false)
 
     // spy on runner methods
@@ -77,6 +88,7 @@ describe("Runner", () => {
 
     expect(initSpy.mock.calls.length).toBe(1)
     expect(shutdownSpy.mock.calls.length).toBe(1)
+    expect(mockJurisdictionResolver.fetchJurisdictions.mock.calls.length).toBe(1)
     expect(mockExtractor.extract.mock.calls.length).toBe(1)
     expect(mockTransformer.mapAll.mock.calls.length).toBe(1)
     expect(mockLoader.open.mock.calls.length).toBe(1)

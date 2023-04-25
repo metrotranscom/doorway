@@ -22,8 +22,8 @@ export class JurisdictionResolver extends BaseStage implements JurisdictionResol
     return this.axios
       .get<JurisdictionResponse>(endpoint)
       .catch((error) => {
-        this.log(error)
-        throw new Error("Unexpected HTTP error")
+        this.logger.error("Unexpected HTTP error fetching jurisdictions")
+        throw error
       })
       .then((response) => {
         if (Array.isArray(response.data)) {

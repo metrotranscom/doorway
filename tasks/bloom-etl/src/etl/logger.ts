@@ -7,7 +7,11 @@ export class Logger {
     }
   }
 
-  public error(err: Error) {
-    console.error(`[ERROR] ${err.stack}`)
+  public error(err: Error | string) {
+    if (err instanceof Error) {
+      console.error(`[ERROR] ${err.stack}`)
+    } else {
+      console.error(`[ERROR] ${err}`)
+    }
   }
 }

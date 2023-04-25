@@ -21,7 +21,7 @@ const jurisdictions: Array<Jurisdiction> = [
 
 // This is also unlikely to change during the lifetime of this task
 const url: UrlInfo = {
-  base: process.env.EXTERNAL_ENDPOINT_URL || "https://proxy.housingbayarea.org",
+  base: process.env.EXTERNAL_ENDPOINT_URL,
   path: process.env.EXTERNAL_ENDPOINT_PATH || "/listings",
 }
 

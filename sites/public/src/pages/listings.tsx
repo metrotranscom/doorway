@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from "react"
 import Head from "next/head"
 import { ListingsGroup, PageHeader, t } from "@bloom-housing/ui-components"
-import { ListingWithSourceMetadata } from "../../types/ListingWithSourceMetadata"
+import { Listing } from "@bloom-housing/backend-core/types"
 import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
@@ -9,15 +9,15 @@ import { MetaTags } from "../components/shared/MetaTags"
 import { ListingsMap } from "../components/listings/ListingsMap"
 import { getListings } from "../lib/helpers"
 import {
-  fetchJurisdictionByName,
-  fetchBloomJurisdictionsByName,
+  //fetchJurisdictionByName,
+  //fetchBloomJurisdictionsByName,
   fetchClosedListings,
   fetchOpenListings,
 } from "../lib/hooks"
 
 export interface ListingsProps {
-  openListings: ListingWithSourceMetadata[]
-  closedListings: ListingWithSourceMetadata[]
+  openListings: Listing[]
+  closedListings: Listing[]
 }
 
 const openListings = (listings) => {
@@ -86,7 +86,7 @@ export async function getServerSideProps() {
   // making sure that the bloomJurisdictions instance variable is populated.
   // We may as well call fetchJurisdictionByName at the same time here for
   // performance reasons.
-  await Promise.all([fetchJurisdictionByName(), fetchBloomJurisdictionsByName()])
+  //await Promise.all([fetchJurisdictionByName(), fetchBloomJurisdictionsByName()])
   const openListings = fetchOpenListings()
   const closedListings = fetchClosedListings()
 

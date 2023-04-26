@@ -15,7 +15,7 @@ import { ListingView } from "../../../components/listing/ListingView"
 import { MetaTags } from "../../../components/shared/MetaTags"
 import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
-import { getBloomJurisdictionById } from "../../../lib/hooks"
+//import { getBloomJurisdictionById } from "../../../lib/hooks"
 
 interface ListingProps {
   listing: Listing
@@ -91,7 +91,8 @@ export async function getServerSideProps(context: {
   return {
     props: {
       listing: response.data,
-      jurisdiction: await getBloomJurisdictionById(response.data.jurisdiction.id),
+      //jurisdiction: await getBloomJurisdictionById(response.data.jurisdiction.id),
+      jurisdiction: response.data.jurisdiction,
     },
   }
 }

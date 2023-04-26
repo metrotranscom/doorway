@@ -103,6 +103,7 @@ export async function fetchBaseListingData({
       params.orderDir = orderDir
     }
 
+    /*
     if (process.env.bloomJurisdictionNames.length != 0) {
       // This function early returns if the jurisdictions have already been.
       // fetched from the Bloom API.
@@ -132,6 +133,7 @@ export async function fetchBaseListingData({
       }
       return allListings
     }
+    */
     const response = await axios.get(process.env.listingServiceUrl, {
       params,
       paramsSerializer: (params) => {
@@ -174,6 +176,7 @@ export async function fetchClosedListings() {
 }
 
 let jurisdiction: Jurisdiction | null = null
+/*
 const bloomJurisdictions: Jurisdiction[] = []
 
 export async function fetchBloomJurisdictionsByName() {
@@ -198,6 +201,7 @@ export async function fetchBloomJurisdictionsByName() {
   return bloomJurisdictions
 }
 
+
 export async function getBloomJurisdictionById(jurisdictionId: string) {
   try {
     if (bloomJurisdictions.length == 0) {
@@ -210,6 +214,7 @@ export async function getBloomJurisdictionById(jurisdictionId: string) {
 
   return jurisdiction
 }
+*/
 
 export async function fetchJurisdictionByName() {
   try {

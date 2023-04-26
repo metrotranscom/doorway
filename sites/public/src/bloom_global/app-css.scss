@@ -2,7 +2,7 @@
 @import url("https://fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic");
 
 body {
-	height: 100%;
+  height: 100%;
 }
 
 // The following are hardcoded to override the defaults in UIC in order to mass redesign the Bloom site easily. 
@@ -10,12 +10,12 @@ body {
 // Also noting a performance issue where we are loading fonts that we won't ultimately use from Bloom UIC but not
 // sure what we can do about it.
 :root {
-	--bloom-font-sans: "Metropolis", Helvetica, Arial, Verdana, sans-serif;
-	--bloom-font-serif: "Noto Serif", Georgia, Times, serif;
-	// This is the same as -sans, however, I don't think we will have an alt-sans.
-	// Will update if needed.
-	--bloom-font-alt-sans: "Metropolis", Helvetica, Arial, Verdana, sans-serif;
-	--bloom-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --bloom-font-sans: "Metropolis", Helvetica, Arial, Verdana, sans-serif;
+  --bloom-font-serif: "Noto Serif", Georgia, Times, serif;
+  // This is the same as -sans, however, I don't think we will have an alt-sans.
+  // Will update if needed.
+  --bloom-font-alt-sans: "Metropolis", Helvetica, Arial, Verdana, sans-serif;
+  --bloom-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 // TODO: override colors here

@@ -8,12 +8,7 @@ import Layout from "../layouts/application"
 import { MetaTags } from "../components/shared/MetaTags"
 import { ListingsMap } from "../components/listings/ListingsMap"
 import { getListings } from "../lib/helpers"
-import {
-  //fetchJurisdictionByName,
-  //fetchBloomJurisdictionsByName,
-  fetchClosedListings,
-  fetchOpenListings,
-} from "../lib/hooks"
+import { fetchClosedListings, fetchOpenListings } from "../lib/hooks"
 
 export interface ListingsProps {
   openListings: Listing[]
@@ -78,15 +73,6 @@ export default function ListingsPage(props: ListingsProps) {
 }
 
 export async function getServerSideProps() {
-  // Hack alert: fetchOpenListings and fetchClosedListings call
-  // fetchBloomJurisdictionsByName concurrently which causes a race condition
-  // that calls the Jurisdictions API twice.
-  //
-  // Invoking fetchBloomJurisdictionsByName first avoids that situation by
-  // making sure that the bloomJurisdictions instance variable is populated.
-  // We may as well call fetchJurisdictionByName at the same time here for
-  // performance reasons.
-  //await Promise.all([fetchJurisdictionByName(), fetchBloomJurisdictionsByName()])
   const openListings = fetchOpenListings()
   const closedListings = fetchClosedListings()
 

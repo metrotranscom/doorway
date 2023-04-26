@@ -15,7 +15,8 @@ import { ListingView } from "../../../components/listing/ListingView"
 import { MetaTags } from "../../../components/shared/MetaTags"
 import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
-import { fetchJurisdictionByName } from "../../../lib/hooks"
+// shouldn't be needed, but keep here just in case
+//import { fetchJurisdictionByName } from "../../../lib/hooks"
 
 interface ListingProps {
   listing: Listing
@@ -129,7 +130,8 @@ export async function getServerSideProps(context: {
   } catch (e) {
     return { notFound: true }
   }
-  const jurisdiction = fetchJurisdictionByName()
+  // listing has the jurisdiction on it, so no need to fetch separately
+  //const jurisdiction = fetchJurisdictionByName()
 
-  return { props: { listing: response.data, jurisdiction: await jurisdiction } }
+  return { props: { listing: response.data, jurisdiction: response.data.jurisdiction } }
 }

@@ -1513,7 +1513,7 @@ export const ArcherListing: Listing = {
       monthlyRentAsPercentOfIncome: null,
     },
   ],
-  isExternal: false
+  isExternal: false,
   // TODO confirm not used anywhere
   // totalUnits: 2,
 }

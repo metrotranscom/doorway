@@ -6,7 +6,7 @@ type ListingsMapProps = {
   listings?: ListingWithSourceMetadata[]
 }
 
-const containerStyle = {
+const containerStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
   height: "100%",

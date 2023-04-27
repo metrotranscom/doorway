@@ -32,7 +32,7 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
   }, [])
 
   let fileProviderConfig: FileProviderConfig
-  if (process.env.fileService === "aws-s3") {
+  if (process.env.fileService === "aws_s3") {
     fileProviderConfig = {
       publicService: {
         fileServiceType: FileServiceTypeEnum.aws_s3,

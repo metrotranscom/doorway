@@ -1,3 +1,4 @@
+// This should be updated along with .env.template for the partners and public sites.
 export enum FileServiceTypeEnum {
   cloudinary = "cloudinary",
   aws_s3 = "aws_s3",

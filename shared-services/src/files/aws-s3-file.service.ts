@@ -26,7 +26,7 @@ export class AwsS3FileService implements FileServiceInterface {
     return id
   }
   getDownloadUrlForPhoto(id: string): string {
-    return `https://${this.awsS3FileServiceConfig.bucketName}.s3.${this.awsS3FileServiceConfig.region}.amazonaws.com/${id}`
+    return this.getDownloadUrl(id)
     /*const getObjectCommand = new GetObjectCommand({
       Bucket: this.awsS3FileServiceConfig.bucketName,
       Key: id,
@@ -35,7 +35,10 @@ export class AwsS3FileService implements FileServiceInterface {
     return await getSignedUrl(this.s3Client, getObjectCommand, { expiresIn: 3600 })*/
   }
   getDownloadUrlForPdf(id: string): string {
-    // The download URL is the same regardless of the file type
-    return this.getDownloadUrlForPhoto(id)
+    return this.getDownloadUrl(id)
+  }
+
+  private getDownloadUrl(id: string): string {
+    return `https://${this.awsS3FileServiceConfig.bucketName}.s3.${this.awsS3FileServiceConfig.region}.amazonaws.com/${id}`
   }
 }

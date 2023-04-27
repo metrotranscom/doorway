@@ -5,6 +5,7 @@ import {
   AwsS3FileServiceConfig,
   CloudinaryFileServiceConfig,
   FileProviderConfig,
+  FileServiceConfig,
   FileServiceTypeEnum,
 } from "./file-service-config"
 import { AwsS3FileService } from "./aws-s3-file.service"
@@ -86,7 +87,12 @@ export class FileServiceProvider {
       default:
         throw new Error("Unknown file service type for private service")
     }
-    console.log("Configured file service with " + fileProviderConfig.publicService.fileServiceType)
+    console.log(
+      "Configured public file service with " + fileProviderConfig.publicService.fileServiceType
+    )
+    console.log(
+      "Configured private file service with " + fileProviderConfig.privateService.fileServiceType
+    )
   }
 
   private static validate(fileProviderConfig: FileProviderConfig): void {
@@ -98,36 +104,30 @@ export class FileServiceProvider {
       throw new Error("Private service not defined")
     }
     if (
-      (fileProviderConfig.privateService.fileServiceType !== FileServiceTypeEnum.cloudinary &&
-        fileProviderConfig.privateService.fileServiceType !== FileServiceTypeEnum.aws_s3) ||
-      (fileProviderConfig.publicService.fileServiceType !== FileServiceTypeEnum.cloudinary &&
-        fileProviderConfig.publicService.fileServiceType !== FileServiceTypeEnum.aws_s3)
+      fileProviderConfig.privateService.fileServiceType === undefined ||
+      fileProviderConfig.privateService.fileServiceType === null ||
+      fileProviderConfig.publicService.fileServiceType === undefined ||
+      fileProviderConfig.publicService.fileServiceType === null
     ) {
-      throw new Error("Only supported file services are cloudinary and AWS S3")
+      throw new Error("File service type must be specified")
     }
-    // Validate public service
-    if (fileProviderConfig.publicService.fileServiceType === FileServiceTypeEnum.cloudinary) {
-      if (fileProviderConfig.publicService.cloudinaryConfig === undefined) {
-        throw new Error("Public service cloudinary config should be specified")
+    this.validateFileServiceConfig(fileProviderConfig.publicService)
+    this.validateFileServiceConfig(fileProviderConfig.privateService)
+  }
+
+  private static validateFileServiceConfig(fileServiceConfig: FileServiceConfig): void {
+    if (fileServiceConfig.fileServiceType === FileServiceTypeEnum.cloudinary) {
+      if (fileServiceConfig.cloudinaryConfig === undefined) {
+        throw new Error(
+          "Cloudinary config should be specified when file service type is cloudinary"
+        )
       }
-      this.validateCloudinaryConfig(fileProviderConfig.publicService.cloudinaryConfig)
+      this.validateCloudinaryConfig(fileServiceConfig.cloudinaryConfig)
     } else {
-      if (fileProviderConfig.publicService.awsS3Config === undefined) {
-        throw new Error("Public service AWS S3 config should be specified")
+      if (fileServiceConfig.awsS3Config === undefined) {
+        throw new Error("Cloudinary config should be specified when file service type is aws_s3")
       }
-      this.validateAwsS3Config(fileProviderConfig.publicService.awsS3Config)
-    }
-    // Validate private service
-    if (fileProviderConfig.privateService.fileServiceType === FileServiceTypeEnum.cloudinary) {
-      if (fileProviderConfig.privateService.cloudinaryConfig === undefined) {
-        throw new Error("Private service cloudinary config should be specified")
-      }
-      this.validateCloudinaryConfig(fileProviderConfig.privateService.cloudinaryConfig)
-    } else {
-      if (fileProviderConfig.privateService.awsS3Config === undefined) {
-        throw new Error("Private service AWS S3 config should be specified")
-      }
-      this.validateAwsS3Config(fileProviderConfig.privateService.awsS3Config)
+      this.validateAwsS3Config(fileServiceConfig.awsS3Config)
     }
   }
 

@@ -81,7 +81,6 @@ export async function getServerSideProps(context: {
   let response: AxiosResponse
   try {
     const extUrl = `${process.env.BLOOM_API_BASE}/listings/${context.params.id}`
-    //console.log(`Fetching external listing from [${extUrl}]`) // toggle for debugging
     response = await axios.get(extUrl, {
       headers: { language: context.locale },
     })

@@ -52,11 +52,6 @@ module.exports = withBundleAnalyzer(
 
       // start Doorway env variables
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
-
-      // Next.js bakes in these env vars at build time
-      // This is undesired behavior, so remove them where possible
-      //listingServiceUrl: BACKEND_API_BASE + LISTINGS_QUERY,
-      //bloomApiBase: process.env.BLOOM_API_BASE,
     },
     i18n: {
       locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],

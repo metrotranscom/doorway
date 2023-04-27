@@ -91,7 +91,6 @@ export async function fetchBaseListingData({
       params.orderDir = orderDir
     }
 
-    // const response = await axios.get(process.env.listingServiceUrl, {
     const response = await axios.get(getListingServiceUrl(), {
       params,
       paramsSerializer: (params) => {

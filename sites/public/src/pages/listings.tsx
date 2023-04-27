@@ -1,43 +1,16 @@
 import React, { useEffect, useContext } from "react"
 import Head from "next/head"
-import { ListingsGroup, PageHeader, t } from "@bloom-housing/ui-components"
+import { PageHeader, t } from "@bloom-housing/ui-components"
 import { Listing } from "@bloom-housing/backend-core/types"
 import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { MetaTags } from "../components/shared/MetaTags"
-import { ListingsMap } from "../components/listings/ListingsMap"
-import { getListings } from "../lib/helpers"
-import { fetchClosedListings, fetchOpenListings } from "../lib/hooks"
+import { ListingsCombined } from "../components/listings/ListingsCombined"
+import { fetchOpenListings } from "../lib/hooks"
 
 export interface ListingsProps {
   openListings: Listing[]
-  closedListings: Listing[]
-}
-
-const openListings = (listings) => {
-  return listings?.length > 0 ? (
-    <>{getListings(listings)}</>
-  ) : (
-    <div className="notice-block">
-      <h3 className="m-auto text-gray-800">{t("listings.noOpenListings")}</h3>
-    </div>
-  )
-}
-
-const closedListings = (listings) => {
-  return (
-    listings?.length > 0 && (
-      <ListingsGroup
-        listingsCount={listings.length}
-        header={t("listings.closedListings")}
-        hideButtonText={t("listings.hideClosedListings")}
-        showButtonText={t("listings.showClosedListings")}
-      >
-        {getListings(listings)}
-      </ListingsGroup>
-    )
-  )
 }
 
 export default function ListingsPage(props: ListingsProps) {
@@ -63,20 +36,13 @@ export default function ListingsPage(props: ListingsProps) {
 
       <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
       <PageHeader title={t("pageTitle.rent")} />
-      <ListingsMap listings={props.openListings}></ListingsMap>
-      <div>
-        {openListings(props.openListings)}
-        {closedListings(props.closedListings)}
-      </div>
+      <ListingsCombined listings={props.openListings} />
     </Layout>
   )
 }
 
 export async function getServerSideProps() {
-  const openListings = fetchOpenListings()
-  const closedListings = fetchClosedListings()
-
   return {
-    props: { openListings: await openListings, closedListings: await closedListings },
+    props: { openListings: await fetchOpenListings() },
   }
 }

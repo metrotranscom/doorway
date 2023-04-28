@@ -58,6 +58,7 @@ import { GetApplication } from "./GetApplication"
 import { DownloadLotteryResults } from "./DownloadLotteryResults"
 import { SubmitApplication } from "./SubmitApplication"
 import { FileServiceProvider, FileServiceInterface } from "@bloom-housing/shared-services"
+import ListingMap from "./ListingMap"
 
 interface ListingProps {
   listing: Listing
@@ -87,9 +88,6 @@ export const ListingView = (props: ListingProps) => {
 
   const googleMapsHref =
     "https://www.google.com/maps/place/" + ReactDOMServer.renderToStaticMarkup(oneLineAddress)
-
-  const staticGoogleMapsSrc = 
-  `https://maps.googleapis.com/maps/api/staticmap?&markers=color:red%7C${listing.buildingAddress.latitude},${listing.buildingAddress.longitude}&zoom=13&size=800x400&key=${process.env.googleMapsApiKey}`
 
   const unitSummariesHeaders = {
     unitType: t("t.unitType"),
@@ -878,7 +876,10 @@ export const ListingView = (props: ListingProps) => {
           desktopClass="bg-primary-lighter"
         >
           <div className="listing-detail-panel">
-            <a href={googleMapsHref}><img src={staticGoogleMapsSrc} alt="Listing location map"/></a>
+            <ListingMap
+              listing={listing}
+              googleMapsHref={googleMapsHref}
+            />
           </div>
         </ListingDetailItem>
 

@@ -7,7 +7,7 @@ type ListingGoogleMapProps = {
   googleMapsHref: string
 }
 
-const containerStyle = {
+const containerStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
   height: "400px",

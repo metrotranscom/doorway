@@ -2,7 +2,7 @@ import React from "react"
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api"
 import { Listing } from "@bloom-housing/backend-core/types"
 
-type ListingMapProps = {
+type ListingGoogleMapProps = {
   listing: Listing
   googleMapsHref: string
 }
@@ -13,7 +13,7 @@ const containerStyle = {
   height: "400px",
 }
 
-const ListingMap = (props: ListingMapProps) => {
+const ListingGoogleMap = (props: ListingGoogleMapProps) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.googleMapsApiKey,
   })
@@ -38,4 +38,4 @@ const ListingMap = (props: ListingMapProps) => {
   )
 }
 
-export { ListingMap as default, ListingMap }
+export { ListingGoogleMap as default, ListingGoogleMap }

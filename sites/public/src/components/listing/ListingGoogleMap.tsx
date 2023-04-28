@@ -11,6 +11,7 @@ const containerStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
   height: "400px",
+  position: "relative"
 }
 
 const ListingGoogleMap = (props: ListingGoogleMapProps) => {
@@ -27,11 +28,9 @@ const ListingGoogleMap = (props: ListingGoogleMapProps) => {
 
   return isLoaded ? (
     <a href={props.googleMapsHref}>
-      <div className="listing-map">
-        <GoogleMap mapContainerStyle={containerStyle} center={latitudeLongitude} zoom={13}>
-          {marker}
-        </GoogleMap>
-      </div>
+      <GoogleMap mapContainerStyle={containerStyle} center={latitudeLongitude} zoom={13}>
+        {marker}
+      </GoogleMap>
     </a>
   ) : (
     <></>

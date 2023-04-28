@@ -23,20 +23,15 @@ const ListingMap = (props: ListingMapProps) => {
     lat: listing.buildingAddress.latitude,
     lng: listing.buildingAddress.longitude,
   }
-  const marker =
-    <Marker
-      position={ latitudeLongitude }
-    ></Marker>
-
-  
+  const marker = <Marker position={latitudeLongitude}></Marker>
 
   return isLoaded ? (
     <a href={props.googleMapsHref}>
-        <div className="listing-map">
-            <GoogleMap mapContainerStyle={containerStyle} center={latitudeLongitude} zoom={13}>
-            {marker}
-            </GoogleMap>
-        </div>
+      <div className="listing-map">
+        <GoogleMap mapContainerStyle={containerStyle} center={latitudeLongitude} zoom={13}>
+          {marker}
+        </GoogleMap>
+      </div>
     </a>
   ) : (
     <></>

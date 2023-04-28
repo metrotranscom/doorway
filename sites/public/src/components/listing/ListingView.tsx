@@ -876,10 +876,7 @@ export const ListingView = (props: ListingProps) => {
           desktopClass="bg-primary-lighter"
         >
           <div className="listing-detail-panel">
-            <ListingMap
-              listing={listing}
-              googleMapsHref={googleMapsHref}
-            />
+            <ListingMap listing={listing} googleMapsHref={googleMapsHref} />
           </div>
         </ListingDetailItem>
 

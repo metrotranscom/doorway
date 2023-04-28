@@ -11,7 +11,7 @@ const containerStyle: React.CSSProperties = {
   display: "block",
   width: "100%",
   height: "400px",
-  position: "relative"
+  position: "relative",
 }
 
 const ListingGoogleMap = (props: ListingGoogleMapProps) => {

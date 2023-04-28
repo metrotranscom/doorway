@@ -26,7 +26,6 @@ import {
   ListSection,
   ListingDetailItem,
   ListingDetails,
-  ListingMap,
   Message,
   OneLineAddress,
   EventSection,
@@ -88,6 +87,9 @@ export const ListingView = (props: ListingProps) => {
 
   const googleMapsHref =
     "https://www.google.com/maps/place/" + ReactDOMServer.renderToStaticMarkup(oneLineAddress)
+
+  const staticGoogleMapsSrc = 
+  `https://maps.googleapis.com/maps/api/staticmap?&markers=color:red%7C${listing.buildingAddress.latitude},${listing.buildingAddress.longitude}&zoom=13&size=800x400&key=${process.env.googleMapsApiKey}`
 
   const unitSummariesHeaders = {
     unitType: t("t.unitType"),
@@ -876,10 +878,7 @@ export const ListingView = (props: ListingProps) => {
           desktopClass="bg-primary-lighter"
         >
           <div className="listing-detail-panel">
-            <ListingMap
-              address={getGenericAddress(listing.buildingAddress)}
-              listingName={listing.name}
-            />
+            <a href={googleMapsHref}><img src={staticGoogleMapsSrc} alt="Listing location map"/></a>
           </div>
         </ListingDetailItem>
 

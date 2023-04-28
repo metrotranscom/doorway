@@ -1,6 +1,7 @@
 import * as React from "react"
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api"
 import { ListingWithSourceMetadata } from "../../../types/ListingWithSourceMetadata"
+import { getListingUrl } from "../../lib/helpers"
 
 type ListingsMapProps = {
   listings?: ListingWithSourceMetadata[]
@@ -27,12 +28,7 @@ const ListingsMap = (props: ListingsMapProps) => {
   let index = 0
   props.listings.forEach((listing) => {
     const label = (++index).toString()
-    let uri: string
-    if (listing.isBloomListing) {
-      uri = `/listing/ext/${listing.id}`
-    } else {
-      uri = `/listing/${listing.id}/${listing.urlSlug}`
-    }
+    const uri = getListingUrl(listing)
 
     markers.push(
       <Marker

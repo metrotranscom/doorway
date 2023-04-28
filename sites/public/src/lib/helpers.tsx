@@ -79,6 +79,14 @@ const getListingTableData = (
     : []
 }
 
+export const getListingUrl = (listing: Listing) => {
+  if (listing.isExternal) {
+    return `/listing/ext/${listing.id}`
+  } else {
+    return `/listing/${listing.id}/${listing.urlSlug}`
+  }
+}
+
 export const getListingApplicationStatus = (listing: Listing): StatusBarType => {
   let content = ""
   let subContent = ""
@@ -150,12 +158,7 @@ export const getListings = (listings: Listing[]) => {
   }
 
   return listings.map((listing: Listing, index) => {
-    let uri: string
-    if (listing.isExternal) {
-      uri = `/listing/ext/${listing.id}`
-    } else {
-      uri = `/listing/${listing.id}/${listing.urlSlug}`
-    }
+    const uri = getListingUrl(listing)
     return (
       <ListingCard
         key={index}

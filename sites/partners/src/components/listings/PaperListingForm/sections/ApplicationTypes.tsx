@@ -248,7 +248,12 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
             />
           </GridCell>
         </GridSection>
-        {(digitalApplicationChoice === YesNoAnswer.Yes ) && (
+        {/*
+          When new applications can be done from Doorway, this should be updated to allow
+          the common digital application as an option and only show the custom URL section if
+          the common digital application is not used.
+          */}
+        {digitalApplicationChoice === YesNoAnswer.Yes && (
           <GridSection columns={1}>
             <GridCell>
               <Field

@@ -27,12 +27,6 @@ export class AwsS3FileService implements FileServiceInterface {
   }
   getDownloadUrlForPhoto(id: string): string {
     return this.getDownloadUrl(id)
-    /*const getObjectCommand = new GetObjectCommand({
-      Bucket: this.awsS3FileServiceConfig.bucketName,
-      Key: id,
-      ResponseContentType: "image/jpeg"
-    })
-    return await getSignedUrl(this.s3Client, getObjectCommand, { expiresIn: 3600 })*/
   }
   getDownloadUrlForPdf(id: string): string {
     return this.getDownloadUrl(id)

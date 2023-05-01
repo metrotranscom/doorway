@@ -1,5 +1,5 @@
 import React from "react"
-import "./LanguageNav.scss"
+import "./LanguageNav.module.scss"
 
 export type LangItem = {
   label: string

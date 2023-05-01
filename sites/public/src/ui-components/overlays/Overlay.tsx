@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import "./Overlay.scss"
+import "./Overlay.module.scss"
 import useKeyPress from "../helpers/useKeyPress"
 import { createPortal } from "react-dom"
 import FocusLock from "react-focus-lock"

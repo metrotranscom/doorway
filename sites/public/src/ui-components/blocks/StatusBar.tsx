@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./StatusBar.scss"
+import "./StatusBar.module.scss"
 import { AppearanceStyleType } from "../global/AppearanceTypes"
 import { Tag } from "../text/Tag"
 

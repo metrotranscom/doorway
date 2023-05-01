@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./InfoCard.scss"
+import "./InfoCard.module.scss"
 import Markdown from "markdown-to-jsx"
 
 export interface InfoCardProps {

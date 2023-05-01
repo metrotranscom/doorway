@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./FormCard.scss"
+import "./FormCard.module.scss"
 
 export interface FormCardProps {
   header?: React.ReactNode

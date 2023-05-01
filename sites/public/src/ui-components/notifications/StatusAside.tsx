@@ -1,7 +1,7 @@
 import React from "react"
 import { GridSection } from "../sections/GridSection"
 
-import "./StatusAside.scss"
+import "./StatusAside.module.scss"
 
 // Ensure each action has a unique key
 export interface StatusAsideProps {

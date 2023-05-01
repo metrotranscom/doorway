@@ -1,5 +1,5 @@
 import React from "react"
-import "./ButtonGroup.scss"
+import "./ButtonGroup.module.scss"
 
 export enum ButtonGroupSpacing {
   between = "between",

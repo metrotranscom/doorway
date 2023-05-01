@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./StepHeader.scss"
+import "./StepHeader.module.scss"
 
 export interface StepHeaderProps {
   currentStep: number

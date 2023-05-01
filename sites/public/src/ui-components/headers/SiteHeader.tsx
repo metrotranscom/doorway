@@ -5,7 +5,7 @@ import { Icon } from "../icons/Icon"
 import { Button } from "../actions/Button"
 import { AppearanceSizeType } from "../global/AppearanceTypes"
 import { t } from "@bloom-housing/ui-components"
-import "./SiteHeader.scss"
+import "./SiteHeader.module.scss"
 import { NavigationContext } from "../config/NavigationContext"
 
 type LogoWidth = "slim" | "base" | "medium" | "wide"

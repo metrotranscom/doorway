@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./FooterNav.scss"
+import "./FooterNav.module.scss"
 
 export interface FooterNavProps {
   children?: React.ReactNode

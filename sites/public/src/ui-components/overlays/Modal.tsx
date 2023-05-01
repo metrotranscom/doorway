@@ -1,5 +1,5 @@
 import React, { useRef } from "react"
-import "./Modal.scss"
+import "./Modal.module.scss"
 import { Icon, IconFillColors } from "../icons/Icon"
 import { Overlay, OverlayProps } from "./Overlay"
 import { nanoid } from "nanoid"

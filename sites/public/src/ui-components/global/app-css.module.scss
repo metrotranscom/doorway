@@ -1,9 +1,9 @@
 /* Design Tokens: */
-@import "tokens/borders.scss";
-@import "tokens/colors.scss";
-@import "tokens/fonts.scss";
-@import "tokens/screens.scss";
-@import "tokens/sizes.scss";
+@import "tokens/borders.module.scss";
+@import "tokens/colors.module.scss";
+@import "tokens/fonts.module.scss";
+@import "tokens/screens.module.scss";
+@import "tokens/sizes.module.scss";
 
 html {
   @apply antialiased;
@@ -51,19 +51,19 @@ main {
   }
 }
 
-@import "mixins.scss";
-@import "markdown.scss";
-@import "text.scss";
-@import "blocks.scss";
-@import "accordion.scss";
-@import "accessibility.scss";
-@import "custom_counter.scss";
-@import "forms.scss";
-@import "lists.scss";
-@import "tables.scss";
-@import "homepage.scss";
-@import "print.scss";
-@import "vendor/ag_grid.scss";
+@import "mixins.module.scss";
+@import "markdown.module.scss";
+@import "text.module.scss";
+@import "blocks.module.scss";
+@import "accordion.module.scss";
+@import "accessibility.module.scss";
+@import "custom_counter.module.scss";
+@import "forms.module.scss";
+@import "lists.module.scss";
+@import "tables.module.scss";
+@import "homepage.module.scss";
+@import "print.module.scss";
+@import "vendor/ag_grid.module.scss";
 /* ***********/
 /* Additional stylesheets are contained within individual component folders */
 /* ***********/

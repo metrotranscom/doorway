@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Button } from "../../actions/Button"
 import { Icon, UniversalIconType } from "../../icons/Icon"
-import "./ListingsGroup.scss"
+import "./ListingsGroup.module.scss"
 
 export interface ListingsGroupProps {
   children?: React.ReactNode

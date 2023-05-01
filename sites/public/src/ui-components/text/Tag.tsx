@@ -1,6 +1,6 @@
 import * as React from "react"
 import { AppearanceProps, classNamesForAppearanceTypes } from "../global/AppearanceTypes"
-import "./Tag.scss"
+import "./Tag.module.scss"
 
 export interface TagProps extends AppearanceProps {
   className?: string

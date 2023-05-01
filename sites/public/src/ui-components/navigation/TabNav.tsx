@@ -2,7 +2,7 @@ import React from "react"
 import { LocalizedLink } from "../actions/LocalizedLink"
 import { AppearanceSizeType } from "../global/AppearanceTypes"
 import { Tag } from "../text/Tag"
-import "./TabNav.scss"
+import "./TabNav.module.scss"
 
 export interface TabNavItemProps {
   href: string

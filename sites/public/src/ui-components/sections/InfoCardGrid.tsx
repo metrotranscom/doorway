@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Heading } from "../text/Heading"
-import "./InfoCardGrid.scss"
+import "./InfoCardGrid.module.scss"
 
 export interface InfoCardGridProps {
   title: string

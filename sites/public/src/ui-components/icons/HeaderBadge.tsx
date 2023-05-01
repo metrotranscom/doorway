@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./HeaderBadge.scss"
+import "./HeaderBadge.module.scss"
 
 const HeaderBadge = () => (
   <span className="header-badge">

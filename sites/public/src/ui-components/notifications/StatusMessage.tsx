@@ -3,7 +3,7 @@ import { AppearanceSizeType, AppearanceStyleType } from "../global/AppearanceTyp
 import { Tag } from "../text/Tag"
 import { t } from "@bloom-housing/ui-components"
 
-import "./StatusMessage.scss"
+import "./StatusMessage.module.scss"
 
 export interface StatusMessagesProps {
   lastTimestamp?: string

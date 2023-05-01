@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Icon } from "../../icons/Icon"
-import "./ListingDetailHeader.scss"
+import "./ListingDetailHeader.module.scss"
 
 export interface ListingDetailHeaderProps {
   imageAlt: string

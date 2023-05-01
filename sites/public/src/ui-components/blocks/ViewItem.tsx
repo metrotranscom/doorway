@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./ViewItem.scss"
+import "./ViewItem.module.scss"
 
 export interface ViewItemProps {
   id?: string

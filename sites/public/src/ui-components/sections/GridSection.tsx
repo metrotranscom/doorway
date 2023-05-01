@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./GridSection.scss"
+import "./GridSection.module.scss"
 
 export interface GridCellProps {
   children: React.ReactNode

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react"
 import useKeyPress from "../helpers/useKeyPress"
-import "./Tooltip.scss"
+import "./Tooltip.module.scss"
 
 export interface TooltipProps {
   className?: string

@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import "./Button.scss"
+import "./Button.module.scss"
 import { buttonClassesForProps, buttonInner, ButtonProps } from "./Button"
 import { NavigationContext } from "../config/NavigationContext"
 import { isExternalLink } from "../helpers/links"

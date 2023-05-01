@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react"
 import { Icon, IconFillColors } from "../../icons/Icon"
-import "./ContentAccordion.scss"
+import "./ContentAccordion.module.scss"
 
 interface ContentAccordionProps {
   customBarContent?: React.ReactNode

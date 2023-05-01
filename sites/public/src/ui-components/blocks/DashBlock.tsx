@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import "./DashBlocks.scss"
+import "./DashBlocks.module.scss"
 import { NavigationContext } from "../config/NavigationContext"
 
 interface DashBlockProps {

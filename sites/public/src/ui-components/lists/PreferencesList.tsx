@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./PreferencesList.scss"
+import "./PreferencesList.module.scss"
 import { locale } from "../helpers/translator"
 
 export interface ListPreferenceLink {

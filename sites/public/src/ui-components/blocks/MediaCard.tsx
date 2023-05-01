@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./MediaCard.scss"
+import "./MediaCard.module.scss"
 import { Icon, UniversalIconType } from "../icons/Icon"
 import { faCirclePlay } from "@fortawesome/free-regular-svg-icons"
 

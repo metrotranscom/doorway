@@ -1,5 +1,5 @@
 import React from "react"
-import "./ActionBlock.scss"
+import "./ActionBlock.module.scss"
 
 export enum ActionBlockLayout {
   block = "block",

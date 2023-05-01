@@ -3,7 +3,7 @@ import Markdown from "markdown-to-jsx"
 import type { ReactNode } from "react"
 import type { AlertTypes } from "./alertTypes"
 import { colorClasses } from "./alertTypes"
-import "./AlertNotice.scss"
+import "./AlertNotice.module.scss"
 
 export interface AlertNoticeProps {
   type?: AlertTypes

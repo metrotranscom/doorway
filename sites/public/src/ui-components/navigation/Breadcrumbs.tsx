@@ -1,6 +1,6 @@
 import React from "react"
 import { LocalizedLink } from "../actions/LocalizedLink"
-import "./Breadcrumbs.scss"
+import "./Breadcrumbs.module.scss"
 
 export interface BreadcrumbsProps {
   children: React.ReactNode

@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./Utilities.scss"
+import "./Utilities.module.scss"
 
 interface CustomMdxTableProps {
   data: (string | React.ReactNode)[][]

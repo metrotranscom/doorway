@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react"
 import { LocalizedLink } from "../actions/LocalizedLink"
 import { ApplicationStatus } from "../notifications/ApplicationStatus"
-import "./ImageCard.scss"
+import "./ImageCard.module.scss"
 import { Tag } from "../text/Tag"
 import { TooltipProps, Tooltip } from "./Tooltip"
 import { ApplicationStatusType } from "../global/ApplicationStatusType"

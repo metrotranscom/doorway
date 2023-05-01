@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./ListSection.scss"
+import "./ListSection.module.scss"
 
 export interface ListSectionProps {
   title: string

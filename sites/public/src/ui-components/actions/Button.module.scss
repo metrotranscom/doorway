@@ -1,4 +1,4 @@
-@import "../global/mixins.scss";
+@import "../global/mixins.module.scss";
 
 .button {
   /* Component Variables */
@@ -44,6 +44,7 @@
 
   &:hover {
     border-color: var(--bloom-color-primary-dark);
+
     &.transition {
       transition: all 200ms ease-in;
     }
@@ -117,6 +118,7 @@
         margin-right: var(--bloom-s1);
       }
     }
+
     &.has-icon-right {
       .button__icon {
         margin-left: var(--bloom-s1);
@@ -129,6 +131,7 @@
       margin-right: var(--bloom-s3);
     }
   }
+
   &.has-icon-right {
     .button__icon {
       margin-left: var(--bloom-s3);

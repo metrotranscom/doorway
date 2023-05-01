@@ -1,5 +1,5 @@
 import React from "react"
-import "./Video.scss"
+import "./Video.module.scss"
 
 enum VideoSource {
   youtube = "youtube",

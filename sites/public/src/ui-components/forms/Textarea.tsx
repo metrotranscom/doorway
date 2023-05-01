@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./Textarea.scss"
+import "./Textarea.module.scss"
 import { t } from "@bloom-housing/ui-components"
 import { UseFormMethods } from "react-hook-form"
 

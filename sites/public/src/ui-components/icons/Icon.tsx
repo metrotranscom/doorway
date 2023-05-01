@@ -1,7 +1,7 @@
 import * as React from "react"
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import "./Icon.scss"
+import "./Icon.module.scss"
 import {
   Application,
   ArrowBack,

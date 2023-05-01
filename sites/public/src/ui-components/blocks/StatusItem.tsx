@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import "./StatusItem.scss"
+import "./StatusItem.module.scss"
 import { t } from "@bloom-housing/ui-components"
 import { NavigationContext } from "../config/NavigationContext"
 

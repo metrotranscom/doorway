@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./MarkdownSection.scss"
+import "./MarkdownSection.module.scss"
 
 export interface MarkdownSectionProps {
   fullwidth?: boolean

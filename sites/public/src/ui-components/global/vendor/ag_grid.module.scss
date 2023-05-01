@@ -1,6 +1,6 @@
 // AG Grid
-@import "~ag-grid-community/src/styles/ag-grid.scss";
-@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/_ag-theme-alpine-mixin.scss";
+@import "~ag-grid-community/src/styles/ag-grid.module.scss";
+@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/_ag-theme-alpine-mixin.module.scss";
 
 .ag-theme-alpine.ag-theme-bloom {
   // would like to remove the local theme class

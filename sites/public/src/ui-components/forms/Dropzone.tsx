@@ -1,7 +1,7 @@
 import React, { useCallback } from "react"
 import { useDropzone } from "react-dropzone"
 import { t } from "@bloom-housing/ui-components"
-import "./Dropzone.scss"
+import "./Dropzone.module.scss"
 
 interface DropzoneProps {
   uploader: (file: File) => void

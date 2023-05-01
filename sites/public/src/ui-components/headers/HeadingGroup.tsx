@@ -1,6 +1,6 @@
 import React from "react"
 import { Heading } from "../text/Heading"
-import "./HeadingGroup.scss"
+import "./HeadingGroup.module.scss"
 
 export interface HeadingGroupProps {
   /** A string or element to display in an `h2` tag (overridable via `headingPriority`) */

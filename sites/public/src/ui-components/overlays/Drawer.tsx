@@ -1,5 +1,5 @@
 import React, { useRef } from "react"
-import "./Drawer.scss"
+import "./Drawer.module.scss"
 import { Icon } from "../icons/Icon"
 import { Overlay, OverlayProps } from "./Overlay"
 import { Tag } from "../text/Tag"

@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./PageHeader.scss"
+import "./PageHeader.module.scss"
 
 export interface PageHeaderProps {
   className?: string

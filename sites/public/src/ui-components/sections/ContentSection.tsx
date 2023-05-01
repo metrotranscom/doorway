@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./ContentSection.scss"
+import "./ContentSection.module.scss"
 
 export interface ContentSectionProps {
   title?: string

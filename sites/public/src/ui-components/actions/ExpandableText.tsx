@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import Markdown, { MarkdownToJSX } from "markdown-to-jsx"
-import "./ExpandableText.scss"
+import "./ExpandableText.module.scss"
 
 export interface ExpandableTextProps {
   children: string

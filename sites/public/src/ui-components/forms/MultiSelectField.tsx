@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from "react"
 import { UseFormMethods, RegisterOptions } from "react-hook-form"
-import "./MultiSelectField.scss"
+import "./MultiSelectField.module.scss"
 import { Icon } from "../icons/Icon"
 
 export interface MultiSelectFieldItem {

@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./FooterSection.scss"
+import "./FooterSection.module.scss"
 
 export interface FooterSectionProps {
   children: React.ReactNode

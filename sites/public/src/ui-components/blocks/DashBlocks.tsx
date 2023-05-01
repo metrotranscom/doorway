@@ -1,5 +1,5 @@
 import React from "react"
-import "./DashBlocks.scss"
+import "./DashBlocks.module.scss"
 
 const DashBlocks = (props: { children: React.ReactNode }) => (
   <div className="dash-blocks">{props.children}</div>

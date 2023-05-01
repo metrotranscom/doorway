@@ -1,6 +1,6 @@
 import * as React from "react"
 import { NavigationContext } from "../config/NavigationContext"
-import "./SideNav.scss"
+import "./SideNav.module.scss"
 
 export interface SideNavItemProps {
   current?: boolean

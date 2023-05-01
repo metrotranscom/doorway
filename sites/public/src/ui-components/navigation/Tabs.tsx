@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react"
-import "./Tabs.scss"
+import "./Tabs.module.scss"
 
 import {
   Tab as ReactTab,

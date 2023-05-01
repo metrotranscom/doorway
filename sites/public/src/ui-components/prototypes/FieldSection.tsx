@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./FieldSection.scss"
+import "./FieldSection.module.scss"
 
 export interface FieldSectionProps {
   title?: string

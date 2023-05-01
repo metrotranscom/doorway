@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { Icon } from "../icons/Icon"
-import "./LoadingOverlay.scss"
+import "./LoadingOverlay.module.scss"
 
 type LoadingOverlayProps = {
   isLoading: boolean

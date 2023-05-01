@@ -1,6 +1,6 @@
 import React from "react"
 import { Heading } from "../text/Heading"
-import "./StandardCard.scss"
+import "./StandardCard.module.scss"
 
 export interface StandardCardProps {
   className?: string

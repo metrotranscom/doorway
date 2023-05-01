@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./Message.scss"
+import "./Message.module.scss"
 
 export interface MessageProps {
   children: React.ReactNode

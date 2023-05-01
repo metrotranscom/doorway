@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./Button.scss"
+import "./Button.module.scss"
 import { AppearanceProps, classNamesForAppearanceTypes } from "../global/AppearanceTypes"
 import { Icon, IconSize, UniversalIconType } from "../icons/Icon"
 

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react"
 import "mapbox-gl/dist/mapbox-gl.css"
 import MapGL, { Marker } from "react-map-gl"
 
-import "./ListingMap.scss"
+import "./ListingMap.module.scss"
 import { MultiLineAddress, Address } from "../../helpers/MultiLineAddress"
 import { useIntersect } from "@bloom-housing/ui-components"
 import { Heading } from "../../text/Heading"

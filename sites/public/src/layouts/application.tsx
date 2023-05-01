@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import Link from "next/link"
 import Head from "next/head"
 import {
-  SiteHeader,
   SiteFooter,
   FooterNav,
   FooterSection,
@@ -11,6 +10,7 @@ import {
   t,
   setSiteAlertMessage,
 } from "@bloom-housing/ui-components"
+import { SiteHeader } from "../ui-components/headers/SiteHeader"
 import { AuthContext, ExygyFooter } from "@bloom-housing/shared-helpers"
 
 const Layout = (props) => {

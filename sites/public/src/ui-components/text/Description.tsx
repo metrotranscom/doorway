@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./Description.scss"
+import "./Description.module.scss"
 import Markdown, { MarkdownToJSX } from "markdown-to-jsx"
 
 export interface DescriptionProps {

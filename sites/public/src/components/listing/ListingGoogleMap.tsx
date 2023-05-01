@@ -27,7 +27,7 @@ const ListingGoogleMap = (props: ListingGoogleMapProps) => {
   const marker = <Marker position={latitudeLongitude}></Marker>
 
   return isLoaded ? (
-    <a href={props.googleMapsHref}>
+    <a href={props.googleMapsHref} target="_blank">
       <GoogleMap mapContainerStyle={containerStyle} center={latitudeLongitude} zoom={13}>
         {marker}
       </GoogleMap>

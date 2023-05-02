@@ -1,7 +1,7 @@
 import * as React from "react"
 import { withKnobs, text, select } from "@storybook/addon-knobs"
 import { BADGES } from "../../.storybook/constants"
-import { Button } from "../actions/Button"
+import { Button } from "./Button"
 import {
   AppearanceBorderType,
   AppearanceSizeType,

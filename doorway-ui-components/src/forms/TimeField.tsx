@@ -3,7 +3,7 @@ import dayjs from "dayjs"
 import { t } from "../helpers/translator"
 import { ErrorMessage } from "../notifications/ErrorMessage"
 import { Field } from "./Field"
-import { Select } from "../forms/Select"
+import { Select } from "./Select"
 import { UseFormMethods } from "react-hook-form"
 
 export type TimeFieldPeriod = "am" | "pm"

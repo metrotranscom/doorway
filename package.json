@@ -9,7 +9,8 @@
       "sites/partners",
       "backend/core",
       "shared-helpers",
-      "shared-services"
+      "shared-services",
+      "doorway-ui-components"
     ],
     "nohoist": [
       "**/@anchan828/nest-sendgrid"

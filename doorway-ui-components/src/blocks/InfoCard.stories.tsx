@@ -1,6 +1,6 @@
 import React from "react"
 import { BADGES } from "../../.storybook/constants"
-import { InfoCard } from "../blocks/InfoCard"
+import { InfoCard } from "./InfoCard"
 import { ExpandableText } from "../actions/ExpandableText"
 import InfoCardDocumentation from "./InfoCard.docs.mdx"
 

@@ -1,7 +1,7 @@
 import React from "react"
 
 import { GroupedTable } from "./GroupedTable"
-import { mockData } from "../tables/StandardTable.stories"
+import { mockData } from "./StandardTable.stories"
 import t from "../helpers/translator"
 
 export default {

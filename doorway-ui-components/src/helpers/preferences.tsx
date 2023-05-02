@@ -8,7 +8,7 @@ import {
   Field,
   Select,
   resolveObject,
-} from "../../"
+} from "../.."
 
 type FormAddressProps = {
   subtitle: string

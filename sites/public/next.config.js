@@ -6,7 +6,6 @@ const withTM = require("next-transpile-modules")([
   "@bloom-housing/shared-helpers",
   "@bloom-housing/ui-components",
   "@bloom-housing/backend-core",
-  "@bloom-housing/shared-services",
 ])
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -56,7 +55,6 @@ module.exports = withBundleAnalyzer(
       idleTimeout: process.env.IDLE_TIMEOUT,
       jurisdictionName: process.env.JURISDICTION_NAME,
       cacheRevalidate: process.env.CACHE_REVALIDATE ? Number(process.env.CACHE_REVALIDATE) : 60,
-      cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
 
       // start Doorway env variables
       listingsWithExternalServiceUrl: BACKEND_API_BASE + BLOOM_LISTINGS_QUERY,
@@ -64,11 +62,6 @@ module.exports = withBundleAnalyzer(
       bloomApiBase: process.env.BLOOM_API_BASE,
       bloomJurisdictionNames: BLOOM_JURISDICTION_NAMES,
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
-      awsS3BucketName: process.env.AWS_S3_BUCKET_NAME,
-      awsAccessKey: process.env.AWS_ACCESS_KEY_ID,
-      awsSecretKey: process.env.AWS_SECRET_KEY,
-      awsRegion: process.env.AWS_REGION,
-      fileService: process.env.FILE_SERVICE,
     },
     i18n: {
       locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],

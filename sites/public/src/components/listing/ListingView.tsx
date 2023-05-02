@@ -49,6 +49,8 @@ import {
   getPostmarkString,
   UnitTables,
   getSummariesTable,
+  getImageUrlFromAsset,
+  getPdfUrlFromAsset,
 } from "@bloom-housing/shared-helpers"
 import dayjs from "dayjs"
 import { ErrorPage } from "../../pages/_error"
@@ -57,7 +59,6 @@ import { getGenericAddress, openInFuture } from "../../lib/helpers"
 import { GetApplication } from "./GetApplication"
 import { DownloadLotteryResults } from "./DownloadLotteryResults"
 import { SubmitApplication } from "./SubmitApplication"
-import { FileServiceProvider, FileServiceInterface } from "@bloom-housing/shared-services"
 import ListingGoogleMap from "./ListingGoogleMap"
 
 interface ListingProps {
@@ -73,7 +74,6 @@ export const ListingView = (props: ListingProps) => {
     content: appStatusContent,
     subContent: appStatusSubContent,
   } = useGetApplicationStatusProps(listing)
-  const fileService: FileServiceInterface = FileServiceProvider.getPublicUploadService()
 
   const appOpenInFuture = openInFuture(listing)
   const hasNonReferralMethods = listing?.applicationMethods
@@ -150,7 +150,7 @@ export const ListingView = (props: ListingProps) => {
     buildingSelectionCriteria = (
       <p>
         <a
-          href={fileService.getDownloadUrlForPdf(listing.buildingSelectionCriteriaFile.fileId)}
+          href={getImageUrlFromAsset(listing.buildingSelectionCriteriaFile)}
           className={"text-blue-700"}
         >
           {t("listings.moreBuildingSelectionCriteria")}
@@ -323,9 +323,7 @@ export const ListingView = (props: ListingProps) => {
         })
         .map((paperApp) => {
           return {
-            fileURL: paperApp?.file?.fileId.includes("https")
-              ? paperApp?.file?.fileId
-              : fileService.getDownloadUrlForPdf(paperApp?.file?.fileId || ""),
+            fileURL: paperApp ? getPdfUrlFromAsset(paperApp.file) : "",
             languageString: t(`languages.${paperApp.language}`),
           }
         }) ?? null

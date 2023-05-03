@@ -60,6 +60,9 @@ import { GetApplication } from "./GetApplication"
 import { DownloadLotteryResults } from "./DownloadLotteryResults"
 import { SubmitApplication } from "./SubmitApplication"
 import ListingGoogleMap from "./ListingGoogleMap"
+import getConfig from 'next/config'
+
+const { serverRuntimeConfig } = getConfig()
 
 interface ListingProps {
   listing: Listing
@@ -150,7 +153,7 @@ export const ListingView = (props: ListingProps) => {
     buildingSelectionCriteria = (
       <p>
         <a
-          href={getImageUrlFromAsset(listing.buildingSelectionCriteriaFile)}
+          href={getImageUrlFromAsset(listing.buildingSelectionCriteriaFile, null, serverRuntimeConfig.cloudinaryCloudName)}
           className={"text-blue-700"}
         >
           {t("listings.moreBuildingSelectionCriteria")}
@@ -323,7 +326,7 @@ export const ListingView = (props: ListingProps) => {
         })
         .map((paperApp) => {
           return {
-            fileURL: paperApp ? getPdfUrlFromAsset(paperApp.file) : "",
+            fileURL: paperApp ? getPdfUrlFromAsset(paperApp.file, serverRuntimeConfig.cloudinaryCloudName) : "",
             languageString: t(`languages.${paperApp.language}`),
           }
         }) ?? null

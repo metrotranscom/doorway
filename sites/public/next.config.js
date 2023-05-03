@@ -63,6 +63,9 @@ module.exports = withBundleAnalyzer(
       bloomJurisdictionNames: BLOOM_JURISDICTION_NAMES,
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
     },
+    serverRuntimeConfig: {
+      cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME
+    },
     i18n: {
       locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],
       defaultLocale: "en",

@@ -44,6 +44,7 @@
     "dev:frontend": "concurrently --names \" APP_PUBLIC,APP_PARTNERS\" --prefix \"{name}\" \"yarn dev:app:public\" \"yarn dev:app:partners\"",
     "dev:partners": "concurrently \"yarn dev:backend\" \"yarn dev:app:partners\"",
     "dev:public": "concurrently \"yarn dev:backend\" \"yarn dev:app:public\"",
+    "start:uic": "cd doorway-ui-components && yarn start",
     "test:shared:helpers": "cd shared-helpers && yarn && yarn test",
     "test:shared:services": "cd shared-services && yarn && yarn test",
     "test:doorway-ui-components": "cd doorway-ui-components && yarn && yarn test",

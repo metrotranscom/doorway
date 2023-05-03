@@ -271,6 +271,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
                       ...methods,
                       digital: {
                         ...methods.digital,
+                        type: ApplicationMethodType.ExternalLink,
                         externalReference: e.target.value,
                       },
                     })

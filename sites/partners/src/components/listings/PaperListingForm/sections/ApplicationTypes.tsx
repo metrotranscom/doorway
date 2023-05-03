@@ -298,13 +298,11 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
           )}
               */}
         </GridSection>
-        {
-          /* This should be uncommented along with the block above to allow the common digital application in the future.
+        {/* This should be uncommented along with the block above to allow the common digital application in the future.
           {((commonDigitalApplicationChoice && commonDigitalApplicationChoice === YesNoAnswer.No) ||
           (digitalApplicationChoice === YesNoAnswer.Yes &&
             !commonDigitalApplicationChoice &&
-            listing?.commonDigitalApplication === false)) && ( */
-        }
+            listing?.commonDigitalApplication === false)) && ( */}
         {digitalApplicationChoice === YesNoAnswer.Yes && (
           <GridSection columns={1}>
             <GridCell>

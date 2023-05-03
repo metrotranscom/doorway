@@ -247,12 +247,64 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
               ]}
             />
           </GridCell>
+          {/*
+          When new applications can be done from Doorway, the code below should be uncommented to allow
+          the common digital application as an option and only show the custom URL section if the common
+          digital application is not used.
+          {digitalApplicationChoice === YesNoAnswer.Yes && (
+            <GridCell>
+              <p className="field-label m-4 ml-0">{t("listings.usingCommonDigitalApplication")}</p>
+
+              <FieldGroup
+                name="commonDigitalApplicationChoice"
+                type="radio"
+                register={register}
+                fields={[
+                  {
+                    ...yesNoRadioOptions[0],
+                    id: "commonDigitalApplicationChoiceYes",
+                    defaultChecked: listing?.commonDigitalApplication === true ?? null,
+                    inputProps: {
+                      onChange: () => {
+                        setMethods({
+                          ...methods,
+                          digital: {
+                            ...methods.digital,
+                            type: ApplicationMethodType.Internal,
+                          },
+                        })
+                      },
+                    },
+                  },
+                  {
+                    ...yesNoRadioOptions[1],
+                    id: "commonDigitalApplicationChoiceNo",
+                    defaultChecked: listing?.commonDigitalApplication === false ?? null,
+                    inputProps: {
+                      onChange: () => {
+                        setMethods({
+                          ...methods,
+                          digital: {
+                            ...methods.digital,
+                            type: ApplicationMethodType.ExternalLink,
+                          },
+                        })
+                      },
+                    },
+                  },
+                ]}
+              />
+            </GridCell>
+          )}
+              */}
         </GridSection>
-        {/*
-          When new applications can be done from Doorway, this should be updated to allow
-          the common digital application as an option and only show the custom URL section if
-          the common digital application is not used.
-          */}
+        {
+          /* This should be uncommented along with the block above to allow the common digital application in the future.
+          {((commonDigitalApplicationChoice && commonDigitalApplicationChoice === YesNoAnswer.No) ||
+          (digitalApplicationChoice === YesNoAnswer.Yes &&
+            !commonDigitalApplicationChoice &&
+            listing?.commonDigitalApplication === false)) && ( */
+        }
         {digitalApplicationChoice === YesNoAnswer.Yes && (
           <GridSection columns={1}>
             <GridCell>

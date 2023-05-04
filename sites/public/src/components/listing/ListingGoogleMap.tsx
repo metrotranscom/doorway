@@ -1,10 +1,12 @@
 import React from "react"
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api"
 import { Listing } from "@bloom-housing/backend-core/types"
+import { runtimeConfig } from "../../lib/runtime-config"
 
 type ListingGoogleMapProps = {
   listing: Listing
   googleMapsHref: string
+  googleMapsApiKey: string
 }
 
 const containerStyle: React.CSSProperties = {
@@ -16,7 +18,8 @@ const containerStyle: React.CSSProperties = {
 
 const ListingGoogleMap = (props: ListingGoogleMapProps) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.googleMapsApiKey,
+    //googleMapsApiKey: process.env.googleMapsApiKey,
+    googleMapsApiKey: props.googleMapsApiKey,
   })
 
   const listing = props.listing

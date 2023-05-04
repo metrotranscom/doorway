@@ -64,6 +64,7 @@ interface ListingProps {
   listing: Listing
   preview?: boolean
   jurisdiction?: Jurisdiction
+  isExternal?: boolean
 }
 
 export const ListingView = (props: ListingProps) => {
@@ -297,7 +298,13 @@ export const ListingView = (props: ListingProps) => {
   const getOnlineApplicationURL = () => {
     let onlineApplicationURL
     if (hasMethod(listing.applicationMethods, ApplicationMethodType.Internal)) {
-      onlineApplicationURL = `/applications/start/choose-language?listingId=${listing.id}`
+      let urlBase
+      if (props.isExternal) {
+        urlBase = listing.jurisdiction.publicUrl
+      } else {
+        urlBase = ''
+      }
+      onlineApplicationURL = `${urlBase}/applications/start/choose-language?listingId=${listing.id}`
     } else if (hasMethod(listing.applicationMethods, ApplicationMethodType.ExternalLink)) {
       onlineApplicationURL =
         getMethod(listing.applicationMethods, ApplicationMethodType.ExternalLink)

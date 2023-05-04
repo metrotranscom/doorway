@@ -69,16 +69,16 @@
 
 @mixin filled-appearances() {
   &.is-primary {
-    background-color: var(--primary-appearance-background-color, var(--bloom-color-primary));
-    border-color: var(--primary-appearance-border-color, var(--bloom-color-primary));
+    background-color: var(--bloom-color-primary-dark);
+    border-color: var(--bloom-color-primary-dark);
     color: var(--primary-appearance-label-color, var(--bloom-color-white));
 
     &:hover {
       background-color: var(
         --primary-appearance-hover-background-color,
-        var(--bloom-color-primary-dark)
+        var(--bloom-color-primary)
       );
-      border-color: var(--primary-appearance-hover-border-color, var(--bloom-color-primary-dark));
+      border-color: var(--primary-appearance-hover-border-color, var(--bloom-color-primary));
       color: var(--primary-appearance-hover-label-color, var(--bloom-color-white));
     }
   }

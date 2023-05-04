@@ -1,9 +1,10 @@
 :root {
-  --bloom-font-sans: "Open Sans", Helvetica, Arial, Verdana, sans-serif;
-  --bloom-font-serif: "Droid Serif", Georgia, Times, serif;
-  --bloom-font-alt-sans: Lato, Helvetica, Arial, Verdana, sans-serif;
-  --bloom-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+  --bloom-font-sans: "Metropolis", Helvetica, Arial, Verdana, sans-serif;
+  --bloom-font-serif: "Noto Serif", Georgia, Times, serif;
+  // This is the same as -sans, however, I don't think we will have an alt-sans.
+  // Will update if needed.
+  --bloom-font-alt-sans: "Metropolis", Helvetica, Arial, Verdana, sans-serif;
+  --bloom-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   --bloom-font-size-3xs: 0.6875rem;
   --bloom-font-size-2xs: 0.75rem;

@@ -302,7 +302,7 @@ export const ListingView = (props: ListingProps) => {
       if (props.isExternal) {
         urlBase = listing.jurisdiction.publicUrl
       } else {
-        urlBase = ''
+        urlBase = ""
       }
       onlineApplicationURL = `${urlBase}/applications/start/choose-language?listingId=${listing.id}`
     } else if (hasMethod(listing.applicationMethods, ApplicationMethodType.ExternalLink)) {

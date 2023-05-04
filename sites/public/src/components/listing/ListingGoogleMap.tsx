@@ -18,7 +18,6 @@ const containerStyle: React.CSSProperties = {
 
 const ListingGoogleMap = (props: ListingGoogleMapProps) => {
   const { isLoaded } = useJsApiLoader({
-    //googleMapsApiKey: process.env.googleMapsApiKey,
     googleMapsApiKey: props.googleMapsApiKey,
   })
 

@@ -23,7 +23,6 @@ const center = {
 
 const ListingsMap = (props: ListingsMapProps) => {
   const { isLoaded } = useJsApiLoader({
-    //googleMapsApiKey: process.env.googleMapsApiKey,
     googleMapsApiKey: props.googleMapsApiKey,
   })
 

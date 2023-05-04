@@ -156,9 +156,8 @@ export const ListingView = (props: ListingProps) => {
     buildingSelectionCriteria = (
       <p>
         <a
-          href={getImageUrlFromAsset(
+          href={getPdfUrlFromAsset(
             listing.buildingSelectionCriteriaFile,
-            null,
             cloudinaryCloudName
           )}
           className={"text-blue-700"}

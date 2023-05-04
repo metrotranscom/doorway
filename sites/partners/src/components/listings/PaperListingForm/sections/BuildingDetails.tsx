@@ -11,7 +11,7 @@ import {
   ListingMap,
   LatitudeLongitude,
 } from "@bloom-housing/ui-components"
-import { stateKeys } from "@bloom-housing/shared-helpers"
+import { countyKeys, stateKeys } from "@bloom-housing/shared-helpers"
 import { FormListing } from "../../../../lib/listings/formTypes"
 import GeocodeService, {
   GeocodeService as GeocodeServiceType,
@@ -274,26 +274,35 @@ const BuildingDetails = ({
       </GridSection>
       <GridSection columns={3}>
         <GridCell>
-          <Field
+          <ViewItem
             label={t("application.contact.county")}
-            name={"buildingAddress.county"}
-            id={"buildingAddress.county"}
-            placeholder={t("application.contact.county")}
-            error={
-              !!getAddressErrorMessage(
+            className={"mb-0"}
+            error={fieldHasError(errors?.buildingAddress?.county)}
+          >
+            <Select
+              id={"buildingAddress.county"}
+              name={"buildingAddress.county"}
+              error={
+                !!getAddressErrorMessage(
+                  "buildingAddress.county",
+                  fieldMessage(errors?.buildingAddress?.county)
+                )
+              }
+              errorMessage={getAddressErrorMessage(
                 "buildingAddress.county",
                 fieldMessage(errors?.buildingAddress?.county)
-              )
-            }
-            errorMessage={getAddressErrorMessage(
-              "buildingAddress.county",
-              fieldMessage(errors?.buildingAddress?.county)
-            )}
-            inputProps={{
-              onChange: () => clearErrors("buildingAddress"),
-            }}
-            register={register}
-          />
+              )}
+              label={t("application.contact.county")}
+              labelClassName="sr-only"
+              register={register}
+              controlClassName="control"
+              options={countyKeys}
+              keyPrefix="counties"
+              inputProps={{
+                onChange: () => clearErrors("buildingAddress"),
+              }}
+            />
+          </ViewItem>
           <p className="field-sub-note">{t("listings.requiredToPublish")}</p>
         </GridCell>
       </GridSection>

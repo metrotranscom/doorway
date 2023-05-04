@@ -7,6 +7,7 @@ const withTM = require("next-transpile-modules")([
   "@bloom-housing/ui-components",
   "@bloom-housing/backend-core",
   "@bloom-housing/shared-services",
+  "@bloom-housing/doorway-ui-components",
 ])
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -24,7 +25,7 @@ if (process.env.INCOMING_HOOK_BODY && process.env.INCOMING_HOOK_BODY.startsWith(
 } else if (process.env.BACKEND_API_BASE) {
   BACKEND_API_BASE = process.env.BACKEND_API_BASE
 }
-const LISTINGS_QUERY = process.env.LISTINGS_QUERY || "/listings"
+const LISTINGS_QUERY = process.env.LISTINGS_QUERY
 console.log(`Using ${BACKEND_API_BASE}${LISTINGS_QUERY} for the listing service.`)
 
 const BACKEND_PROXY_BASE = process.env.BACKEND_PROXY_BASE
@@ -48,6 +49,11 @@ module.exports = withBundleAnalyzer(
       cloudinaryKey: process.env.CLOUDINARY_KEY,
       cloudinarySignedPreset: process.env.CLOUDINARY_SIGNED_PRESET,
       mapBoxToken: MAPBOX_TOKEN,
+      awsS3BucketName: process.env.AWS_S3_BUCKET_NAME,
+      awsAccessKey: process.env.AWS_ACCESS_KEY_ID,
+      awsSecretKey: process.env.AWS_SECRET_KEY,
+      awsRegion: process.env.AWS_REGION,
+      fileService: process.env.FILE_SERVICE,
     },
     i18n: {
       locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],

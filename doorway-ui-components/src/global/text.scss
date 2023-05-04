@@ -44,7 +44,7 @@ h6 {
 }
 
 a {
-  @apply text-primary;
+  @apply text-primary-darker;
 
   &:hover {
     @apply text-primary;
@@ -117,9 +117,9 @@ h1.title {
 
 .text__large-primary {
   font-family: var(--text-large-primary-font-family, var(--bloom-font-alt-sans));
-  font-weight: var(--text-large-primary-font-weight, 600);
-  color: var(--text-large-primary--color, var(--bloom-color-primary-dark));
-  font-size: var(--text-large-primary-font-size, var(--bloom-font-size-2xl));
+  font-weight: 500;
+    color: var(--bloom-color-primary-darker);
+    font-size: var(--bloom-font-size-2xl);
   margin-block: var(--text-large-primary-margin-block, 0 var(--bloom-s3));
   line-height: var(--text-large-primary-line-height, var(--bloom-line-height-tight));
 }

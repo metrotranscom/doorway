@@ -58,7 +58,7 @@ import { GetApplication } from "./GetApplication"
 import { DownloadLotteryResults } from "./DownloadLotteryResults"
 import { SubmitApplication } from "./SubmitApplication"
 import { FileServiceProvider, FileServiceInterface } from "@bloom-housing/shared-services"
-import ListingGoogleMap from "./ListingGoogleMap"
+import { ListingGoogleMap } from "./ListingGoogleMap"
 
 interface ListingProps {
   listing: Listing

@@ -10,16 +10,44 @@ import { Asset } from "../entities/asset.entity"
 import { UploadService } from "./upload.service"
 import { paginate } from "nestjs-typeorm-paginate"
 import { PaginationQueryParams } from "../../shared/dto/pagination.dto"
+import { FileServiceProvider, FileUpload } from "../../shared/uploads"
+
 
 @Injectable()
 export class AssetsService {
   constructor(
     @InjectRepository(Asset) private readonly repository: Repository<Asset>,
-    private readonly uploadService: UploadService
+    private readonly uploadService: UploadService,
+    private readonly fileServiceProvider: FileServiceProvider
   ) {}
 
   async create(assetCreateDto: AssetCreateDto) {
     return await this.repository.save(assetCreateDto)
+  }
+
+  async upload(label: string, file: Express.Multer.File) {
+
+    const fileService = this.fileServiceProvider.getFileService()
+
+    // convert the express File type to a package-specific interface
+    const fileUpload: FileUpload = {
+      name: file.originalname,
+      contentType: file.mimetype,
+      size: file.size
+    }
+
+    const url = fileService.putFile(label, fileUpload)
+
+    const asset = {
+      id: "some-id",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      fileId: url,
+      label: label
+    }
+
+    //return await this.repository.save(asset)
+    return asset
   }
 
   createPresignedUploadMetadata(

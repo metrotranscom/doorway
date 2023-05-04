@@ -102,4 +102,75 @@ describe("AssetsController", () => {
       expect(asset).toHaveProperty("label")
     })
   })
+
+  describe("upload", () => {
+    it("should return an asset for a valid file", async () => {
+      const label = "valid-upload"
+      const data = Buffer.from("file-contents")
+      const info = {
+        filename: "name.pdf",
+        contentType: "document/pdf"
+      }
+
+      const response = await supertest(app.getHttpServer())
+        .post(`/assets/upload`)
+        .field("label", label)
+        .attach("file", data, info)
+        .set(...setAuthorization(adminAccessToken))
+        .expect(201)
+
+      console.log(response.body)
+      expect(response.body.label).toBe(label)
+    })
+
+    it("should reject if file is missing", async () => {
+      const label = "missing"
+
+      const response = await supertest(app.getHttpServer())
+        .post(`/assets/upload`)
+        .field("label", label)
+        .set(...setAuthorization(adminAccessToken))
+        .expect(400)
+
+        expect(response.body.message).toMatch(/is missing/)
+    })
+
+    it("should reject files that are too large", async () => {
+      const label = "too-big"
+      // create a really large file in memory
+      // this one will be ~20 MB
+      const data = Buffer.from("text".repeat(5 * 1024 * 1024))
+      const info = {
+        filename: "name.pdf",
+        contentType: "document/pdf"
+      }
+
+      const response = await supertest(app.getHttpServer())
+        .post(`/assets/upload`)
+        .field("label", label)
+        .attach("file", data, info)
+        .set(...setAuthorization(adminAccessToken))
+        .expect(413)
+
+        expect(response.body.message).toMatch(/Uploaded files must be/)
+    })
+
+    it("should reject files of the wrong type", async () => {
+      const label = "wrong-type"
+      const data = Buffer.from("a")
+      const info = {
+        filename: "name.txt",
+        contentType: "text/plain"
+      }
+
+      const response = await supertest(app.getHttpServer())
+        .post(`/assets/upload`)
+        .field("label", label)
+        .attach("file", data, info)
+        .set(...setAuthorization(adminAccessToken))
+        .expect(415)
+
+        expect(response.body.message).toMatch(/Uploaded files must be/)
+    })
+  })
 })

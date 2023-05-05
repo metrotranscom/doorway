@@ -337,6 +337,10 @@ table {
   }
 }
 
+table tr:nth-of-type(even) {
+  @apply bg-primary-lighter;
+}
+
 td.reserved {
   @apply font-sans;
   @apply font-bold;

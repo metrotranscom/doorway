@@ -28,7 +28,6 @@
 
   .image_card {
     flex: 1;
-
   }
 
   .image-card__inner,
@@ -47,7 +46,7 @@
 .listings-row_content {
   @media (min-width: $screen-sm) {
     flex-basis: 66.66%;
-    min-width: 200px;  
+    min-width: 200px;
   }
   .listings-row_headers {
     display: flex;
@@ -112,8 +111,29 @@
   a {
     flex: 1;
   }
- 
+
   a:not(:first-child) {
     margin-inline-start: var(--bloom-s1);
+  }
+}
+
+.listings-pill_header {
+  margin-top: var(--bloom-s1);
+  margin-bottom: var(--bloom-s3);
+}
+
+.card-subheader {
+  font-family: var(--bloom-font-alt-sans);
+  color: var(--bloom-color-black);
+  font-size: var(--bloom-font-size-base);
+  margin-bottom: var(--bloom-s3);
+}
+
+.listing-card__tag-icon {
+  margin-right: var(--bloom-s2);
+
+  [dir="rtl"] & {
+    margin-right: 0;
+    margin-left: var(--bloom-s2);
   }
 }

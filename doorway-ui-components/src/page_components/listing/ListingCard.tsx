@@ -126,7 +126,9 @@ const ListingCard = (props: ListingCardProps) => {
             "order-1"
           )}
         {contentProps?.contentSubheader && (
-          <p className="card-subheader order-2 font-serif">{contentProps?.contentSubheader?.content}</p>
+          <p className="card-subheader order-2 font-serif">
+            {contentProps?.contentSubheader?.content}
+          </p>
         )}
 
         {cardTags && cardTags?.length > 0 && (
@@ -165,13 +167,12 @@ const ListingCard = (props: ListingCardProps) => {
               <hr className={"mb-2"} />
             )}
           <div className={"listings-row_headers"}>
-            {/* {contentProps?.tableHeader &&
+            {contentProps?.tableHeader &&
               getHeader(
                 contentProps?.tableHeader,
                 contentProps?.tableHeader?.priority ?? 3,
                 "smallWeighted"
               )}
- */}
             {contentProps?.tableSubheader?.content && (
               <p className="text__small-normal">{contentProps?.tableSubheader?.content}</p>
             )}

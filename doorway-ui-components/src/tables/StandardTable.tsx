@@ -257,9 +257,9 @@ export const StandardTable = (props: StandardTableProps) => {
   return (
     <div style={{ overflowX: "auto" }}>
       <table id={props.id} className={tableClasses.join(" ")}>
-        {/* <thead>
+        <thead>
           <tr>{headerLabels}</tr>
-        </thead> */}
+        </thead>
         {props.draggable ? (
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="standard-table">

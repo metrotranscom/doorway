@@ -172,10 +172,10 @@ export const getListings = (listings: Listing[]) => {
                 },
               ]
             : undefined,
+          statuses: [getListingApplicationStatus(listing)],
           description: listing.name,
         }}
         tableProps={{
-          // headers: {},
           headers: unitSummariesHeaders,
           data: getListingTableData(listing.unitsSummarized, listing.reviewOrderType),
           responsiveCollapse: true,

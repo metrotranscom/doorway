@@ -6,7 +6,6 @@ const withTM = require("next-transpile-modules")([
   "@bloom-housing/shared-helpers",
   "@bloom-housing/ui-components",
   "@bloom-housing/backend-core",
-  "@bloom-housing/shared-services",
   "@bloom-housing/doorway-ui-components",
 ])
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
@@ -49,15 +48,12 @@ module.exports = withBundleAnalyzer(
       idleTimeout: process.env.IDLE_TIMEOUT,
       jurisdictionName: process.env.JURISDICTION_NAME,
       cacheRevalidate: process.env.CACHE_REVALIDATE ? Number(process.env.CACHE_REVALIDATE) : 60,
-      cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
 
       // start Doorway env variables
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
-      awsS3BucketName: process.env.AWS_S3_BUCKET_NAME,
-      awsAccessKey: process.env.AWS_ACCESS_KEY_ID,
-      awsSecretKey: process.env.AWS_SECRET_KEY,
-      awsRegion: process.env.AWS_REGION,
-      fileService: process.env.FILE_SERVICE,
+    },
+    publicRuntimeConfig: {
+      cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
     },
     i18n: {
       locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],
@@ -67,11 +63,23 @@ module.exports = withBundleAnalyzer(
       additionalData: tailwindVars,
     },
     webpack: (config) => {
-      config.module.rules.push({
-        test: /\.md$/,
-        type: "asset/source",
-      })
-
+      config.module.rules.push(
+        {
+          test: /\.md$/,
+          type: "asset/source",
+        },
+        {
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: "ts-loader",
+              options: {
+                transpileOnly: true,
+              },
+            },
+          ],
+        }
+      )
       return config
     },
     // Uncomment line below before building when using symlink for UI-C

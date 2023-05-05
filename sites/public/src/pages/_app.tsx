@@ -4,6 +4,8 @@ import "@bloom-housing/doorway-ui-components/src/global/app-css.scss"
 import React, { useEffect, useMemo, useState } from "react"
 import type { AppProps } from "next/app"
 import { addTranslation, GenericRouter, NavigationContext } from "@bloom-housing/ui-components"
+import { addTranslation as addTranslationDoorway } from "@bloom-housing/doorway-ui-components"
+
 import {
   blankApplication,
   LoggedInUserIdleTimeout,
@@ -90,6 +92,19 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
   }, [])
 
   useMemo(() => {
+    // Need to add translations to both doorway uic and uic in order for
+    // both sets of components to properly translate.
+    // Note that I tried just adding one as a reference to another --
+    // it worked for the public site but broke Storybook.
+    addTranslationDoorway(translations.general, true)
+    if (locale && locale !== "en" && translations[locale]) {
+      addTranslationDoorway(translations[locale])
+    }
+    addTranslationDoorway(overrideTranslations.en)
+    if (overrideTranslations[locale]) {
+      addTranslationDoorway(overrideTranslations[locale])
+    }
+
     addTranslation(translations.general, true)
     if (locale && locale !== "en" && translations[locale]) {
       addTranslation(translations[locale])

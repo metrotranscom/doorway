@@ -1,9 +1,37 @@
-// Pass the doorway-uic polyglot implementation through to the one that is
-// located within Bloom UIC. This is because:
-//
-// 1. it is not ldeal to implement two separate translators, and,
-// 2. favor Bloom over Doorway UIC because the majority of components will
-// continue to come from Bloom UIC.
-import { t, locale, addTranslation } from "@bloom-housing/ui-components"
+import Polyglot from "node-polyglot"
 
-export { t as default, t, locale, addTranslation }
+interface TranslatorConfig {
+  polyglot?: any
+}
+
+const translatorConfig: TranslatorConfig = {}
+;(global as any).Translator = translatorConfig
+
+export const addTranslation = (translationPhrases: any, resetPolyglot = false) => {
+  if (!translatorConfig.polyglot || resetPolyglot) {
+    // Set up the initial Polyglot instance and phrases
+    translatorConfig.polyglot = new Polyglot({
+      phrases: translationPhrases,
+    })
+  } else {
+    // Extend the Polyglot instance with new phrases
+    translatorConfig.polyglot.extend(translationPhrases)
+  }
+}
+
+const t = (phrase: string, options?: any): string => {
+  if (translatorConfig.polyglot) {
+    return translatorConfig.polyglot.t(phrase, options)
+  }
+  return "{{ Missing Translation Phrases }}"
+}
+
+const locale = () => {
+  if (!translatorConfig.polyglot) {
+    return translatorConfig.polyglot()
+  } else {
+    return "en"
+  }
+}
+
+export { t as default, t, locale }

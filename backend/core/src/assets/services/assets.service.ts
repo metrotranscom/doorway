@@ -11,6 +11,8 @@ import { UploadService } from "./upload.service"
 import { paginate } from "nestjs-typeorm-paginate"
 import { PaginationQueryParams } from "../../shared/dto/pagination.dto"
 import { FileServiceProvider, FileUpload } from "../../shared/uploads"
+import * as fs from "fs"
+import { Readable } from "stream"
 
 
 @Injectable()
@@ -27,26 +29,30 @@ export class AssetsService {
 
   async upload(label: string, file: Express.Multer.File) {
 
-    const fileService = this.fileServiceProvider.getFileService()
+    const fileService = this.fileServiceProvider.activeFileService
+
+    //console.log(file)
 
     // convert the express File type to a package-specific interface
     const fileUpload: FileUpload = {
       name: file.originalname,
       contentType: file.mimetype,
-      size: file.size
+      size: file.size,
+      // create stream from the buffer if available in memory, otherwise use the path to the file
+      contents: file.buffer ? Readable.from(file.buffer) : fs.createReadStream(file.path)
     }
 
-    const url = fileService.putFile(label, fileUpload)
+    const result = await fileService.putFile("assets", label, fileUpload)
 
     const asset = {
-      id: "some-id",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      fileId: url,
+      //id: "some-id",
+      //createdAt: new Date(),
+      //updatedAt: new Date(),
+      fileId: result.url,
       label: label
     }
 
-    //return await this.repository.save(asset)
+    return await this.repository.save(asset)
     return asset
   }
 

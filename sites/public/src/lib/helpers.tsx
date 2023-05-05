@@ -190,7 +190,7 @@ export const getListings = (listings: Listing[]) => {
         ]}
         contentProps={{
           contentHeader: {
-            content: listing.name,
+            content: index+1 + ". " + listing.name,
             href: uri,
           },
           contentSubheader: { content: getListingCardSubtitle(listing.buildingAddress) },

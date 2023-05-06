@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { FileService } from "./file-service"
-import { FileServiceConfig } from "./types"
+import { FileService, FileServiceConfig } from "./types"
 
 @Injectable()
 export class FileServiceProvider {
@@ -8,12 +7,12 @@ export class FileServiceProvider {
   private _activeService: FileService
   private _registeredServices: Record<string, FileService>
 
-  constructor(activeServiceName: string = "null") {
+  constructor(activeServiceName = "null") {
     this._registeredServices = {}
     this._activeServiceName = activeServiceName
   }
 
-  configure(config: FileServiceConfig, varPrefix: string = "") {
+  configure(config: FileServiceConfig, varPrefix = "") {
     if (!this._registeredServices[this._activeServiceName]) {
       throw new Error(`Cannot configure unregistered file service "${this._activeServiceName}"`)
     }
@@ -24,19 +23,19 @@ export class FileServiceProvider {
 
     // get all keys from the config
     Object.keys(config)
-    // iterate through them to find matching vars for our active service
-    .filter((key) => {
-      if (key.startsWith(fullPrefix)) {
-        return key
-      }
-    })
-    // add those values to the activeConfig
-    .forEach((key) => {
-      // remove the prefix and convert to lowercase to normalize for constructor
-      const shortKey = key.replace(fullPrefix, '').toLowerCase()
-      // activeConfig[some_value] = config[FILE_SERVICE_null_SOME_VALUE]
-      activeConfig[shortKey] = config[key]
-    })
+      // iterate through them to find matching vars for our active service
+      .filter((key) => {
+        if (key.startsWith(fullPrefix)) {
+          return key
+        }
+      })
+      // add those values to the activeConfig
+      .forEach((key) => {
+        // remove the prefix and convert to lowercase to normalize for constructor
+        const shortKey = key.replace(fullPrefix, "").toLowerCase()
+        // activeConfig[some_value] = config[FILE_SERVICE_null_SOME_VALUE]
+        activeConfig[shortKey] = config[key]
+      })
 
     // and initialize the service
     this._activeService = this._initService(this._activeServiceName, activeConfig)

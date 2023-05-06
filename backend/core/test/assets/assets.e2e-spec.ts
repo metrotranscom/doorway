@@ -12,6 +12,7 @@ import { INestApplication } from "@nestjs/common"
 import { getUserAccessToken } from "../utils/get-user-access-token"
 import { AssetsModule } from "../../src/assets/assets.module"
 import cookieParser from "cookie-parser"
+import { FileServiceProvider } from "../../src/shared/uploads"
 
 class FakeUploadService implements UploadService {
   createPresignedUploadMetadata(): { signature: string } {
@@ -35,6 +36,32 @@ describe("AssetsController", () => {
     })
       .overrideProvider(UploadService)
       .useClass(FakeUploadService)
+      .overrideProvider(FileServiceProvider)
+      .useFactory({
+        factory: () => {
+          return new FileServiceProvider("mock")
+            .registerFileService("mock", {
+              isConfigured: false,
+              config: {},
+              /* eslint-disable @typescript-eslint/no-unused-vars */
+              configure(config) {
+                return null
+              },
+              /* eslint-disable @typescript-eslint/no-unused-vars */
+              putFile(prefix, key, file) {
+                return Promise.resolve({
+                  id: "id",
+                  url: "url",
+                })
+              },
+              /* eslint-disable @typescript-eslint/no-unused-vars */
+              generateDownloadUrl(id) {
+                return Promise.resolve("url")
+              },
+            })
+            .configure({})
+        },
+      })
       .compile()
 
     app = moduleRef.createNestApplication()
@@ -109,7 +136,7 @@ describe("AssetsController", () => {
       const data = Buffer.from("file-contents")
       const info = {
         filename: "name.pdf",
-        contentType: "document/pdf"
+        contentType: "document/pdf",
       }
 
       const response = await supertest(app.getHttpServer())
@@ -119,7 +146,6 @@ describe("AssetsController", () => {
         .set(...setAuthorization(adminAccessToken))
         .expect(201)
 
-      console.log(response.body)
       expect(response.body.label).toBe(label)
     })
 
@@ -132,7 +158,7 @@ describe("AssetsController", () => {
         .set(...setAuthorization(adminAccessToken))
         .expect(400)
 
-        expect(response.body.message).toMatch(/is missing/)
+      expect(response.body.message).toMatch(/is missing/)
     })
 
     it("should reject files that are too large", async () => {
@@ -142,7 +168,7 @@ describe("AssetsController", () => {
       const data = Buffer.from("text".repeat(5 * 1024 * 1024))
       const info = {
         filename: "name.pdf",
-        contentType: "document/pdf"
+        contentType: "document/pdf",
       }
 
       const response = await supertest(app.getHttpServer())
@@ -152,7 +178,7 @@ describe("AssetsController", () => {
         .set(...setAuthorization(adminAccessToken))
         .expect(413)
 
-        expect(response.body.message).toMatch(/Uploaded files must be/)
+      expect(response.body.message).toMatch(/Uploaded files must be/)
     })
 
     it("should reject files of the wrong type", async () => {
@@ -160,7 +186,7 @@ describe("AssetsController", () => {
       const data = Buffer.from("a")
       const info = {
         filename: "name.txt",
-        contentType: "text/plain"
+        contentType: "text/plain",
       }
 
       const response = await supertest(app.getHttpServer())
@@ -170,7 +196,7 @@ describe("AssetsController", () => {
         .set(...setAuthorization(adminAccessToken))
         .expect(415)
 
-        expect(response.body.message).toMatch(/Uploaded files must be/)
+      expect(response.body.message).toMatch(/Uploaded files must be/)
     })
   })
 })

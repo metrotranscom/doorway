@@ -38,12 +38,7 @@ export class PaginatedAssetsDto extends PaginationFactory<AssetDto>(AssetDto) {}
 // File upload validation vars
 const maxFileSizeMb = parseFloat(process.env.ASSET_UPLOAD_MAX_SIZE) || 5
 const maxFileSize = maxFileSizeMb * 1024 * 1024
-const allowedFileTypes = [
-  "document/pdf",
-  "image/jpg",
-  "image/jpeg",
-  "image/png"
-]
+const allowedFileTypes = ["document/pdf", "image/jpg", "image/jpeg", "image/png"]
 
 @Controller("assets")
 @ApiTags("assets")
@@ -67,9 +62,11 @@ export class AssetsController {
 
   @Post("/upload")
   @ApiOperation({ summary: "Upload asset", operationId: "upload" })
-  @UseInterceptors(FileInterceptor('file'))
-  async upload(@Req() request: Request, @UploadedFile(
-  //async upload(label: string, @UploadedFile(
+  @UseInterceptors(FileInterceptor("file"))
+  async upload(
+    @Req() request: Request,
+    @UploadedFile()
+    file: //async upload(label: string, @UploadedFile(
     /*
     new ParseFilePipe({
       validators: [
@@ -78,7 +75,8 @@ export class AssetsController {
       ],
     }),
     //*/
-  ) file: Express.Multer.File): Promise<AssetDto> {
+    Express.Multer.File
+  ): Promise<AssetDto> {
     // Ideally we would handle validation with a decorator, but ParseFilePipe
     // is only available in Nest.js 9+
 
@@ -88,11 +86,11 @@ export class AssetsController {
       throw new BadRequestException("Required file is missing")
     }
 
-    if(file.size > maxFileSize) {
+    if (file.size > maxFileSize) {
       throw new PayloadTooLargeException(`Uploaded files must be less than ${maxFileSizeMb} MB`)
     }
 
-    if(!allowedFileTypes.includes(file.mimetype)) {
+    if (!allowedFileTypes.includes(file.mimetype)) {
       throw new UnsupportedMediaTypeException(`Uploaded files must be a pdf or image`)
     }
 

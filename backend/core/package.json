@@ -106,6 +106,8 @@
     "@types/passport-jwt": "^3.0.3",
     "@types/passport-local": "^1.0.33",
     "@types/supertest": "2.0.12",
+    "aws-sdk-client-mock": "^2.1.1",
+    "aws-sdk-client-mock-jest": "^2.1.1",
     "dotenv": "^8.2.0",
     "fishery": "^0.3.0",
     "jest": "^26.5.3",

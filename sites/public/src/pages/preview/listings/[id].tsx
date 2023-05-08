@@ -66,7 +66,7 @@ export async function getServerSideProps(context: { params: Record<string, strin
     props: {
       listing: response.data,
       jurisdiction: await jurisdiction,
-      googleMapsApiKey: runtimeConfig.env.GOOGLE_MAPS_API_KEY,
+      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },
   }
 }

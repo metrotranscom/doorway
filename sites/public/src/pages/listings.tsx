@@ -47,7 +47,7 @@ export async function getServerSideProps() {
   return {
     props: {
       openListings: await fetchOpenListings(),
-      googleMapsApiKey: runtimeConfig.env.GOOGLE_MAPS_API_KEY,
+      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },
   }
 }

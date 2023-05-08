@@ -138,7 +138,7 @@ export async function getServerSideProps(context: {
     props: {
       listing: response.data,
       jurisdiction: response.data.jurisdiction,
-      googleMapsApiKey: runtimeConfig.env.GOOGLE_MAPS_API_KEY,
+      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },
   }
 }

@@ -198,7 +198,7 @@ const ListingCard = (props: ListingCardProps) => {
                     href={footerButton.href}
                     ariaHidden={footerButton.ariaHidden}
                     key={index}
-                    className={"is-primary"}
+                    className={"is-secondary"}
                   >
                     {footerButton.text}
                   </LinkButton>

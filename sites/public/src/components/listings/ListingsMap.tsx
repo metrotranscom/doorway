@@ -33,9 +33,19 @@ const ListingsMap = (props: ListingsMapProps) => {
     markers.push(
       <Marker
         position={{ lat: listing.buildingAddress.latitude, lng: listing.buildingAddress.longitude }}
-        label={label}
+        label={{
+          text: label,
+          color: "var(--bloom-color-white)",
+          fontFamily: "var(--bloom-font-sans)",
+          fontWeight: "700",
+          fontSize: "var(--bloom-font-size-2xs)",
+        }}
         onClick={() => (window.location.href = uri)}
         key={label}
+        icon={{
+          url: "/images/map-pin.svg",
+          labelOrigin: new google.maps.Point(14, 15),
+        }}
       ></Marker>
     )
   })

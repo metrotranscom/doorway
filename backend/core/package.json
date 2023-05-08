@@ -25,6 +25,8 @@
     "db:migration:revert": "yarn typeorm migration:revert",
     "db:reset": "yarn db:drop && yarn db:create && yarn db:add-uuid-extension",
     "db:reseed": "yarn db:reset && yarn db:migration:run && yarn db:seed",
+    "db:import-listings": "cd ../../tasks/import-listings && yarn install && yarn build && DATABASE_URL=\"${DATABASE_URL:-postgres://bloom-dev:bloom@localhost:5432/bloom}\" EXTERNAL_API_BASE=\"${EXTERNAL_API_BASE:-https://hba-dev.herokuapp.com}\" JURISDICTION_INCLUDE_LIST=\"${JURISDICTION_INCLUDE_LIST:-San Jose,San Mateo,Alameda}\" yarn import:run && cd ../../backend/core",
+    "db:reseed:with-external": "yarn db:reseed && yarn db:import-listings",
     "test": "jest --config ./jest.json --runInBand --detectOpenHandles",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

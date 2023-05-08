@@ -65,17 +65,7 @@ export class AssetsController {
   @UseInterceptors(FileInterceptor("file"))
   async upload(
     @Req() request: Request,
-    @UploadedFile()
-    file: //async upload(label: string, @UploadedFile(
-    /*
-    new ParseFilePipe({
-      validators: [
-        new MaxFileSizeValidator({ maxSize: 1000 }),
-        new FileTypeValidator({ fileType: 'image/jpeg' }),
-      ],
-    }),
-    //*/
-    Express.Multer.File
+    @UploadedFile() file: Express.Multer.File
   ): Promise<AssetDto> {
     // Ideally we would handle validation with a decorator, but ParseFilePipe
     // is only available in Nest.js 9+

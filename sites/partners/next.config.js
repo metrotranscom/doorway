@@ -7,6 +7,7 @@ const withTM = require("next-transpile-modules")([
   "@bloom-housing/ui-components",
   "@bloom-housing/backend-core",
   "@bloom-housing/shared-services",
+  "@bloom-housing/doorway-ui-components",
 ])
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -62,10 +63,23 @@ module.exports = withBundleAnalyzer(
       additionalData: tailwindVars,
     },
     webpack: (config) => {
-      config.module.rules.push({
-        test: /\.md$/,
-        type: "asset/source",
-      })
+      config.module.rules.push(
+        {
+          test: /\.md$/,
+          type: "asset/source",
+        },
+        {
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: "ts-loader",
+              options: {
+                transpileOnly: true,
+              },
+            },
+          ],
+        }
+      )
       return config
     },
     // Uncomment line below before building when using symlink for UI-C

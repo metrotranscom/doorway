@@ -6,7 +6,7 @@ const withTM = require("next-transpile-modules")([
   "@bloom-housing/shared-helpers",
   "@bloom-housing/ui-components",
   "@bloom-housing/backend-core",
-  "@bloom-housing/shared-services",
+  "@bloom-housing/doorway-ui-components",
 ])
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -48,7 +48,6 @@ module.exports = withBundleAnalyzer(
       idleTimeout: process.env.IDLE_TIMEOUT,
       jurisdictionName: process.env.JURISDICTION_NAME,
       cacheRevalidate: process.env.CACHE_REVALIDATE ? Number(process.env.CACHE_REVALIDATE) : 60,
-      cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
 
       // start Doorway env variables
       //googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // moved to runtime config
@@ -66,11 +65,23 @@ module.exports = withBundleAnalyzer(
       additionalData: tailwindVars,
     },
     webpack: (config) => {
-      config.module.rules.push({
-        test: /\.md$/,
-        type: "asset/source",
-      })
-
+      config.module.rules.push(
+        {
+          test: /\.md$/,
+          type: "asset/source",
+        },
+        {
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: "ts-loader",
+              options: {
+                transpileOnly: true,
+              },
+            },
+          ],
+        }
+      )
       return config
     },
     // Uncomment line below before building when using symlink for UI-C

@@ -11,12 +11,20 @@ const DoorwayListingTable = (props: DoorwayListingTableProps) => {
   let data = props.data
   console.log(data)
   const rows: JSX.Element[] = []
-  props.data.forEach((row: Record<string, StandardTableCell>) => {
+  props.data.forEach((row: Record<string, StandardTableCell>, rowIndex: number) => {
     let cols: JSX.Element[] = []
     Object.values(row).forEach((col: StandardTableCell, index: number) => {
-      cols.push(<span className={"table-content-" + index.toString()}>{col.content}</span>)
+      cols.push(
+        <span className={"table-content-" + index.toString()} key={index}>
+          {col.content}
+        </span>
+      )
     })
-    rows.push(<div className="doorway-listing_table-row">{cols}</div>)
+    rows.push(
+      <div className="doorway-listing_table-row" key={rowIndex}>
+        {cols}
+      </div>
+    )
   })
   return <div className="doorway-listing_table text__small-normal">{rows}</div>
 }

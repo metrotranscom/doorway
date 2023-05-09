@@ -136,8 +136,7 @@ export const getListings = (listings: Listing[]) => {
     return (
       <ListingCard
         key={index}
-        // preheader={listing?.buildingAddress?.county}
-        preheader={"Contra County"}
+        preheader={listing?.buildingAddress?.county}
         imageCardProps={{
           imageUrl:
             imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize || "1302")) || "",

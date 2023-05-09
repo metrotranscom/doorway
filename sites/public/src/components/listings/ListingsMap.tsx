@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import * as React from "react"
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api"
 import { getListingUrl } from "../../lib/helpers"
 import { Listing } from "@bloom-housing/backend-core"
@@ -32,13 +32,13 @@ const ListingsMap = (props: ListingsMapProps) => {
     const uri = getListingUrl(listing)
     const label = (++index).toString()
 
-    markers.push({lat, lng, uri, label})
+    markers.push({ lat, lng, uri, label })
   })
 
   return isLoaded ? (
     <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={9}>
       {markers.map((marker) => (
-          <Marker
+        <Marker
           position={{ lat: marker.lat, lng: marker.lng }}
           label={{
             text: marker.label,
@@ -53,8 +53,8 @@ const ListingsMap = (props: ListingsMapProps) => {
             url: "/images/map-pin.svg",
             labelOrigin: new google.maps.Point(14, 15),
           }}
-          />
-        ))}
+        />
+      ))}
     </GoogleMap>
   ) : (
     <></>

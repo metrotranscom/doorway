@@ -1,0 +1,12 @@
+.doorway-listing_table {
+  margin-top: var(--bloom-s5);
+
+  .doorway-listing_table-row {
+    display: flex;
+  
+    .table-content-0 {
+      @apply uppercase;
+      flex: 1;
+    }
+  }
+}

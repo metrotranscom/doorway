@@ -8,12 +8,7 @@ import {
   ListingStatus,
   ApplicationMultiselectQuestion,
 } from "@bloom-housing/backend-core/types"
-import {
-  t,
-  ApplicationStatusType,
-  StatusBarType,
-  AppearanceStyleType,
-} from "@bloom-housing/ui-components"
+import { t, ApplicationStatusType, StatusBarType } from "@bloom-housing/ui-components"
 import { ListingCard } from "@bloom-housing/doorway-ui-components"
 import { imageUrlFromListing, getSummariesTable } from "@bloom-housing/shared-helpers"
 
@@ -70,13 +65,8 @@ const getListingCardSubtitle = (address: Address) => {
   return address ? `${street}, ${city} ${state}, ${zipCode}` : null
 }
 
-const getListingTableData = (
-  unitsSummarized: UnitsSummarized,
-  listingReviewOrder: ListingReviewOrder
-) => {
-  return unitsSummarized !== undefined
-    ? getSummariesTable(unitsSummarized.byUnitTypeAndRent, listingReviewOrder)
-    : []
+const getListingTableData = (unitsSummarized: UnitsSummarized) => {
+  return unitsSummarized !== undefined ? getSummariesTable(unitsSummarized.byUnitTypeAndRent) : []
 }
 
 export const getListingUrl = (listing: Listing) => {
@@ -140,29 +130,14 @@ export const getListings = (listings: Listing[]) => {
     rent: "t.rent",
   }
 
-  const generateTableSubHeader = (listing) => {
-    if (listing.reviewOrderType !== ListingReviewOrder.waitlist) {
-      return {
-        content: t("listings.availableUnits"),
-        styleType: AppearanceStyleType.success,
-        isPillType: true,
-      }
-    } else if (listing.reviewOrderType === ListingReviewOrder.waitlist) {
-      return {
-        content: t("listings.waitlist.open"),
-        styleType: AppearanceStyleType.primary,
-        isPillType: true,
-      }
-    }
-    return null
-  }
-
   return listings.map((listing: Listing, index: number) => {
     const uri = getListingUrl(listing)
     const displayIndex: string = (index + 1).toString()
     return (
       <ListingCard
         key={index}
+        // preheader={listing?.buildingAddress?.county}
+        preheader={"Contra County"}
         imageCardProps={{
           imageUrl:
             imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize || "1302")) || "",
@@ -173,12 +148,12 @@ export const getListings = (listings: Listing[]) => {
                 },
               ]
             : undefined,
-          statuses: [getListingApplicationStatus(listing)],
+          statuses: [],
           description: listing.name,
         }}
         tableProps={{
           headers: unitSummariesHeaders,
-          data: getListingTableData(listing.unitsSummarized, listing.reviewOrderType),
+          data: getListingTableData(listing.unitsSummarized),
           responsiveCollapse: true,
           cellClassName: "px-5 py-3",
         }}
@@ -195,7 +170,6 @@ export const getListings = (listings: Listing[]) => {
             href: uri,
           },
           contentSubheader: { content: getListingCardSubtitle(listing.buildingAddress) },
-          tableHeader: generateTableSubHeader(listing),
         }}
       />
     )

@@ -8,12 +8,7 @@ import {
   ListingStatus,
   ApplicationMultiselectQuestion,
 } from "@bloom-housing/backend-core/types"
-import {
-  t,
-  ApplicationStatusType,
-  StatusBarType,
-  AppearanceStyleType,
-} from "@bloom-housing/ui-components"
+import { t, ApplicationStatusType, StatusBarType } from "@bloom-housing/ui-components"
 import { ListingCard } from "@bloom-housing/doorway-ui-components"
 import { imageUrlFromListing, getSummariesTable } from "@bloom-housing/shared-helpers"
 
@@ -72,10 +67,15 @@ const getListingCardSubtitle = (address: Address) => {
 
 const getListingTableData = (
   unitsSummarized: UnitsSummarized,
-  listingReviewOrder: ListingReviewOrder
+  listingReviewOrder: ListingReviewOrder,
+  includeRentandMinimumIncome: boolean
 ) => {
   return unitsSummarized !== undefined
-    ? getSummariesTable(unitsSummarized.byUnitTypeAndRent, listingReviewOrder)
+    ? getSummariesTable(
+        unitsSummarized.byUnitTypeAndRent,
+        listingReviewOrder,
+        includeRentandMinimumIncome
+      )
     : []
 }
 
@@ -140,23 +140,6 @@ export const getListings = (listings: Listing[]) => {
     rent: "t.rent",
   }
 
-  const generateTableSubHeader = (listing) => {
-    if (listing.reviewOrderType !== ListingReviewOrder.waitlist) {
-      return {
-        content: t("listings.availableUnits"),
-        styleType: AppearanceStyleType.success,
-        isPillType: true,
-      }
-    } else if (listing.reviewOrderType === ListingReviewOrder.waitlist) {
-      return {
-        content: t("listings.waitlist.open"),
-        styleType: AppearanceStyleType.primary,
-        isPillType: true,
-      }
-    }
-    return null
-  }
-
   return listings.map((listing: Listing, index: number) => {
     const uri = getListingUrl(listing)
     const displayIndex: string = (index + 1).toString()
@@ -179,7 +162,7 @@ export const getListings = (listings: Listing[]) => {
         }}
         tableProps={{
           headers: unitSummariesHeaders,
-          data: getListingTableData(listing.unitsSummarized, listing.reviewOrderType),
+          data: getListingTableData(listing.unitsSummarized, listing.reviewOrderType, false),
           responsiveCollapse: true,
           cellClassName: "px-5 py-3",
         }}

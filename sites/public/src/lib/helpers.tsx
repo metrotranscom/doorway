@@ -65,12 +65,12 @@ export const openInFuture = (listing: Listing) => {
   return listing.applicationOpenDate && nowTime < dayjs(listing.applicationOpenDate)
 }
 
-export const getListingCardSubtitle = (address: Address) => {
+const getListingCardSubtitle = (address: Address) => {
   const { street, city, state, zipCode } = address || {}
   return address ? `${street}, ${city} ${state}, ${zipCode}` : null
 }
 
-export const getListingTableData = (
+const getListingTableData = (
   unitsSummarized: UnitsSummarized,
   listingReviewOrder: ListingReviewOrder
 ) => {
@@ -133,7 +133,7 @@ export const getListingApplicationStatus = (listing: Listing): StatusBarType => 
   }
 }
 
-export const generateTableSubHeader = (listing) => {
+const generateTableSubHeader = (listing) => {
   if (listing.reviewOrderType !== ListingReviewOrder.waitlist) {
     return {
       content: t("listings.availableUnits"),

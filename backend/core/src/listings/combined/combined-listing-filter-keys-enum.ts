@@ -25,4 +25,5 @@ export enum CombinedListingFilterKeys {
   city = "city",
   minMonthlyRent = "minMonthlyRent",
   maxMonthlyRent = "maxMonthlyRent",
+  bathrooms = "bathrooms",
 }

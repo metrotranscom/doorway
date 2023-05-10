@@ -17,4 +17,5 @@ export const combinedListingFilterTypeToFieldMap: Record<
   city: "building_address->>'city'",
   minMonthlyRent: "min_monthly_rent",
   maxMonthlyRent: "max_monthly_rent",
+  bathrooms: "units->>'num_bathrooms'",
 }

@@ -9,8 +9,8 @@ type DoorwayListingTableProps = {
 
 const DoorwayListingTable = (props: DoorwayListingTableProps) => {
   let data = props.data
-  console.log(data)
   const rows: JSX.Element[] = []
+
   props.data.forEach((row: Record<string, StandardTableCell>, rowIndex: number) => {
     let cols: JSX.Element[] = []
     Object.values(row).forEach((col: StandardTableCell, index: number) => {

@@ -61,10 +61,6 @@ export const defaultMap: RecordMap = {
     if (!address?.county) {
       const jurisdiction = listing.jurisdiction
 
-      if (jurisdiction.name == "San Jose") {
-        address.county = "Santa Clara"
-      }
-
       switch (jurisdiction.name) {
         case "San Jose":
           address.county = "Santa Clara"

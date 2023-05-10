@@ -8,12 +8,13 @@ export const combinedListingFilterTypeToFieldMap: Record<
   status: "status",
   name: "name",
   neighborhood: "neighborhood",
-  bedrooms: "units->>'num_bedrooms'",
+  bedrooms: "min_bedrooms",
   zipcode: "building_address->>'zip_code'",
   leasingAgents: "leasing_agents->>'id'",
   jurisdiction: "jurisdiction->>'id'",
   isExternal: "is_external",
-  //monthlyRent: "units->>'monthlyRent'", // placeholder
   county: "building_address->>'county'",
   city: "building_address->>'city'",
+  minMonthlyRent: "min_monthly_rent",
+  maxMonthlyRent: "max_monthly_rent",
 }

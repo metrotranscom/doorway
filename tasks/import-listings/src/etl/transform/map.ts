@@ -39,9 +39,9 @@ export const defaultMap: RecordMap = {
   closed_at: "closedAt",
   updated_at: "updatedAt", // not available on view=base but needed for sorting
 
-  county: "countyCode",
-  city: (listing: Listing) => listing.buildingAddress?.city,
-  neighborhood: "neighborhood", // not available on view=base but needed for filtering
+  //county: "countyCode",
+  //city: (listing: Listing) => listing.buildingAddress?.city,
+  neighborhood: (listing: Listing) => listing.neighborhood,
   reserved_community_type_name: (listing: Listing) => listing.reservedCommunityType?.name,
 
   url_slug: "urlSlug",

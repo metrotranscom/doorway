@@ -182,15 +182,15 @@ SELECT
   -- Some need to be converted from text to number first (see above)
 
   -- monthly_rent is a text field, so we need to convert it to a number
-  MIN(CASE WHEN monthly_rent ~ '^[0-9]+.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) as "min_monthly_rent",
-  MAX(CASE WHEN monthly_rent ~ '^[0-9]+.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) AS "max_monthly_rent",
+  MIN(CASE WHEN monthly_rent ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) as "min_monthly_rent",
+  MAX(CASE WHEN monthly_rent ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) AS "max_monthly_rent",
   MIN(u.num_bedrooms) AS "min_bedrooms",
   MAX(u.num_bedrooms) AS "max_bedrooms",
   MIN(u.num_bathrooms) AS "min_bathrooms",
   MAX(u.num_bathrooms) AS "max_bathrooms",
   -- monthly_income_min is a text field, so we need to convert it to a number
-  MIN(CASE WHEN monthly_income_min ~ '^[0-9]+.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "min_monthly_income_min",
-  MAX(CASE WHEN monthly_income_min ~ '^[0-9]+.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "max_monthly_income_min",
+  MIN(CASE WHEN monthly_income_min ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "min_monthly_income_min",
+  MAX(CASE WHEN monthly_income_min ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "max_monthly_income_min",
   MIN(min_occupancy) AS "min_occupancy",
   MAX(max_occupancy) AS "max_occupancy",
   MIN(sq_feet) AS "min_sq_feet",

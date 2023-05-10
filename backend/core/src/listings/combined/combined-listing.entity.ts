@@ -152,7 +152,7 @@ ON l.building_address_id = addr.id
 -- In a perfect world we'd write a function, but that's impractical here compared to a one-liner
 
 -- Breaking down the type conversion logic
--- CASE WHEN column ~ '^[0-9]+\.{0,1}[0-9]+$' THEN TO_NUMBER(column, '99999') ELSE 0 END
+-- CASE WHEN column ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(column, '99999') ELSE 0 END
 -- "if text column matches "(num)+.(num)+", then convert it to a number with up to 5 digits, otherwise use the number 0
 -- examples of matches: "123", "12345", "12345.6", "12345.67"
 -- examples of non-matches: "", " ", "Contact listing agent", "12.", "12.34.5", ".12", "1,234",  "1,234.0"
@@ -167,15 +167,15 @@ SELECT
   -- Some need to be converted from text to number first (see above)
 
   -- monthly_rent is a text field, so we need to convert it to a number
-  MIN(CASE WHEN monthly_rent ~ '^[0-9]+\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) as "min_monthly_rent",
-  MAX(CASE WHEN monthly_rent ~ '^[0-9]+\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) AS "max_monthly_rent",
+  MIN(CASE WHEN monthly_rent ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) as "min_monthly_rent",
+  MAX(CASE WHEN monthly_rent ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_rent, '99999') ELSE 0 END) AS "max_monthly_rent",
   MIN(u.num_bedrooms) AS "min_bedrooms",
   MAX(u.num_bedrooms) AS "max_bedrooms",
   MIN(u.num_bathrooms) AS "min_bathrooms",
   MAX(u.num_bathrooms) AS "max_bathrooms",
   -- monthly_income_min is a text field, so we need to convert it to a number
-  MIN(CASE WHEN monthly_income_min ~ '^[0-9]+\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "min_monthly_income_min",
-  MAX(CASE WHEN monthly_income_min ~ '^[0-9]+\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "max_monthly_income_min",
+  MIN(CASE WHEN monthly_income_min ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "min_monthly_income_min",
+  MAX(CASE WHEN monthly_income_min ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(monthly_income_min, '99999') ELSE 0 END) AS "max_monthly_income_min",
   MIN(min_occupancy) AS "min_occupancy",
   MAX(max_occupancy) AS "max_occupancy",
   MIN(sq_feet) AS "min_sq_feet",

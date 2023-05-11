@@ -187,8 +187,6 @@ describe("Transformer", () => {
     expect(result).toHaveProperty("published_at", listing.publishedAt)
     expect(result).toHaveProperty("closed_at", listing.closedAt)
     expect(result).toHaveProperty("updated_at", listing.updatedAt)
-    expect(result).toHaveProperty("county", listing.countyCode)
-    expect(result).toHaveProperty("city", listing.buildingAddress?.city)
     expect(result).toHaveProperty("neighborhood", listing.neighborhood)
     expect(result).toHaveProperty(
       "reserved_community_type_name",

@@ -8,7 +8,7 @@ export const combinedListingFilterTypeToFieldMap: Record<
   status: "status",
   name: "name",
   neighborhood: "neighborhood",
-  bedrooms: "min_bedrooms", // this name is preserved from CombinedListingFilterKeys
+  bedrooms: "max_bedrooms", // this name is preserved from CombinedListingFilterKeys
   zipcode: "building_address->>'zip_code'",
   leasingAgents: "leasing_agents->>'id'",
   jurisdiction: "jurisdiction->>'id'",
@@ -18,4 +18,7 @@ export const combinedListingFilterTypeToFieldMap: Record<
   minMonthlyRent: "min_monthly_rent",
   maxMonthlyRent: "max_monthly_rent",
   minBathrooms: "min_bathrooms",
+  maxBathrooms: "max_bathrooms",
+  minBedrooms: "min_bedrooms",
+  maxBedrooms: "max_bedrooms",
 }

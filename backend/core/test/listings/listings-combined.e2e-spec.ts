@@ -537,7 +537,8 @@ describe("CombinedListings", () => {
 
     it("should properly apply bedrooms filter", async () => {
       const minBedrooms = 2
-      const gteFilter = [{ $comparison: ">=", bedrooms: minBedrooms }]
+      // where max number of bedrooms is at least as much as requested
+      const gteFilter = [{ $comparison: ">=", maxBedrooms: minBedrooms }]
 
       const gteQuery = qs.stringify({
         limit: "all",
@@ -620,7 +621,8 @@ describe("CombinedListings", () => {
 
     it("should properly apply bathrooms filter", async () => {
       const minBathrooms = 2
-      const gteFilter = [{ $comparison: ">=", minBathrooms: minBathrooms }]
+      // where max number of bathrooms is at least as much as requested
+      const gteFilter = [{ $comparison: ">=", maxBathrooms: minBathrooms }]
 
       const gteQuery = qs.stringify({
         limit: "all",

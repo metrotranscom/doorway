@@ -20,9 +20,11 @@ const jurisdictionsEndpoint: UrlInfo = {
 // Set the listing view
 // The only valid values are "base" and "full"; default to "base"
 const permittedViews = ["base", "full"]
-const listingView = permittedViews.includes(process.env.JURISDICTION_INCLUDE_LIST)
-  ? process.env.JURISDICTION_INCLUDE_LIST
+const listingView = permittedViews.includes(process.env.LISTING_VIEW)
+  ? process.env.LISTING_VIEW
   : "base"
+
+console.log(`Using listing view [${listingView}]; requested [${process.env.LISTING_VIEW}]`)
 
 const dbConfig: DbConfig = {
   client: "pg",

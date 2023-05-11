@@ -17,6 +17,13 @@ const jurisdictionsEndpoint: UrlInfo = {
   path: process.env.JURISDICTIONS_ENDPOINT_PATH || "/jurisdictions",
 }
 
+// Set the listing view
+// The only valid values are "base" and "full"; default to "base"
+const permittedViews = ["base", "full"]
+const listingView = permittedViews.includes(process.env.JURISDICTION_INCLUDE_LIST)
+  ? process.env.JURISDICTION_INCLUDE_LIST
+  : "base"
+
 const dbConfig: DbConfig = {
   client: "pg",
   connection: process.env.DATABASE_URL,
@@ -32,7 +39,7 @@ const tableName = "external_listings"
 
 const runner = new Runner(
   new JurisdictionResolver(axios, jurisdictionsEndpoint, jurisdictionIncludeList),
-  new Extractor(axios, listingsEndpoint),
+  new Extractor(axios, listingsEndpoint, listingView),
   new Transformer(defaultMap),
   new Loader(knex(dbConfig), tableName)
 )

@@ -5264,6 +5264,15 @@ export interface CombinedListingFilterParams {
 
   /**  */
   minBathrooms?: number
+
+  /**  */
+  maxBathrooms?: number
+
+  /**  */
+  minBedrooms?: number
+
+  /**  */
+  maxBedrooms?: number
 }
 
 export interface CombinedListingsQueryParams {

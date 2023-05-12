@@ -133,23 +133,6 @@ export const getListingApplicationStatus = (listing: Listing): StatusBarType => 
   }
 }
 
-const generateTableSubHeader = (listing) => {
-  if (listing.reviewOrderType !== ListingReviewOrder.waitlist) {
-    return {
-      content: t("listings.availableUnits"),
-      styleType: AppearanceStyleType.success,
-      isPillType: true,
-    }
-  } else if (listing.reviewOrderType === ListingReviewOrder.waitlist) {
-    return {
-      content: t("listings.waitlist.open"),
-      styleType: AppearanceStyleType.primary,
-      isPillType: true,
-    }
-  }
-  return null
-}
-
 const unitSummariesHeaders = {
   unitType: "t.unitType",
   minimumIncome: "t.minimumIncome",

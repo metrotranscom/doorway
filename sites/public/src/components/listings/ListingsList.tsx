@@ -8,17 +8,31 @@ type ListingsListProps = {
 }
 
 const ListingsList = (props: ListingsListProps) => {
-  return <div>
-    <div className="listingsList">{getListings(props.listings)}</div>
-    <InfoCard title={t("t.signUpForAlerts")} subtitle={t("t.subscribeToNewsletter")} className="is-normal-primary-lighter">
-      <Button className="is-primary">{t("t.signUp")}</Button>
-    </InfoCard>
-    <InfoCard title={t("t.needHelp")} subtitle={t("t.emergencyShelter")} className="is-normal-secondary-lighter">
-    <Button className="is-secondary">{t("t.helpCenter")}</Button>
-    </InfoCard>
-    <InfoCard title={t("t.housingInSanFrancisco")} subtitle={t("t.seeSanFranciscoListings")} className="is-normal-secondary-lighter">
-    <Button className="is-secondary">{t("t.seeListings")}</Button>
-    </InfoCard>
-  </div>
+  return (
+    <div>
+      <div className="listingsList">{getListings(props.listings)}</div>
+      <InfoCard
+        title={t("t.signUpForAlerts")}
+        subtitle={t("t.subscribeToNewsletter")}
+        className="is-normal-primary-lighter"
+      >
+        <Button className="is-primary">{t("t.signUp")}</Button>
+      </InfoCard>
+      <InfoCard
+        title={t("t.needHelp")}
+        subtitle={t("t.emergencyShelter")}
+        className="is-normal-secondary-lighter"
+      >
+        <Button className="is-secondary">{t("t.helpCenter")}</Button>
+      </InfoCard>
+      <InfoCard
+        title={t("t.housingInSanFrancisco")}
+        subtitle={t("t.seeSanFranciscoListings")}
+        className="is-normal-secondary-lighter"
+      >
+        <Button className="is-secondary">{t("t.seeListings")}</Button>
+      </InfoCard>
+    </div>
+  )
 }
 export { ListingsList as default, ListingsList }

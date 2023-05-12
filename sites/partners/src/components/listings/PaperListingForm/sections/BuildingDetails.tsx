@@ -280,8 +280,8 @@ const BuildingDetails = ({
             error={fieldHasError(errors?.buildingAddress?.county)}
           >
             <Select
-              id={"buildingAddress.county"}
-              name={"buildingAddress.county"}
+              id={`buildingAddress.county`}
+              name={`buildingAddress.county`}
               error={
                 !!getAddressErrorMessage(
                   "buildingAddress.county",

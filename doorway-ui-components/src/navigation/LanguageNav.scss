@@ -16,10 +16,7 @@
   padding: var(--bloom-s2) 0;
 
   @media (max-width: $screen-md) {
-    // padding: 0 var(--bloom-s3);
-    // padding: var(--inner-desktop-padding);
     justify-content: center;
-
   }
 }
 
@@ -44,12 +41,11 @@
   margin: 0 var(--bloom-s1_5);
 
   &:hover {
-    background-color: var(--doorway-color-cyan-300)
-
+    background-color: var(--doorway-color-cyan-300);
   }
 
   &.is-active {
     color: var(--bloom-text-color);
-    background-color: var(--doorway-color-cyan-300)
+    background-color: var(--doorway-color-cyan-300);
   }
 }

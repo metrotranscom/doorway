@@ -460,9 +460,17 @@ const SiteHeader = (props: SiteHeaderProps) => {
                 props.imageOnly ? "site-header__image-only" : ""
               }`}
               src={props.logoSrc}
-              alt={props.title}
+              alt={"Site logo"}
             />
           </div>
+          {props.title && (
+            <div className="site-header__logo-title">
+              {props.title}
+              {props.subtitle && (
+                <div className="site-header__logo__subtitle">{props.subtitle}</div>
+              )}
+            </div>
+          )}
         </LinkComponent>
       </div>
     )
@@ -482,7 +490,7 @@ const SiteHeader = (props: SiteHeaderProps) => {
         <div
           className={`site-header__notice ${!props.noticeMobile ? `site-header__notice-hide` : ""}`}
         >
-          <div className="site-header__notice-text">props.notice</div>
+          <div className="site-header__notice-text">{props.notice}</div>
         </div>
       )}
 

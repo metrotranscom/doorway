@@ -82,7 +82,6 @@ const Layout = (props) => {
           logoSrc="/images/doorway_logo_temp.png"
           homeURL="/"
           mainContentId="main-content"
-          title={t("nav.siteTitle")}
           languages={languages.map((lang) => {
             return {
               label: lang.label,

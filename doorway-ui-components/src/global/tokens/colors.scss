@@ -16,8 +16,8 @@
   --bloom-color-green-300: #b4e5be;
   --bloom-color-green-100: #e7f7ea;
 
-  --doorway-color-blue-900: #001830;
-  --doorway-color-blue-800: #0F2B50;
+  --doorway-color-blue-1300: #001830;
+  --doorway-color-blue-1100: #0F2B50;
   --bloom-color-blue-900: #205493;
   --bloom-color-blue-700: #0067be;
   --bloom-color-blue-500: #0077da;
@@ -55,8 +55,8 @@
   // Doorway overrides for primary colors -- Doorway is generally one shade
   // darker.
   --bloom-color-primary: var(--bloom-color-blue-900);
-  --bloom-color-primary-dark: var(--doorway-color-blue-800);
-  --bloom-color-primary-darker: var(--doorway-color-blue-900);
+  --bloom-color-primary-dark: var(--doorway-color-blue-1100);
+  --bloom-color-primary-darker: var(--doorway-color-blue-1300);
   --bloom-color-primary-light: var(--bloom-color-blue-700);
   --bloom-color-primary-lighter: var(--bloom-color-blue-500);
   // --bloom-color-primary: var(--bloom-color-blue-500);

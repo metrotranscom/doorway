@@ -1,18 +1,13 @@
 .zero-listings {
     --margin: var(--bloom-s3);
-    --max-width: var(--bloom-width-3xl);
-    --max-width-large-screen: var(--bloom-width-5xl);
   
-    max-width: var(--max-width);
     margin-top: var(--margin);
     margin-left: var(--margin);
     margin-right: var(--margin);
     margin-bottom: var(--margin);
     list-style-type: none;
-
-    @media (min-width: $screen-xl) {
-      --max-width: var(--max-width-large-screen);
-    }
+    display: flex;
+    flex-wrap: wrap;
   }
 
 .zero-listings-description {

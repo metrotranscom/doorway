@@ -9,7 +9,7 @@ import {
   ApplicationMultiselectQuestion,
 } from "@bloom-housing/backend-core/types"
 import { t, ApplicationStatusType, StatusBarType } from "@bloom-housing/ui-components"
-import { ListingCard, ZeroListingsItem } from "@bloom-housing/doorway-ui-components"
+import { Button, ListingCard, ZeroListingsItem } from "@bloom-housing/doorway-ui-components"
 import { imageUrlFromListing, getSummariesTable } from "@bloom-housing/shared-helpers"
 
 export const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -151,8 +151,9 @@ export const getZeroListingsCard = (listings: Listing[]) => {
       <ZeroListingsItem
         title={t("t.noMatchingListings")}
         description={t("t.tryRemovingFilters")}
-        buttonContent={t("t.clearAllFilters")}
-      ></ZeroListingsItem>
+      >
+        <Button>{t("t.clearAllFilters")}</Button>
+      </ZeroListingsItem>
     )
   }
 }

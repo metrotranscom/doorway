@@ -7,11 +7,11 @@ import {
 } from "../../sections/ResponsiveContentList"
 import { Button, Heading } from "../../.."
 import "./ZeroListingsItem.scss"
+import Markdown from "markdown-to-jsx"
 
 export interface ZeroListingsItemProps {
     title: string
     description: string
-    buttonContent: string
     children?: React.ReactNode
     desktopClass?: string
   }
@@ -24,7 +24,13 @@ export const ZeroListingsItem = (props: ZeroListingsItemProps) => (
       </ResponsiveContentItemHeader>
       <ResponsiveContentItemBody>
         <div className="zero-listings-description">{props.description}</div>
-        <Button>{props.buttonContent}</Button>
+        {typeof props.children == "string" ? (
+        <div className="markdown info-card__content">
+          <Markdown options={{ disableParsingRawHTML: true }} children={props.children} />
+        </div>
+      ) : (
+        props.children
+      )}
       </ResponsiveContentItemBody>
     </ResponsiveContentItem>
   </div>

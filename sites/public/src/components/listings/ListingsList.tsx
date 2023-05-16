@@ -11,7 +11,7 @@ const ListingsList = (props: ListingsListProps) => {
   return (
     <div>
       <div className="listingsList">{getListings(props.listings)}</div>
-      <div>{getZeroListingsCard(props.listings)}</div>
+      {getZeroListingsCard(props.listings)}
       {/* TODO: once pagination is implemented for listings, the following should only show on the last page. */}
       <InfoCard
         title={t("t.signUpForAlerts")}

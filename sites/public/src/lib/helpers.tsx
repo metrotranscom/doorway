@@ -149,9 +149,9 @@ export const getZeroListingsCard = (listings: Listing[]) => {
   if (listings.length === 0) {
     return (
       <ZeroListingsItem
-        title="No matching listings"
-        description="Try removing some of your filters or adjusting your search area."
-        buttonContent="Clear all filters"
+        title={t("t.noMatchingListings")}
+        description={t("t.tryRemovingFilters")}
+        buttonContent={t("t.clearAllFilters")}
       ></ZeroListingsItem>
     )
   }

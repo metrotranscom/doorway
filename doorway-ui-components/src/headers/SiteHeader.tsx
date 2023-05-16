@@ -425,7 +425,7 @@ const SiteHeader = (props: SiteHeaderProps) => {
               setActiveMobileMenus([])
             }}
             icon={mobileMenu ? "closeSmall" : "hamburger"}
-            iconSize="base"
+            iconSize="medium"
             className={"site-header__mobile-menu-button"}
             unstyled
           >

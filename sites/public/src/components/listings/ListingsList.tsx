@@ -1,7 +1,7 @@
 import * as React from "react"
 import { getListings } from "../../lib/helpers"
 import { Listing } from "@bloom-housing/backend-core"
-import { Button, InfoCard, t } from "@bloom-housing/doorway-ui-components"
+import { Button, InfoCard, LinkButton, t } from "@bloom-housing/doorway-ui-components"
 
 type ListingsListProps = {
   listings: Listing[]
@@ -31,7 +31,7 @@ const ListingsList = (props: ListingsListProps) => {
         subtitle={t("t.seeSanFranciscoListings")}
         className="is-normal-secondary-lighter"
       >
-        <Button className="is-secondary">{t("t.seeListings")}</Button>
+        <LinkButton href="https://housing.sfgov.org/" newTab={true} className="is-secondary">{t("t.seeListings")}</LinkButton>
       </InfoCard>
     </div>
   )

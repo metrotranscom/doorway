@@ -1,5 +1,5 @@
 import * as React from "react"
-import { getListings } from "../../lib/helpers"
+import { getListings, getZeroListingsCard } from "../../lib/helpers"
 import { Listing } from "@bloom-housing/backend-core"
 import { Button, InfoCard, LinkButton, t } from "@bloom-housing/doorway-ui-components"
 
@@ -11,6 +11,7 @@ const ListingsList = (props: ListingsListProps) => {
   return (
     <div>
       <div className="listingsList">{getListings(props.listings)}</div>
+      <div>{getZeroListingsCard(props.listings)}</div>
       {/* TODO: once pagination is implemented for listings, the following should only show on the last page. */}
       <InfoCard
         title={t("t.signUpForAlerts")}

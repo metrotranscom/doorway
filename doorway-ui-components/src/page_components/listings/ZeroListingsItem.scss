@@ -1,0 +1,21 @@
+.zero-listings {
+    --width: 100%;
+    --margin: var(--bloom-s3);
+  
+    width: var(--width);
+    margin-top: var(--margin);
+    margin-left: var(--margin);
+    margin-right: var(--margin);
+    margin-bottom: var(--margin);
+    list-style-type: none;
+  }
+
+.zero-listings-description {
+    --padding-top: var(--bloom-s3);
+    --padding-bottom: var(--bloom-s6);
+
+    padding-top: var(--padding-top);
+    padding-bottom: var(--padding-bottom);
+    font-weight: 300;
+}
+  

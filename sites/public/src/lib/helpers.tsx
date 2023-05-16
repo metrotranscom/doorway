@@ -148,10 +148,7 @@ export const getListings = (listings: Listing[]) => {
 export const getZeroListingsCard = (listings: Listing[]) => {
   if (listings.length === 0) {
     return (
-      <ZeroListingsItem
-        title={t("t.noMatchingListings")}
-        description={t("t.tryRemovingFilters")}
-      >
+      <ZeroListingsItem title={t("t.noMatchingListings")} description={t("t.tryRemovingFilters")}>
         <Button>{t("t.clearAllFilters")}</Button>
       </ZeroListingsItem>
     )

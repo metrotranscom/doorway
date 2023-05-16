@@ -18,20 +18,14 @@ export interface ZeroListingsItemProps {
 
 export const ZeroListingsItem = (props: ZeroListingsItemProps) => (
   <div className="zero-listings">
-    <ResponsiveContentItem desktopClass={props.desktopClass}>
-      <ResponsiveContentItemHeader>
-        <Heading styleType={"largePrimary"}>{props.title}</Heading>
-      </ResponsiveContentItemHeader>
-      <ResponsiveContentItemBody>
-        <div className="zero-listings-description">{props.description}</div>
-        {typeof props.children == "string" ? (
+    <Heading styleType={"largePrimary"}>{props.title}</Heading>
+    <div className="zero-listings-description">{props.description}</div>
+    {typeof props.children == "string" ? (
         <div className="markdown info-card__content">
           <Markdown options={{ disableParsingRawHTML: true }} children={props.children} />
         </div>
       ) : (
         props.children
       )}
-      </ResponsiveContentItemBody>
-    </ResponsiveContentItem>
   </div>
 )

@@ -36,14 +36,15 @@ const Layout = (props) => {
     },
     {
       title: t("nav.helpCenter"),
+      href: "#",
       subMenuLinks: [
         {
           title: "item 1 temp",
-          href: "/?temp1",
+          href: "?temp1",
         },
         {
           title: "item 2 temp",
-          href: "/?temp2",
+          href: "?temp2",
         },
       ],
     },

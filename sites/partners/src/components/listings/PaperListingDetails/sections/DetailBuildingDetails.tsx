@@ -45,7 +45,7 @@ const DetailBuildingDetails = () => {
           </GridSection>
           <GridSection columns={3}>
             <ViewItem id="buildingAddress.county" label={t("application.contact.county")}>
-              {t(`counties.${listing.buildingAddress.county}`)} 
+              {t(`counties.${listing.buildingAddress.county}`)}
             </ViewItem>
             <ViewItem id="longitude" label={t("listings.longitude")}>
               {listing.buildingAddress?.longitude && listing.buildingAddress.longitude.toString()}

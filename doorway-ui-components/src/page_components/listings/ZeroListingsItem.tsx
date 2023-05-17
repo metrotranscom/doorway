@@ -4,11 +4,11 @@ import "./ZeroListingsItem.scss"
 import Markdown from "markdown-to-jsx"
 
 export interface ZeroListingsItemProps {
-    title: string
-    description: string
-    children?: React.ReactNode
-    desktopClass?: string
-  }
+  title: string
+  description: string
+  children?: React.ReactNode
+  desktopClass?: string
+}
 
 export const ZeroListingsItem = (props: ZeroListingsItemProps) => (
   <div className="zero-listings">

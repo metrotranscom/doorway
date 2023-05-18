@@ -77,11 +77,106 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
     if (!filters) {
       return this
     }
+
+    // These are the fields available in the unit object
+    // name: "type"
+    const unitSubqueryFields = {
+      numBedrooms: "int",
+      numBathrooms: "int",
+      floor: "int",
+      monthlyRent: "text",
+      sqFeet: "text",
+    }
+
+    // separate listing filters from unit filters
+    const listingFilters = []
+    const unitFilters = []
+
+    // For each filter we have...
+    filters.forEach((filter) => {
+      // find the active key
+      Object.keys(filter).forEach((filterKey) => {
+        // see addFilters() in src/.shared/query-filter/index.ts
+        if (
+          filter[filterKey] === undefined ||
+          filter[filterKey] === null ||
+          filterKey === "$comparison" ||
+          filterKey === "$include_nulls"
+        ) {
+          return
+        }
+
+        // If it's a unit field add it to that list...
+        if (filterKey in unitSubqueryFields) {
+          unitFilters.push(filter)
+        } else {
+          // otherwise add it to the listing filters list
+          listingFilters.push(filter)
+        }
+      })
+    })
+
+    // Add listing filters as before
     addFilters<Array<CombinedListingFilterParams>, typeof combinedListingFilterTypeToFieldMap>(
-      filters,
+      listingFilters,
       combinedListingFilterTypeToFieldMap,
       this
     )
+
+    // Add unit filters to the query if we have any
+    if (unitFilters.length > 0) {
+      const unitSubqueryFieldString = Object.entries(unitSubqueryFields)
+        .map(([name, type]) => {
+          return `"${name}" ${type}`
+        })
+        .join(",")
+
+      const conn = this.connection
+
+      // This is a hack around limitations in TypeORM QueryBuilder
+      // It isn't possible to build just a WHERE clause, and as far as I can tell
+      // there doesn't seem to be a good way to tell it not to quote things that
+      // shouldn't be quoted
+
+      // Build a dummy query that we can pass into addFilter()
+      // This lets us use existing filtering logic
+      const dummyQb = conn
+        .createQueryBuilder()
+        .select("<ignore>", "<ignore>")
+        .from("<ignore>", "<beginning-of-where>")
+
+      addFilters<Array<CombinedListingFilterParams>, typeof combinedListingFilterTypeToFieldMap>(
+        unitFilters,
+        combinedListingFilterTypeToFieldMap,
+        dummyQb
+      )
+
+      // Convert the dummy query to string
+      const unitFilterQuery = dummyQb.getQuery()
+
+      // Find where the WHERE clause starts
+      const wherePos = unitFilterQuery.indexOf("WHERE")
+      // We _should_ have a WHERE clause, but just in case...
+      let unitFilterWhereClause = ""
+
+      // Strip out everything before the WHERE clause if it exists
+      if (wherePos > 0) {
+        unitFilterWhereClause = unitFilterQuery.substring(wherePos)
+      }
+
+      // Build our "real" subquery
+      // Convert the jsonb data in the "units" field to a recordset we can query
+      const unitSubqueryStr = `SELECT COUNT(*) as count
+      FROM jsonb_to_recordset(units :: jsonb)
+      AS matched_units(
+        ${unitSubqueryFieldString}
+      ) ${unitFilterWhereClause}`
+
+      // This ensures that a listing is returned only if it has at least one
+      // unit that matches all unit search criteria
+      this.andWhere(`(${unitSubqueryStr}) > 0`, dummyQb.getParameters())
+    }
+
     return this
   }
 

@@ -29,4 +29,9 @@ export enum CombinedListingFilterKeys {
   maxBathrooms = "maxBathrooms",
   minBedrooms = "minBedrooms",
   maxBedrooms = "maxBedrooms",
+
+  // unit fields
+  numBedrooms = "numBedrooms",
+  numBathrooms = "numBathrooms",
+  monthlyRent = "monthlyRent",
 }

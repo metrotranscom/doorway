@@ -104,5 +104,35 @@ export class CombinedListingFilterParams extends ListingFilterParams {
   })
   @IsOptional({ groups: [ValidationsGroupsEnum.default] })
   @IsNumberString({}, { groups: [ValidationsGroupsEnum.default] })
-  [CombinedListingFilterKeys.maxBedrooms]?: number
+  [CombinedListingFilterKeys.maxBedrooms]?: number;
+
+  @Expose()
+  @ApiProperty({
+    type: Number,
+    example: "3",
+    required: false,
+  })
+  @IsOptional({ groups: [ValidationsGroupsEnum.default] })
+  @IsNumberString({}, { groups: [ValidationsGroupsEnum.default] })
+  [CombinedListingFilterKeys.numBedrooms]?: number;
+
+  @Expose()
+  @ApiProperty({
+    type: Number,
+    example: "1",
+    required: false,
+  })
+  @IsOptional({ groups: [ValidationsGroupsEnum.default] })
+  @IsNumberString({}, { groups: [ValidationsGroupsEnum.default] })
+  [CombinedListingFilterKeys.numBathrooms]?: number;
+
+  @Expose()
+  @ApiProperty({
+    type: Number,
+    example: "1000",
+    required: false,
+  })
+  @IsOptional({ groups: [ValidationsGroupsEnum.default] })
+  @IsNumberString({}, { groups: [ValidationsGroupsEnum.default] })
+  [CombinedListingFilterKeys.monthlyRent]?: number
 }

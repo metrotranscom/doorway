@@ -21,4 +21,13 @@ export const combinedListingFilterTypeToFieldMap: Record<
   maxBathrooms: "max_bathrooms",
   minBedrooms: "min_bedrooms",
   maxBedrooms: "max_bedrooms",
+
+  // unit fields
+  numBedrooms: "numBedrooms",
+  numBathrooms: "numBathrooms",
+  monthlyRent: "monthlyRent",
+}
+
+export const combinedListingUnitFilterTypeToFieldMap: Record<string, string> = {
+  numBedrooms: "numBedrooms",
 }

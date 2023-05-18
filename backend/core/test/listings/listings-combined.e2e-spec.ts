@@ -538,7 +538,7 @@ describe("CombinedListings", () => {
     it("should properly apply bedrooms filter", async () => {
       const minBedrooms = 2
       // where max number of bedrooms is at least as much as requested
-      const gteFilter = [{ $comparison: ">=", maxBedrooms: minBedrooms }]
+      const gteFilter = [{ $comparison: ">=", numBedrooms: minBedrooms }]
 
       const gteQuery = qs.stringify({
         limit: "all",
@@ -622,7 +622,7 @@ describe("CombinedListings", () => {
     it("should properly apply bathrooms filter", async () => {
       const minBathrooms = 2
       // where max number of bathrooms is at least as much as requested
-      const gteFilter = [{ $comparison: ">=", maxBathrooms: minBathrooms }]
+      const gteFilter = [{ $comparison: ">=", numBathrooms: minBathrooms }]
 
       const gteQuery = qs.stringify({
         limit: "all",
@@ -646,6 +646,41 @@ describe("CombinedListings", () => {
         // check each one and set true for listing if any match found
         bathrooms.forEach((value) => {
           if (value >= minBathrooms) isMatch = true
+        })
+
+        expect(isMatch).toBe(true)
+      })
+    })
+
+    it("should properly apply multiple unit filters", async () => {
+      const minBedrooms = 2
+      const minBathrooms = 1
+
+      // returned listings should have at least one unit that matches ALL unit filters
+      const filters = [
+        { $comparison: ">=", numBedrooms: minBedrooms },
+        { $comparison: ">=", numBathrooms: minBathrooms },
+      ]
+
+      const query = qs.stringify({
+        limit: "all",
+        filter: filters,
+      })
+
+      const res = await supertest(app.getHttpServer())
+        .get(`/listings/combined?${query}`)
+        .expect(200)
+
+      // at least one unit should match the bathroom requirement
+      res.body.items.forEach((listing) => {
+        // assume no matches
+        let isMatch = false
+
+        // It's only a match if all values are as expected
+        listing.units.forEach((unit) => {
+          if (unit.numBathrooms >= minBathrooms && unit.numBedrooms >= minBedrooms) {
+            isMatch = true
+          }
         })
 
         expect(isMatch).toBe(true)

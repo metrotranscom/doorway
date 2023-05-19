@@ -31,6 +31,14 @@ export enum CombinedListingFilterKeys {
   maxBedrooms = "maxBedrooms",
 
   // unit fields
+  // prefixing with "unit." signifies that it is a unit filter
+  // numBedrooms = "unit.numBedrooms",
+  // numBathrooms = "unit.numBathrooms",
+  // monthlyRent = "unit.monthlyRent",
+}
+
+export enum CombinedListingUnitFilterKeys {
+  // prefixing with "unit." signifies that it is a unit filter
   numBedrooms = "numBedrooms",
   numBathrooms = "numBathrooms",
   monthlyRent = "monthlyRent",

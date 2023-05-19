@@ -1,5 +1,8 @@
 import { ListingFilterParams } from "../dto/listing-filter-params"
-import { CombinedListingFilterKeys } from "./combined-listing-filter-keys-enum"
+import {
+  CombinedListingFilterKeys,
+  CombinedListingUnitFilterKeys,
+} from "./combined-listing-filter-keys-enum"
 import { Expose, Transform } from "class-transformer"
 import { ApiProperty } from "@nestjs/swagger"
 import { IsOptional, IsBoolean, IsString, IsArray, IsNumberString } from "class-validator"
@@ -114,7 +117,7 @@ export class CombinedListingFilterParams extends ListingFilterParams {
   })
   @IsOptional({ groups: [ValidationsGroupsEnum.default] })
   @IsNumberString({}, { groups: [ValidationsGroupsEnum.default] })
-  [CombinedListingFilterKeys.numBedrooms]?: number;
+  [CombinedListingUnitFilterKeys.numBedrooms]?: number;
 
   @Expose()
   @ApiProperty({
@@ -124,7 +127,7 @@ export class CombinedListingFilterParams extends ListingFilterParams {
   })
   @IsOptional({ groups: [ValidationsGroupsEnum.default] })
   @IsNumberString({}, { groups: [ValidationsGroupsEnum.default] })
-  [CombinedListingFilterKeys.numBathrooms]?: number;
+  [CombinedListingUnitFilterKeys.numBathrooms]?: number;
 
   @Expose()
   @ApiProperty({
@@ -134,5 +137,5 @@ export class CombinedListingFilterParams extends ListingFilterParams {
   })
   @IsOptional({ groups: [ValidationsGroupsEnum.default] })
   @IsNumberString({}, { groups: [ValidationsGroupsEnum.default] })
-  [CombinedListingFilterKeys.monthlyRent]?: number
+  [CombinedListingUnitFilterKeys.monthlyRent]?: number
 }

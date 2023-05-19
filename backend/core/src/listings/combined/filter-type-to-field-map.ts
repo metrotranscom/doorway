@@ -1,4 +1,7 @@
-import { CombinedListingFilterKeys } from "./combined-listing-filter-keys-enum"
+import {
+  CombinedListingFilterKeys,
+  CombinedListingUnitFilterKeys,
+} from "./combined-listing-filter-keys-enum"
 
 // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
 export const combinedListingFilterTypeToFieldMap: Record<
@@ -21,13 +24,13 @@ export const combinedListingFilterTypeToFieldMap: Record<
   maxBathrooms: "max_bathrooms",
   minBedrooms: "min_bedrooms",
   maxBedrooms: "max_bedrooms",
-
-  // unit fields
-  numBedrooms: "numBedrooms",
-  numBathrooms: "numBathrooms",
-  monthlyRent: "monthlyRent",
 }
 
-export const combinedListingUnitFilterTypeToFieldMap: Record<string, string> = {
+export const combinedListingUnitFilterTypeToFieldMap: Record<
+  keyof typeof CombinedListingUnitFilterKeys,
+  string
+> = {
   numBedrooms: "numBedrooms",
+  numBathrooms: "numBathrooms",
+  monthlyRent: "numMonthlyRent", // use the numeric field
 }

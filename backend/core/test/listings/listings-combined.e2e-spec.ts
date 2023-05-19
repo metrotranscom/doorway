@@ -21,6 +21,7 @@ import dbOptions from "../../ormconfig.test"
 import { getExternalListingSeedData } from "../../src/seeder/seeds/listings/external-listings-seed"
 
 import cookieParser from "cookie-parser"
+import { UnitDto } from "../../src/units/dto/unit.dto"
 
 // Cypress brings in Chai types for the global expect, but we want to use jest
 // expect here so we need to re-declare it.
@@ -571,14 +572,14 @@ describe("CombinedListings", () => {
     it("should properly apply rent filter", async () => {
       const minRent = 500
       const maxRent = 1500
-      const gteFilter = [
-        { $comparison: ">=", minMonthlyRent: minRent },
-        { $comparison: "<=", maxMonthlyRent: maxRent },
+      const rentFilter = [
+        { $comparison: ">=", monthlyRent: minRent },
+        { $comparison: "<=", monthlyRent: maxRent },
       ]
 
       const query = qs.stringify({
         limit: "all",
-        filter: gteFilter,
+        filter: rentFilter,
       })
 
       const res = await supertest(app.getHttpServer())
@@ -652,38 +653,107 @@ describe("CombinedListings", () => {
       })
     })
 
-    it("should properly apply multiple unit filters", async () => {
-      const minBedrooms = 2
-      const minBathrooms = 1
-
-      // returned listings should have at least one unit that matches ALL unit filters
-      const filters = [
-        { $comparison: ">=", numBedrooms: minBedrooms },
-        { $comparison: ">=", numBathrooms: minBathrooms },
+    it("should properly apply unit filters", () => {
+      const tests: Array<{
+        // test data
+        data: Record<string, number>
+        // a function for generating filters based on test data
+        filters: (data: Record<string, number>) => Array<object>
+        // a function for verifying that a unit matches the filter criteria
+        match: (unit: UnitDto, data: Record<string, number>) => boolean
+      }> = [
+        {
+          // unit has at least 2 bedrooms
+          data: {
+            minBedrooms: 2,
+          },
+          filters: (data) => [{ $comparison: ">=", numBedrooms: data.minBedrooms }],
+          match: (unit, data) => unit.numBedrooms >= data.minBedrooms,
+        },
+        {
+          // unit has at least 2 bathrooms
+          data: {
+            minBathrooms: 2,
+          },
+          filters: (data) => [{ $comparison: ">=", numBathrooms: data.minBathrooms }],
+          match: (unit, data) => unit.numBathrooms >= data.minBathrooms,
+        },
+        {
+          // unit rent is less <= $2000/month
+          data: {
+            maxRent: 2000,
+          },
+          filters: (data) => [{ $comparison: "<=", monthlyRent: data.maxRent }],
+          match: (unit, data) => {
+            return (
+              // monthlyRent is still a string value and needs to be converted
+              parseInt(unit.monthlyRent) <= data.maxRent
+            )
+          },
+        },
+        {
+          // unit has at least 2 bedrooms and 1 bath
+          data: {
+            minBedrooms: 2,
+            minBathrooms: 1,
+          },
+          filters: (data) => [
+            { $comparison: ">=", numBedrooms: data.minBedrooms },
+            { $comparison: ">=", numBathrooms: data.minBathrooms },
+          ],
+          match: (unit, data) => {
+            return unit.numBathrooms >= data.minBathrooms && unit.numBedrooms >= data.minBedrooms
+          },
+        },
+        {
+          // unit has at least 2 bedrooms for under $1300/month
+          data: {
+            minBedrooms: 2,
+            maxRent: 1300,
+          },
+          filters: (data) => [
+            { $comparison: ">=", numBedrooms: data.minBedrooms },
+            { $comparison: "<=", monthlyRent: data.maxRent },
+          ],
+          match: (unit, data) => {
+            return (
+              // monthlyRent is still a string value and needs to be converted
+              parseInt(unit.monthlyRent) <= data.maxRent && unit.numBedrooms >= data.minBedrooms
+            )
+          },
+        },
       ]
 
-      const query = qs.stringify({
-        limit: "all",
-        filter: filters,
-      })
-
-      const res = await supertest(app.getHttpServer())
-        .get(`/listings/combined?${query}`)
-        .expect(200)
-
-      // at least one unit should match the bathroom requirement
-      res.body.items.forEach((listing) => {
-        // assume no matches
-        let isMatch = false
-
-        // It's only a match if all values are as expected
-        listing.units.forEach((unit) => {
-          if (unit.numBathrooms >= minBathrooms && unit.numBedrooms >= minBedrooms) {
-            isMatch = true
-          }
+      // Run each test and validate results
+      // Async is needed due to the await, but no value is actually returned
+      /* eslint-disable @typescript-eslint/no-misused-promises */
+      tests.forEach(async (test) => {
+        const query = qs.stringify({
+          limit: "all",
+          filter: test.filters(test.data),
         })
 
-        expect(isMatch).toBe(true)
+        const res = await supertest(app.getHttpServer())
+          .get(`/listings/combined?${query}`)
+          .expect(200)
+
+        // We need at least one result returned, otherwise the test isn't very useful
+        expect(res.body.items.length).toBeGreaterThan(0)
+
+        // at least one unit should match the bathroom requirement
+        res.body.items.forEach((listing) => {
+          // assume no matches
+          let isMatch = false
+
+          // It's only a match if all values are as expected
+          listing.units.forEach((unit) => {
+            if (test.match(unit, test.data)) {
+              isMatch = true
+            }
+          })
+
+          expect(isMatch).toBe(true)
+        })
       })
     })
   })

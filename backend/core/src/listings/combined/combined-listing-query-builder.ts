@@ -3,7 +3,10 @@ import { SelectQueryBuilder } from "typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { CombinedListingTransformer } from "./combined-listing-transformer"
 import { addFilters } from "../../shared/query-filter"
-import { combinedListingFilterTypeToFieldMap } from "./filter-type-to-field-map"
+import {
+  combinedListingFilterTypeToFieldMap,
+  combinedListingUnitFilterTypeToFieldMap,
+} from "./filter-type-to-field-map"
 import { OrderByFieldsEnum } from "../types/listing-orderby-enum"
 import { OrderParam } from "../../applications/types/order-param"
 import { HttpException, HttpStatus } from "@nestjs/common"
@@ -81,11 +84,9 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
     // These are the fields available in the unit object
     // name: "type"
     const unitSubqueryFields = {
-      numBedrooms: "int",
-      numBathrooms: "int",
-      floor: "int",
-      monthlyRent: "text",
-      sqFeet: "text",
+      [combinedListingUnitFilterTypeToFieldMap.numBedrooms]: "int",
+      [combinedListingUnitFilterTypeToFieldMap.numBathrooms]: "int",
+      [combinedListingUnitFilterTypeToFieldMap.monthlyRent]: "int",
     }
 
     // separate listing filters from unit filters
@@ -94,7 +95,7 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
 
     // For each filter we have...
     filters.forEach((filter) => {
-      // find the active key
+      // find the active key in the filter object
       Object.keys(filter).forEach((filterKey) => {
         // see addFilters() in src/.shared/query-filter/index.ts
         if (
@@ -106,8 +107,8 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
           return
         }
 
-        // If it's a unit field add it to that list...
-        if (filterKey in unitSubqueryFields) {
+        // If it's a unit filter add it to that list...
+        if (filterKey in combinedListingUnitFilterTypeToFieldMap) {
           unitFilters.push(filter)
         } else {
           // otherwise add it to the listing filters list
@@ -145,27 +146,26 @@ export class CombinedListingsQueryBuilder extends SelectQueryBuilder<CombinedLis
         .select("<ignore>", "<ignore>")
         .from("<ignore>", "<beginning-of-where>")
 
-      addFilters<Array<CombinedListingFilterParams>, typeof combinedListingFilterTypeToFieldMap>(
-        unitFilters,
-        combinedListingFilterTypeToFieldMap,
-        dummyQb
-      )
+      // Apply filters as normal
+      addFilters<
+        Array<CombinedListingFilterParams>,
+        typeof combinedListingUnitFilterTypeToFieldMap
+      >(unitFilters, combinedListingUnitFilterTypeToFieldMap, dummyQb)
 
       // Convert the dummy query to string
       const unitFilterQuery = dummyQb.getQuery()
 
       // Find where the WHERE clause starts
       const wherePos = unitFilterQuery.indexOf("WHERE")
-      // We _should_ have a WHERE clause, but just in case...
-      let unitFilterWhereClause = ""
 
       // Strip out everything before the WHERE clause if it exists
-      if (wherePos > 0) {
-        unitFilterWhereClause = unitFilterQuery.substring(wherePos)
-      }
+      // We _should_ have a WHERE clause since there is at least one unit filter,
+      // but default to an empty string just in case
+      const unitFilterWhereClause = wherePos > 0 ? unitFilterQuery.substring(wherePos) : ""
 
       // Build our "real" subquery
       // Convert the jsonb data in the "units" field to a recordset we can query
+      // We just need a count of how many units match our unit filters
       const unitSubqueryStr = `SELECT COUNT(*) as count
       FROM jsonb_to_recordset(units :: jsonb)
       AS matched_units(

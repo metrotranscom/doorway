@@ -187,15 +187,26 @@ SELECT
     jsonb_build_object(
       'id', u.id,
       'annualIncomeMin', u.annual_income_min,
+      'numAnnualIncomeMin', CASE WHEN u.annual_income_min ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(u.annual_income_min, '99999') ELSE 0 END,
       'annualIncomeMax', u.annual_income_max,
+      'numAnnualIncomeMax', CASE WHEN u.annual_income_max ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(u.annual_income_max, '99999') ELSE 0 END,
       'monthlyIncomeMin', u.monthly_income_min,
+      'numMonthlyIncomeMin', CASE WHEN u.monthly_income_min ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(u.monthly_income_min, '99999') ELSE 0 END,
       'monthlyRent', u.monthly_rent,
+      'numMonthlyRent', CASE WHEN u.monthly_rent ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(u.monthly_rent, '99999') ELSE 0 END,
+      -- monthlyRentAsPercentOfIncome is a numeric field, but the entity converts it to text
       'monthlyRentAsPercentOfIncome', CAST(u.monthly_rent_as_percent_of_income as text),
+      -- the numeric version is for consistent filtering across internal and external listings
+      'numMonthlyRentAsPercentOfIncome', u.monthly_rent_as_percent_of_income,
       'amiPercentage', u.ami_percentage,
+      'numAmiPercentage', CASE WHEN u.ami_percentage ~ '^[0-9]+\\.{0,1}[0-9]+$' THEN TO_NUMBER(u.ami_percentage, '99999') ELSE 0 END,
       'floor', u.floor,
       'maxOccupancy', u.max_occupancy,
       'minOccupancy', u.min_occupancy,
+      -- sqFeet is a numeric field, but the entity converts it to text
       'sqFeet', CAST(u.sq_feet as text),
+      -- the numeric version is for consistent filtering across internal and external listings
+      'numSqFeet', u.sq_feet,
       'numBedrooms', u.num_bedrooms,
       'numBathrooms', u.num_bathrooms,
       'unitType', json_build_object(

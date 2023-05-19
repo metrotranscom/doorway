@@ -23,18 +23,6 @@ export enum CombinedListingFilterKeys {
   isExternal = "isExternal",
   counties = "counties",
   city = "city",
-  minMonthlyRent = "minMonthlyRent",
-  maxMonthlyRent = "maxMonthlyRent",
-  minBathrooms = "minBathrooms",
-  maxBathrooms = "maxBathrooms",
-  minBedrooms = "minBedrooms",
-  maxBedrooms = "maxBedrooms",
-
-  // unit fields
-  // prefixing with "unit." signifies that it is a unit filter
-  // numBedrooms = "unit.numBedrooms",
-  // numBathrooms = "unit.numBathrooms",
-  // monthlyRent = "unit.monthlyRent",
 }
 
 export enum CombinedListingUnitFilterKeys {

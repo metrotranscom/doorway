@@ -18,12 +18,6 @@ export const combinedListingFilterTypeToFieldMap: Record<
   isExternal: "is_external",
   counties: "building_address->>'county'",
   city: "building_address->>'city'",
-  minMonthlyRent: "min_monthly_rent",
-  maxMonthlyRent: "max_monthly_rent",
-  minBathrooms: "min_bathrooms",
-  maxBathrooms: "max_bathrooms",
-  minBedrooms: "min_bedrooms",
-  maxBedrooms: "max_bedrooms",
 }
 
 export const combinedListingUnitFilterTypeToFieldMap: Record<

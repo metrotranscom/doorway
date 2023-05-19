@@ -154,7 +154,39 @@ export const defaultMap: RecordMap = {
   multiselect_questions: (listing: Listing) => jsonOrNull(listing.listingMultiselectQuestions),
   jurisdiction: (listing: Listing) => jsonOrNull(listing.jurisdiction),
   reserved_community_type: (listing: Listing) => jsonOrNull(listing.reservedCommunityType),
-  units: (listing: Listing) => jsonOrNull(listing.units),
+  units: (listing: Listing) => {
+    const units = listing.units
+
+    // Add numeric values for some string fields
+    if (Array.isArray(units)) {
+      units.forEach((unit) => {
+
+        // Convert all of these properties to numeric values
+        ;[
+          'monthlyRent',
+          'sqFeet',
+          'monthlyIncomeMin',
+          'annualIncomeMin',
+          'annualIncomeMax',
+          'amiPercentage',
+          'monthlyRentAsPercentOfIncome'
+        ].forEach((propName) => {
+          if (propName in unit && typeof unit[propName] == "string") {
+            const numVal = parseFloat(unit[propName] as string)
+
+            // Create a new property name for the numeric value based on the old one
+            // eg monthlyRent -> numMonthlyRent
+            const newPropName = 'num' + propName[0].toUpperCase() + propName.slice(1)
+
+            // Set the new value but retain the old one
+            unit[newPropName] = isNaN(numVal) ? null: numVal
+          }
+        })
+      })
+    }
+
+    return jsonOrNull(units)
+  },
   building_address: (listing: Listing) => {
     const address = listing.buildingAddress
 

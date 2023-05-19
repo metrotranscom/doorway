@@ -536,8 +536,10 @@ describe("CombinedListings", () => {
       })
     })
 
-    it("should properly apply unit filters", () => {
+    it("should properly apply unit filters", async () => {
       const tests: Array<{
+        // an identifier for the test
+        name: string
         // test data
         data: Record<string, number>
         // a function for generating filters based on test data
@@ -546,7 +548,7 @@ describe("CombinedListings", () => {
         match: (unit: UnitDto, data: Record<string, number>) => boolean
       }> = [
         {
-          // unit has at least 2 bedrooms
+          name: "unit has at least 2 bedrooms",
           data: {
             minBedrooms: 2,
           },
@@ -554,7 +556,7 @@ describe("CombinedListings", () => {
           match: (unit, data) => unit.numBedrooms >= data.minBedrooms,
         },
         {
-          // unit has at least 2 bathrooms
+          name: "unit has at least 2 bathrooms",
           data: {
             minBathrooms: 2,
           },
@@ -562,20 +564,22 @@ describe("CombinedListings", () => {
           match: (unit, data) => unit.numBathrooms >= data.minBathrooms,
         },
         {
-          // unit rent is less <= $2000/month
+          name: "unit rent is less <= $2000/month",
           data: {
             maxRent: 2000,
           },
           filters: (data) => [{ $comparison: "<=", monthlyRent: data.maxRent }],
           match: (unit, data) => {
-            return (
-              // monthlyRent is still a string value and needs to be converted
-              parseInt(unit.monthlyRent) <= data.maxRent
-            )
+            // monthlyRent is still a string value and needs to be converted
+            const parsedRent = parseInt(unit.monthlyRent)
+            // If not a valid number, treat it as a zero
+            const numMonthlyRent = isNaN(parsedRent) ? 0 : parsedRent
+
+            return numMonthlyRent <= data.maxRent
           },
         },
         {
-          // unit has at least 2 bedrooms and 1 bath
+          name: "unit has at least 2 bedrooms and 1 bath",
           data: {
             minBedrooms: 2,
             minBathrooms: 1,
@@ -589,28 +593,28 @@ describe("CombinedListings", () => {
           },
         },
         {
-          // unit has at least 2 bedrooms for under $1300/month
+          name: "unit has at least 2 bedrooms for under $1400/month",
           data: {
             minBedrooms: 2,
-            maxRent: 1300,
+            maxRent: 1400,
           },
           filters: (data) => [
             { $comparison: ">=", numBedrooms: data.minBedrooms },
             { $comparison: "<=", monthlyRent: data.maxRent },
           ],
           match: (unit, data) => {
-            return (
-              // monthlyRent is still a string value and needs to be converted
-              parseInt(unit.monthlyRent) <= data.maxRent && unit.numBedrooms >= data.minBedrooms
-            )
+            // monthlyRent is still a string value and needs to be converted
+            const parsedRent = parseInt(unit.monthlyRent)
+            // If not a valid number, treat it as a zero
+            const numMonthlyRent = isNaN(parsedRent) ? 0 : parsedRent
+
+            return numMonthlyRent <= data.maxRent && unit.numBedrooms >= data.minBedrooms
           },
         },
       ]
 
       // Run each test and validate results
-      // Async is needed due to the await, but no value is actually returned
-      /* eslint-disable @typescript-eslint/no-misused-promises */
-      tests.forEach(async (test) => {
+      for (const test of tests) {
         const query = qs.stringify({
           limit: "all",
           filter: test.filters(test.data),
@@ -635,9 +639,14 @@ describe("CombinedListings", () => {
             }
           })
 
+          // If we don't have any matches, print out test name for debugging
+          if (!isMatch) {
+            console.log(test.name)
+          }
+
           expect(isMatch).toBe(true)
         })
-      })
+      }
     })
   })
 

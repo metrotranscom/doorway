@@ -11,7 +11,7 @@ export const combinedListingFilterTypeToFieldMap: Record<
   status: "status",
   name: "name",
   neighborhood: "neighborhood",
-  bedrooms: "max_bedrooms", // this name is preserved from CombinedListingFilterKeys
+  bedrooms: "bedrooms", // unused, but necessary to include
   zipcode: "building_address->>'zip_code'",
   leasingAgents: "leasing_agents->>'id'",
   jurisdiction: "jurisdiction->>'id'",

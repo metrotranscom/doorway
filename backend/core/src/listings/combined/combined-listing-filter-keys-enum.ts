@@ -14,7 +14,7 @@ export enum CombinedListingFilterKeys {
   status = "status",
   name = "name",
   neighborhood = "neighborhood",
-  bedrooms = "bedrooms",
+  bedrooms = "bedrooms", // unused, but necessary to include
   zipcode = "zipcode",
   leasingAgents = "leasingAgents",
   jurisdiction = "jurisdiction",
@@ -25,8 +25,10 @@ export enum CombinedListingFilterKeys {
   city = "city",
 }
 
+// These filters are only applied to listing units
+// In the event of a naming conflict with CombinedListingFilterKeys, these
+// take precedence
 export enum CombinedListingUnitFilterKeys {
-  // prefixing with "unit." signifies that it is a unit filter
   numBedrooms = "numBedrooms",
   numBathrooms = "numBathrooms",
   monthlyRent = "monthlyRent",

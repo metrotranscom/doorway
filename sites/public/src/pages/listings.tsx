@@ -6,9 +6,10 @@ import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-he
 import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { MetaTags } from "../components/shared/MetaTags"
-import { ListingsCombined } from "../components/listings/ListingsCombined"
 import { runtimeConfig } from "../lib/runtime-config"
 import { ListingService } from "../lib/listings/listing-service"
+import { ListingsCombined } from "@bloom-housing/doorway-ui-components"
+import { getListingUrl, getListings } from "../lib/helpers"
 
 export interface ListingsProps {
   openListings: Listing[]
@@ -20,6 +21,7 @@ export default function ListingsPage(props: ListingsProps) {
   const pageTitle = `${t("pageTitle.rent")} - ${t("nav.siteTitle")}`
   const metaDescription = t("pageDescription.welcome", { regionName: t("region.name") })
   const metaImage = "" // TODO: replace with hero image
+  const listingUrls = props.openListings.map((listing) => getListingUrl(listing))
 
   useEffect(() => {
     pushGtmEvent<ListingList>({
@@ -37,7 +39,12 @@ export default function ListingsPage(props: ListingsProps) {
       </Head>
 
       <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
-      <ListingsCombined listings={props.openListings} googleMapsApiKey={props.googleMapsApiKey} />
+      <ListingsCombined
+        listings={props.openListings}
+        listingCards={getListings(props.openListings)}
+        listingUrls={listingUrls}
+        googleMapsApiKey={props.googleMapsApiKey}
+      />
     </Layout>
   )
 }

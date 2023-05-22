@@ -1,22 +1,18 @@
 import * as React from "react"
-import { getListings } from "../../lib/helpers"
-import { Listing } from "@bloom-housing/backend-core"
-import {
-  Button,
-  InfoCard,
-  LinkButton,
-  ZeroListingsItem,
-  t,
-} from "@bloom-housing/doorway-ui-components"
+import { LinkButton } from "../../actions/LinkButton"
+import { t } from "../../helpers/translator"
+import { ZeroListingsItem } from "./ZeroListingsItem"
+import { InfoCard } from "../../blocks/InfoCard"
+import { Button } from "../../actions/Button"
 
 type ListingsListProps = {
-  listings: Listing[]
+  listingCards: JSX.Element[]
 }
 
 const ListingsList = (props: ListingsListProps) => {
   const listingsDiv =
-    props.listings.length > 0 ? (
-      <div className="listingsList">{getListings(props.listings)}</div>
+    props.listingCards.length > 0 ? (
+      <div className="listingsList">{props.listingCards}</div>
     ) : (
       <ZeroListingsItem title={t("t.noMatchingListings")} description={t("t.tryRemovingFilters")}>
         <Button>{t("t.clearAllFilters")}</Button>

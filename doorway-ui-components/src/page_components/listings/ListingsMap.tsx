@@ -1,10 +1,11 @@
 import React, { useState } from "react"
 import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-maps/api"
-import { getListingUrl, getListingCard } from "../../lib/helpers"
 import { Listing } from "@bloom-housing/backend-core"
 
 type ListingsMapProps = {
-  listings?: Listing[]
+  listings: Listing[]
+  listingCards: JSX.Element[]
+  listingUrls: string[]
   googleMapsApiKey: string
 }
 
@@ -20,29 +21,40 @@ const center = {
   lng: -122.374118,
 }
 
+interface MarkerInput {
+  lat: number
+  lng: number
+  uri: string
+  key: number
+  infoWindow: JSX.Element
+}
+
 const ListingsMap = (props: ListingsMapProps) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: props.googleMapsApiKey,
   })
 
-  const markers = []
+  const markers: MarkerInput[] = []
   let index = 0
   props.listings.forEach((listing: Listing) => {
-    const lat = listing.buildingAddress.latitude
-    const lng = listing.buildingAddress.longitude
-    const uri = getListingUrl(listing)
-    const key = ++index
+    if (listing.buildingAddress.latitude && listing.buildingAddress.longitude) {
+      const lat = listing.buildingAddress.latitude
+      const lng = listing.buildingAddress.longitude
+      // TODO(inesfranch) check if this is the right index
+      const uri = props.listingUrls[index]
+      const key = ++index
 
-    // Create an info window that is associated to each marker and that contains the listing card
-    // for that listing.
-    const infoWindow = (
-      <InfoWindow position={{ lat: lat, lng: lng }}>{getListingCard(listing, key - 1)}</InfoWindow>
-    )
-    markers.push({ lat, lng, uri, key, infoWindow })
+      // Create an info window that is associated to each marker and that contains the listing card
+      // for that listing.
+      const infoWindow = (
+        <InfoWindow position={{ lat: lat, lng: lng }}>props.listingCards[key - 1]</InfoWindow>
+      )
+      markers.push({ lat, lng, uri, key, infoWindow })
+    }
   })
 
   const [openInfoWindow, setOpenInfoWindow] = useState(false)
-  const [infoWindowIndex, setInfoWindowIndex] = useState(null)
+  const [infoWindowIndex, setInfoWindowIndex] = useState(0)
 
   return isLoaded ? (
     <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={9}>

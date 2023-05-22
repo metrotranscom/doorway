@@ -3,8 +3,10 @@ import {
   AppearanceSizeType,
   AppearanceStyleType,
   Button,
+  ButtonGroup,
+  ButtonGroupSpacing,
+  Icon,
 } from "@bloom-housing/doorway-ui-components"
-import { ButtonGroup, ButtonGroupSpacing } from "@bloom-housing/ui-components"
 
 type PaginationProps = {
   currentPage: number
@@ -65,25 +67,20 @@ export function Pagination(props: PaginationProps) {
   }
 
   // border={{borderRadius: "var(--bloom-rounded-full)"}}
+  // className={styles["pagination"]}
+  // size={AppearanceSizeType.small}
 
   return (
     <ButtonGroup
       spacing={ButtonGroupSpacing.even}
+      pagination={true}
       columns={[
-        <Button
-          size={AppearanceSizeType.small}
-          disabled={!canNavBackward}
-          onClick={() => setPage(props.currentPage - 1)}
-        >
-          &lt;
+        <Button disabled={!canNavBackward} onClick={() => setPage(props.currentPage - 1)}>
+          <Icon className="button__icon" size="tiny" symbol="arrowBack" />
         </Button>,
         ...pageButtons,
-        <Button
-          size={AppearanceSizeType.small}
-          disabled={!canNavForward}
-          onClick={() => setPage(props.currentPage + 1)}
-        >
-          &gt;
+        <Button disabled={!canNavForward} onClick={() => setPage(props.currentPage + 1)}>
+          <Icon className="button__icon" size="tiny" symbol="arrowForward" />
         </Button>,
       ]}
     />

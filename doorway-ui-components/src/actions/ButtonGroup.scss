@@ -58,4 +58,17 @@
       flex-direction: row-reverse;
     }
   }
+
+  &.pagination {
+    background-color: var(--bloom-color-white);
+    justify-content: center;
+
+    .button {
+      margin: 0 var(--bloom-s1);
+      border-radius: var(--bloom-rounded-full);
+      padding: var(--bloom-s2) var(--bloom-s3);
+      border: none;
+      
+    }
+  }
 }

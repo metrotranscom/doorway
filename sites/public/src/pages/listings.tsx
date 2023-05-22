@@ -42,7 +42,9 @@ export default function ListingsPage(props: ListingsProps) {
         googleMapsApiKey={props.googleMapsApiKey}
         currentPage={1}
         lastPage={1}
-        onPageChange={(page: number) => { console.log(page) }}
+        onPageChange={(page: number) => {
+          console.log(page)
+        }}
       />
     </Layout>
   )

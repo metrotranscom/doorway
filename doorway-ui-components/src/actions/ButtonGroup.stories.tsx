@@ -1,6 +1,6 @@
 import * as React from "react"
 import { BADGES } from "../../.storybook/constants"
-import { AppearanceStyleType } from "../.."
+import { AppearanceSizeType, AppearanceStyleType, Icon } from "../.."
 import Button from "./Button"
 import ButtonGroupDocumentation from "./ButtonGroup.docs.mdx"
 
@@ -81,5 +81,31 @@ export const twoColumnsFullwidthMobile = () => (
       <Button styleType={AppearanceStyleType.primary}>Next</Button>,
     ]}
     fullwidthMobile={true}
+  />
+)
+
+export const pagination = () => (
+  <ButtonGroup
+    pagination={true}
+    columns={[
+      <Button>
+        <Icon
+          className="button__icon"
+          size="tiny"
+          symbol="arrowBack"
+        />
+      </Button>,
+      <Button size={AppearanceSizeType.small}>1</Button>,
+      <Button size={AppearanceSizeType.small} styleType={AppearanceStyleType.primary}>2</Button>,
+      <Button size={AppearanceSizeType.small}>3</Button>,
+      <Button size={AppearanceSizeType.small}>4</Button>,
+      <Button>
+        <Icon
+          className="button__icon"
+          size="tiny"
+          symbol="arrowForward"
+        />
+      </Button>,
+    ]}
   />
 )

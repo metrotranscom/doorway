@@ -14,6 +14,12 @@ type PaginationProps = {
   onPageChange: (page: number) => void
 }
 
+// This is a quick hack to get the icons to align better with the numbers
+// Normally they appear a little lower, so we'll pull them up
+const iconAdjustment: React.CSSProperties = {
+  marginTop: "-0.125rem"
+}
+
 export function Pagination(props: PaginationProps) {
   // Max number of numbered page buttons to show
   const maxPageCount = 4
@@ -56,7 +62,7 @@ export function Pagination(props: PaginationProps) {
     const styleType = isCurrent ? AppearanceStyleType.primary : null
 
     pageButtons.push(
-      <Button size={AppearanceSizeType.small} styleType={styleType} onClick={onClick}>
+      <Button styleType={styleType} onClick={onClick}>
         {i}
       </Button>
     )
@@ -76,11 +82,15 @@ export function Pagination(props: PaginationProps) {
       pagination={true}
       columns={[
         <Button disabled={!canNavBackward} onClick={() => setPage(props.currentPage - 1)}>
-          <Icon className="button__icon" size="tiny" symbol="arrowBack" />
+          <div style={iconAdjustment}>
+            <Icon className="button__icon" size="small" symbol="arrowBack" />
+          </div>
         </Button>,
         ...pageButtons,
         <Button disabled={!canNavForward} onClick={() => setPage(props.currentPage + 1)}>
-          <Icon className="button__icon" size="tiny" symbol="arrowForward" />
+          <div style={iconAdjustment}>
+            <Icon className="button__icon" size="small" symbol="arrowForward" />
+          </div>
         </Button>,
       ]}
     />

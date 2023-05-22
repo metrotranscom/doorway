@@ -91,18 +91,19 @@ export const pagination = () => (
       <Button>
         <Icon
           className="button__icon"
-          size="tiny"
+          size="small"
           symbol="arrowBack"
         />
       </Button>,
-      <Button size={AppearanceSizeType.small}>1</Button>,
-      <Button size={AppearanceSizeType.small} styleType={AppearanceStyleType.primary}>2</Button>,
-      <Button size={AppearanceSizeType.small}>3</Button>,
-      <Button size={AppearanceSizeType.small}>4</Button>,
+      <Button>8</Button>,
+      <Button styleType={AppearanceStyleType.primary}>9</Button>,
+      <Button>10</Button>,
+      <Button>11</Button>,
+      <Button>12</Button>,
       <Button>
         <Icon
           className="button__icon"
-          size="tiny"
+          size="small"
           symbol="arrowForward"
         />
       </Button>,

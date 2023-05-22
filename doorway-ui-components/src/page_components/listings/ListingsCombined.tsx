@@ -16,13 +16,13 @@ type ListingsCombinedProps = {
 
 const ListingsCombined = (props: ListingsCombinedProps) => (
   <div className="listings-combined">
-    <div style={{ flex: "1" }}>
+    <div className="listings-google-map">
       <ListingsMap
         listingElements={props.listingElements}
         googleMapsApiKey={props.googleMapsApiKey}
       />
     </div>
-    <div style={{ overflowY: "auto", width: "600px" }}>
+    <div className="listings-list">
       <ListingsList listingElements={props.listingElements}></ListingsList>
     </div>
   </div>

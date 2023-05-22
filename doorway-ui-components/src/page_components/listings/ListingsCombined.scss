@@ -5,3 +5,14 @@
   // TODO: update header+footer to a not-magic number
   height: calc(100vh - 275px);
 }
+
+.listings-google-map {
+  flex: 1;
+}
+
+.listings-list {
+  --listings-width: 600px;
+
+  overflow-y: auto;
+  width: var(--listings-width);
+}

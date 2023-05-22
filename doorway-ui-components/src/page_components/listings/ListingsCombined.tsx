@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Listing } from "@bloom-housing/backend-core/types"
 import { ListingsMap } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
 import "./ListingsCombined.scss"

@@ -1,14 +1,15 @@
 import React, { useState } from "react"
 import { ListingSearchParams, generateSearchQuery } from "../../../lib/listings/search"
 import { ListingService } from "../../../lib/listings/listing-service"
-import { ListingsCombined } from "../ListingsCombined"
 import {
   AppearanceBorderType,
   AppearanceSizeType,
   Button,
+  ListingsCombined,
   t,
 } from "@bloom-housing/doorway-ui-components"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
+import { getListingElements } from "../../../lib/helpers"
 
 type ListingsSearchCombinedProps = {
   searchString?: string
@@ -27,7 +28,7 @@ type ListingsSearchCombinedProps = {
  * @returns
  */
 export function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
-  const [listings, setListings] = useState([])
+  const [listingElements, setListingElements] = useState([])
   const [modalOpen, setModalOpen] = useState(false)
   const [filterCount, setFilterCount] = useState(0)
 
@@ -44,7 +45,11 @@ export function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       `Showing ${meta.itemCount} listings of ${meta.totalItems} total (page ${meta.currentPage} of ${meta.totalPages})`
     )
 
-    setListings(listings)
+    const listingElements = listings.map((listing, index) => {
+      return getListingElements(listing, index)
+    })
+
+    setListingElements(listingElements)
   }
 
   const onModalClose = () => {
@@ -81,7 +86,10 @@ export function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         onFilterChange={updateFilterCount}
       />
 
-      <ListingsCombined listings={listings} googleMapsApiKey={props.googleMapsApiKey} />
+      <ListingsCombined
+        listingElements={listingElements}
+        googleMapsApiKey={props.googleMapsApiKey}
+      />
     </div>
   )
 }

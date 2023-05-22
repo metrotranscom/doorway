@@ -9,7 +9,7 @@ import { MetaTags } from "../components/shared/MetaTags"
 import { runtimeConfig } from "../lib/runtime-config"
 import { ListingService } from "../lib/listings/listing-service"
 import { ListingsCombined } from "@bloom-housing/doorway-ui-components"
-import { getListingUrl, getListingCard, getListingElements } from "../lib/helpers"
+import { getListingElements } from "../lib/helpers"
 
 export interface ListingsProps {
   openListings: Listing[]

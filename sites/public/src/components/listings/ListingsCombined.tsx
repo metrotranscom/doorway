@@ -2,25 +2,19 @@ import * as React from "react"
 import { Listing } from "@bloom-housing/backend-core/types"
 import { ListingsMap } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
+import styles from "./ListingsCombined.module.scss"
 
 type ListingsCombinedProps = {
   listings: Listing[]
   googleMapsApiKey: string
 }
-const parentStyle = {
-  display: "flex",
-  alignItems: "stretch",
-  // This is a not-ideal way to do "fill window minus header+footer" however I can't find another way to do this.
-  // TODO: update header+footer to a not-magic number
-  height: "calc(100vh - 275px)",
-}
 
 const ListingsCombined = (props: ListingsCombinedProps) => (
-  <div className="listings-combined" style={parentStyle}>
-    <div style={{ flex: "1" }}>
+  <div className={styles["listings-combined"]}>
+    <div className={styles["listings-map"]}>
       <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
     </div>
-    <div style={{ overflowY: "auto", width: "600px" }}>
+    <div className={styles["listings-list"]}>
       <ListingsList listings={props.listings}></ListingsList>
     </div>
   </div>

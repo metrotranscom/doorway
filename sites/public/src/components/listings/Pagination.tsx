@@ -17,7 +17,7 @@ type PaginationProps = {
 // This is a quick hack to get the icons to align better with the numbers
 // Normally they appear a little lower, so we'll pull them up
 const iconAdjustment: React.CSSProperties = {
-  marginTop: "-0.125rem"
+  marginTop: "-0.125rem",
 }
 
 export function Pagination(props: PaginationProps) {

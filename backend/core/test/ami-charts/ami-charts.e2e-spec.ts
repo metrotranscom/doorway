@@ -60,7 +60,11 @@ describe("AmiCharts", () => {
   })
 
   it(`should create and return a new ami chart`, async () => {
+<<<<<<< HEAD
     const jurisdiction = (await jurisdictionRepository.find({ name: "Bay Area" }))[0]
+=======
+    const jurisdiction = (await jurisdictionRepository.find({ where: { name: "Alameda" } }))[0]
+>>>>>>> 287e3b0d6 (feat: upgrading typeorm (#3340))
     const amiChartCreateDto: AmiChartCreateDto = {
       items: [
         {

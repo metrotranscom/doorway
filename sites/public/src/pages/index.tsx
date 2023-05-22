@@ -11,7 +11,7 @@ import {
   Icon,
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
-import { ActionBlock } from "@bloom-housing/doorway-ui-components"
+import { ActionBlock, ZeroListingsItem } from "@bloom-housing/doorway-ui-components"
 import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
@@ -87,6 +87,53 @@ export default function Home(props: IndexProps) {
           </LinkButton>,
         ]}
       />
+      <div className="homepage-extra warn">
+        <div className="action-blocks pb-4 pt-4 w-full">
+          <ZeroListingsItem
+            title={t("t.signUpForAlerts")}
+            description={t("t.subscribeToNewsletter")}
+          />
+
+          <ActionBlock
+            className="flex-1"
+            header={
+              <Heading className="" priority={2}>
+                {t("t.signUpForAlerts")}
+              </Heading>
+            }
+            subheader={t("t.subscribeToNewsletter")}
+            actions={[
+              <LinkButton
+                key={"sign-up"}
+                className="is-primary"
+                href={props.jurisdiction.notificationsSignUpURL}
+                size={AppearanceSizeType.small}
+              >
+                {t("t.signUp")}
+              </LinkButton>,
+            ]}
+          />
+          <ActionBlock
+            className="flex-1"
+            header={
+              <Heading className="" priority={2}>
+                {t("t.signUpForAlerts")}
+              </Heading>
+            }
+            subheader={t("t.subscribeToNewsletter")}
+            actions={[
+              <LinkButton
+                key={"sign-up"}
+                className="is-primary"
+                href={props.jurisdiction.notificationsSignUpURL}
+                size={AppearanceSizeType.small}
+              >
+                {t("t.signUp")}
+              </LinkButton>,
+            ]}
+          />
+        </div>
+      </div>
       {props.jurisdiction && props.jurisdiction.notificationsSignUpURL && (
         <ActionBlock
           className="p-12"

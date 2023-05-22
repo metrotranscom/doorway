@@ -46,7 +46,7 @@ const ListingsMap = (props: ListingsMapProps) => {
   })
 
   const [openInfoWindow, setOpenInfoWindow] = useState(false)
-  const [infoWindowIndex, setInfoWindowIndex] = useState(-1)
+  const [infoWindowIndex, setInfoWindowIndex] = useState(0)
 
   return isLoaded ? (
     <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={9}>

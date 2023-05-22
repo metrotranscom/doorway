@@ -1,18 +1,49 @@
 .listings-combined {
-  display: flex;
-  align-items: stretch;
   // This is a not-ideal way to do "fill window minus header+footer" however I can't find another way to do this.
   // TODO: update header+footer to a not-magic number
-  height: calc(100vh - 275px);
+  --listings-component-height: calc(100vh - 275px);
+
+  display: flex;
+  align-items: stretch;
+  height: var(--listings-component-height);
+
+  .listings-map {
+    flex: 1;
+  }
+
+  .listings-list {
+    --listings-list-width: 600px;
+
+    overflow-y: auto;
+    width: var(--listings-list-width);
+  }
 }
 
-.listings-map {
-  flex: 1;
-}
+.listings-combined__mobile {
+  // This is a not-ideal way to do "fill window minus header+footer" however I can't find another way to do this.
+  // TODO: update header+footer to a not-magic number
+  --listings-component-height: calc(100vh - 275px);
+  --listings-component-half-height: calc((100vh - 275px) / 2);
+  --background-color: var(--bloom-color-white);
 
-.listings-list {
-  --listings-list-width: 600px;
+  height: var(--listings-component-height);
+  position: relative;
 
-  overflow-y: auto;
-  width: var(--listings-list-width);
+  .listings-map__mobile {
+    position: absolute;
+    z-index: 0;
+    height: var(--listings-component-height);
+    width: 100%;
+  }
+
+  .listings-list__mobile {
+    position: absolute;
+    z-index: 1;
+    top: var(--listings-component-half-height);
+    height: var(--listings-component-half-height);
+    overflow-y: scroll;
+    background-color: var(--background-color);
+    border-top-left-radius: var(--bloom-rounded-3xl);
+    border-top-right-radius: var(--bloom-rounded-3xl);
+  }
 }

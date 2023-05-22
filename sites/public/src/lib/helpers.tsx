@@ -79,6 +79,13 @@ const getListingTableData = (
     : []
 }
 
+export const getListingElements = (listing: Listing, index: number) => {
+  const latitude = listing.buildingAddress.latitude
+  const longitude = listing.buildingAddress.longitude
+  const listingCard = getListingCard(listing, index)
+  return { latitude, longitude, listingCard }
+}
+
 export const getListingUrl = (listing: Listing) => {
   if (listing.isExternal) {
     return `/listing/ext/${listing.id}`

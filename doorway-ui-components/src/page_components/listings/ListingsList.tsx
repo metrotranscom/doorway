@@ -4,15 +4,18 @@ import { t } from "../../helpers/translator"
 import { ZeroListingsItem } from "./ZeroListingsItem"
 import { InfoCard } from "../../blocks/InfoCard"
 import { Button } from "../../actions/Button"
+import { ListingElements } from "./ListingsCombined"
 
 type ListingsListProps = {
-  listingCards: JSX.Element[]
+  listingElements: ListingElements[]
 }
 
 const ListingsList = (props: ListingsListProps) => {
   const listingsDiv =
-    props.listingCards.length > 0 ? (
-      <div className="listingsList">{props.listingCards}</div>
+    props.listingElements.length > 0 ? (
+      <div className="listingsList">
+        {props.listingElements.map((listingElement) => listingElement.listingCard)}
+      </div>
     ) : (
       <ZeroListingsItem title={t("t.noMatchingListings")} description={t("t.tryRemovingFilters")}>
         <Button>{t("t.clearAllFilters")}</Button>

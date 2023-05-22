@@ -299,6 +299,7 @@ describe("CombinedListingTransformer", () => {
     // building address
     testObjectTransformation(raw.building_address, listing.buildingAddress, Address, [
       "city",
+      "county",
       "state",
       "street",
       "street2",

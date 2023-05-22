@@ -22,7 +22,7 @@ const tritonListing: ListingSeedType = {
   amenities: "Gym, Clubhouse, Business Lounge, View Lounge, Pool, Spa",
   buildingAddress: {
     city: "Foster City",
-    county: "SanMateo",
+    county: "San Mateo",
     state: "CA",
     street: "55 Triton Park Lane",
     zipCode: "94404",

@@ -10,6 +10,7 @@ type ListingsCombinedProps = {
   lastPage: number
   onPageChange: (page: number) => void
   googleMapsApiKey: string
+  desktopMinWidth?: number
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {

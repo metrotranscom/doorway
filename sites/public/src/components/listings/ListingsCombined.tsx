@@ -19,10 +19,12 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
       </div>
       <div className={styles["listings-list"]}>
-        <ListingsList listings={props.listings}
-        currentPage={props.currentPage}
-        lastPage={props.lastPage}
-        onPageChange={props.onPageChange}></ListingsList>
+        <ListingsList
+          listings={props.listings}
+          currentPage={props.currentPage}
+          lastPage={props.lastPage}
+          onPageChange={props.onPageChange}
+        ></ListingsList>
       </div>
     </div>
   )

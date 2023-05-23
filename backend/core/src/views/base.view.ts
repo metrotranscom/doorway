@@ -37,7 +37,7 @@ export const getBaseAddressSelect = (schemas: string[]): string[] => {
     "street2",
     "zipCode",
     "latitude",
-    "longitude"
+    "longitude",
   ]
 
   let select: string[] = []

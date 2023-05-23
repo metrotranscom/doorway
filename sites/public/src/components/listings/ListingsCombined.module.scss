@@ -2,13 +2,27 @@
   // This is a not-ideal way to do "fill window minus header+footer" however I can't find another way to do this.
   // TODO: update header+footer to a not-magic number
   --listings-component-height: calc(100vh - 275px);
+  --listings-component-half-height: calc((100vh - 275px) / 2);
+  --background-color: var(--bloom-color-white);
 
   display: flex;
   align-items: stretch;
   height: var(--listings-component-height);
 
+  @media (max-width: $screen-md) {
+    position: relative;
+    display: block;
+  }
+
   .listings-map {
     flex: 1;
+
+    @media (max-width: $screen-md) {
+      position: absolute;
+      z-index: 0;
+      height: var(--listings-component-height);
+      width: 100%;
+    }
   }
 
   .listings-list {
@@ -16,34 +30,16 @@
 
     overflow-y: auto;
     width: var(--listings-list-width);
-  }
-}
 
-.listings-combined__mobile {
-  // This is a not-ideal way to do "fill window minus header+footer" however I can't find another way to do this.
-  // TODO: update header+footer to a not-magic number
-  --listings-component-height: calc(100vh - 275px);
-  --listings-component-half-height: calc((100vh - 275px) / 2);
-  --background-color: var(--bloom-color-white);
-
-  height: var(--listings-component-height);
-  position: relative;
-
-  .listings-map__mobile {
-    position: absolute;
-    z-index: 0;
-    height: var(--listings-component-height);
-    width: 100%;
-  }
-
-  .listings-list__mobile {
-    position: absolute;
-    z-index: 1;
-    top: var(--listings-component-half-height);
-    height: var(--listings-component-half-height);
-    overflow-y: scroll;
-    background-color: var(--background-color);
-    border-top-left-radius: var(--bloom-rounded-3xl);
-    border-top-right-radius: var(--bloom-rounded-3xl);
+    @media (max-width: $screen-md) {
+      position: absolute;
+      z-index: 1;
+      top: var(--listings-component-half-height);
+      height: var(--listings-component-half-height);
+      width: 100%;
+      background-color: var(--background-color);
+      border-top-left-radius: var(--bloom-rounded-3xl);
+      border-top-right-radius: var(--bloom-rounded-3xl);
+    }
   }
 }

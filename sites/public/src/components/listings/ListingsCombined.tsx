@@ -6,6 +6,9 @@ import styles from "./ListingsCombined.module.scss"
 
 type ListingsCombinedProps = {
   listings: Listing[]
+  currentPage: number
+  lastPage: number
+  onPageChange: (page: number) => void
   googleMapsApiKey: string
 }
 
@@ -16,7 +19,10 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
       </div>
       <div className={styles["listings-list"]}>
-        <ListingsList listings={props.listings}></ListingsList>
+        <ListingsList listings={props.listings}
+        currentPage={props.currentPage}
+        lastPage={props.lastPage}
+        onPageChange={props.onPageChange}></ListingsList>
       </div>
     </div>
   )

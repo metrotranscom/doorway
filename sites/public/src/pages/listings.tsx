@@ -7,8 +7,8 @@ import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { MetaTags } from "../components/shared/MetaTags"
 import { ListingsCombined } from "../components/listings/ListingsCombined"
-import { fetchOpenListings } from "../lib/hooks"
 import { runtimeConfig } from "../lib/runtime-config"
+import { ListingService } from "../lib/listings/listing-service"
 
 export interface ListingsProps {
   openListings: Listing[]
@@ -37,15 +37,25 @@ export default function ListingsPage(props: ListingsProps) {
       </Head>
 
       <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
-      <ListingsCombined listings={props.openListings} googleMapsApiKey={props.googleMapsApiKey} />
+      <ListingsCombined
+        listings={props.openListings}
+        googleMapsApiKey={props.googleMapsApiKey}
+        currentPage={1}
+        lastPage={1}
+        onPageChange={(page: number) => {
+          console.log(page)
+        }}
+      />
     </Layout>
   )
 }
 
 export async function getServerSideProps() {
+  const listingService = new ListingService(runtimeConfig.getListingServiceUrl())
+
   return {
     props: {
-      openListings: await fetchOpenListings(),
+      openListings: await listingService.fetchOpenListings(),
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },
   }

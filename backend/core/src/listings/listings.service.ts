@@ -129,92 +129,6 @@ export class ListingsService {
     return await qb.getManyPaginated()
   }
 
-  public async listIncludeExternal(
-    bloomJurisdictions: string[],
-    params: ListingsQueryParams
-  ): Promise<ListingIncludeExternalResponse> {
-    return {
-      local: await this.list(params),
-      external: await this.listExternal(bloomJurisdictions, params),
-    }
-  }
-
-  private async listExternal(
-    bloomJurisdictions: string[],
-    params: ListingsQueryParams
-  ): Promise<JurisdictionIdToExternalResponse> {
-    if (bloomJurisdictions == null || bloomJurisdictions.length == 0) {
-      return {}
-    }
-    const bloomParamsNoJurisdiction = this.copyParamsForBloom(params)
-    // begin build all http requests
-    const httpRequests: Promise<AxiosResponse>[] = []
-    for (const jurisdiction of bloomJurisdictions) {
-      const newFilter = [
-        ...(bloomParamsNoJurisdiction.filter || []),
-        {
-          jurisdiction: jurisdiction,
-          $comparison: Compare["="],
-        },
-      ]
-      httpRequests.push(
-        firstValueFrom(
-          this.httpService
-            .get(
-              this.configService.get<string>("BLOOM_API_BASE") +
-                this.configService.get<string>("BLOOM_LISTINGS_QUERY"),
-              {
-                params: {
-                  ...bloomParamsNoJurisdiction,
-                  filter: newFilter,
-                },
-                paramsSerializer: (params) => {
-                  return qs.stringify(params)
-                },
-              }
-            )
-            .pipe(
-              catchError((error) => {
-                if (error.response) {
-                  console.error(`Error from Bloom with jurisdiction ${jurisdiction}`)
-                  return of(error)
-                } else {
-                  // If there is no response, there was most likely a problem on our end.
-                  throw new InternalServerErrorException()
-                }
-              })
-            )
-        )
-      )
-    }
-    httpRequests.reverse()
-    const results = await Promise.all(httpRequests)
-
-    const response: JurisdictionIdToExternalResponse = {}
-    results.forEach((result, index) => {
-      if (result.status == 200) {
-        response[bloomJurisdictions[index]] = result.data
-      }
-    })
-
-    return response
-  }
-
-  private copyParamsForBloom(params: ListingsQueryParams): ListingsQueryParams {
-    if (!params.filter) {
-      return params
-    }
-    const paramCopy = {
-      ...params,
-    }
-    // Note on .filter.filter: Confusingly bloomFriendlyListingsQueryParams is
-    // an object with a key of "filter" which contains an array. Then the
-    // array.prototype."filter" method is used which has an unfortunate name
-    // collision.
-    paramCopy.filter = paramCopy.filter.filter((param) => !param.jurisdiction)
-    return paramCopy
-  }
-
   async create(listingDto: ListingCreateDto) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     await this.authzService.canOrThrow(this.req.user as User, "listing", authzActions.create, {
@@ -312,40 +226,6 @@ export class ListingsService {
 
     await this.addUnitsSummarized(result)
     return result
-  }
-
-  async findOneFromBloom(
-    listingId: string,
-    lang: Language = Language.en,
-    queryParams: ListingsRetrieveQueryParams
-  ) {
-    const response = await firstValueFrom(
-      this.httpService
-        .get(
-          this.configService.get<string>("BLOOM_API_BASE") +
-            this.configService.get<string>("BLOOM_LISTINGS_QUERY") +
-            "/" +
-            listingId,
-          {
-            headers: { language: lang },
-            params: queryParams,
-            paramsSerializer: (params) => {
-              return qs.stringify(params)
-            },
-          }
-        )
-        .pipe(
-          catchError((error) => {
-            if (error.response) {
-              throw new NotFoundException("Bloom did not return a result")
-            } else {
-              // If there is no response, there was most likely a problem on our end.
-              throw new InternalServerErrorException()
-            }
-          })
-        )
-    )
-    return response.data
   }
 
   private async addUnitsSummarized(listing: Listing) {

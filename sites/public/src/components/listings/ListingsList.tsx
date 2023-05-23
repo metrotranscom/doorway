@@ -66,7 +66,6 @@ const ListingsList = (props: ListingsListProps) => {
         lastPage={props.lastPage}
         onPageChange={props.onPageChange}
       />
-      {/* TODO: once pagination is implemented for listings, the following should only show on the last page. */}
       {infoCards}
     </div>
   )

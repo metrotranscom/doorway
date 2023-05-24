@@ -1,8 +1,9 @@
 .listings-combined {
   // This is a not-ideal way to do "fill window minus header+footer" however I can't find another way to do this.
   // TODO: update header+footer to a not-magic number
-  --listings-component-height: calc(100vh - 275px);
+  --listings-component-height: calc(100vh - 138px);
   --listings-component-half-height: calc(var(--listings-component-height) / 2);
+  --swipe-area-height: 50px;
   --background-color: var(--bloom-color-white);
 
   display: flex;
@@ -23,10 +24,27 @@
     @media (max-width: $screen-md) {
       position: absolute;
       z-index: 1;
+      top: var(--swipe-area-height);
+      height: calc(var(--listings-component-half-height) - var(--swipe-area-height));
+      overflow-y: auto;
+      width: 100%;
+      background-color: var(--background-color);
+    }
+  }
+
+  .listings-list-region {
+    --listings-list-width: 600px;
+
+    overflow-y: auto;
+    width: var(--listings-list-width);
+
+    @media (max-width: $screen-md) {
+      position: absolute;
+      z-index: 1;
       top: var(--listings-component-half-height);
       height: var(--listings-component-half-height);
       width: 100%;
-      background-color: var(--background-color);
+      overflow-y: hidden;
       border-top-left-radius: var(--bloom-rounded-3xl);
       border-top-right-radius: var(--bloom-rounded-3xl);
     }
@@ -37,24 +55,45 @@
 
     @media (max-width: $screen-md) {
       display: block;
-      position: absolute;
+      position: relative;
       z-index: 1;
-      height: var(--listings-component-height);
+      height: calc(var(--listings-component-height) - var(--swipe-area-height));
       overflow-y: auto;
       background-color: var(--background-color);
     }
   }
 
-  .listings-swipe-handler {
+  .swipe-area {
     display: none;
 
     @media (max-width: $screen-md) {
       display: block;
-      position: absolute;
-      z-index: 2;
-      top: var(--listings-component-half-height);
-      height: var(--listings-component-half-height);
+      position: relative;
+      top: 0;
+      height: var(--swipe-area-height);
+      background-color: white;
       width: 100%;
+    }
+
+    .fixed {
+      @media (max-width: $screen-md) {
+        position: absolute;
+        z-index: 3;
+        top: calc(var(--listings-component-height) - var(--swipe-area-height));
+      }
+    }
+  }
+
+  .listings-map-expanded {
+    display: none;
+
+    @media (max-width: $screen-md) {
+      position: relative;
+      display: block;
+      z-index: 0;
+      height: calc(var(--listings-component-height) - var(--swipe-area-height));
+      width: 100%;
+      overflow-y: scroll;
     }
   }
 }

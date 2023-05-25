@@ -45,10 +45,13 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     preventScrollOnSwipe: true,
   })
 
-  return showListingsList ? (
-    <div className={styles["listings-combined"]}>
-      <div className={styles["listings-region"]}>
-        <div className={styles["swipe-area"]} {...swipeDownHandler}></div>
+  const getListingsList = () => {
+    return (
+      <div className={styles["listings-combined"]}>
+        <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
+        <div className={styles["swipe-area"]} {...swipeDownHandler}>
+          <div className={styles["swipe-area-line"]}></div>
+        </div>
         <div className={styles["listings-list-expanded"]}>
           <ListingsList
             listings={props.listings}
@@ -58,31 +61,47 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           ></ListingsList>
         </div>
       </div>
-    </div>
-  ) : showListingsMap ? (
-    <div className={styles["listings-combined"]}>
-      <div className={styles["listings-map-expanded"]}>
-        <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
-      </div>
-      <div className={styles["swipe-area-fixed"]} {...swipeUpHandler}>
-        Swipe here
-      </div>
-    </div>
-  ) : (
-    <div className={styles["listings-combined"]}>
-      <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
-      <div className={styles["listings-list-region"]}>
-        <div className={styles["swipe-area"]} {...swipeHandler}></div>
-        <div className={styles["listings-list"]}>
-          <ListingsList
-            listings={props.listings}
-            currentPage={props.currentPage}
-            lastPage={props.lastPage}
-            onPageChange={props.onPageChange}
-          ></ListingsList>
+    )
+  }
+
+  const getListingsMap = () => {
+    return (
+      <div className={styles["listings-combined"]}>
+        <div className={styles["listings-map-expanded"]}>
+          <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
+        </div>
+        <div className={styles["swipe-area-bottom"]} {...swipeUpHandler}>
+          <div className={styles["swipe-area-line"]}></div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  const getListingsCombined = () => {
+    return (
+      <div className={styles["listings-combined"]}>
+        <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
+        <div className={styles["listings-outer-container"]}>
+          <div className={styles["swipe-area"]} {...swipeHandler}>
+            <div className={styles["swipe-area-line"]}></div>
+          </div>
+          <div className={styles["listings-list"]}>
+            <ListingsList
+              listings={props.listings}
+              currentPage={props.currentPage}
+              lastPage={props.lastPage}
+              onPageChange={props.onPageChange}
+            ></ListingsList>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return showListingsList
+    ? getListingsList()
+    : showListingsMap
+    ? getListingsMap()
+    : getListingsCombined()
 }
 export { ListingsCombined as default, ListingsCombined }

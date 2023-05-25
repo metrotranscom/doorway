@@ -382,6 +382,7 @@
   "errors.rateLimitExceeded": "Lumampas sa limit ang rate_ subukan muli sa ibang pagkakataon.",
   "errors.requiredFieldError": "Kailangan ang field na ito",
   "errors.requiredFieldsError": "Kailangan ang mga field na ito",
+  "errors.selectAllThatApply": "Piliin ang lahat ng angkop.",
   "errors.selectAnOption": "Piliin ang opsyon.",
   "errors.selectAtLeastOne": "Pumili ng kahit isang opsyon.",
   "errors.selectOption": "Piliin ang isa sa mga opsyon sa itaas.",

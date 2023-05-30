@@ -26,7 +26,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
       setShowListingsList(false)
       setShowListingsMap(true)
     },
-    preventScrollOnSwipe: true,
   })
 
   const swipeUpHandler = useSwipeable({
@@ -34,7 +33,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
       setShowListingsList(false)
       setShowListingsMap(false)
     },
-    preventScrollOnSwipe: true,
   })
 
   const swipeDownHandler = useSwipeable({
@@ -42,7 +40,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
       setShowListingsList(false)
       setShowListingsMap(false)
     },
-    preventScrollOnSwipe: true,
   })
 
   const getListingsList = () => {

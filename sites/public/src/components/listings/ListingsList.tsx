@@ -36,9 +36,10 @@ const ListingsList = (props: ListingsListProps) => {
           className="is-normal-primary-lighter"
         >
           <LinkButton
-            href="https://public.govdelivery.com/accounts/CAMTC/signup/36832" 
-            newTab={true} 
-            className="is-primary">
+            href="https://public.govdelivery.com/accounts/CAMTC/signup/36832"
+            newTab={true}
+            className="is-primary"
+          >
             {t("t.signUp")}
           </LinkButton>
         </InfoCard>

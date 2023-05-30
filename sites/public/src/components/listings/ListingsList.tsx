@@ -35,7 +35,10 @@ const ListingsList = (props: ListingsListProps) => {
           subtitle={t("t.subscribeToNewsletter")}
           className="is-normal-primary-lighter"
         >
-          <LinkButton href="https://public.govdelivery.com/accounts/CAMTC/signup/36832" newTab={true} className="is-primary">
+          <LinkButton
+            href="https://public.govdelivery.com/accounts/CAMTC/signup/36832" 
+            newTab={true} 
+            className="is-primary">
             {t("t.signUp")}
           </LinkButton>
         </InfoCard>

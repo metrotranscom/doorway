@@ -10,20 +10,21 @@ export type ButtonProps = {
 }
 
 const buttonStyleBase: React.CSSProperties = {
-  margin: "5px 10px",
+  margin: "5px",
   padding: "5px 10px",
   display: "inline-block",
+  borderRadius: "20px",
+  textAlign: "center",
 }
 
 const buttonStyleInactive: React.CSSProperties = {
   ...buttonStyleBase,
-  border: "1px solid gray",
+  border: "1px solid var(--bloom-color-gray-500)",
 }
 
 const buttonStyleActive: React.CSSProperties = {
   ...buttonStyleBase,
-  border: "1px solid black",
-  backgroundColor: "lightgray",
+  backgroundColor: "var(--bloom-color-blue-300)",
 }
 
 /**
@@ -48,15 +49,26 @@ const Button = (props: ButtonProps) => {
     }
   }
 
+  let useStyle: React.CSSProperties = {}
+
+  if (props.isActive) {
+    useStyle = { ...buttonStyleActive }
+  } else {
+    useStyle = { ...buttonStyleInactive }
+  }
+  if (props.index == 0) {
+    useStyle = { ...useStyle, ...{ margin: "5px 5px 5px 0" } }
+  }
+
   return (
     <div
       role="button"
-      style={props.isActive ? buttonStyleActive : buttonStyleInactive}
+      style={useStyle}
       onClick={toggleState}
       onKeyDown={keyDownHandler}
       tabIndex={props.index}
     >
-      {props.label}
+      &nbsp;{props.label}&nbsp;
     </div>
   )
 }

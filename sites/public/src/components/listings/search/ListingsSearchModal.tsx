@@ -3,6 +3,7 @@ import { ButtonGroup } from "./ButtonGroup"
 import { MultiSelectGroup } from "./MultiSelectGroup"
 import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
 import { Modal } from "@bloom-housing/doorway-ui-components"
+import styles from "./ListingsSearchModal.module.scss"
 
 type ListingsSearchModalProps = {
   open: boolean
@@ -22,14 +23,8 @@ export type FormOption = {
 }
 
 const inputSectionStyle: React.CSSProperties = {
-  margin: "0px 15px",
-  borderTop: "1px solid black",
-}
-
-const textInputStyle: React.CSSProperties = {
-  border: "1px solid black",
-  padding: "2px 4px",
-  margin: "5px",
+    margin: "15px 0 30px 0",
+    borderTop: "1px black",
 }
 
 const clearButtonStyle: React.CSSProperties = {
@@ -120,14 +115,16 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
       ariaDescription="Listing Search Filters"
       actions={[
         <button onClick={onSubmit}>Show matching listings</button>,
-        <div style={{ flexGrow: 1 }}></div>,
+          <div style={{ flexGrow: 1 }}></div>,
         <button style={clearButtonStyle} onClick={clearValues}>
           Clear all filters
         </button>,
       ]}
     >
       <div style={inputSectionStyle}>
-        <div>Bedrooms</div>
+        <div>
+          <b>Bedrooms</b>
+        </div>
         <ButtonGroup
           name="bedrooms"
           options={props.bedrooms}
@@ -135,9 +132,10 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
           value={formValues.bedrooms}
         />
       </div>
-
       <div style={inputSectionStyle}>
-        <div>Bathrooms</div>
+        <div>
+          <b>Bathrooms</b>
+        </div>
         <ButtonGroup
           name="bathrooms"
           options={props.bathrooms}
@@ -147,21 +145,27 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
       </div>
 
       <div style={inputSectionStyle}>
-        <div>Monthly Rent</div>
-        <input
+	<hr className={styles["search-modal-inner-hr"]} />
+      <div className={styles["search-modal-section-title"]}>
+	  <b>Monthly Rent</b>
+      </div>
+      <div className={styles["search-modal-text-input-wrapper"]}>
+      <input
           type="text"
           name="monthlyRent"
           value={formValues.monthlyRent}
           placeholder="Max Price: $"
-          style={textInputStyle}
+          className={styles["search-modal-text-input"]}
           onChange={(e: React.FormEvent<HTMLInputElement>) => {
             updateValue("monthlyRent", e.currentTarget.value)
           }}
-        />
+      />
       </div>
 
-      <div style={inputSectionStyle}>
-        <div>Locations</div>
+      </div>
+      <hr className={styles["search-modal-inner-hr"]} />
+      <div className={styles["search-modal-multi-select-container"]}>
+        <div><b>Counties</b></div>
         <MultiSelectGroup
           name="counties"
           inputs={props.counties}

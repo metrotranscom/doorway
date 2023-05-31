@@ -29,17 +29,22 @@ const ModalHeader = (props: { title: string; uniqueId?: string; className?: stri
         <h1 className={classNames.join(" ")} id={props.uniqueId}>
           {props.title}
         </h1>
+	<hr className="modal-top-bottom-hr"/>
       </header>
     </>
   )
 }
 
 const ModalFooter = (props: { actions: React.ReactNode[] }) => (
-  <footer className="modal__footer" data-testid="footer">
+    <div>
+      <hr className="modal-top-bottom-hr"/>
+    <footer className="modal__footer" data-testid="footer">
+
     {props.actions.map((action: React.ReactNode, index: number) => (
       <React.Fragment key={index}>{action}</React.Fragment>
     ))}
-  </footer>
+    </footer>
+    </div>
 )
 
 export const Modal = (props: ModalProps) => {
@@ -66,25 +71,24 @@ export const Modal = (props: ModalProps) => {
     >
       <div className={modalClassNames.join(" ")}>
         {!props.hideCloseIcon && (
-          <button
-            className={closeClassNames.join(" ")}
-            aria-label="Close"
-            onClick={props.onClose}
-            tabIndex={0}
-          >
-            <Icon
-              size="medium"
-              symbol="close"
-              fill={props.closeIconColor ?? IconFillColors.primary}
-            />
-          </button>
+            <button
+              className={closeClassNames.join(" ")}
+              aria-label="Close"
+              onClick={props.onClose}
+              tabIndex={0}
+            >
+              <Icon
+		size="medium"
+		symbol="close"
+		fill={props.closeIconColor ?? IconFillColors.primary}
+              />
+            </button>
         )}
         <ModalHeader
           title={props.title}
           uniqueId={uniqueIdRef.current}
           className={props.headerClassNames}
         />
-
         <section className={innerClassNames.join(" ")}>
           {typeof props.children === "string" ? <p>{props.children}</p> : props.children}
         </section>

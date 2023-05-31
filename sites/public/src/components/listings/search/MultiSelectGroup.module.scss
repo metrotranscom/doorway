@@ -1,0 +1,30 @@
+.search-multi-select-container {
+  display: flex;
+  flex-direction: column;
+  flex-flow: row wrap;
+}
+
+.search-multi-select-input-container {
+  flex: 50%;
+  display: flex;
+  padding: 4px;
+}
+
+.search-multi-select-input {
+  height: 0;
+  width: 0;
+
+  // position: absolute;
+}
+
+.search-multi-select-checkbox {
+  position: relative;
+  top: 0;
+  bottom: 0;
+  height: 25px;
+  width: 25px;
+  background-color: var(--bloom-color-blue-500);
+  &:checked {
+    background-color: var(--bloom-color-blue-100);
+  }
+}

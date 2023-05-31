@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { FormOption } from "./ListingsSearchModal"
+import styles from "./MultiSelectGroup.module.scss"
 
 type MultiSelectGroupProps = {
   name: string
@@ -56,11 +57,12 @@ export function MultiSelectGroup(props: MultiSelectGroupProps) {
   }
 
   return (
-    <div key={props.name}>
+    <div key={props.name} className={styles["search-multi-select-container"]}>
       {props.inputs.map((input, index) => {
         return (
-          <div key={`${props.name}-${input.value}`}>
+          <div key={`${props.name}-${input.value}`} className={styles["search-multi-select-input-container"]}>
             <input
+              className={styles["search-multi-select-input"]}
               type="checkbox"
               checked={values[input.value] == true}
               name={props.name}
@@ -71,6 +73,7 @@ export function MultiSelectGroup(props: MultiSelectGroupProps) {
                 addRemoveValue(input.value)
               }}
             />
+            <span className={styles["search-multi-select-checkbox"]}></span>
             <label>{input.label}</label>
           </div>
         )

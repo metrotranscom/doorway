@@ -14,7 +14,7 @@
   --max-width: var(--bloom-width-5xl);
   --desktop-min-width: var(--bloom-width-xl);
   --scroll-max-height: 100vh;
-  --footer-background-color: var(--bloom-color-primary-lighter);
+  --footer-background-color: var(--bloom-color-white);
   --border-radius: var(--bloom-rounded);
   --mobile-border-radius: 0;
   --background-color: var(--bloom-color-white);
@@ -92,6 +92,12 @@
   p {
     color: var(--content-font-color);
   }
+}
+.modal-top-bottom-hr {
+  margin: 3% 0 3% 0;
+}
+.modal-inner-hr {
+  margin: 3% 6% 3% 6%;
 }
 
 .modal__footer {

@@ -1389,50 +1389,6 @@ export class ListingsService {
     })
   }
   /**
-   * List listings and optionally include external listings
-   */
-  listIncludeExternal(
-    params: {
-      /**  */
-      page?: number
-      /**  */
-      limit?: number | "all"
-      /**  */
-      filter?: ListingFilterParams[]
-      /**  */
-      view?: string
-      /**  */
-      orderBy?: any | null[]
-      /**  */
-      orderDir?: any | null[]
-      /**  */
-      search?: string
-      /**  */
-      bloomJurisdiction?: any | null[]
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings/includeExternal"
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-      configs.params = {
-        page: params["page"],
-        limit: params["limit"],
-        filter: params["filter"],
-        view: params["view"],
-        orderBy: params["orderBy"],
-        orderDir: params["orderDir"],
-        search: params["search"],
-        bloomJurisdiction: params["bloomJurisdiction"],
-      }
-      let data = null
-
-      configs.data = data
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
    * List all local and external listings
    */
   listCombined(
@@ -1516,30 +1472,6 @@ export class ListingsService {
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = params.body
-
-      configs.data = data
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Get Bloom listing by id
-   */
-  retrieve1(
-    params: {
-      /**  */
-      id: string
-      /**  */
-      view?: string
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<Listing> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings/bloom/{id}"
-      url = url.replace("{id}", params["id"] + "")
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-      configs.params = { view: params["view"] }
-      let data = null
 
       configs.data = data
       axios(configs, resolve, reject)
@@ -5199,29 +5131,6 @@ export interface PaginatedListing {
   meta: PaginationMeta
 }
 
-export interface ListingsQueryParams {
-  /**  */
-  page?: number
-
-  /**  */
-  limit?: number | "all"
-
-  /**  */
-  filter?: string[]
-
-  /**  */
-  view?: string
-
-  /**  */
-  orderBy?: []
-
-  /**  */
-  orderDir?: EnumListingsQueryParamsOrderDir[]
-
-  /**  */
-  search?: string
-}
-
 export interface CombinedListingFilterParams {
   /**  */
   $comparison: EnumCombinedListingFilterParamsComparison
@@ -6500,10 +6409,6 @@ export type CombinedApplicationMailingAddressTypes = AddressUpdate
 export type CombinedBuildingSelectionCriteriaFileTypes = AssetUpdate
 export type CombinedLeasingAgentAddressTypes = AddressUpdate
 export type CombinedResultTypes = AssetCreate
-export enum EnumListingsQueryParamsOrderDir {
-  "ASC" = "ASC",
-  "DESC" = "DESC",
-}
 export enum EnumCombinedListingFilterParamsComparison {
   "=" = "=",
   "<>" = "<>",

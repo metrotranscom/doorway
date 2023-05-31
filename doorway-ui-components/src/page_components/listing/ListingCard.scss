@@ -55,16 +55,12 @@
     flex-basis: 50%;
   }
 
-  .listings-row_headers, .listings-row_preheader {
+  .listings-row_headers,
+  .listings-row_preheader {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-
-    @media (min-width: $screen-md) {
-      align-items: flex-start;
-      text-align: left;
-    }
+    align-items: flex-start;
+    text-align: left;
 
     .listings-row_tags {
       order: var(--tags-flex-order);

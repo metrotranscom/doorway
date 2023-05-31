@@ -250,7 +250,7 @@ export const listing: Listing = {
     id: "buildingId",
     createdAt: new Date(),
     updatedAt: new Date(),
-    county: "SantaClara",
+    county: "Santa Clara",
     city: "San Jose",
     street: "98 Archer Street",
     zipCode: "95112",

@@ -3,7 +3,6 @@ import {
   BadRequestException,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   Scope,
   UnauthorizedException,
@@ -12,8 +11,7 @@ import { ConfigService } from "@nestjs/config"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { Brackets, In, Repository } from "typeorm"
-import qs from "qs"
-import { firstValueFrom, catchError, of } from "rxjs"
+import { firstValueFrom, } from "rxjs"
 import { Listing } from "./entities/listing.entity"
 import { getView } from "./views/view"
 import { summarizeUnits, summarizeUnitsByTypeAndRent } from "../shared/units-transformations"
@@ -32,9 +30,6 @@ import { REQUEST } from "@nestjs/core"
 import { User } from "../auth/entities/user.entity"
 import { ApplicationFlaggedSetsService } from "../application-flagged-sets/application-flagged-sets.service"
 import { ListingsQueryBuilder } from "./db/listing-query-builder"
-import { ListingsRetrieveQueryParams } from "./dto/listings-retrieve-query-params"
-import { AxiosResponse } from "axios"
-import { Compare } from "../shared/dto/filter.dto"
 import { CombinedListingsQueryParams } from "./combined/combined-listings-query-params"
 
 type JurisdictionIdToExternalResponse = { [Identifier: string]: Pagination<Listing> }

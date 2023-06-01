@@ -8,7 +8,6 @@ import { TranslationsService } from "../../translations/services/translations.se
 import { of } from "rxjs"
 import { AmiChart } from "../../ami-charts/entities/ami-chart.entity"
 import { ListingsQueryParams } from "../dto/listings-query-params"
-import { ListingsRetrieveQueryParams } from "../dto/listings-retrieve-query-params"
 import { Compare } from "../../shared/dto/filter.dto"
 import { ListingFilterParams } from "../dto/listing-filter-params"
 import { OrderByFieldsEnum } from "../types/listing-orderby-enum"
@@ -18,8 +17,6 @@ import { ApplicationFlaggedSetsService } from "../../application-flagged-sets/ap
 import { ListingRepository } from "../db/listing.repository"
 import { ListingsQueryBuilder } from "../db/listing-query-builder"
 import { UserRepository } from "../../auth/repositories/user-repository"
-import { Language } from "../../../types"
-import { DoorwayListingsExternalQueryParams } from "../dto/doorway-listings-external-query-params"
 import { User } from "../../../src/auth/entities/user.entity"
 
 /* eslint-disable @typescript-eslint/unbound-method */

@@ -53,7 +53,9 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
   const getListingsList = () => {
     return (
       <div className={styles["listings-combined"]}>
-        <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
+        <div className={styles["listings-map"]}>
+          <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
+        </div>
         <div className={styles["swipe-area"]} {...swipeHandler}>
           <div className={styles["swipe-area-line"]}></div>
         </div>
@@ -85,7 +87,9 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
   const getListingsCombined = () => {
     return (
       <div className={styles["listings-combined"]}>
-        <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
+        <div className={styles["listings-map"]}>
+          <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
+        </div>
         <div className={styles["listings-outer-container"]}>
           <div className={styles["swipe-area"]} {...swipeHandler}>
             <div className={styles["swipe-area-line"]}></div>

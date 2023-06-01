@@ -17,6 +17,17 @@
     display: block;
   }
 
+  .listings-map {
+    flex: 1;
+    position: relative;
+    @media (max-width: $screen-md) {
+      position: absolute;
+      z-index: 0;
+      height: var(--listings-component-height);
+      width: 100%;
+    }
+  }
+
   .listings-map-expanded {
     display: none;
 

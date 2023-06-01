@@ -19,26 +19,34 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
 
   const swipeHandler = useSwipeable({
     onSwipedUp: () => {
-      setShowListingsList(true)
-      setShowListingsMap(false)
+      if (!showListingsList) {
+        if (!showListingsMap) {
+          // This is for the combined listings page, swiping up shows the listings list page.
+          setShowListingsList(true)
+          setShowListingsMap(false)
+          return
+        } else {
+          // This is for the listings map only page, swiping up shows the listings combined page.
+          setShowListingsList(false)
+          setShowListingsMap(false)
+          return
+        }
+      }
     },
     onSwipedDown: () => {
-      setShowListingsList(false)
-      setShowListingsMap(true)
-    },
-  })
-
-  const swipeUpHandler = useSwipeable({
-    onSwipedUp: () => {
-      setShowListingsList(false)
-      setShowListingsMap(false)
-    },
-  })
-
-  const swipeDownHandler = useSwipeable({
-    onSwipedDown: () => {
-      setShowListingsList(false)
-      setShowListingsMap(false)
+      if (!showListingsMap) {
+        if (!showListingsList) {
+          // This is for the combined listings page, swiping down shows the listings map page.
+          setShowListingsList(false)
+          setShowListingsMap(true)
+          return
+        } else {
+          // This is for the listings list only page, swiping up shows the listings combined page.
+          setShowListingsList(false)
+          setShowListingsMap(false)
+          return
+        }
+      }
     },
   })
 
@@ -46,7 +54,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     return (
       <div className={styles["listings-combined"]}>
         <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
-        <div className={styles["swipe-area"]} {...swipeDownHandler}>
+        <div className={styles["swipe-area"]} {...swipeHandler}>
           <div className={styles["swipe-area-line"]}></div>
         </div>
         <div className={styles["listings-list-expanded"]}>
@@ -67,7 +75,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         <div className={styles["listings-map-expanded"]}>
           <ListingsMap listings={props.listings} googleMapsApiKey={props.googleMapsApiKey} />
         </div>
-        <div className={styles["swipe-area-bottom"]} {...swipeUpHandler}>
+        <div className={styles["swipe-area-bottom"]} {...swipeHandler}>
           <div className={styles["swipe-area-line"]}></div>
         </div>
       </div>

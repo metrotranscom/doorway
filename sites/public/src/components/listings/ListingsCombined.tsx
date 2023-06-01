@@ -14,36 +14,36 @@ type ListingsCombinedProps = {
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
-  const [showListingsList, setShowListingsList] = useState(false)
-  const [showListingsMap, setShowListingsMap] = useState(false)
+  const [showListingsList, setShowListingsList] = useState(true)
+  const [showListingsMap, setShowListingsMap] = useState(true)
 
   const swipeHandler = useSwipeable({
     onSwipedUp: () => {
-      if (!showListingsList) {
-        if (!showListingsMap) {
+      if (showListingsMap) {
+        if (showListingsList) {
           // This is for the combined listings page, swiping up shows the listings list page.
           setShowListingsList(true)
           setShowListingsMap(false)
           return
         } else {
           // This is for the listings map only page, swiping up shows the listings combined page.
-          setShowListingsList(false)
-          setShowListingsMap(false)
+          setShowListingsList(true)
+          setShowListingsMap(true)
           return
         }
       }
     },
     onSwipedDown: () => {
-      if (!showListingsMap) {
-        if (!showListingsList) {
+      if (showListingsList) {
+        if (showListingsMap) {
           // This is for the combined listings page, swiping down shows the listings map page.
           setShowListingsList(false)
           setShowListingsMap(true)
           return
         } else {
           // This is for the listings list only page, swiping up shows the listings combined page.
-          setShowListingsList(false)
-          setShowListingsMap(false)
+          setShowListingsList(true)
+          setShowListingsMap(true)
           return
         }
       }
@@ -103,10 +103,16 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     )
   }
 
-  return showListingsList
-    ? getListingsList()
-    : showListingsMap
-    ? getListingsMap()
-    : getListingsCombined()
+  let div: JSX.Element
+
+  if (showListingsList && !showListingsMap) {
+    div = getListingsList()
+  } else if (showListingsMap && !showListingsList) {
+    div = getListingsMap()
+  } else if (showListingsList && showListingsMap) {
+    div = getListingsCombined()
+  }
+
+  return div
 }
 export { ListingsCombined as default, ListingsCombined }

@@ -189,25 +189,30 @@ const ListingCard = (props: ListingCardProps) => {
             <DoorwayListingTable data={tableProps?.data} headers={tableProps?.headers} />
           )}
         </div>
-        <div className={"listings-row_footer_container"}>
-          {footerContent && footerContent}
-          {footerButtons && footerButtons?.length > 0 && (
-            <div className={footerContainerClass ?? "listings-row_footer"}>
-              {footerButtons?.map((footerButton, index) => {
-                return (
-                  <LinkButton
-                    href={footerButton.href}
-                    ariaHidden={footerButton.ariaHidden}
-                    key={index}
-                    className={"is-secondary"}
-                  >
-                    {footerButton.text}
-                  </LinkButton>
-                )
-              })}
-            </div>
-          )}
-        </div>
+      </>
+    )
+  }
+
+  const getContentFooter = () => {
+    return (
+      <>
+        {footerContent && footerContent}
+        {footerButtons && footerButtons?.length > 0 && (
+          <div className={footerContainerClass ?? "listings-row_footer"}>
+            {footerButtons?.map((footerButton, index) => {
+              return (
+                <LinkButton
+                  href={footerButton.href}
+                  ariaHidden={footerButton.ariaHidden}
+                  key={index}
+                  className={"is-secondary"}
+                >
+                  {footerButton.text}
+                </LinkButton>
+              )
+            })}
+          </div>
+        )}
       </>
     )
   }
@@ -232,6 +237,7 @@ const ListingCard = (props: ListingCardProps) => {
         {getContentHeader()}
         {getContent()}
       </div>
+      <div className={"listings-row_footer_container"}>{getContentFooter()}</div>
     </article>
   )
 }

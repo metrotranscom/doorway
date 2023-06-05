@@ -124,7 +124,7 @@ h1.title {
   font-weight: var(--text-large-primary-font-weight, 600);
   color: var(--text-large-primary--color, var(--bloom-color-primary-dark));
   font-size: var(--text-large-primary-font-size, var(--bloom-font-size-2xl));
-  margin-block: var(--text-large-primary-margin-block, 0 var(--bloom-s3));
+  margin-block: var(--text-large-primary-margin-block, 0 var(--bloom-s1));
   line-height: var(--text-large-primary-line-height, var(--bloom-line-height-tight));
 }
 
@@ -149,7 +149,6 @@ h1.title {
   font-weight: var(--text-small-normal-font-weight, 400);
   color: var(--text-small-normal-color, var(--bloom-text-color));
   font-size: var(--text-small-normal-font-size, var(--bloom-font-size-xs));
-  margin-block: var(--text-small-normal-margin-block, 0 var(--bloom-s3));
 }
 
 .text__light-weighted {

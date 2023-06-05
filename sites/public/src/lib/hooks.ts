@@ -145,7 +145,6 @@ export async function fetchJurisdictionByName(backendApiBase: string, jurisdicti
       return jurisdiction
     }
 
-    //const jurisdictionName = process.env.jurisdictionName
     const jurisdictionRes = await axios.get(
       `${backendApiBase}/jurisdictions/byName/${jurisdictionName}`
     )

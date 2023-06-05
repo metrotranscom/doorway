@@ -37,6 +37,7 @@ export const getGenericAddress = (bloomAddress: Address) => {
   return bloomAddress
     ? {
         city: bloomAddress.city,
+        county: bloomAddress.county,
         street: bloomAddress.street,
         street2: bloomAddress.street2,
         state: bloomAddress.state,
@@ -153,8 +154,7 @@ export const getListingCard = (listing: Listing, index: number) => {
       key={index}
       preheader={listing?.buildingAddress?.county}
       imageCardProps={{
-        imageUrl:
-          imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize || "1302")) || "",
+        imageUrl: imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize))[0] || "",
         tags: listing.reservedCommunityType
           ? [
               {
@@ -182,6 +182,7 @@ export const getListingCard = (listing: Listing, index: number) => {
         contentHeader: {
           content: displayIndex + ". " + listing.name,
           href: uri,
+          makeCardClickable: true,
         },
         contentSubheader: { content: getListingCardSubtitle(listing.buildingAddress) },
       }}

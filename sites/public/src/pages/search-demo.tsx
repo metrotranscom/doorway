@@ -4,7 +4,6 @@ import { MetaTags } from "../components/shared/MetaTags"
 import { t } from "@bloom-housing/doorway-ui-components"
 import { FormOption } from "../components/listings/search/ListingsSearchModal"
 import { ListingsSearchCombined } from "../components/listings/search/ListingsSearchCombined"
-import { getListingServiceUrl } from "../lib/helpers"
 import { runtimeConfig } from "../lib/runtime-config"
 import LayoutWithoutFooter from "../layouts/LayoutWithoutFooter"
 
@@ -148,7 +147,7 @@ export default function SearchTest(props: SearchTestProps) {
 export function getServerSideProps() {
   return {
     props: {
-      listingsEndpoint: getListingServiceUrl(),
+      listingsEndpoint: runtimeConfig.getListingServiceUrl(),
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
       // show Bloom counties by default
       initialSearch: "counties:Alameda,San Mateo,Santa Clara",

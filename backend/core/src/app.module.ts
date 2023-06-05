@@ -55,6 +55,11 @@ export function applicationSetup(app: INestApplication) {
       // otherwise split on "," if it's a string
     } else if (typeof process.env.CORS_ORIGINS == "string") {
       allowList = process.env.CORS_ORIGINS.split(",")
+
+      // Trim the results to prevent whitespace from breaking header matching
+      allowList.forEach((value, idx, arr) => {
+        arr[idx] = value.trim()
+      })
     }
   }
 

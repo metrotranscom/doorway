@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { ImageCard, ImageCardProps, ImageTag } from "../../blocks/ImageCard"
 import { LinkButton } from "../../actions/LinkButton"
 import { StackedTableProps } from "../../tables/StackedTable"
@@ -61,6 +61,8 @@ export interface ListingCardProps {
   stackedTable?: boolean
   /** Prop interface for the StandardTable and StackedTable components */
   tableProps?: ListingCardTableProps
+  /** Override for the minimum width for the desktop layout */
+  desktopMinWidth?: number
 }
 
 /**
@@ -88,6 +90,27 @@ const ListingCard = (props: ListingCardProps) => {
       linkRef.current.click()
     }
   }
+
+  const [isDesktop, setIsDesktop] = useState(true)
+
+  const DESKTOP_MIN_WIDTH = props.desktopMinWidth || 767 // @screen md
+  useEffect(() => {
+    if (window.innerWidth > DESKTOP_MIN_WIDTH) {
+      setIsDesktop(true)
+    } else {
+      setIsDesktop(false)
+    }
+
+    const updateMedia = () => {
+      if (window.innerWidth > DESKTOP_MIN_WIDTH) {
+        setIsDesktop(true)
+      } else {
+        setIsDesktop(false)
+      }
+    }
+    window.addEventListener("resize", updateMedia)
+    return () => window.removeEventListener("resize", updateMedia)
+  }, [DESKTOP_MIN_WIDTH])
 
   const getHeader = (
     header: ListingCardHeader | undefined,
@@ -189,6 +212,7 @@ const ListingCard = (props: ListingCardProps) => {
             <DoorwayListingTable data={tableProps?.data} headers={tableProps?.headers} />
           )}
         </div>
+        {isDesktop && getContentFooter()}
       </>
     )
   }
@@ -237,7 +261,7 @@ const ListingCard = (props: ListingCardProps) => {
         {getContentHeader()}
         {getContent()}
       </div>
-      <div className={"listings-row_footer_container"}>{getContentFooter()}</div>
+      {!isDesktop && <div className={"listings-row_footer_container"}>{getContentFooter()}</div>}
     </article>
   )
 }

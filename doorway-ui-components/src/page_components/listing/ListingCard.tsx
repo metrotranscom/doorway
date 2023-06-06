@@ -255,7 +255,7 @@ const ListingCard = (props: ListingCardProps) => {
       <div className="listings-row_content">
         {props.preheader && (
           <div className="listings-row_preheader">
-            <span>{props.preheader}</span>
+            <span className="card-preheader">{props.preheader}</span>
           </div>
         )}
         {getContentHeader()}

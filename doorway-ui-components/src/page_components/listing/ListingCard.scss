@@ -160,9 +160,17 @@
 
 .card-subheader {
   font-family: var(--bloom-font-alt-sans);
-  color: var(--bloom-color-black);
-  font-size: var(--bloom-font-size-base);
+  color: var(--bloom-color-gray-800);
+  font-size: var(--bloom-font-size-sm);
   margin-bottom: var(--bloom-s2);
+  line-height: var(--bloom-line-height-normal);
+}
+
+.card-preheader {
+  font-family: var(--bloom-font-alt-sans);
+  color: var(--bloom-color-gray-700);
+  font-size: var(--bloom-font-size-sm);
+  line-height: var(--bloom-line-height-normal);
 }
 
 .listing-card__tag-icon {

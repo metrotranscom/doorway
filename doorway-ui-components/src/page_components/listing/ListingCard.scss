@@ -14,13 +14,10 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   max-width: var(--max-width);
-  margin-bottom: var(--margin);
-  margin-left: var(--margin);
-  margin-right: var(--margin);
-  margin-top: 0;
+  margin: var(--margin);
   position: relative;
   border-bottom: 1px solid var(--bloom-color-gray-450);
-  padding-bottom: var(--bloom-s6);
+  padding-bottom: var(--inter-row-gap);
 
   @media (min-width: $screen-xl) {
     --max-width: var(--max-width-large-screen);
@@ -44,11 +41,6 @@
   padding: 0;
   flex: 1;
 
-  @media (max-width: $screen-md) {
-    padding: 0;
-    flex: 1;
-  }
-
   .image_card {
     flex: 1;
   }
@@ -62,17 +54,9 @@
 .listings-row_content {
   flex: 1;
   min-width: 200px;
-  //padding: var(--cell-padding);
-  padding-right: 0;
-  padding-left: var(--cell-padding);
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0 0 0 var(--cell-padding);
 
   @media (max-width: $screen-md) {
-    padding-right: 0;
-    padding-left: var(--cell-padding);
-    padding-top: 0;
-    padding-bottom: 0;
     flex: 2;
   }
 

@@ -12,10 +12,15 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: flex-end;
   max-width: var(--max-width);
   margin: var(--margin);
   position: relative;
   border-bottom: 1px solid var(--bloom-color-gray-450);
+
+  @media (max-width: $screen-md) {
+    flex-direction: row;
+  }
 
   @media (min-width: $screen-xl) {
     --max-width: var(--max-width-large-screen);
@@ -33,12 +38,14 @@
 .listings-row_figure {
   display: flex;
   padding: var(--cell-padding);
+  //order: 1;
+  //flex: 1 100%;
+  //flex: 1;
+  //height: 400px;
 
   @media (max-width: $screen-md) {
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    padding: 0;
+    flex: 1;
   }
 
   .image_card {
@@ -49,23 +56,20 @@
   img {
     height: 100%;
   }
-  flex: 1;
 }
 
 .listings-row_content {
-  flex-basis: 70%;
+  //flex: 1 auto;
   //min-width: 200px;
   padding: var(--cell-padding);
+  //order: 2;
 
   @media (max-width: $screen-md) {
     padding-right: 0;
     padding-left: var(--cell-padding);
     padding-top: 0;
     padding-bottom: 0;
-  }
-
-  @media (min-width: $screen-sm) {
-    flex-basis: 50%;
+    flex-basis: 70%;
   }
 
   .listings-row_headers,
@@ -122,12 +126,15 @@
 
 .listings-row_footer_container {
   display: flex;
-  flex-direction: column;
+  //flex: 1 auto;
+  //order: 2;
+  //min-width: 200px;
+  flex-basis: 50%;
+  margin-top: var(--bloom-s4);
+  margin-bottom: var(--bloom-s5);
 
   @media (max-width: $screen-md) {
     flex: 1;
-    margin-top: var(--bloom-s4);
-    margin-bottom: var(--bloom-s5);
   }
 }
 

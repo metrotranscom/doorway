@@ -9,6 +9,7 @@ type ListingsMapProps = {
   listings?: Listing[]
   googleMapsApiKey: string
   desktopMinWidth?: number
+  openMarkerOnClick: boolean
 }
 
 const containerStyle: React.CSSProperties = {
@@ -92,7 +93,7 @@ const ListingsMap = (props: ListingsMapProps) => {
               fontSize: "var(--bloom-font-size-2xs)",
             }}
             onClick={() => {
-              if (isDesktop) {
+              if (isDesktop || props.openMarkerOnClick) {
                 setOpenInfoWindow(true)
                 setInfoWindowIndex(marker.key)
               } else {

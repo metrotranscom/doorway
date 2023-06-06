@@ -1,6 +1,6 @@
 .listings-row {
   --tags-flex-order: 0;
-  --inter-row-gap: var(--bloom-s5);
+  --inter-row-gap: var(--bloom-s6);
   --max-width: var(--bloom-width-3xl);
   --max-width-large-screen: var(--bloom-width-5xl);
   --cell-padding: var(--bloom-s3);
@@ -14,12 +14,20 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   max-width: var(--max-width);
-  margin: var(--margin);
+  margin-bottom: var(--margin);
+  margin-left: var(--margin);
+  margin-right: var(--margin);
+  margin-top: 0;
   position: relative;
   border-bottom: 1px solid var(--bloom-color-gray-450);
+  padding-bottom: var(--bloom-s6);
 
   @media (min-width: $screen-xl) {
     --max-width: var(--max-width-large-screen);
+  }
+
+  @media (max-width: $screen-md) {
+    padding-bottom: 0;
   }
 
   &:first-of-type {
@@ -33,7 +41,7 @@
 
 .listings-row_figure {
   display: flex;
-  padding: var(--cell-padding);
+  padding: 0;
   flex: 1;
 
   @media (max-width: $screen-md) {
@@ -52,16 +60,20 @@
 }
 
 .listings-row_content {
-  flex-basis: 50%;
+  flex: 1;
   min-width: 200px;
-  padding: var(--cell-padding);
+  //padding: var(--cell-padding);
+  padding-right: 0;
+  padding-left: var(--cell-padding);
+  padding-top: 0;
+  padding-bottom: 0;
 
   @media (max-width: $screen-md) {
     padding-right: 0;
     padding-left: var(--cell-padding);
     padding-top: 0;
     padding-bottom: 0;
-    flex-basis: 70%;
+    flex: 2;
   }
 
   .listings-row_headers,
@@ -119,11 +131,11 @@
 .listings-row_footer_container {
   display: flex;
   flex-direction: column;
-  margin-top: var(--bloom-s4);
-  margin-bottom: var(--bloom-s5);
 
   @media (max-width: $screen-md) {
     flex-basis: 100%;
+    margin-top: var(--bloom-s4);
+    margin-bottom: var(--bloom-s5);
   }
 }
 

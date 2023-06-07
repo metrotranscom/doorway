@@ -10,7 +10,6 @@ import {
   OrDivider,
   ContactAddress,
 } from "@bloom-housing/ui-components"
-import { StringifyOptions } from "querystring"
 
 export interface PaperApplication {
   fileURL: string

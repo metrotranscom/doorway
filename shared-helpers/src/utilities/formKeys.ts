@@ -56,14 +56,15 @@ export const stateKeys = [
 ]
 
 export const countyKeys = [
-  //Removing options due to existing BayArea Bloom sites
+  // Removing options due to existing Bay Area Bloom sites
+  // TODO add back in (uncomment) when the other BA Bloom sites are shutdown
   "",
-  //"Alameda",
+  // "Alameda",
   "Contra Costa",
   "Marin",
   "Napa",
-  //"San Francisco",
-  //"San Mateo",
+  // "San Francisco",
+  // "San Mateo",
   "Santa Clara",
   "Solano",
   "Sonoma",

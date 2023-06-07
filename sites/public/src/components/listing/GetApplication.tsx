@@ -89,7 +89,7 @@ const GetApplication = (props: ApplicationsProps) => {
             </LinkButton>
           )}
           <div className="text-gray-800 text-sm">
-              {props.strings?.applyOnlineMessage ?? t("listings.apply.applyOnlineMessage")}
+            {props.strings?.applyOnlineMessage ?? t("listings.apply.applyOnlineMessage")}
           </div>
         </>
       )}

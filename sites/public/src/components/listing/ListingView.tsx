@@ -19,7 +19,6 @@ import {
   ExpandableText,
   GroupedTable,
   Heading,
-  ImageCard,
   InfoCard,
   Contact,
   ListSection,
@@ -38,7 +37,7 @@ import {
   StandardTableData,
   ExpandableSection,
 } from "@bloom-housing/ui-components"
-import { ApplicationStatus } from "@bloom-housing/doorway-ui-components"
+import { ApplicationStatus, ImageCard } from "@bloom-housing/doorway-ui-components"
 import {
   getOccupancyDescription,
   imageUrlFromListing,
@@ -508,7 +507,7 @@ export const ListingView = (props: ListingProps) => {
   }
 
   return (
-    <article className="flex flex-wrap relative max-w-5xl m-auto">
+    <article className="flex flex-wrap relative max-w-5xl m-auto md:mt-8">
       <header className="image-card--leader">
         <ImageCard
           images={imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize)).map(

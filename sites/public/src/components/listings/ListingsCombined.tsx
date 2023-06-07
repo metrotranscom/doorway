@@ -57,7 +57,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           <ListingsMap
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
-            openMarkerOnClick={false}
+            isMapExpanded={false}
           />
         </div>
         <div className={styles["swipe-area"]} {...swipeHandler}>
@@ -82,7 +82,8 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           <ListingsMap
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
-            openMarkerOnClick={true}
+            isMapExpanded={true}
+            setShowListingsList={setShowListingsList}
           />
         </div>
         <div className={styles["swipe-area-bottom"]} {...swipeHandler}>
@@ -99,7 +100,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           <ListingsMap
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
-            openMarkerOnClick={false}
+            isMapExpanded={false}
           />
         </div>
         <div className={styles["listings-outer-container"]}>

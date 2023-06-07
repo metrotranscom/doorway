@@ -102,7 +102,7 @@ export const getExternalListingSeedData = () => {
         },
       ],
       buildingAddress: {
-        county: "Alameda",
+        county: "Santa Clara",
         city: "Anytown",
         street: "123 Sesame Street",
         zipCode: "90210",
@@ -169,7 +169,7 @@ export const getExternalListingSeedData = () => {
       reservedCommunityType: null,
       units: [],
       buildingAddress: {
-        county: "Alameda",
+        county: "Sonoma",
         city: "Anytown",
         street: "123 Sesame Street",
         zipCode: "90210",

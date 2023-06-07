@@ -537,7 +537,11 @@ export const ListingView = (props: ListingProps) => {
           modalCloseInContent
         />
         <div className="py-3 mx-3 mt-4 flex flex-col items-center md:items-start text-center md:text-left">
-          <Heading priority={1} styleType={"largePrimary"} className={"text-black"}>
+          <Heading
+            priority={1}
+            styleType={"largePrimary"}
+            className={"text-primary-dark font-serif font-semibold"}
+          >
             {listing.name}
           </Heading>
           <Heading priority={2} styleType={"mediumNormal"} className={"mb-1"}>

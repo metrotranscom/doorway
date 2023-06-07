@@ -15,7 +15,6 @@ import {
 } from "@bloom-housing/backend-core/types"
 import {
   AdditionalFees,
-  ApplicationStatus,
   Description,
   ExpandableText,
   GroupedTable,
@@ -39,6 +38,7 @@ import {
   StandardTableData,
   ExpandableSection,
 } from "@bloom-housing/ui-components"
+import { ApplicationStatus } from "@bloom-housing/doorway-ui-components"
 import {
   getOccupancyDescription,
   imageUrlFromListing,

@@ -37,7 +37,7 @@ import {
   StandardTableData,
   ExpandableSection,
 } from "@bloom-housing/ui-components"
-import { ApplicationStatus, ImageCard } from "@bloom-housing/doorway-ui-components"
+import { ApplicationStatus, ImageCard, Icon } from "@bloom-housing/doorway-ui-components"
 import {
   getOccupancyDescription,
   imageUrlFromListing,
@@ -59,6 +59,7 @@ import { DownloadLotteryResults } from "./DownloadLotteryResults"
 import { SubmitApplication } from "./SubmitApplication"
 import { ListingGoogleMap } from "./ListingGoogleMap"
 import getConfig from "next/config"
+import Link from "next/link"
 
 // nextConfig may not be set in some unit tests since it relies on app startup
 const nextConfig = getConfig()
@@ -552,9 +553,14 @@ export const ListingView = (props: ListingProps) => {
           </Heading>
           <p className="text-gray-750 text-base mb-1">{listing.developer}</p>
           <p className="text-base">
-            <a href={googleMapsHref} target="_blank" aria-label="Opens in new window">
-              {t("t.viewOnMap")}
-            </a>
+            <Link
+              href={googleMapsHref}
+              target="_blank"
+              aria-label="Opens in new window"
+              className="lighter-uppercase"
+            >
+              {t("t.viewOnMap")} <Icon size="small" symbol="link" />
+            </Link>
           </p>
         </div>
       </header>

@@ -17,7 +17,6 @@ import {
   AdditionalFees,
   Description,
   ExpandableText,
-  GroupedTable,
   Heading,
   InfoCard,
   Contact,
@@ -29,7 +28,6 @@ import {
   EventSection,
   PreferencesList,
   ReferralApplication,
-  StandardTable,
   TableHeaders,
   QuantityRowSection,
   t,
@@ -37,7 +35,13 @@ import {
   StandardTableData,
   ExpandableSection,
 } from "@bloom-housing/ui-components"
-import { ApplicationStatus, ImageCard, Icon } from "@bloom-housing/doorway-ui-components"
+import {
+  ApplicationStatus,
+  GroupedTable,
+  ImageCard,
+  Icon,
+  StandardTable,
+} from "@bloom-housing/doorway-ui-components"
 import {
   getOccupancyDescription,
   imageUrlFromListing,

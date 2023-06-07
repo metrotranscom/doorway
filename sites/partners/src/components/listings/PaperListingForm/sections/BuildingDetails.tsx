@@ -12,7 +12,7 @@ import {
   LatitudeLongitude,
   AlertNotice,
 } from "@bloom-housing/ui-components"
-import { Icon, Tooltip } from "../../../../../../../doorway-ui-components"
+import { Icon, Tooltip } from "@bloom-housing/doorway-ui-components"
 import { countyKeys, stateKeys } from "@bloom-housing/shared-helpers"
 import { FormListing } from "../../../../lib/listings/formTypes"
 import GeocodeService, {
@@ -320,14 +320,14 @@ const BuildingDetails = ({
                 <Icon size="medium" symbol="info" />
               </Tooltip>
             </p>
-            <li className={"list-disc list-inside"}>
+            <li className="list-disc list-inside">
               {t("county.goToOtherPortalsCitySanJose")}
               <Link href="https://partners.housingbayarea.org/">
                 {" "}
                 <Icon size="small" symbol="externalLink" />{" "}
               </Link>
             </li>
-            <li className={"list-disc list-inside"}>
+            <li className="list-disc list-inside">
               {t("county.goToOtherPortalsAlamedaSanMateo")}
               <Link href="https://partners.housingbayarea.org/">
                 {" "}

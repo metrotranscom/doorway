@@ -1,6 +1,6 @@
 // These classes are meant to replace Doorway usage of the "bg-[color-name]" tailwind class.
-// For some (likely complicated due to Node packaging reasons) Tailwind extensions don't
-// work in Doorway UIC :(
+// For some (likely complicated due to Node packaging) reasons Tailwind extensions come from
+// the original UIC package and so updates to Doorway UIC don't do anything.
 
 .doorway-bg-primary {
   background-color: var(--doorway-color-primary-background);

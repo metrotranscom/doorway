@@ -29,9 +29,9 @@ phases:
         docker build . -f build/docker/Dockerfile.sites-generic
         --target test
         --build-arg SITE=partners
-        --build-arg CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-        --build-arg FILE_SERVICE=${FILE_SERVICE}
-        --build-arg BACKEND_API_BASE=${BACKEND_API_BASE}
+        --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
+        --build-arg "FILE_SERVICE=${FILE_SERVICE}"
+        --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
         -t sites/partners:test
       
       # Run tests
@@ -42,9 +42,9 @@ phases:
         docker build . -f build/docker/Dockerfile.sites-generic
         --target run
         --build-arg SITE=partners
-        --build-arg CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-        --build-arg FILE_SERVICE=${FILE_SERVICE}
-        --build-arg BACKEND_API_BASE=${BACKEND_API_BASE}
+        --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
+        --build-arg "FILE_SERVICE=${FILE_SERVICE}"
+        --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
         -t sites/partners:run-candidate
       
       # Tag the run image

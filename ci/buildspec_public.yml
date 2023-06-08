@@ -31,11 +31,11 @@ phases:
         docker build
         -f build/docker/Dockerfile.sites-generic
         --build-arg SITE=public
-        --build-arg CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-        --build-arg FILE_SERVICE=${FILE_SERVICE}
-        --build-arg BACKEND_API_BASE=${BACKEND_API_BASE}
-        --build-arg JURISDICTION_NAME=${JURISDICTION_NAME}
-        --build-arg BLOOM_API_BASE=${BLOOM_API_BASE}
+        --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
+        --build-arg "FILE_SERVICE=${FILE_SERVICE}"
+        --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
+        --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
+        --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
         --target test
         -t sites/public:test
         .
@@ -48,11 +48,11 @@ phases:
         docker build
         -f build/docker/Dockerfile.sites-generic
         --build-arg SITE=public
-        --build-arg CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-        --build-arg FILE_SERVICE=${FILE_SERVICE}
-        --build-arg BACKEND_API_BASE=${BACKEND_API_BASE}
-        --build-arg JURISDICTION_NAME=${JURISDICTION_NAME}
-        --build-arg BLOOM_API_BASE=${BLOOM_API_BASE}
+        --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
+        --build-arg "FILE_SERVICE=${FILE_SERVICE}"
+        --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
+        --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
+        --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
         --target run
         -t sites/public:run-candidate
         .

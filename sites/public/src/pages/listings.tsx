@@ -58,7 +58,8 @@ export function getServerSideProps() {
       listingsEndpoint: getListingServiceUrl(),
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
       // show Bloom counties by default
-      initialSearch: "counties:Alameda,Contra Costa,Marin,San Francisco,San Mateo,Santa Clara,Solano,Sonoma",
+      initialSearch:
+        "counties:Alameda,Contra Costa,Marin,San Francisco,San Mateo,Santa Clara,Solano,Sonoma",
       bedrooms: bedroomOptions,
       bathrooms: bathroomOptions,
       locations: locations,

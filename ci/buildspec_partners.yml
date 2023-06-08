@@ -6,8 +6,6 @@
 # CLOUDINARY_CLOUD_NAME
 # FILE_SERVICE
 # BACKEND_API_BASE
-# JURISDICTION_NAME
-# BLOOM_API_BASE
 
 version: 0.2
 env:
@@ -34,8 +32,6 @@ phases:
         --build-arg CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME} \
         --build-arg FILE_SERVICE=${FILE_SERVICE} \
         --build-arg BACKEND_API_BASE=${BACKEND_API_BASE} \
-        --build-arg JURISDICTION_NAME=${JURISDICTION_NAME} \
-        --build-arg BLOOM_API_BASE=${BLOOM_API_BASE} \
         -t sites/partners:test
       
       # Run tests
@@ -49,8 +45,6 @@ phases:
         --build-arg CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME} \
         --build-arg FILE_SERVICE=${FILE_SERVICE} \
         --build-arg BACKEND_API_BASE=${BACKEND_API_BASE} \
-        --build-arg JURISDICTION_NAME=${JURISDICTION_NAME} \
-        --build-arg BLOOM_API_BASE=${BLOOM_API_BASE} \
         -t sites/partners:run-candidate
       
       # Tag the run image

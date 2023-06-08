@@ -28,7 +28,7 @@ phases:
 
       # Build test image
       - >
-        docker build 
+        docker build
         -f build/docker/Dockerfile.sites-generic
         --build-arg SITE=public
         --build-arg CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}

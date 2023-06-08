@@ -63,9 +63,6 @@ export function applicationSetup(app: INestApplication) {
     }
   }
 
-  console.log("Accepting cross origin requests from:")
-  console.log(allowList)
-
   app.enableCors((req, cb) => {
     const options = {
       credentials: true,

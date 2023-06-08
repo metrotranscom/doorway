@@ -108,7 +108,7 @@ export const getExternalListingSeedData = () => {
         zipCode: "90210",
         state: "CA",
         latitude: 37.42797,
-        longitude: -122.15900,
+        longitude: -122.159,
       },
       features: {
         elevator: true,

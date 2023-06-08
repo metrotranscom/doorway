@@ -9,7 +9,7 @@ import Layout from "../../../layouts/application"
 import { ListingView } from "../../../components/listing/ListingView"
 import { MetaTags } from "../../../components/shared/MetaTags"
 import { fetchJurisdictionByName } from "../../../lib/hooks"
-import { runtimeConfig } from "../../../lib/runtime-config"
+import { runtimeConfig, apiBase } from "../../../lib/runtime-config"
 
 interface ListingProps {
   listing: Listing
@@ -56,7 +56,7 @@ export async function getServerSideProps(context: { params: Record<string, strin
   let response
 
   try {
-    response = await axios.get(`${process.env.backendApiBase}/listings/${context.params.id}`)
+    response = await axios.get(`${process.env[apiBase]}/listings/${context.params.id}`)
   } catch (e) {
     return { notFound: true }
   }

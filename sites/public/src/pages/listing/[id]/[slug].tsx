@@ -15,7 +15,7 @@ import { ListingView } from "../../../components/listing/ListingView"
 import { MetaTags } from "../../../components/shared/MetaTags"
 import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
-import { runtimeConfig } from "../../../lib/runtime-config"
+import { runtimeConfig, apiBase } from "../../../lib/runtime-config"
 
 interface ListingProps {
   listing: Listing
@@ -129,7 +129,7 @@ export async function getServerSideProps(context: {
   let response
 
   try {
-    response = await axios.get(`${process.env.backendApiBase}/listings/${context.params.id}`, {
+    response = await axios.get(`${process.env[apiBase]}/listings/${context.params.id}`, {
       headers: { language: context.locale },
     })
   } catch (e) {

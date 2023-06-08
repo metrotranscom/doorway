@@ -11,6 +11,7 @@ import {
 import { t, ApplicationStatusType, StatusBarType } from "@bloom-housing/ui-components"
 import { ListingCard } from "@bloom-housing/doorway-ui-components"
 import { imageUrlFromListing, getSummariesTable } from "@bloom-housing/shared-helpers"
+import { apiBase } from "./runtime-config"
 
 export const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
@@ -18,17 +19,17 @@ export const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(
 // Thie lets us resolve values at runtime instead
 export const getListingServiceUrl = () => {
   let backendApiBase: string
-
-  if (process.env.BACKEND_PROXY_BASE) {
-    // try proxy base first
-    backendApiBase = process.env.BACKEND_PROXY_BASE
-  } else if (process.env.BACKEND_API_BASE) {
-    // then backend api base
-    backendApiBase = process.env.BACKEND_API_BASE
-  } else {
-    // fall back on next config value if absolutely necessary
-    backendApiBase = process.env.backendApiBase
-  }
+  backendApiBase = process.env[apiBase]
+  // if (process.env.BACKEND_PROXY_BASE) {
+  //   // try proxy base first
+  //   backendApiBase = process.env.BACKEND_PROXY_BASE
+  // } else if (process.env.BACKEND_API_BASE) {
+  //   // then backend api base
+  //   backendApiBase = process.env.BACKEND_API_BASE
+  // } else {
+  //   // fall back on next config value if absolutely necessary
+  //   backendApiBase = process.env.backendApiBase
+  // }
 
   return backendApiBase + process.env.LISTINGS_QUERY
 }

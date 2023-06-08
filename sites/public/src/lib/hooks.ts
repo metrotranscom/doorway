@@ -15,6 +15,7 @@ import {
 import { ParsedUrlQuery } from "querystring"
 import { AppSubmissionContext } from "./applications/AppSubmissionContext"
 import { getListingApplicationStatus } from "./helpers"
+import {apiBase} from "./runtime-config"
 
 export const useRedirectToPrevPage = (defaultPath = "/") => {
   const router = useRouter()
@@ -147,7 +148,7 @@ export async function fetchJurisdictionByName() {
 
     const jurisdictionName = process.env.jurisdictionName
     const jurisdictionRes = await axios.get(
-      `${process.env.backendApiBase}/jurisdictions/byName/${jurisdictionName}`
+      `${process.env[apiBase]}/jurisdictions/byName/${jurisdictionName}`
     )
     jurisdiction = jurisdictionRes?.data
   } catch (error) {

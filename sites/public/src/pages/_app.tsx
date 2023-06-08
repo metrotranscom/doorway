@@ -93,6 +93,7 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
   //     void axe(React, ReactDOM, 5000)
   //   }
   // }, [])
+  const apiBase = "apiBase"
 
   return (
     <NavigationContext.Provider
@@ -110,7 +111,7 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
           syncListing: setSavedListing,
         }}
       >
-        <ConfigProvider apiUrl={process.env.backendApiBase}>
+        <ConfigProvider apiUrl={process.env[apiBase]}>
           <AuthProvider>
             <LoggedInUserIdleTimeout onTimeout={() => conductor.reset()} />
             {hasMounted && <Component {...pageProps} />}

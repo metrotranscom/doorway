@@ -1,5 +1,6 @@
 // Next.js adds config values to process.env, but not as real props
 const runtimeVars = {}
+export const apiBase = 'apiBase'
 
 // copy over only the "real" env vars
 Object.keys(process.env).map((key) => {
@@ -41,16 +42,18 @@ export const runtimeConfig = {
   },
 
   getBackendApiBase() {
-    if (this.env.BACKEND_PROXY_BASE) {
-      // try proxy base first
-      return this.env.BACKEND_PROXY_BASE
-    } else if (process.env.BACKEND_API_BASE) {
-      // then backend api base
-      return process.env.BACKEND_API_BASE
-    }
+    return process.env[apiBase]
 
-    // fall back on next config value if absolutely necessary
-    return process.env.backendApiBase
+    // if (this.env.BACKEND_PROXY_BASE) {
+    //   // try proxy base first
+    //   return this.env.BACKEND_PROXY_BASE
+    // } else if (process.env.BACKEND_API_BASE) {
+    //   // then backend api base
+    //   return process.env.BACKEND_API_BASE
+    // }
+
+    // // fall back on next config value if absolutely necessary
+
   },
 
   getListingServiceUrl() {

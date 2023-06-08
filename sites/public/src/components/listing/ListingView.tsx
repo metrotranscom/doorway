@@ -563,7 +563,7 @@ export const ListingView = (props: ListingProps) => {
               aria-label="Opens in new window"
               className="lighter-uppercase"
             >
-              {t("t.viewOnMap")} <Icon size="small" symbol="link" />
+              {t("t.viewOnMap")} <Icon size="small" symbol="externalLink" />
             </Link>
           </p>
         </div>

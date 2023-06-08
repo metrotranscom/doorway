@@ -29,6 +29,9 @@ export default function ListingPage(props: ListingProps) {
   const pageTitle = `${listing.name} - ${t("nav.siteTitle")}`
   const { profile } = useContext(AuthContext)
 
+  console.log(apiBase)
+  console.log(process.env[apiBase])
+
   useEffect(() => {
     if (!listing.id) return
     pushGtmEvent<ListingDetail>({

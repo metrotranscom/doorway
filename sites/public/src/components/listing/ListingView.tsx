@@ -539,7 +539,6 @@ export const ListingView = (props: ListingProps) => {
             listingName: listing.name,
           })}
           modalCloseLabel={t("t.backToListing")}
-          modalCloseInContent
         />
         <div className="py-3 mx-3 mt-4 flex flex-col items-center md:items-start text-center md:text-left">
           <Heading

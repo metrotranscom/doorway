@@ -31,17 +31,10 @@ const ApplicationStatus = (props: ApplicationStatusProps) => {
   let textColor = vivid ? "text-white" : "text-gray-800"
   const textSize = vivid ? "text-2xs" : "text-xs"
 
-  const icon = withIcon && (
-    <Icon
-      size="medium"
-      symbol={iconType}
-      fill={iconColor || (vivid ? IconFillColors.white : undefined)}
-    />
-  )
-
   switch (status) {
     case ApplicationStatusType.Open:
       bgColor = vivid ? "doorway-bg-primary" : "doorway-bg-primary-light"
+      textColor = "text-gray-800"
       break
     case ApplicationStatusType.Closed:
       bgColor = vivid ? "bg-alert" : "bg-alert-light"
@@ -57,8 +50,9 @@ const ApplicationStatus = (props: ApplicationStatusProps) => {
     default:
       bgColor = "bg-primary"
   }
+  const icon = withIcon && <Icon size="medium" symbol={iconType} fill={iconColor || textColor} />
 
-  const classNames = ["application-status", textSize, textColor, bgColor]
+  const classNames = ["application-status", "text__light-weighted", textSize, textColor, bgColor]
   if (className) {
     classNames.push(className)
   }

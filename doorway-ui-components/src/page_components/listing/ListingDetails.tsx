@@ -20,8 +20,6 @@ export const ListingDetailItem = (props: ListingDetailHeaderProps) => (
       <ListingDetailHeader
         title={props.title}
         subtitle={props.subtitle}
-        imageSrc={props.imageSrc}
-        imageAlt={props.imageAlt}
         hideHeader={props.hideHeader}
       />
     </ResponsiveContentItemHeader>

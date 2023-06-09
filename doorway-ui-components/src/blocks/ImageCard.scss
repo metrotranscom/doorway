@@ -150,11 +150,13 @@
 .image-card--leader {
   --leader-width: var(--bloom-width-2-3rd);
   width: 100%;
+  margin: 0 var(--bloom-s4);
 
   @media (min-width: $screen-md) {
     width: var(--leader-width);
     padding-block-start: 0;
     padding-inline-end: var(--bloom-s8);
+    margin: 0;
   }
 }
 

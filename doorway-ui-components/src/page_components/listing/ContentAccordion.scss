@@ -2,7 +2,8 @@
   background-color: var(--doorway-color-secondary-background);
   @apply p-4;
   @apply border-b;
-  @apply border-primary;
+  @apply border-0;
+  border-radius: var(--doorway-standard-border-radius) var(--doorway-standard-border-radius) 0 0;
   @apply flex;
   @apply justify-between;
   @apply font-sans;
@@ -37,4 +38,5 @@
   @apply font-sans;
   @apply text-sm;
   @apply text-gray-800;
+  @apply font-bold;
 }

@@ -1,7 +1,7 @@
 .custom-counter__item {
   @screen md {
     @apply mb-12;
-    @apply ml-8;
+    @apply ml-4;
     @apply pl-12;
     @apply relative;
     counter-increment: step-counter;

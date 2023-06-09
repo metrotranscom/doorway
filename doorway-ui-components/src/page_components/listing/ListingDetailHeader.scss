@@ -6,6 +6,7 @@
   --title-mobile-font-size: var(--bloom-font-size-sm);
   --title-desktop-font-family: var(--bloom-font-serif);
   --title-mobile-font-family: var(--bloom-font-alt-sans);
+  --title-font-weight: 700;
   position: relative;
   padding: var(--bloom-s4) var(--bloom-s4) var(--bloom-s6) var(--bloom-s4);
   border-bottom: 1px solid var(--bloom-color-gray-400);
@@ -16,6 +17,7 @@
   @media (min-width: $screen-md) {
     padding-top: 0;
     padding-bottom: var(--bloom-s8);
+    padding-left: 0;
     border: none;
     color: var(--bloom-color-gray-800);
   }
@@ -40,15 +42,15 @@
 }
 
 .detail-header__hgroup {
-  margin-left: var(--bloom-s12);
-  padding-left: var(--bloom-s4);
+  margin-left: 0;
+  padding-left: 0;
 
   @media (min-width: $screen-md) {
-    border-left: 2px solid var(--bloom-color-primary);
+    border-left: none;
   }
 
   [dir="rtl"] & {
-    margin-right: var(--bloom-s4);
+    margin-right: 0;
   }
 
   .ui-icon {
@@ -78,6 +80,7 @@
   font-size: var(--title-mobile-font-size);
   letter-spacing: 0.1rem;
   color: var(--text-color);
+  font-weight: var(--title-font-weight);
   @media (min-width: $screen-md) {
     font-family: var(--title-desktop-font-family);
     font-size: var(--title-desktop-font-size);

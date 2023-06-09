@@ -21,8 +21,6 @@ import {
   InfoCard,
   Contact,
   ListSection,
-  ListingDetailItem,
-  ListingDetails,
   Message,
   OneLineAddress,
   EventSection,
@@ -40,6 +38,8 @@ import {
   GroupedTable,
   ImageCard,
   Icon,
+  ListingDetails,
+  ListingDetailItem,
   StandardTable,
 } from "@bloom-housing/doorway-ui-components"
 import {
@@ -446,7 +446,7 @@ export const ListingView = (props: ListingProps) => {
 
   const additionalInformationCard = (cardTitle: string, cardData: string) => {
     return (
-      <div className="info-card">
+      <div className="info-card md:mx-0">
         <h3 className="text-serif-xl">{cardTitle}</h3>
         <p className="text-xs text-gray-700 break-words">
           <Markdown children={cardData} options={{ disableParsingRawHTML: true }} />
@@ -540,7 +540,7 @@ export const ListingView = (props: ListingProps) => {
           })}
           modalCloseLabel={t("t.backToListing")}
         />
-        <div className="py-3 mx-3 mt-4 flex flex-col items-center md:items-start text-center md:text-left">
+        <div className="py-3 mt-4 flex flex-col items-center md:items-start text-center md:text-left">
           <Heading
             priority={1}
             styleType={"largePrimary"}
@@ -568,7 +568,7 @@ export const ListingView = (props: ListingProps) => {
         </div>
       </header>
 
-      <div className="w-full md:w-2/3 md:mt-6 md:mb-6 md:px-3 md:pr-8">
+      <div className="w-full md:w-2/3 md:mt-6 md:mb-6 md:pr-8">
         {listing.reservedCommunityType && (
           <Message warning={true}>
             {t("listings.reservedFor", {
@@ -631,11 +631,8 @@ export const ListingView = (props: ListingProps) => {
       </div>
       <ListingDetails>
         <ListingDetailItem
-          imageAlt={t("listings.eligibilityNotebook")}
-          imageSrc="/images/listing-eligibility.svg"
           title={t("listings.sections.eligibilityTitle")}
           subtitle={t("listings.sections.eligibilitySubtitle")}
-          desktopClass="doorway-bg-primary-light"
         >
           <ul>
             {listing.reservedCommunityType && (
@@ -750,8 +747,6 @@ export const ListingView = (props: ListingProps) => {
         </ListingDetailItem>
 
         <ListingDetailItem
-          imageAlt={t("listings.processInfo")}
-          imageSrc="/images/listing-process.svg"
           title={t("listings.sections.processTitle")}
           subtitle={t("listings.sections.processSubtitle")}
           hideHeader={true}
@@ -840,8 +835,6 @@ export const ListingView = (props: ListingProps) => {
         </ListingDetailItem>
 
         <ListingDetailItem
-          imageAlt={t("listings.featuresCards")}
-          imageSrc="/images/listing-features.svg"
           title={t("listings.sections.featuresTitle")}
           subtitle={t("listings.sections.featuresSubtitle")}
         >
@@ -907,8 +900,6 @@ export const ListingView = (props: ListingProps) => {
         </ListingDetailItem>
 
         <ListingDetailItem
-          imageAlt={t("listings.neighborhoodBuildings")}
-          imageSrc="/images/listing-neighborhood.svg"
           title={t("t.neighborhood")}
           subtitle={t("listings.sections.neighborhoodSubtitle")}
           desktopClass="doorway-bg-primary-lighter"
@@ -924,8 +915,6 @@ export const ListingView = (props: ListingProps) => {
 
         {(listing.requiredDocuments || listing.programRules || listing.specialNotes) && (
           <ListingDetailItem
-            imageAlt={t("listings.additionalInformationEnvelope")}
-            imageSrc="/images/listing-legal.svg"
             title={t("listings.additionalInformation")}
             subtitle={t("listings.sections.additionalInformationSubtitle")}
           >

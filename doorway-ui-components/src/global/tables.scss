@@ -13,12 +13,9 @@ https://www.cssscript.com/pure-html5-css3-responsive-table-solution/ */
       @apply mb-6;
     }
 
-    tr:nth-of-type(even) {
+    tr:nth-of-type(even),
+    tr:nth-of-type(odd) {
       background: inherit;
-    }
-
-    td:nth-of-type(even) {
-      @apply doorway-bg-primary-light;
     }
 
     td {
@@ -346,8 +343,6 @@ table tr:nth-of-type(even) {
 table tr:nth-of-type(odd) {
   @apply doorway-bg-primary-light;
 }
-
-
 
 td.reserved {
   @apply font-sans;

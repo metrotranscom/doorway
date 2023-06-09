@@ -81,6 +81,7 @@ const ImageCard = (props: ImageCardProps) => {
           iconType={status.iconType}
           vivid
           key={index}
+          className="mt-1"
         />
       )
     })

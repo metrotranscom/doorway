@@ -21,6 +21,8 @@ interface ActionBlockProps {
   icon?: React.ReactNode
   layout?: ActionBlockLayout
   subheader?: string
+  subheader2?: string
+  subheader3?: string
 }
 const ActionBlock = ({
   actions,
@@ -30,6 +32,8 @@ const ActionBlock = ({
   icon,
   layout = ActionBlockLayout.block,
   subheader,
+  subheader2,
+  subheader3,
 }: ActionBlockProps) => {
   const actionBlockClasses = ["action-block", `${className ? className : ""}`]
   if (background) actionBlockClasses.push(background)
@@ -45,7 +49,10 @@ const ActionBlock = ({
         {icon && <div className="action-block__icon">{icon}</div>}
         <div className={"action-block__header"}>{header}</div>
         {subheader && layout === ActionBlockLayout.block && (
-          <p className="action-block__subheader">{subheader}</p>
+          <p className="action-block__subheader">{subheader}</p>          
+        )}
+        {subheader && layout === ActionBlockLayout.block && (
+          <p className="action-block__subheader">{subheader2} {subheader3}</p>
         )}
       </div>
       <div className="action-block__actions">{actions}</div>

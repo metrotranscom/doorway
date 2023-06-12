@@ -49,6 +49,10 @@ phases:
       # Wait for the service to stablize
       - aws ecs wait services-stable --cluster "${DEV_ECS_BACKEND_CLUSTER}" --services "${DEV_ECS_BACKEND_SERVICE}"
 
+      # Default to running the migration
+      # Can also be used for a full reseed
+      - export MIGRATION_CMD="${MIGRATION_CMD:-db:migration:run}"
+
       # db:reseed
       - >
         docker run
@@ -70,7 +74,7 @@ phases:
         --env PARTNERS_PORTAL_URL=$PARTNERS_PORTAL_URL
         --env BLOOM_API_BASE=$BLOOM_API_BASE
         --env BLOOM_LISTINGS_QUERY=$BLOOM_LISTINGS_QUERY
-        "${ECR_REPO}/backend:migrate" sh -c "yarn db:reseed"
+        "${ECR_REPO}/backend:migrate" sh -c "yarn ${MIGRATION_CMD}"
 
       # Push promoted images
       - docker push "${ECR_REPO}/backend:run"

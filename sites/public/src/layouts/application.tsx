@@ -2,9 +2,9 @@ import React from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import Head from "next/head"
-import { SiteFooter, FooterNav, FooterSection, t } from "@bloom-housing/ui-components"
-import { ExygyFooter } from "@bloom-housing/shared-helpers"
 import { getSiteHeader } from "../lib/helpers"
+import { t } from "@bloom-housing/ui-components"
+import { SiteFooter, FooterNav, FooterSection } from "@bloom-housing/doorway-ui-components"
 
 const Layout = (props) => {
   const router = useRouter()
@@ -21,12 +21,14 @@ const Layout = (props) => {
       </div>
 
       <SiteFooter>
-        <FooterNav copyright={t("footer.copyright")}>
+        <FooterNav>
           <Link href="/privacy">{t("pageTitle.privacy")}</Link>
-          <Link href="/disclaimer">{t("pageTitle.disclaimer")}</Link>
+          <Link href="/disclaimer">{t("pageTitle.termsOfUse")}</Link>
+          <Link href="/disclaimer">{t("pageTitle.bahfaNonDiscriminationStatement")}</Link>
+          <Link href="/disclaimer">{t("pageTitle.languageAssistance")}</Link>
         </FooterNav>
-        <FooterSection className="bg-black" small>
-          <ExygyFooter />
+        <FooterSection className="bg-gray-950" small>
+          {t("footer.bahfaCopyright")}
         </FooterSection>
       </SiteFooter>
     </div>

@@ -71,7 +71,7 @@ export default function Home(props: IndexProps) {
         className="p-12"
         header={<Heading priority={2}>{t("welcome.introduction")}</Heading>}
         subheader={t("welcome.useDoorwayPart1")}
-        subheader2={t("welcome.useDoorwayPart2")} 
+        subheader2={t("welcome.useDoorwayPart2")}
         subheader3={t("welcome.useDoorwayLinkToBAHFA")}
         background="secondary-lighter"
         actions={[
@@ -90,12 +90,15 @@ export default function Home(props: IndexProps) {
       />
       <div className="homepage-extra warn">
         <div className="action-blocks pb-4 pt-4 w-full space-between items-start">
-          <InfoCard title={t("welcome.needOtherHelp")} className="flex-1 is-inline is-normal text-left">
+          <InfoCard
+            title={t("welcome.needOtherHelp")}
+            className="flex-1 is-inline is-normal text-left"
+          >
             <img
               src={"images/person-holding-hands.jpg"}
               alt={t("welcome.peopleHoldingHandsAlt")}
               className={"mt-4 mb-4 rounded-3xl"}
-            />            
+            />
             <p className="text-gray-950 text__medium-normal mb-4 font-semibold">
               {t("welcome.emergencyHousing")}
             </p>
@@ -112,7 +115,10 @@ export default function Home(props: IndexProps) {
               {t("welcome.getHelp")}
             </LinkButton>
           </InfoCard>
-          <InfoCard title={t("welcome.haveQuestions")} className="flex-1 is-inline is-normal text-left">
+          <InfoCard
+            title={t("welcome.haveQuestions")}
+            className="flex-1 is-inline is-normal text-left"
+          >
             <img
               src={"images/person-laptop.jpg"}
               alt={t("welcome.personLaptopAlt")}

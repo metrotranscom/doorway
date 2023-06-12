@@ -4,10 +4,13 @@ footer.site-footer {
   @apply bg-gray-800;
   @apply text-left;
 
+  display: flex;
+  flex-direction: column;
+
   img {
     @apply inline;
     width: 130px;
-    opacity: 0.8;
+    opacity: 1;
   }
 
   a {

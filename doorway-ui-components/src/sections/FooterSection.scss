@@ -2,5 +2,12 @@
   @apply max-w-5xl;
   @apply m-auto;
   @apply px-2;
-  @apply text-center;
+  @apply text-left;
+
+  display: flex;
+  flex-direction: row;
+
+  @media (max-width: $screen-md) {
+    flex-direction: column;
+  }
 }

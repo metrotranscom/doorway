@@ -1,5 +1,5 @@
 .footer-sock {
-  --background-color: var(--bloom-color-gray-900);
+  --background-color: var(--bloom-color-gray-800);
   --copyright-text-color: var(--bloom-color-gray-500);
   --copyright-width: auto;
 
@@ -45,14 +45,5 @@
   .footer-nav {
     @apply mt-5;
     width: auto;
-
-    @screen lg {
-      @apply mt-0;
-      @apply text-right;
-      display: flex;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
   }
 }

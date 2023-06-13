@@ -23,8 +23,10 @@ phases:
     commands:
       - export ECR_REPO="${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_NAMESPACE}"
 
+      - export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+
       # Pull down migration candidate image
-      - docker pull "${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker pull "${MIGRATION_IMAGE}"
 
       # Default to db:migration:run
       - export MIGRATION_CMD="${MIGRATION_CMD:-db:migration:run}"
@@ -50,4 +52,4 @@ phases:
         --env PARTNERS_PORTAL_URL=$PARTNERS_PORTAL_URL
         --env BLOOM_API_BASE=$BLOOM_API_BASE
         --env BLOOM_LISTINGS_QUERY=$BLOOM_LISTINGS_QUERY
-        "${ECR_REPO}/backend:migrate" sh -c "yarn ${MIGRATION_CMD}"
+        "${MIGRATION_IMAGE}" sh -c "yarn ${MIGRATION_CMD}"

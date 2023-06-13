@@ -23,8 +23,10 @@ phases:
     commands:
       - export ECR_REPO="${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_NAMESPACE}"
 
+      - export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+
       # Pull down migration candidate image
-      - docker pull "${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker pull "${MIGRATION_IMAGE}"
 
       # The backend needs to be completely turned down for a reseed
       # If the backend is still running, the reseed step fails due to open connections
@@ -64,7 +66,7 @@ phases:
         --env PARTNERS_PORTAL_URL=$PARTNERS_PORTAL_URL
         --env BLOOM_API_BASE=$BLOOM_API_BASE
         --env BLOOM_LISTINGS_QUERY=$BLOOM_LISTINGS_QUERY
-        "${ECR_REPO}/backend:migrate" sh -c "yarn ${MIGRATION_CMD}"
+        "${MIGRATION_IMAGE}" sh -c "yarn ${MIGRATION_CMD}"
 
       # Start the backend back up with the previous number of desired containers
       - aws ecs update-service --cluster "${DEV_ECS_BACKEND_CLUSTER}" --service "${DEV_ECS_BACKEND_SERVICE}" --desired-count $BACKEND_COUNT

@@ -21,19 +21,19 @@ const Layout = (props) => {
       </div>
 
       <SiteFooter>
-        <FooterSection sectionClassName="">
-          <div className="flex-1 text-left">
+        <FooterSection sectionClassName="justify-around" small>
+          <div className="text-left">
             <img
-              className="h-16 w-16"
+              className="h-20 w-20 mr-3"
               src="/images/bahfa-logo.png"
               alt="Bay Area Housing Finance Authority Logo"
             />
             <img
-              className="h-400 w-400"
+              className="h-24 w-96"
               src="/images/mtc-abag-logo.svg"
               alt="Association of Bay Area Governments - Metropolitan Transporation Commission Logo"
             />
-            <p>
+            <p className="mt-8 text-white">
               375 Beale Street, Suite 800
               <br /> San Francisco, CA 94105-2066
               <br /> Monday-Friday 9:00am - 5:00pm
@@ -41,7 +41,7 @@ const Layout = (props) => {
               bahfa@bayareametro.gov
             </p>
           </div>
-          <div className="flex-1 text-left">
+          <div className="text-left">
             <FooterNav>
               <Link href="https://mtc.ca.gov/doorway-housing-portal-privacy-policy" target="_blank">
                 {t("pageTitle.privacy")}
@@ -60,30 +60,38 @@ const Layout = (props) => {
               </Link>
             </FooterNav>
             <Link href="https://twitter.com/mtcbata" target="_blank">
-              <img className="h-8 w-8" src="/images/twitter-logo.svg" alt="Twitter Logo" />
+              <img className="h-10 w-10 mr-4" src="/images/twitter-logo.svg" alt="Twitter Logo" />
             </Link>
             <Link
               href="https://www.linkedin.com/company/metropolitan-transportation-commission"
               target="_blank"
             >
-              <img className="h-8 w-8" src="/images/linkedin-logo.svg" alt="LinkedIn Logo" />
+              <img className="h-10 w-10 mr-4" src="/images/linkedin-logo.svg" alt="LinkedIn Logo" />
             </Link>
             <Link href="https://www.facebook.com/MTCBATA" target="_blank">
-              <img className="h-8 w-8" src="/images/facebook-logo.svg" alt="Facebook Logo" />
+              <img className="h-10 w-10 mr-4" src="/images/facebook-logo.svg" alt="Facebook Logo" />
             </Link>
             <Link href="https://www.youtube.com/user/mtcabaglibrary" target="_blank">
-              <img className="h-8 w-8" src="/images/youtube-logo.svg" alt="YouTube Logo" />
+              <img className="h-10 w-10 mr-4" src="/images/youtube-logo.svg" alt="YouTube Logo" />
             </Link>
             <Link href="https://www.instagram.com/mtcbata/" target="_blank">
-              <img className="h-8 w-8" src="/images/instagram-logo.svg" alt="Instagram Logo" />
+              <img
+                className="h-10 w-10 mr-4"
+                src="/images/instagram-logo.svg"
+                alt="Instagram Logo"
+              />
             </Link>
           </div>
         </FooterSection>
-        <FooterSection className="bg-gray-950" small sectionClassName="space-between">
-          <div className="flex-1">{t("footer.bahfaCopyright")}</div>
-          <div className="flex-1">
+        <FooterSection
+          className="bg-gray-950"
+          small
+          sectionClassName="items:start md:items-center justify-start md:justify-between"
+        >
+          <div className="">{t("footer.bahfaCopyright")}</div>
+          <div className="">
             <img
-              className="h-16 w-16"
+              className="h-20 w-20"
               src="/images/eho-logo.svg"
               alt="Equal Housing Opportunity Logo"
             />

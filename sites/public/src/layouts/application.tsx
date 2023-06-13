@@ -22,7 +22,7 @@ const Layout = (props) => {
 
       <SiteFooter>
         <FooterSection sectionClassName="">
-          <div className="flex-1 is-normal text-left">
+          <div className="flex-1 text-left">
             <img
               className="h-16 w-16"
               src="/images/bahfa-logo.png"
@@ -41,13 +41,42 @@ const Layout = (props) => {
               bahfa@bayareametro.gov
             </p>
           </div>
-          <div className="flex-1 is-normal text-left">
+          <div className="flex-1 text-left">
             <FooterNav>
-              <Link href="/privacy">{t("pageTitle.privacy")}</Link>
-              <Link href="/disclaimer">{t("pageTitle.termsOfUse")}</Link>
-              <Link href="/disclaimer">{t("pageTitle.bahfaNonDiscriminationStatement")}</Link>
-              <Link href="/disclaimer">{t("pageTitle.languageAssistance")}</Link>
+              <Link href="https://mtc.ca.gov/doorway-housing-portal-privacy-policy" target="_blank">
+                {t("pageTitle.privacy")}
+              </Link>
+              <Link href="https://mtc.ca.gov/doorway-housing-portal-terms-use" target="_blank">
+                {t("pageTitle.termsOfUse")}
+              </Link>
+              <Link href="https://mtc.ca.gov/bahfa-non-discrimination-statement" target="_blank">
+                {t("pageTitle.bahfaNonDiscriminationStatement")}
+              </Link>
+              <Link
+                href="https://mtc.ca.gov/about-mtc/public-participation/language-assistance"
+                target="_blank"
+              >
+                {t("pageTitle.languageAssistance")}
+              </Link>
             </FooterNav>
+            <Link href="https://twitter.com/mtcbata" target="_blank">
+              <img className="h-8 w-8" src="/images/twitter-logo.svg" alt="Twitter Logo" />
+            </Link>
+            <Link
+              href="https://www.linkedin.com/company/metropolitan-transportation-commission"
+              target="_blank"
+            >
+              <img className="h-8 w-8" src="/images/linkedin-logo.svg" alt="LinkedIn Logo" />
+            </Link>
+            <Link href="https://www.facebook.com/MTCBATA" target="_blank">
+              <img className="h-8 w-8" src="/images/facebook-logo.svg" alt="Facebook Logo" />
+            </Link>
+            <Link href="https://www.youtube.com/user/mtcabaglibrary" target="_blank">
+              <img className="h-8 w-8" src="/images/youtube-logo.svg" alt="YouTube Logo" />
+            </Link>
+            <Link href="https://www.instagram.com/mtcbata/" target="_blank">
+              <img className="h-8 w-8" src="/images/instagram-logo.svg" alt="Instagram Logo" />
+            </Link>
           </div>
         </FooterSection>
         <FooterSection className="bg-gray-950" small sectionClassName="space-between">

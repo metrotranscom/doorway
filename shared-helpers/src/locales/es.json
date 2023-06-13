@@ -390,7 +390,7 @@
   "authentication.signOut.success": "La sesión de su cuenta ha sido cerrada exitosamente.",
   "authentication.terms.acceptToc": "Acepto los términos del servicio",
   "authentication.terms.reviewToc": "Por favor_ revise los términos de servicio",
-  "authentication.terms.termsOfService": "Términos de servicio",
+  "authentication.terms.termsOfService": "Términos de servicio: https://mtc.ca.gov/doorway-housing-portal-terms-use",
   "authentication.terms.youMustAcceptToc": "Para continuar_ deberá aceptar los Términos de Servicio",
   "authentication.timeout.action": "Permanecer en la sesión",
   "authentication.timeout.signOutMessage": "Su seguridad es importante para nosotros. Concluimos su sesión debido a inactividad. Sírvase iniciar sesión para continuar.",

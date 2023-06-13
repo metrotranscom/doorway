@@ -1,9 +1,9 @@
 .page-header {
   /* Component Variables */
-  --background-color: var(--bloom-color-gray-300);
-  --border-color: var(--bloom-color-gray-450);
+  --background-color: var(--doorway-color-secondary);
+  --border-color: var(--bloom-color-primary-lightest);
   --text-color: inherit;
-  --text-font-family: var(--bloom-font-serif);
+  --text-font-family: var(--bloom-font-sans);
   --inverse-background-color: var(--bloom-color-primary-darker);
   --inverse-border-color: var(--bloom-color-primary);
   --inverse-text-color: var(--bloom-color-white);
@@ -28,14 +28,14 @@
     --background-color: var(--inverse-background-color);
     --border-color: var(--inverse-border-color);
     --text-color: var(--inverse-text-color);
-  }
+  }  
 }
 
 .page-header__group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 var(--bloom-s5);
+  padding: 0;
   margin: auto;
   max-width: var(--bloom-width-5xl);
 

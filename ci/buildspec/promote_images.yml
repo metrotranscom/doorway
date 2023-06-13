@@ -7,8 +7,8 @@ phases:
       # Retag these images to the expected run tag to promote them as the new version
 
       # Backend
-      - ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/backend "run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}" run
-      - ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/backend "migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}" migrate
+      #- ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/backend "run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}" run
+      #- ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/backend "migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}" migrate
 
       # Public site
       #- ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/public run-candidate run

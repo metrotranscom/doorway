@@ -11,10 +11,10 @@ phases:
       - bash ./ci/scripts/add_image_tag.sh ${ECR_NAMESPACE}/backend "migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}" migrate
 
       # Public site
-      #- bash ./ci/scripts/add_image_tag.sh ${ECR_NAMESPACE}/public run-candidate run
+      - bash ./ci/scripts/add_image_tag.sh ${ECR_NAMESPACE}/public run-candidate run
 
       # Partner site
-      #- bash ./ci/scripts/add_image_tag.sh ${ECR_NAMESPACE}/partners run-candidate run
+      - bash ./ci/scripts/add_image_tag.sh ${ECR_NAMESPACE}/partners run-candidate run
 
       # Import listings task
       - bash ./ci/scripts/add_image_tag.sh ${ECR_NAMESPACE}/import-listings run-"${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}" run

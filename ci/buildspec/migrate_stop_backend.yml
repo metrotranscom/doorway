@@ -28,19 +28,22 @@ phases:
       # Pull down migration candidate image
       - docker pull "${MIGRATION_IMAGE}"
 
+      # Use the defulat cluster if something more specific hasn't been provided
+      - export ECS_BACKEND_CLUSTER="${ECS_BACKEND_CLUSTER:-${ECS_DEFAULT_CLUSTER}}"
+
       # The backend needs to be completely turned down for a reseed
       # If the backend is still running, the reseed step fails due to open connections
 
       # Check current backend desired count
-      - export FOUND_BACKEND_COUNT=$(aws ecs  describe-services --cluster "${DEV_ECS_BACKEND_CLUSTER}" --service "${DEV_ECS_BACKEND_SERVICE}" | jq -r .services[0].desiredCount)
+      - export FOUND_BACKEND_COUNT=$(aws ecs  describe-services --cluster "${ECS_BACKEND_CLUSTER}" --service "${ECS_BACKEND_SERVICE}" | jq -r .services[0].desiredCount)
       # We have to quote this line or YAML attempts to interpret the `: ` as a dict key(this is a YAML feature, not a bug)
       - "export BACKEND_COUNT=$((FOUND_BACKEND_COUNT<1 ? 1 : FOUND_BACKEND_COUNT))"
 
       # Scale to 0
-      - aws ecs update-service --cluster "${DEV_ECS_BACKEND_CLUSTER}" --service "${DEV_ECS_BACKEND_SERVICE}" --desired-count 0
+      - aws ecs update-service --cluster "${ECS_BACKEND_CLUSTER}" --service "${ECS_BACKEND_SERVICE}" --desired-count 0
 
       # Wait for the service to stablize
-      - aws ecs wait services-stable --cluster "${DEV_ECS_BACKEND_CLUSTER}" --services "${DEV_ECS_BACKEND_SERVICE}"
+      - aws ecs wait services-stable --cluster "${ECS_BACKEND_CLUSTER}" --services "${ECS_BACKEND_SERVICE}"
 
       # Default to db:reseed:ci
       - export MIGRATION_CMD="${MIGRATION_CMD:-db:reseed:ci}"
@@ -69,4 +72,4 @@ phases:
         "${MIGRATION_IMAGE}" sh -c "yarn ${MIGRATION_CMD}"
 
       # Start the backend back up with the previous number of desired containers
-      - aws ecs update-service --cluster "${DEV_ECS_BACKEND_CLUSTER}" --service "${DEV_ECS_BACKEND_SERVICE}" --desired-count $BACKEND_COUNT
+      - aws ecs update-service --cluster "${ECS_BACKEND_CLUSTER}" --service "${ECS_BACKEND_SERVICE}" --desired-count $BACKEND_COUNT

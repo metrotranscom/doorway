@@ -49,6 +49,8 @@ phases:
       - echo "${SOURCE_IMAGE_URL}"
       - echo "${DEST_IMAGE_URL}"
 
+      - echo "Copying image from ${SOURCE_IMAGE_URL} to ${DEST_IMAGE_URL}"
+
       # Pull down image from source repo
       - docker pull "${SOURCE_IMAGE_URL}"
 

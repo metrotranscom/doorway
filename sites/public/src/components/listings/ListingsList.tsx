@@ -11,7 +11,7 @@ import {
 import { Pagination } from "./Pagination"
 
 type ListingsListProps = {
-  jurisdiction:Jurisdiction
+  jurisdiction: Jurisdiction
   listings: Listing[]
   currentPage: number
   lastPage: number

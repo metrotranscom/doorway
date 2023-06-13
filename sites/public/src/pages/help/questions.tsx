@@ -1,11 +1,10 @@
 import React, { useEffect, useContext } from "react"
-import { MarkdownSection, t } from "@bloom-housing/ui-components"
-import { PageHeader } from "@bloom-housing/doorway-ui-components"
-import Markdown from "markdown-to-jsx"
+import { t } from "@bloom-housing/ui-components"
+import { DoorwayLinkableCardGroup, PageHeader } from "@bloom-housing/doorway-ui-components"
 import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
-import pageContent from "../../md_content/privacy_policy.md"
+import { questionsCardIntro, questionsLinkableCards } from "../../tsx_content/questions-cards"
 
 const FrequentlyAskedQuestions = () => {
   const { profile } = useContext(AuthContext)
@@ -23,9 +22,11 @@ const FrequentlyAskedQuestions = () => {
   return (
     <Layout>
       <PageHeader title={pageTitle} />
-      <MarkdownSection>
-        <Markdown>{pageContent}</Markdown>
-      </MarkdownSection>
+      <div className="my-14">
+        <DoorwayLinkableCardGroup cards={questionsLinkableCards} className="m-auto">
+          {questionsCardIntro}
+        </DoorwayLinkableCardGroup>
+      </div>
     </Layout>
   )
 }

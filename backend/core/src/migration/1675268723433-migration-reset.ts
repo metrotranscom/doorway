@@ -383,7 +383,7 @@ export class migrationReset1675268723433 implements MigrationInterface {
     for (const jurisdictionName of [CountyCode.bay_area]) {
       await queryRunner.query(
         `INSERT INTO "jurisdictions" (name, rental_assistance_default, partner_terms) VALUES ($1, $2, $3)`,
-        [jurisdictionName, jurisDefault, "Example Terms Go here"]
+        [jurisdictionName, jurisDefault, "Please review terms here: https://mtc.ca.gov/doorway-housing-portal-terms-use"]
       )
     }
     for (const unitType of [

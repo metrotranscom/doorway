@@ -32,24 +32,23 @@ phases:
       - export MIGRATION_CMD="${MIGRATION_CMD:-db:migration:run}"
 
       # Execute migration
+      # Note that many of these vars are required by the app but not used for migration
       - >
         docker run
-        --env CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME
-        --env FILE_SERVICE=$FILE_SERVICE
-        --env LISTINGS_QUERY=$LISTINGS_QUERY
-        --env PGUSER=$PGUSER
-        --env PGPASSWORD=$PGPASSWORD
-        --env PGHOST=$PGHOST
+        --env PGUSER="${PGUSER}"
+        --env PGPASSWORD="${PGPASSWORD}"
+        --env PGHOST="${PGHOST}"
         --env PGDATABASE=template1
-        --env PGPORT=$PGPORT
-        --env PORT=$PORT
-        --env EMAIL_API_KEY=$EMAIL_API_KEY
-        --env DATABASE_URL=$DATABASE_URL
-        --env APP_SECRET=$APP_SECRET
-        --env CLOUDINARY_SECRET=$CLOUDINARY_SECRET
-        --env CLOUDINARY_KEY=$CLOUDINARY_KEY
-        --env PARTNERS_BASE_URL=$PARTNERS_BASE_URL
-        --env PARTNERS_PORTAL_URL=$PARTNERS_PORTAL_URL
-        --env BLOOM_API_BASE=$BLOOM_API_BASE
-        --env BLOOM_LISTINGS_QUERY=$BLOOM_LISTINGS_QUERY
+        --env PGPORT="${PGPORT}"
+        --env DATABASE_URL="${DATABASE_URL}"
+        --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
+        --env LISTINGS_QUERY="${LISTINGS_QUERY}"
+        --env FILE_SERVICE="${FILE_SERVICE:-cloudinary}"
+        --env PORT="${PORT:-3100}"
+        --env EMAIL_API_KEY="${EMAIL_API_KEY:-SG.dummy_value}"
+        --env APP_SECRET="${APP_SECRET:-dummy-value-that-is-at-least-16-character-long}"
+        --env CLOUDINARY_SECRET="${CLOUDINARY_SECRET:-dummy_secret}"
+        --env CLOUDINARY_KEY="${CLOUDINARY_KEY:-dummy_key}"
+        --env PARTNERS_BASE_URL="${PARTNERS_BASE_URL:-http://localhost:3001/not-used}"
+        --env PARTNERS_PORTAL_URL="${PARTNERS_PORTAL_URL:-http://localhost:3001/not-used}"
         "${MIGRATION_IMAGE}" sh -c "yarn ${MIGRATION_CMD}"

@@ -25,7 +25,7 @@ const DoorwayCollapsibleSection = ({
       }}
     >
       <div className="doorway-collapsible-section_heading-container">
-        <Heading priority={4} className={"text__large-primary	"}>
+        <Heading priority={4} className={"text__large-primary"}>
           {title}
         </Heading>
         <button

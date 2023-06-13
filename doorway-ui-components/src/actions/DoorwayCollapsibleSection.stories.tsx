@@ -1,13 +1,10 @@
 import * as React from "react"
-
 import { DoorwayCollapsibleSection } from "./DoorwayCollapsibleSection"
 
 export default {
   title: "Actions/Doorway Collapsible Section",
   id: "actions-collapsible-section",
 }
-
-const content = <div className={"mb-2"}>Sample Content</div>
 
 export const standard = () => (
   <>

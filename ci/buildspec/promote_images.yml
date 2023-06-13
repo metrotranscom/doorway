@@ -1,0 +1,20 @@
+version: 0.2
+env:
+  shell: bash
+phases:
+  build:
+    commands:
+      # Retag these images to the expected run tag to promote them as the new version
+
+      # Backend
+      - ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/backend run-candidate run
+      - ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/backend migrate-candidate migrate
+
+      # Public site
+      #- ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/public run-candidate run
+
+      # Partner site
+      #- ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/partners run-candidate run
+
+      # Import listings task
+      - ./ci/scripts/retag_image.sh ${ECR_NAMESPACE}/import-listings run-candidate run

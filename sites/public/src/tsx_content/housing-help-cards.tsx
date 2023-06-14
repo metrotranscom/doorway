@@ -7,10 +7,10 @@ import {
   Heading,
 } from "@bloom-housing/doorway-ui-components"
 
-export const getStartedCardIntro: React.ReactElement<CardProps> = (
+export const housingHelpCardIntro: React.ReactElement<CardProps> = (
   <Card className="border-0 p-0">
     <Card.Section>
-      GET STARTED Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ullam a sunt
+      HOUSING HELP! Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ullam a sunt
       veniam officiis quae vitae similique non odio, minus minima nisi voluptatem? Sequi veritatis,
       sunt cumque delectus culpa harum? Lorem ipsum, dolor sit amet consectetur adipisicing elit.
       Esse illo ullam nulla possimus, incidunt mollitia culpa quam, ex sequi totam provident iusto.
@@ -22,7 +22,7 @@ export const getStartedCardIntro: React.ReactElement<CardProps> = (
   </Card>
 )
 
-export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
+export const housingHelpLinkableCards: React.ReactElement<CardProps>[] = [
   <Card className="border-0" id="blah">
     <Card.Header>
       <Heading priority={2} className={"text-primary-lighter font-semibold"}>
@@ -30,7 +30,7 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
       </Heading>
     </Card.Header>
     <Card.Section>
-      GET STARTED Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ullam a sunt
+      HOUSING HELP Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ullam a sunt
       veniam officiis quae vitae similique non odio, minus minima nisi voluptatem? Sequi veritatis,
       sunt cumque delectus culpa harum? Lorem ipsum, dolor sit amet consectetur adipisicing elit.
       Esse illo ullam nulla possimus, incidunt mollitia culpa quam, ex sequi totam provident iusto.

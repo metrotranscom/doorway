@@ -72,7 +72,7 @@ export default function Home(props: IndexProps) {
         header={<Heading priority={2}>{t("welcome.introduction")}</Heading>}
         subheader={t("welcome.useDoorway")}
         body={
-          <p>
+          <span>
             {t("welcome.useDoorwayBAHFAtext")}
             <br />
             <a
@@ -81,7 +81,7 @@ export default function Home(props: IndexProps) {
             >
               {t("welcome.useDoorwayBAHFAlink")}
             </a>
-          </p>
+          </span>
         }
         background="secondary-lighter"
         actions={[

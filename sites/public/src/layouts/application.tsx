@@ -1,6 +1,5 @@
 import React from "react"
 import { useRouter } from "next/router"
-import Link from "next/link"
 import Head from "next/head"
 import { getSiteHeader } from "../lib/helpers"
 import { t } from "@bloom-housing/ui-components"
@@ -36,51 +35,53 @@ const Layout = (props) => {
             <p className="mt-8 text-white">
               375 Beale Street, Suite 800
               <br /> San Francisco, CA 94105-2066
-              <br /> Monday-Friday 9:00am - 5:00pm
+              <br /> {t("footer.mondayToFriday")}
               <br />
-              bahfa@bayareametro.gov
+              <a href="mailto: bahfa@bayareametro.gov" className="underline">
+                bahfa@bayareametro.gov
+              </a>
             </p>
           </div>
           <div className="text-left">
             <FooterNav>
-              <Link href="https://mtc.ca.gov/doorway-housing-portal-privacy-policy" target="_blank">
+              <a href="https://mtc.ca.gov/doorway-housing-portal-privacy-policy" target="_blank">
                 {t("pageTitle.privacy")}
-              </Link>
-              <Link href="https://mtc.ca.gov/doorway-housing-portal-terms-use" target="_blank">
+              </a>
+              <a href="https://mtc.ca.gov/doorway-housing-portal-terms-use" target="_blank">
                 {t("pageTitle.termsOfUse")}
-              </Link>
-              <Link href="https://mtc.ca.gov/bahfa-non-discrimination-statement" target="_blank">
+              </a>
+              <a href="https://mtc.ca.gov/bahfa-non-discrimination-statement" target="_blank">
                 {t("pageTitle.bahfaNonDiscriminationStatement")}
-              </Link>
-              <Link
+              </a>
+              <a
                 href="https://mtc.ca.gov/about-mtc/public-participation/language-assistance"
                 target="_blank"
               >
                 {t("pageTitle.languageAssistance")}
-              </Link>
+              </a>
             </FooterNav>
-            <Link href="https://twitter.com/mtcbata" target="_blank">
+            <a href="https://twitter.com/mtcbata" target="_blank">
               <img className="h-10 w-10 mr-4" src="/images/twitter-logo.svg" alt="Twitter Logo" />
-            </Link>
-            <Link
+            </a>
+            <a
               href="https://www.linkedin.com/company/metropolitan-transportation-commission"
               target="_blank"
             >
               <img className="h-10 w-10 mr-4" src="/images/linkedin-logo.svg" alt="LinkedIn Logo" />
-            </Link>
-            <Link href="https://www.facebook.com/MTCBATA" target="_blank">
+            </a>
+            <a href="https://www.facebook.com/MTCBATA" target="_blank">
               <img className="h-10 w-10 mr-4" src="/images/facebook-logo.svg" alt="Facebook Logo" />
-            </Link>
-            <Link href="https://www.youtube.com/user/mtcabaglibrary" target="_blank">
+            </a>
+            <a href="https://www.youtube.com/user/mtcabaglibrary" target="_blank">
               <img className="h-10 w-10 mr-4" src="/images/youtube-logo.svg" alt="YouTube Logo" />
-            </Link>
-            <Link href="https://www.instagram.com/mtcbata/" target="_blank">
+            </a>
+            <a href="https://www.instagram.com/mtcbata/" target="_blank">
               <img
                 className="h-10 w-10 mr-4"
                 src="/images/instagram-logo.svg"
                 alt="Instagram Logo"
               />
-            </Link>
+            </a>
           </div>
         </FooterSection>
         <FooterSection
@@ -88,8 +89,8 @@ const Layout = (props) => {
           small
           sectionClassName="items:start md:items-center justify-start md:justify-between"
         >
-          <div className="">{t("footer.bahfaCopyright")}</div>
-          <div className="">
+          <div>{t("footer.bahfaCopyright")}</div>
+          <div>
             <img
               className="h-20 w-20"
               src="/images/eho-logo.svg"

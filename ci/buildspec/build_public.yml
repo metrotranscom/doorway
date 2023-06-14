@@ -41,7 +41,7 @@ phases:
         .
 
       # Run tests
-      #- docker run sites/public:test
+      - docker run sites/public:test
 
       # Build prod/run image
       - >

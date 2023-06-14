@@ -35,7 +35,7 @@ phases:
         -t sites/partners:test
       
       # Run tests
-      #- docker run sites/partners:test
+      - docker run sites/partners:test
 
       # Build prod/run image
       - >

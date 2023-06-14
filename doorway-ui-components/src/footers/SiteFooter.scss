@@ -21,22 +21,19 @@ footer.site-footer {
   }
 
   & > .footer-row:first-of-type {
-    @apply pt-12;
-    @apply pb-12;
+    @apply py-12;
   }
 
   & > .footer-row:last-of-type {
-    @apply pt-8;
-    @apply pb-8;
-    padding-right: 3rem;
+    @apply py-8;
+    @apply pr-12;
   }
 
   .footer-row {
-    padding-left: 3rem;
+    @apply pl-12;
 
     @media (max-width: $screen-md) {
-      padding-right: 2rem;
-      padding-left: 2rem;
+      @apply px-8;
     }
   }
 }

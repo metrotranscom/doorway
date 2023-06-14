@@ -31,6 +31,7 @@ import {
 import { PaginationFactory, PaginationQueryParams } from "../shared/dto/pagination.dto"
 import { Express, Request } from "express"
 import { FileInterceptor } from "@nestjs/platform-express"
+import { FileUploadResult } from "src/shared/uploads"
 
 export class PaginatedAssetsDto extends PaginationFactory<AssetDto>(AssetDto) {}
 
@@ -65,9 +66,16 @@ export class AssetsController {
   async upload(
     @Req() request: Request,
     @UploadedFile() file: Express.Multer.File
-  ): Promise<AssetDto> {
+  ): Promise<FileUploadResult> {
     // Ideally we would handle validation with a decorator, but ParseFilePipe
     // is only available in Nest.js 9+
+
+    //console.log("Request:")
+    //console.log(request)
+    //console.log("Body:")
+    //console.log(request.body)
+    console.log("File:")
+    console.log(file)
 
     const label = request.body.label
 
@@ -83,8 +91,9 @@ export class AssetsController {
       throw new UnsupportedMediaTypeException(`Uploaded files must be a pdf or image`)
     }
 
-    const asset = await this.assetsService.upload(label, file)
-    return mapTo(AssetDto, asset)
+    //const asset = await this.assetsService.upload(label, file)
+    //return mapTo(AssetDto, asset)
+    return await this.assetsService.upload(label, file)
   }
 
   @Post("/presigned-upload-metadata")

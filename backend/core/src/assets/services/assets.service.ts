@@ -39,13 +39,16 @@ export class AssetsService {
     }
 
     const result = await fileService.putFile("assets", label, fileUpload)
+    return result
 
+    /*
     const asset = {
       fileId: result.url,
       label: label,
     }
 
     return await this.repository.save(asset)
+    */
   }
 
   createPresignedUploadMetadata(

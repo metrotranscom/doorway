@@ -49,7 +49,7 @@ const ActionBlock = ({
         {subheader && layout === ActionBlockLayout.block && (
           <p className="action-block__subheader">{subheader}</p>          
         )}
-        {subheader && layout === ActionBlockLayout.block && (
+        {body && layout === ActionBlockLayout.block && (
           <p className="action-block__body">{body}</p>
         )}
       </div>

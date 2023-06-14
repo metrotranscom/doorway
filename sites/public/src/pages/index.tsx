@@ -87,7 +87,7 @@ export default function Home(props: IndexProps) {
         actions={[
           <LinkButton
             className="is-borderless is-inline is-unstyled underline text-primary-lighter"
-            href="/get-started"
+            href="/help/get-started"
             key={"get-started"}
             size={AppearanceSizeType.small}
             normalCase
@@ -119,7 +119,7 @@ export default function Home(props: IndexProps) {
             <LinkButton
               key={"get-help"}
               className="is-primary"
-              href={"/housing-help"}
+              href={"/help/housing-help"}
               size={AppearanceSizeType.small}
             >
               {t("welcome.getHelp")}
@@ -145,7 +145,7 @@ export default function Home(props: IndexProps) {
             <LinkButton
               key={"learn-more"}
               className="is-primary"
-              href={"/questions"}
+              href={"/help/questions"}
               size={AppearanceSizeType.small}
             >
               {t("welcome.learnMore")}

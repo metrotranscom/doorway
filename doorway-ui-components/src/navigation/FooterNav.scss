@@ -4,6 +4,7 @@
   --copyright-width: auto;
 
   background-color: var(--background-color);
+  // These are necessary to override the bloom UIC padding.
   @apply py-0;
   @apply px-0;
 

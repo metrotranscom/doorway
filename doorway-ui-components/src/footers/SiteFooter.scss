@@ -29,12 +29,6 @@ footer.site-footer {
     @apply pt-8;
     @apply pb-8;
     padding-right: 3rem;
-    padding-left: 3rem;
-
-    @media (max-width: $screen-md) {
-      padding-right: 2rem;
-      padding-left: 2rem;
-    }
   }
 
   .footer-row {

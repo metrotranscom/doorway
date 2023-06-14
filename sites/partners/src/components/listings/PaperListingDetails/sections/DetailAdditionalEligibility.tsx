@@ -9,11 +9,10 @@ import {
 } from "@bloom-housing/ui-components"
 import { ListingContext } from "../../ListingContext"
 import { getDetailFieldString } from "./helpers"
-import { FileServiceInterface, FileServiceProvider } from "@bloom-housing/shared-services"
+import { Icon } from "@bloom-housing/doorway-ui-components"
 
 const DetailAdditionalEligibility = () => {
   const listing = useContext(ListingContext)
-  const fileService: FileServiceInterface = FileServiceProvider.getPublicUploadService()
 
   return (
     <GridSection
@@ -63,12 +62,7 @@ const DetailAdditionalEligibility = () => {
                     preview: {
                       content: (
                         <TableThumbnail>
-                          <img
-                            alt="PDF preview"
-                            src={fileService.getDownloadUrlForPhoto(
-                              listing.buildingSelectionCriteriaFile.fileId
-                            )}
-                          />
+                          <Icon size="md-large" symbol="document" />
                         </TableThumbnail>
                       ),
                     },
@@ -76,7 +70,7 @@ const DetailAdditionalEligibility = () => {
                       content: `${listing.buildingSelectionCriteriaFile.fileId
                         .split("/")
                         .slice(-1)
-                        .join()}.pdf`,
+                        .join()}${listing.buildingSelectionCriteriaFile.fileId.endsWith(".pdf") ? "" : ".pdf"}`,
                     },
                   },
                 ]}

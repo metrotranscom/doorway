@@ -18,7 +18,7 @@ import {
   StandardTableData,
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
-import { fieldMessage, fieldHasError, YesNoAnswer } from "../../../../lib/helpers"
+import { fieldMessage, fieldHasError, YesNoAnswer, pdfFileNameFromFileId } from "../../../../lib/helpers"
 import {
   ApplicationMethodCreate,
   ApplicationMethodType,
@@ -113,7 +113,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
   const previewPaperApplicationsTableRows: StandardTableData = []
   if (cloudinaryData.url != "") {
     previewPaperApplicationsTableRows.push({
-      fileName: { content: `${cloudinaryData.id.split("/").slice(-1).join()}${cloudinaryData.id.endsWith(".pdf") ? "" : ".pdf"}` },
+      fileName: { content: pdfFileNameFromFileId(cloudinaryData.id) },
       language: { content: t(`languages.${selectedLanguage}`) },
       actions: {
         content: (
@@ -384,7 +384,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
                   className="mb-8"
                   headers={paperApplicationsTableHeaders}
                   data={methods.paper.paperApplications.map((item) => ({
-                    fileName: { content: `${item.file.fileId.split("/").slice(-1).join()}${item.file.fileId.endsWith(".pdf") ? "" : ".pdf"}` },
+                    fileName: { content: pdfFileNameFromFileId(item.file.fileId) },
                     language: { content: t(`languages.${item.language}`) },
                     actions: {
                       content: (

@@ -10,6 +10,7 @@ import {
 import { ListingContext } from "../../ListingContext"
 import { getDetailFieldString } from "./helpers"
 import { Icon } from "@bloom-housing/doorway-ui-components"
+import { pdfFileNameFromFileId } from "../../../../lib/helpers"
 
 const DetailAdditionalEligibility = () => {
   const listing = useContext(ListingContext)
@@ -66,12 +67,7 @@ const DetailAdditionalEligibility = () => {
                         </TableThumbnail>
                       ),
                     },
-                    fileName: {
-                      content: `${listing.buildingSelectionCriteriaFile.fileId
-                        .split("/")
-                        .slice(-1)
-                        .join()}${listing.buildingSelectionCriteriaFile.fileId.endsWith(".pdf") ? "" : ".pdf"}`,
-                    },
+                    fileName: { content: pdfFileNameFromFileId(listing.buildingSelectionCriteriaFile.fileId), },
                   },
                 ]}
               />

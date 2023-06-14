@@ -71,7 +71,18 @@ export default function Home(props: IndexProps) {
         className="p-12"
         header={<Heading priority={2}>{t("welcome.introduction")}</Heading>}
         subheader={t("welcome.useDoorway")}
-        body={<p>{t("welcome.useDoorwayBAHFAtext")}<br /><a href="https://mtc.ca.gov/about-mtc/authorities/bay-area-housing-finance-authority-bahfa" target="_blank">{t("welcome.useDoorwayBAHFAlink")}</a></p>}
+        body={
+          <p>
+            {t("welcome.useDoorwayBAHFAtext")}
+            <br />
+            <a
+              href="https://mtc.ca.gov/about-mtc/authorities/bay-area-housing-finance-authority-bahfa"
+              target="_blank"
+            >
+              {t("welcome.useDoorwayBAHFAlink")}
+            </a>
+          </p>
+        }
         background="secondary-lighter"
         actions={[
           <LinkButton

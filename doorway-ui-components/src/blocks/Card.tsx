@@ -1,5 +1,6 @@
 import React from "react"
 import "./Card.scss"
+import { JumplinkData, generateJumplinkId } from "../helpers/links"
 
 export interface CardHeaderProps {
   /** An additional element(s) you can add to the side of the main child element(s) */
@@ -60,14 +61,15 @@ export interface CardProps {
   children: React.ReactNode
   /** optional html "id" attribute -- will be namespaced. Caution this is global */
   id?: string
+  jumplinkData?: JumplinkData
 }
 
 const Card = (props: CardProps) => {
   const classNames = ["card"]
   if (props.className) classNames.push(props.className)
-
+  const id = props.jumplinkData ? generateJumplinkId(props.jumplinkData) : ""
   return (
-    <article className={classNames.join(" ")} id={props.id ? `${props.id}` : ""}>
+    <article className={classNames.join(" ")} id={id}>
       {props.children}
     </article>
   )

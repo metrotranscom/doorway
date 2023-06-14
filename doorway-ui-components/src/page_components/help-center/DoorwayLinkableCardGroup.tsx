@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Card, CardProps, Heading } from "../../.."
+import { Card, CardProps, Heading, generateJumplinkId } from "../../.."
 import "./DoorwayLinkableCardGroup.scss"
 import Link from "next/link"
 import { RowPositionUtils } from "ag-grid-community"
@@ -14,10 +14,12 @@ const DoorwayLinkableCardGroup = (props: DoorwayLinkableCardGroupProps) => {
   const getLinks = () => {
     const links = []
     for (const card of props.cards) {
-      if (card.props?.id) {
+      if (card.props?.jumplinkData) {
+        const jumplinkData = card.props.jumplinkData
+        const jumpLinkId = generateJumplinkId(jumplinkData)
         links.push(
-          <Link href={`#${card.props.id}`}>
-            {`Link to #${card.props.id} (TODO: Liann extend with link name)`}
+          <Link key={jumpLinkId} href={`#${jumpLinkId}`}>
+            {jumplinkData.title}
           </Link>
         )
       }
@@ -30,8 +32,8 @@ const DoorwayLinkableCardGroup = (props: DoorwayLinkableCardGroupProps) => {
 
   return (
     <div className={`doorway-linkable-card-group ${rootClassNames}`}>
-      <div className="doorway-linkable-card-group_nav mt-4">
-        <Card className="border-0">{getLinks()}</Card>
+      <div className="doorway-linkable-card-group_nav font-serif mt-4">
+        <Card className="border-0 space-y-3">{getLinks()}</Card>
       </div>
       <div className="doorway-linkable-card-group_main">
         {props.children}

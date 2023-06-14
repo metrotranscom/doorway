@@ -23,7 +23,11 @@ export const getStartedCardIntro: React.ReactElement<CardProps> = (
 )
 
 export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
-  <Card className="border-0" id="blah">
+  <Card
+    className="border-0"
+    key="blah-1"
+    jumplinkData={{ title: "I'm just a heading for blah 1 jumplink" }}
+  >
     <Card.Header>
       <Heading priority={2} className={"text-primary-lighter font-semibold"}>
         {t("I'm just a heading for blah 1")}
@@ -74,7 +78,11 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
       </Card.Section>
     </Card.Footer>
   </Card>,
-  <Card className="border-0" id="blah-2">
+  <Card
+    className="border-0"
+    key="blah-2"
+    jumplinkData={{ title: "I'm just a heading for blah 2 jumplink" }}
+  >
     <Card.Header>
       <Heading priority={2} className={"text-primary-lighter font-semibold"}>
         {"I'm just a heading for blah 2"}

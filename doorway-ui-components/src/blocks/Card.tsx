@@ -58,13 +58,19 @@ export interface CardProps {
   /** Additional class name */
   className?: string
   children: React.ReactNode
+  /** optional html "id" attribute -- will be namespaced. Caution this is global */
+  id?: string
 }
 
 const Card = (props: CardProps) => {
   const classNames = ["card"]
   if (props.className) classNames.push(props.className)
 
-  return <article className={classNames.join(" ")}>{props.children}</article>
+  return (
+    <article className={classNames.join(" ")} id={props.id ? `${props.id}` : ""}>
+      {props.children}
+    </article>
+  )
 }
 
 Card.Header = CardHeader

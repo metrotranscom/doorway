@@ -59,8 +59,6 @@ export interface CardProps {
   /** Additional class name */
   className?: string
   children: React.ReactNode
-  /** optional html "id" attribute -- will be namespaced. Caution this is global */
-  id?: string
   jumplinkData?: JumplinkData
 }
 

@@ -11,11 +11,11 @@ export interface JumplinkData {
   title: string
   // Warning -- id_override does not namespace the id by default
   // (see generateJumplinkId for more information)
-  id_override?: string
+  idOverride?: string
 }
 
 // HTML ids are global, singletons, and turn into window object keys, so
 // we namespace here to avoid accidental collisions.
 export const generateJumplinkId = (data: JumplinkData) => {
-  return data.id_override ? data.id_override : `${_.kebabCase(data.title)}-section`
+  return data.idOverride ? data.idOverride : `${_.kebabCase(data.title)}-section`
 }

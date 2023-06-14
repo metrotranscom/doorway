@@ -39,7 +39,6 @@ describe("<Card>", () => {
     expect(getByText("test").id).toEqual("i-like-cheese-section")
   })
 
-
   it("renders headers and buttons", () => {
     const { getByText } = render(
       <Card>

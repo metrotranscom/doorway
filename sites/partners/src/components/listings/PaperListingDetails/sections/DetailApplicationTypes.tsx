@@ -36,7 +36,7 @@ const DetailApplicationTypes = () => {
   if (paperMethod) {
     paperMethod.paperApplications.forEach((item) => {
       paperApplicationsTableRows.push({
-        fileName: { content: `${item.file.fileId.split("/").slice(-1).join()}.pdf` },
+        fileName: { content: `${item.file.fileId.split("/").slice(-1).join()}${item.file.fileId.endsWith(".pdf") ? "" : ".pdf"}` },
         language: { content: t(`languages.${item.language}`) },
       })
     })

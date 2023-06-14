@@ -25,7 +25,7 @@ import {
   Language,
 } from "@bloom-housing/backend-core/types"
 import { FormListing } from "../../../../lib/listings/formTypes"
-import { FileServiceInterface, FileServiceProvider } from "@bloom-housing/shared-services"
+import { uploadAssetAndSetData } from "../../../../lib/assets"
 
 interface Methods {
   digital: ApplicationMethodCreate
@@ -88,13 +88,14 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         fileId: cloudinaryData.id,
         label: selectedLanguage,
       },
-      language: selectedLanguage,
+      language: selectedLanguage
     })
     setMethods({
       ...methods,
       paper: {
         ...methods.paper,
         paperApplications,
+        type: ApplicationMethodType.FileDownload,
       },
     })
   }
@@ -103,15 +104,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    const fileService: FileServiceInterface = FileServiceProvider.getPublicUploadService()
-    const setProgressValueCallback = (value: number) => {
-      setProgressValue(value)
-    }
-    const generatedId = await fileService.putFile(selectedLanguage, file, setProgressValueCallback)
-    setCloudinaryData({
-      id: generatedId,
-      url: fileService.getDownloadUrlForPdf(generatedId),
-    })
+    await uploadAssetAndSetData(file, "application", setProgressValue, setCloudinaryData)
   }
 
   /*
@@ -120,7 +113,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
   const previewPaperApplicationsTableRows: StandardTableData = []
   if (cloudinaryData.url != "") {
     previewPaperApplicationsTableRows.push({
-      fileName: { content: `${cloudinaryData.id.split("/").slice(-1).join()}.pdf` },
+      fileName: { content: `${cloudinaryData.id.split("/").slice(-1).join()}${cloudinaryData.id.endsWith(".pdf") ? "" : ".pdf"}` },
       language: { content: t(`languages.${selectedLanguage}`) },
       actions: {
         content: (
@@ -198,11 +191,10 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         <GridSection columns={2}>
           <GridCell>
             <p
-              className={`field-label m-4 ml-0 ${
-                fieldHasError(errors?.digitalApplication) &&
+              className={`field-label m-4 ml-0 ${fieldHasError(errors?.digitalApplication) &&
                 digitalApplicationChoice === null &&
                 "text-alert"
-              }`}
+                }`}
             >
               {t("listings.isDigitalApplication")}
             </p>
@@ -335,11 +327,10 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         <GridSection columns={2}>
           <GridCell>
             <p
-              className={`field-label m-4 ml-0 ${
-                fieldHasError(errors?.paperApplication) &&
+              className={`field-label m-4 ml-0 ${fieldHasError(errors?.paperApplication) &&
                 paperApplicationChoice === null &&
                 "text-alert"
-              }`}
+                }`}
             >
               {t("listings.isPaperApplication")}
             </p>
@@ -393,7 +384,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
                   className="mb-8"
                   headers={paperApplicationsTableHeaders}
                   data={methods.paper.paperApplications.map((item) => ({
-                    fileName: { content: `${item.file.fileId.split("/").slice(-1).join()}.pdf` },
+                    fileName: { content: `${item.file.fileId.split("/").slice(-1).join()}${item.file.fileId.endsWith(".pdf") ? "" : ".pdf"}` },
                     language: { content: t(`languages.${item.language}`) },
                     actions: {
                       content: (
@@ -411,6 +402,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
                                 paper: {
                                   ...methods.paper,
                                   paperApplications: items,
+                                  type: ApplicationMethodType.FileDownload,
                                 },
                               })
                             }}
@@ -441,11 +433,10 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         <GridSection columns={1}>
           <GridCell>
             <p
-              className={`field-label m-4 ml-0 ${
-                fieldHasError(errors?.referralOpportunity) &&
+              className={`field-label m-4 ml-0 ${fieldHasError(errors?.referralOpportunity) &&
                 referralOpportunityChoice === null &&
                 "text-alert"
-              }`}
+                }`}
             >
               {t("listings.isReferralOpportunity")}
             </p>

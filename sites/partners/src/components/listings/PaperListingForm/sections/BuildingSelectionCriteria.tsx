@@ -199,7 +199,7 @@ const LotteryResults = () => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    await uploadAssetAndSetData(file, "building", setProgressValue, setCloudinaryData)
+    await uploadAssetAndSetData(file, "selection-criteria", setProgressValue, setCloudinaryData)
   }
 
   return (

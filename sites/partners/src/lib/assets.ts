@@ -1,67 +1,89 @@
-import { FileServiceInterface, FileServiceProvider } from "@bloom-housing/shared-services"
 import axios from "axios"
 
-const getAssetEndpointUrl = () => {
-  return process.env.backendApiBase + "/assets"
+type FileUploadResult = {
+  id: string
+  url: string
 }
 
-const uploadAsset = async (data: FormData, onUploadProgress: (progress: number) => void) => {
-  // init progress bar
-  onUploadProgress(1)
+export class AssetUploader {
+  assetsEndpoint: string
+  uploadEndpoint: string
 
-  const uploadUrl = getAssetEndpointUrl() + "/upload"
+  // Default to /api/adapter to pass things through partner site proxy
+  // constructor(backendApiBase = "/api/adapter", assetsServicePath = "/assets") {
+  //   this.assetsEndpoint = `${backendApiBase}${assetsServicePath}`
+  //   this.uploadEndpoint = `${this.assetsEndpoint}/upload`
+  // }
+  constructor() {
+    this.assetsEndpoint = ""
+    this.uploadEndpoint = "/api/adapter/upload"
+  }
 
-  // send request to backend
-  const response = await axios.request({
-    method: "put",
-    url: uploadUrl,
-    data: data,
-    onUploadProgress: (p) => {
-      onUploadProgress(parseInt(((p.loaded / p.total) * 100).toFixed(0), 10))
-    },
-  })
+  async uploadAsset(
+    file: File,
+    label: string,
+    onUploadProgress: (progress: number) => void
+    //headers: Record<string, string>
+  ): Promise<FileUploadResult> {
+    // init progress bar
+    onUploadProgress(1)
 
-  // show complete
-  onUploadProgress(100)
+    const uploadUrl = this.uploadEndpoint
 
-  return response
+    // add file and label
+    const data = new FormData()
+    data.append("file", file)
+    data.append("label", label)
+
+    // AuthContext
+    const headers = {
+      jurisdictionname: "Bay Area", //process.env.jurisdictionName
+      language: "en", // router.locale
+      appUrl: "", // window.location.origin
+    }
+
+    // send request to backend
+    const response = await axios.request<FileUploadResult>({
+      method: "POST",
+      url: uploadUrl,
+      data: data,
+      headers: headers,
+      onUploadProgress: (p) => {
+        onUploadProgress(parseInt(((p.loaded / p.total) * 100).toFixed(0), 10))
+      },
+    })
+
+    // show complete
+    onUploadProgress(100)
+    return response.data
+  }
+
+  async uploadAssetAndSetData(
+    file: File,
+    label: string,
+    setProgressValue: (value: React.SetStateAction<number>) => void,
+    setAssetData: (data: { id: string; url: string }) => void
+  ) {
+    const setProgressValueCallback = (value: number) => {
+      setProgressValue(value)
+    }
+
+    const data = await this.uploadAsset(file, label, setProgressValueCallback)
+
+    setAssetData({
+      id: data.url,
+      url: data.url,
+    })
+  }
 }
 
-const uploadAssetWithFileService = async (
-  file: File,
-  label: string,
-  onUploadProgress: (progress: number) => void
-) => {
-  const fileService: FileServiceInterface = FileServiceProvider.getPublicUploadService()
-  const generatedId = await fileService.putFile(label, file, onUploadProgress)
-
-  // determine url function based on file type
-  let url
-
-  if (file.type.startsWith("image/")) {
-    url = fileService.getDownloadUrlForPhoto(generatedId)
-  } else if (file.type.startsWith("document/")) {
-    url = fileService.getDownloadUrlForPdf(generatedId)
-  }
-  // shouldn't be anything but those 2 options, but otherwise just leave it null
-
-  return {
-    id: generatedId,
-    url: url,
-  }
-}
-
-export const uploadAssetAndSetData = async (
-  file: File,
-  label: string,
-  setProgressValue: (value: React.SetStateAction<number>) => void,
-  setAssetData: (data: { id: string; url: string }) => void
-) => {
-  const setProgressValueCallback = (value: number) => {
-    setProgressValue(value)
-  }
-
-  const data = await uploadAssetWithFileService(file, label, setProgressValueCallback)
-
-  setAssetData(data)
+// Shortcut for default implementations
+export async function uploadAssetAndSetData(
+    file: File,
+    label: string,
+    setProgressValue: (value: React.SetStateAction<number>) => void,
+    setAssetData: (data: { id: string; url: string }) => void
+  ) {
+  const uploader = new AssetUploader()
+  return await uploader.uploadAssetAndSetData(file, label, setProgressValue, setAssetData)
 }

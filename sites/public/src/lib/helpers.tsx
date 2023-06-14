@@ -322,13 +322,9 @@ export const getSiteFooter = () => {
           <img
             className="h-20 w-20 mr-3"
             src="/images/bahfa-logo.png"
-            alt="Bay Area Housing Finance Authority Logo"
+            alt={t("footer.bahfaLogo")}
           />
-          <img
-            className="h-24 w-96"
-            src="/images/mtc-abag-logo.svg"
-            alt="Association of Bay Area Governments - Metropolitan Transporation Commission Logo"
-          />
+          <img className="h-24 w-96" src="/images/mtc-abag-logo.svg" alt={t("footer.mtcLogo")} />
           <p className="mt-8 text-white">
             375 Beale Street, Suite 800
             <br /> San Francisco, CA 94105-2066
@@ -358,22 +354,42 @@ export const getSiteFooter = () => {
             </a>
           </FooterNav>
           <a href="https://twitter.com/mtcbata" target="_blank">
-            <img className="h-10 w-10 mr-4" src="/images/twitter-logo.svg" alt="Twitter Logo" />
+            <img
+              className="h-10 w-10 mr-4"
+              src="/images/twitter-logo.svg"
+              alt={t("footer.twitterLogo")}
+            />
           </a>
           <a
             href="https://www.linkedin.com/company/metropolitan-transportation-commission"
             target="_blank"
           >
-            <img className="h-10 w-10 mr-4" src="/images/linkedin-logo.svg" alt="LinkedIn Logo" />
+            <img
+              className="h-10 w-10 mr-4"
+              src="/images/linkedin-logo.svg"
+              alt={t("footer.linkedinLogo")}
+            />
           </a>
           <a href="https://www.facebook.com/MTCBATA" target="_blank">
-            <img className="h-10 w-10 mr-4" src="/images/facebook-logo.svg" alt="Facebook Logo" />
+            <img
+              className="h-10 w-10 mr-4"
+              src="/images/facebook-logo.svg"
+              alt={t("footer.facebookLogo")}
+            />
           </a>
           <a href="https://www.youtube.com/user/mtcabaglibrary" target="_blank">
-            <img className="h-10 w-10 mr-4" src="/images/youtube-logo.svg" alt="YouTube Logo" />
+            <img
+              className="h-10 w-10 mr-4"
+              src="/images/youtube-logo.svg"
+              alt={t("footer.youtubeLogo")}
+            />
           </a>
           <a href="https://www.instagram.com/mtcbata/" target="_blank">
-            <img className="h-10 w-10 mr-4" src="/images/instagram-logo.svg" alt="Instagram Logo" />
+            <img
+              className="h-10 w-10 mr-4"
+              src="/images/instagram-logo.svg"
+              alt={t("footer.instagramLogo")}
+            />
           </a>
         </div>
       </FooterSection>
@@ -384,11 +400,7 @@ export const getSiteFooter = () => {
       >
         <div>{t("footer.bahfaCopyright")}</div>
         <div>
-          <img
-            className="h-20 w-20"
-            src="/images/eho-logo.svg"
-            alt="Equal Housing Opportunity Logo"
-          />
+          <img className="h-20 w-20" src="/images/eho-logo.svg" alt={t("footer.ehoLogo")} />
         </div>
       </FooterSection>
     </SiteFooter>

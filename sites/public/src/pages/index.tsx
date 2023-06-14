@@ -70,9 +70,9 @@ export default function Home(props: IndexProps) {
       <ActionBlock
         className="p-12"
         header={<Heading priority={2}>{t("welcome.introduction")}</Heading>}
-        subheader={t("welcome.useDoorwayPart1")}
-        subheader2={t("welcome.useDoorwayPart2")}
-        subheader3={t("welcome.useDoorwayLinkToBAHFA")}
+        subheader={t("welcome.useDoorway")}
+        subheader2={t("welcome.useDoorwayBAHFAtext")}
+        subheader3={t("welcome.useDoorwayBAHFAlink")}
         background="secondary-lighter"
         actions={[
           <LinkButton

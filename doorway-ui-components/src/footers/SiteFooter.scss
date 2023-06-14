@@ -6,7 +6,6 @@ footer.site-footer {
 
   display: flex;
   flex-direction: column;
-
   img {
     @apply inline;
     opacity: 1;
@@ -20,20 +19,11 @@ footer.site-footer {
     @apply mb-5;
   }
 
-  & > .footer-row:first-of-type {
-    @apply py-12;
-  }
-
-  & > .footer-row:last-of-type {
-    @apply py-8;
-    @apply pr-12;
-  }
-
   .footer-row {
-    @apply pl-12;
+    @apply py-8;
 
-    @media (max-width: $screen-md) {
-      @apply px-8;
+    @media (max-width: $screen-lg) {
+      @apply px-4;
     }
   }
 }

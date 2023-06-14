@@ -1,12 +1,11 @@
 .footer-row__section {
-  @apply px-2;
+  @apply px-0;
   @apply text-left;
-
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  margin: 0;
-  max-width: none;
+  margin: auto;
+  max-width: 1024px;
 
   @media (max-width: $screen-md) {
     flex-direction: column;

@@ -317,7 +317,7 @@ export const getSiteHeader = (router: NextRouter) => {
 export const getSiteFooter = () => {
   return (
     <SiteFooter>
-      <FooterSection sectionClassName="justify-around" small>
+      <FooterSection sectionClassName="justify-between" small>
         <div className="text-left">
           <img
             className="h-20 w-20 mr-3"
@@ -393,16 +393,17 @@ export const getSiteFooter = () => {
           </a>
         </div>
       </FooterSection>
-      <FooterSection
-        className="bg-gray-950"
-        small
-        sectionClassName="items:start md:items-center justify-start md:justify-between"
-      >
-        <div>{t("footer.bahfaCopyright")}</div>
-        <div>
-          <img className="h-20 w-20" src="/images/eho-logo.svg" alt={t("footer.ehoLogo")} />
-        </div>
-      </FooterSection>
+      <div className="bg-gray-950">
+        <FooterSection
+          small
+          sectionClassName="items:start md:items-center justify-start md:justify-between"
+        >
+          <div>{t("footer.bahfaCopyright")}</div>
+          <div>
+            <img className="h-20 w-20" src="/images/eho-logo.svg" alt={t("footer.ehoLogo")} />
+          </div>
+        </FooterSection>
+      </div>
     </SiteFooter>
   )
 }

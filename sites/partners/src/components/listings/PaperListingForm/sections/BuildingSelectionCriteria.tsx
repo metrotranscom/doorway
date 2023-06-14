@@ -16,7 +16,6 @@ import {
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
 import { uploadAssetAndSetData } from "../../../../lib/assets"
-import { getImageUrlFromAsset } from "@bloom-housing/shared-helpers"
 import { Icon } from "@bloom-housing/doorway-ui-components"
 
 const LotteryResults = () => {
@@ -118,7 +117,7 @@ const LotteryResults = () => {
   */
   const criteriaTableRows: StandardTableData = []
   if (listingCriteriaFile?.fileId && listingCriteriaFile.fileId != "") {
-    const listingPhotoUrl = getImageUrlFromAsset(listingCriteriaFile)
+    //const listingPhotoUrl = getImageUrlFromAsset(listingCriteriaFile)
 
     criteriaTableRows.push({
       preview: {
@@ -211,14 +210,14 @@ const LotteryResults = () => {
       <div className="field mt-8 mb-2">
         {((listingCriteriaURL && listingCriteriaURL != "") ||
           (listingCriteriaFile?.fileId && listingCriteriaFile.fileId != "")) && (
-            <label className="label">{t("listings.buildingSelectionCriteria")}</label>
-          )}
+          <label className="label">{t("listings.buildingSelectionCriteria")}</label>
+        )}
       </div>
 
       <GridSection columns={1} tinted inset>
         <GridCell>
           {(listingCriteriaURL && listingCriteriaURL != "") ||
-            (listingCriteriaFile?.fileId && listingCriteriaFile.fileId != "") ? (
+          (listingCriteriaFile?.fileId && listingCriteriaFile.fileId != "") ? (
             <MinimalTable headers={criteriaTableHeaders} data={criteriaTableRows}></MinimalTable>
           ) : (
             <Button

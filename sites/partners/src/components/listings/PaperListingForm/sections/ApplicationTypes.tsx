@@ -18,7 +18,12 @@ import {
   StandardTableData,
   AppearanceSizeType,
 } from "@bloom-housing/ui-components"
-import { fieldMessage, fieldHasError, YesNoAnswer, pdfFileNameFromFileId } from "../../../../lib/helpers"
+import {
+  fieldMessage,
+  fieldHasError,
+  YesNoAnswer,
+  pdfFileNameFromFileId,
+} from "../../../../lib/helpers"
 import {
   ApplicationMethodCreate,
   ApplicationMethodType,
@@ -88,7 +93,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         fileId: cloudinaryData.id,
         label: selectedLanguage,
       },
-      language: selectedLanguage
+      language: selectedLanguage,
     })
     setMethods({
       ...methods,
@@ -191,10 +196,11 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         <GridSection columns={2}>
           <GridCell>
             <p
-              className={`field-label m-4 ml-0 ${fieldHasError(errors?.digitalApplication) &&
+              className={`field-label m-4 ml-0 ${
+                fieldHasError(errors?.digitalApplication) &&
                 digitalApplicationChoice === null &&
                 "text-alert"
-                }`}
+              }`}
             >
               {t("listings.isDigitalApplication")}
             </p>
@@ -327,10 +333,11 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         <GridSection columns={2}>
           <GridCell>
             <p
-              className={`field-label m-4 ml-0 ${fieldHasError(errors?.paperApplication) &&
+              className={`field-label m-4 ml-0 ${
+                fieldHasError(errors?.paperApplication) &&
                 paperApplicationChoice === null &&
                 "text-alert"
-                }`}
+              }`}
             >
               {t("listings.isPaperApplication")}
             </p>
@@ -433,10 +440,11 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
         <GridSection columns={1}>
           <GridCell>
             <p
-              className={`field-label m-4 ml-0 ${fieldHasError(errors?.referralOpportunity) &&
+              className={`field-label m-4 ml-0 ${
+                fieldHasError(errors?.referralOpportunity) &&
                 referralOpportunityChoice === null &&
                 "text-alert"
-                }`}
+              }`}
             >
               {t("listings.isReferralOpportunity")}
             </p>

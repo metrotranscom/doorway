@@ -31,20 +31,14 @@ import {
 import { PaginationFactory, PaginationQueryParams } from "../shared/dto/pagination.dto"
 import { Express, Request } from "express"
 import { FileInterceptor } from "@nestjs/platform-express"
-import { FileUploadResult } from "src/shared/uploads"
+import { FileUploadResult } from "../../src/shared/uploads"
 
 export class PaginatedAssetsDto extends PaginationFactory<AssetDto>(AssetDto) {}
 
 // File upload validation vars
 const maxFileSizeMb = parseFloat(process.env.ASSET_UPLOAD_MAX_SIZE) || 5
 const maxFileSize = maxFileSizeMb * 1024 * 1024
-const allowedFileTypes = [
-  "application/pdf",
-  "document/pdf",
-  "image/jpg",
-  "image/jpeg",
-  "image/png"
-]
+const allowedFileTypes = ["application/pdf", "document/pdf", "image/jpg", "image/jpeg", "image/png"]
 
 @Controller("assets")
 @ApiTags("assets")

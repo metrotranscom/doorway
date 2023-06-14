@@ -67,7 +67,9 @@ const DetailAdditionalEligibility = () => {
                         </TableThumbnail>
                       ),
                     },
-                    fileName: { content: pdfFileNameFromFileId(listing.buildingSelectionCriteriaFile.fileId), },
+                    fileName: {
+                      content: pdfFileNameFromFileId(listing.buildingSelectionCriteriaFile.fileId),
+                    },
                   },
                 ]}
               />

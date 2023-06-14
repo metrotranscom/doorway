@@ -13,10 +13,7 @@ import {
   Button,
   Drawer,
 } from "@bloom-housing/ui-components"
-import {
-  CLOUDINARY_BUILDING_LABEL,
-  getImageUrlFromAsset,
-} from "@bloom-housing/shared-helpers"
+import { CLOUDINARY_BUILDING_LABEL, getImageUrlFromAsset } from "@bloom-housing/shared-helpers"
 import { fieldHasError } from "../../../../lib/helpers"
 import { uploadAssetAndSetData } from "../../../../lib/assets"
 import { ListingImage, Asset } from "@bloom-housing/backend-core"

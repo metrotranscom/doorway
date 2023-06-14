@@ -79,11 +79,11 @@ export class AssetUploader {
 
 // Shortcut for default implementations
 export async function uploadAssetAndSetData(
-    file: File,
-    label: string,
-    setProgressValue: (value: React.SetStateAction<number>) => void,
-    setAssetData: (data: { id: string; url: string }) => void
-  ) {
+  file: File,
+  label: string,
+  setProgressValue: (value: React.SetStateAction<number>) => void,
+  setAssetData: (data: { id: string; url: string }) => void
+) {
   const uploader = new AssetUploader()
   return await uploader.uploadAssetAndSetData(file, label, setProgressValue, setAssetData)
 }

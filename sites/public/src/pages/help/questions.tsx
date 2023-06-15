@@ -22,7 +22,7 @@ const FrequentlyAskedQuestions = () => {
   return (
     <Layout>
       <PageHeader title={pageTitle} />
-      <div className="my-14">
+      <div className="my-0 lg:my-12">
         <DoorwayLinkableCardGroup cards={questionsLinkableCards} className="m-auto">
           {questionsCardIntro}
         </DoorwayLinkableCardGroup>

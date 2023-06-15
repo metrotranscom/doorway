@@ -22,7 +22,7 @@ const GetStarted = () => {
   return (
     <Layout>
       <PageHeader title={pageTitle} />
-      <div className="my-14">
+      <div className="my-0 lg:my-12">
         <DoorwayLinkableCardGroup cards={getStartedLinkableCards} className="m-auto">
           {getStartedCardIntro}
         </DoorwayLinkableCardGroup>

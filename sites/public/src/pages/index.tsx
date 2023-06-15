@@ -189,6 +189,15 @@ export async function getServerSideProps() {
     runtimeConfig.getJurisdictionName()
   )
 
+  if (jurisdiction) {
+    console.log("Jurisdiction found")
+    console.log(jurisdiction)
+  } else {
+    console.log("Jurisdiction not found")
+    console.log(`Backend API Base: ${runtimeConfig.getBackendApiBase()}`)
+    console.log(`Jurisdiction Name: ${runtimeConfig.getJurisdictionName()}`)
+  }
+
   return {
     props: { jurisdiction },
   }

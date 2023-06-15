@@ -87,12 +87,18 @@ export async function getServerSideProps(context: {
   locale: string
 }) {
   let response: AxiosResponse
+
+  const extUrl = `${process.env.BLOOM_API_BASE}/listings/${context.params.id}`
+
   try {
-    const extUrl = `${process.env.BLOOM_API_BASE}/listings/${context.params.id}`
     response = await axios.get(extUrl, {
       headers: { language: context.locale },
     })
   } catch (e) {
+    console.log("Listing not found")
+    console.log(`Backend API Base: ${process.env.BLOOM_API_BASE}`)
+    console.log(`Listing ID: ${context.params.id}`)
+    console.log(`Full URL: ${extUrl}`)
     return { notFound: true }
   }
 

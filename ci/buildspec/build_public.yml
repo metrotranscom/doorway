@@ -36,6 +36,9 @@ phases:
         --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
         --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
         --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
+        --build-arg "CACHE_REVALIDATE=${CACHE_REVALIDATE}"
+        --build-arg "IDLE_TIMEOUT=${IDLE_TIMEOUT}"
+        --build-arg "LANGUAGES=${LANGUAGES}"
         --target test
         -t sites/public:test
         .
@@ -53,6 +56,9 @@ phases:
         --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
         --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
         --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
+        --build-arg "CACHE_REVALIDATE=${CACHE_REVALIDATE}"
+        --build-arg "IDLE_TIMEOUT=${IDLE_TIMEOUT}"
+        --build-arg "LANGUAGES=${LANGUAGES}"
         --target run
         -t sites/public:run-candidate
         .

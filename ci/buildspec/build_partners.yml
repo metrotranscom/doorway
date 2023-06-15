@@ -32,6 +32,9 @@ phases:
         --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
         --build-arg "FILE_SERVICE=${FILE_SERVICE}"
         --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
+        --build-arg "CACHE_REVALIDATE=${CACHE_REVALIDATE}"
+        --build-arg "IDLE_TIMEOUT=${IDLE_TIMEOUT}"
+        --build-arg "LANGUAGES=${LANGUAGES}"
         -t sites/partners:test
       
       # Run tests
@@ -45,6 +48,9 @@ phases:
         --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
         --build-arg "FILE_SERVICE=${FILE_SERVICE}"
         --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
+        --build-arg "CACHE_REVALIDATE=${CACHE_REVALIDATE}"
+        --build-arg "IDLE_TIMEOUT=${IDLE_TIMEOUT}"
+        --build-arg "LANGUAGES=${LANGUAGES}"
         -t sites/partners:run-candidate
       
       # Tag the run image

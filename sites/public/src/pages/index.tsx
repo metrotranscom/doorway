@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import Head from "next/head"
 import { Jurisdiction } from "@bloom-housing/backend-core/types"
 import {
@@ -17,9 +17,17 @@ import { ConfirmationModal } from "../components/account/ConfirmationModal"
 import { MetaTags } from "../components/shared/MetaTags"
 import { fetchJurisdictionByName } from "../lib/hooks"
 import { runtimeConfig } from "../lib/runtime-config"
+import { FormOption, LandingSearch } from "../components/listings/search/LandingSearch"
+import { ListingSearchParams, generateSearchQuery } from "../lib/listings/search"
+import { ListingService } from "../lib/listings/listing-service"
+import { locations, bedroomOptions } from "../components/listings/search/ListingsSearchCombined"
 
 interface IndexProps {
   jurisdiction: Jurisdiction
+  listingsEndpoint: string
+  initialSearch?: string
+  bedrooms: FormOption[]
+  counties: FormOption[]
 }
 
 export default function Home(props: IndexProps) {
@@ -29,6 +37,46 @@ export default function Home(props: IndexProps) {
   }
   const { profile } = useContext(AuthContext)
   const [alertInfo, setAlertInfo] = useState(blankAlertInfo)
+  const [searchResults, setSearchResults] = useState({
+    listings: [],
+    currentPage: 0,
+    lastPage: 0,
+  })
+  // Store the current search params for pagination
+  const searchParams = useRef({
+    bedrooms: null,
+    bathrooms: null,
+    monthlyRent: null,
+    counties: [],
+  } as ListingSearchParams)
+  const searchString = props.initialSearch
+  const pageSize = "25"
+
+  const search = async (params: ListingSearchParams, page: number) => {
+    const qb = generateSearchQuery(params)
+    const listingService = new ListingService(props.listingsEndpoint)
+    const result = await listingService.searchListings(qb, pageSize, page)
+
+    const listings = result.items
+    const meta = result.meta
+
+    setSearchResults({
+      listings: listings,
+      currentPage: meta.currentPage,
+      lastPage: meta.totalPages,
+    })
+
+    searchParams.current = params
+
+    // Keeping this until pagination is implemented
+    console.log(
+      `Showing ${meta.itemCount} listings of ${meta.totalItems} total (page ${meta.currentPage} of ${meta.totalPages})`
+    )
+  }
+
+  const onFormSubmit = async (params: ListingSearchParams) => {
+    await search(params, 1)
+  }
 
   useEffect(() => {
     pushGtmEvent<PageView>({
@@ -65,7 +113,12 @@ export default function Home(props: IndexProps) {
         offsetImage={"images/person-with-child.jpg"}
         offsetImageAlt={t("welcome.personWithChildAlt")}
       >
-        <p className="bg-gray-300 h-64">TODO: Add search component here</p>
+        <LandingSearch
+          searchString={searchString}
+          bedrooms={props.bedrooms}
+          counties={props.counties}
+          onSubmit={onFormSubmit}
+        />
       </DoorwayHero>
       <ActionBlock
         className="p-12"
@@ -190,6 +243,14 @@ export async function getServerSideProps() {
   )
 
   return {
-    props: { jurisdiction },
+    props: {
+      jurisdiction,
+      listingsEndpoint: runtimeConfig.getListingServiceUrl(),
+      // show Bloom counties by default
+      initialSearch:
+        "counties:Alameda,Contra Costa,Marin,Napa,San Francisco,San Mateo,Santa Clara,Solano,Sonoma",
+      bedrooms: bedroomOptions,
+      counties: locations,
+    },
   }
 }

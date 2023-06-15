@@ -124,7 +124,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     const footer = Array.from(
       document.getElementsByClassName("site-footer") as HTMLCollectionOf<HTMLElement>
     )[0]
-    if (footer.style.display !== "none") {
+    if (footer !== undefined && footer.style.display !== "none") {
       footer.style.display = "none"
     }
   }
@@ -132,7 +132,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     const footer = Array.from(
       document.getElementsByClassName("site-footer") as HTMLCollectionOf<HTMLElement>
     )[0]
-    if (footer.style.display == "none") {
+    if (footer !== undefined && footer.style.display == "none") {
       footer.style.display = "flex"
     }
   }

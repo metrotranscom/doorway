@@ -25,7 +25,6 @@ export const questionsCardIntro: React.ReactElement<CardProps> = (
 export const questionsLinkableCards: React.ReactElement<CardProps>[] = [
   <Card
     className="border-0"
-    id="blah"
     key="blah-1"
     jumplinkData={{ title: "I'm just a heading for blah 1 jumplink" }}
   >
@@ -81,7 +80,6 @@ export const questionsLinkableCards: React.ReactElement<CardProps>[] = [
   </Card>,
   <Card
     className="border-0"
-    id="blah-2"
     key="blah-2"
     jumplinkData={{ title: "I'm just a heading for blah 2 jumplink" }}
   >

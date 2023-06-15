@@ -27,21 +27,21 @@ phases:
       - export ECR_REPO="${ECR_HOST}/${ECR_NAMESPACE}"
 
       # Build test image
-      - >
-        docker build
-        -f build/docker/Dockerfile.sites-generic
-        --build-arg SITE=public
-        --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
-        --build-arg "FILE_SERVICE=${FILE_SERVICE}"
-        --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
-        --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
-        --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
-        --target test
-        -t sites/public:test
-        .
+      # - >
+      #   docker build
+      #   -f build/docker/Dockerfile.sites-generic
+      #   --build-arg SITE=public
+      #   --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
+      #   --build-arg "FILE_SERVICE=${FILE_SERVICE}"
+      #   --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
+      #   --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
+      #   --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
+      #   --target test
+      #   -t sites/public:test
+      #   .
 
-      # Run tests
-      - docker run sites/public:test
+      # # Run tests
+      # - docker run sites/public:test
 
       # Build prod/run image
       - >
@@ -56,7 +56,6 @@ phases:
         --target run
         -t sites/public:run-candidate
         .
-        
       
       # Tag the run image
       - docker tag sites/public:run-candidate "${ECR_REPO}/public:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"

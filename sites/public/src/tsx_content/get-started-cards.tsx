@@ -34,7 +34,7 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
           {t("help.getStarted.iNeedMoreHelpResp")}
           <a href="/help/housing-help">{t("help.getStarted.iNeedMoreHelpRespLink")}</a>
           {t("help.getStarted.iNeedMoreHelpRespPeriod")}
-          <br />
+          <br /><br />
           {t("help.getStarted.iNeedMoreHelpRespTip")}
         </span>
       </DoorwayCollapsibleSection>
@@ -62,10 +62,10 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
     <Card.Section>
       <DoorwayCollapsibleSection title={t("help.getStarted.seeListingsHousehold")}>
         <span>
-          <ol>
+          <ol className="text__medium-normal numbered-list-small ml-5">
             <li>{t("help.getStarted.seeListingsHouseholdResp1")}</li>
             <li>{t("help.getStarted.seeListingsHouseholdResp2")}</li>
-            <ul>
+            <ul className="text__medium-normal list-disc ml-5">
               <li>{t("help.getStarted.seeListingsHouseholdResp2a")}</li>
               <li>{t("help.getStarted.seeListingsHouseholdResp2b")}</li>
               <li>{t("help.getStarted.seeListingsHouseholdResp2c")}</li>
@@ -79,11 +79,11 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
     <Card.Section>
       <DoorwayCollapsibleSection title={t("help.getStarted.applyLotteryWaitlist")}>
         <span>
-          <ol>
+          <ol className="text__medium-normal numbered-list-small ml-5">
             <li>{t("help.getStarted.applyLotteryWaitlistResp1")}</li>
             <li>{t("help.getStarted.applyLotteryWaitlistResp2")}{t("help.getStarted.applyLotteryWaitlistResp2a")}</li>
             <li>{t("help.getStarted.applyLotteryWaitlistResp3")}</li>
-            <ul>
+            <ul className="text__medium-normal list-disc ml-5">
               <li>{t("help.getStarted.applyLotteryWaitlistResp3a")}</li>
               <li>{t("help.getStarted.applyLotteryWaitlistResp3b")}</li>
               <li>{t("help.getStarted.applyLotteryWaitlistResp3c")}</li>
@@ -91,7 +91,7 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
             </ul>
             <li>{t("help.getStarted.applyLotteryWaitlistResp4")}</li>
             <li>{t("help.getStarted.applyLotteryWaitlistResp5")}</li>
-            <ul>
+            <ul className="text__medium-normal list-disc ml-5">
               <li>{t("help.getStarted.applyLotteryWaitlistResp5a")}</li>
               <li>{t("help.getStarted.applyLotteryWaitlistResp5b")}</li>
               <li>{t("help.getStarted.applyLotteryWaitlistResp5c")}</li>
@@ -105,7 +105,7 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
       <DoorwayCollapsibleSection title={t("help.getStarted.checkApplications")}>
         <span>
           {t("help.getStarted.checkApplicationsResp")}
-          <ul>
+          <ul className="text__medium-normal list-disc ml-5">
             <li><a href="https://housing.acgov.org" target="_blank">{t("help.getStarted.checkApplicationsResp1")}</a></li>
             <li><a href="https://housing.sanjoseca.gov" target="_blank">{t("help.getStarted.checkApplicationsResp2")}</a></li>
             <li><a href="https://smc.housingbayarea.org" target="_blank">{t("help.getStarted.checkApplicationsResp3")}</a></li>

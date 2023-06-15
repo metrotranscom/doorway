@@ -8,8 +8,7 @@ import {
 } from "@bloom-housing/doorway-ui-components"
 
 export const getStartedCardIntro: React.ReactElement<CardProps> = (
-  <Card className="border-0 p-0">
-  </Card>
+  <Card className="border-0 p-0"></Card>
 )
 
 export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
@@ -34,7 +33,8 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
           {t("help.getStarted.iNeedMoreHelpResp")}
           <a href="/help/housing-help">{t("help.getStarted.iNeedMoreHelpRespLink")}</a>
           {t("help.getStarted.iNeedMoreHelpRespPeriod")}
-          <br /><br />
+          <br />
+          <br />
           {t("help.getStarted.iNeedMoreHelpRespTip")}
         </span>
       </DoorwayCollapsibleSection>
@@ -53,8 +53,8 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
     <Card.Section>
       <DoorwayCollapsibleSection title={t("help.getStarted.seeDoorwayListings")}>
         <span>
-          {t("help.getStarted.seeDoorwayListingsResp")}           
-          <b >{t("nav.viewListings")}</b>
+          {t("help.getStarted.seeDoorwayListingsResp")}
+          <b>{t("nav.viewListings")}</b>
           {t("help.getStarted.seeDoorwayListingsResp1")}
         </span>
       </DoorwayCollapsibleSection>
@@ -81,7 +81,10 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
         <span>
           <ol className="text__medium-normal numbered-list-small ml-5">
             <li>{t("help.getStarted.applyLotteryWaitlistResp1")}</li>
-            <li>{t("help.getStarted.applyLotteryWaitlistResp2")}{t("help.getStarted.applyLotteryWaitlistResp2a")}</li>
+            <li>
+              {t("help.getStarted.applyLotteryWaitlistResp2")}
+              {t("help.getStarted.applyLotteryWaitlistResp2a")}
+            </li>
             <li>{t("help.getStarted.applyLotteryWaitlistResp3")}</li>
             <ul className="text__medium-normal list-disc ml-5">
               <li>{t("help.getStarted.applyLotteryWaitlistResp3a")}</li>
@@ -106,13 +109,25 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
         <span>
           {t("help.getStarted.checkApplicationsResp")}
           <ul className="text__medium-normal list-disc ml-5">
-            <li><a href="https://housing.acgov.org" target="_blank">{t("help.getStarted.checkApplicationsResp1")}</a></li>
-            <li><a href="https://housing.sanjoseca.gov" target="_blank">{t("help.getStarted.checkApplicationsResp2")}</a></li>
-            <li><a href="https://smc.housingbayarea.org" target="_blank">{t("help.getStarted.checkApplicationsResp3")}</a></li>
+            <li>
+              <a href="https://housing.acgov.org" target="_blank">
+                {t("help.getStarted.checkApplicationsResp1")}
+              </a>
+            </li>
+            <li>
+              <a href="https://housing.sanjoseca.gov" target="_blank">
+                {t("help.getStarted.checkApplicationsResp2")}
+              </a>
+            </li>
+            <li>
+              <a href="https://smc.housingbayarea.org" target="_blank">
+                {t("help.getStarted.checkApplicationsResp3")}
+              </a>
+            </li>
           </ul>
           {t("help.getStarted.checkApplicationsResp4")}
         </span>
       </DoorwayCollapsibleSection>
     </Card.Section>
-  </Card>,  
+  </Card>,
 ]

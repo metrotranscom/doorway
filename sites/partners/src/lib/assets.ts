@@ -5,18 +5,15 @@ type FileUploadResult = {
   url: string
 }
 
+// This is just under the partner site for now but could easily be moved to
+// shared-helpers if needed for public site
 export class AssetUploader {
-  assetsEndpoint: string
   uploadEndpoint: string
 
-  // Default to /api/adapter to pass things through partner site proxy
-  // constructor(backendApiBase = "/api/adapter", assetsServicePath = "/assets") {
-  //   this.assetsEndpoint = `${backendApiBase}${assetsServicePath}`
-  //   this.uploadEndpoint = `${this.assetsEndpoint}/upload`
-  // }
-  constructor() {
-    this.assetsEndpoint = ""
-    this.uploadEndpoint = "/api/adapter/upload"
+  // AssetUploader(process.env.backendApiBase) => direct to backend
+  // AssetUploader("", "/api/adapter/upload") => pass through local adapter
+  constructor(backendApiBase, uploadEndpoint = "/assets/upload") {
+    this.uploadEndpoint = `${backendApiBase}${uploadEndpoint}`
   }
 
   async uploadAsset(
@@ -84,6 +81,7 @@ export async function uploadAssetAndSetData(
   setProgressValue: (value: React.SetStateAction<number>) => void,
   setAssetData: (data: { id: string; url: string }) => void
 ) {
-  const uploader = new AssetUploader()
+  // Default to /api/adapter/upload on the local service
+  const uploader = new AssetUploader("", "/api/adapter/upload")
   return await uploader.uploadAssetAndSetData(file, label, setProgressValue, setAssetData)
 }

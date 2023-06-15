@@ -8,7 +8,8 @@ import {
 } from "@bloom-housing/doorway-ui-components"
 
 export const getStartedCardIntro: React.ReactElement<CardProps> = (
-  <Card className="border-0 p-0"></Card>
+  <Card className="border-0 p-0"> "todo"
+  </Card>
 )
 
 export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
@@ -31,8 +32,7 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
       <DoorwayCollapsibleSection title={t("help.getStarted.iNeedMoreHelp")}>
         <span>
           {t("help.getStarted.iNeedMoreHelpResp")}
-          <a href="/help/housing-help">{t("help.getStarted.iNeedMoreHelpRespLink")}</a>
-          {t("help.getStarted.iNeedMoreHelpRespPeriod")}
+          <a href="/help/housing-help">{t("help.getStarted.iNeedMoreHelpRespLink")}</a>.
           <br />
           <br />
           {t("help.getStarted.iNeedMoreHelpRespTip")}
@@ -82,7 +82,7 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
           <ol className="text__medium-normal numbered-list-small ml-5">
             <li>{t("help.getStarted.applyLotteryWaitlistResp1")}</li>
             <li>
-              {t("help.getStarted.applyLotteryWaitlistResp2")}
+              {t("help.getStarted.applyLotteryWaitlistResp2")} {t("t.seeDetails")}.
               {t("help.getStarted.applyLotteryWaitlistResp2a")}
             </li>
             <li>{t("help.getStarted.applyLotteryWaitlistResp3")}</li>

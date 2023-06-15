@@ -101,151 +101,134 @@ export const questionsLinkableCards: React.ReactElement<CardProps>[] = [
           </ul>
         </span>
       </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
+      <DoorwayCollapsibleSection title={t("help.faq.setAside")}>
         <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
+          {t("help.faq.setAsideResp1")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>{t("help.faq.setAsideResp2")}</li>
+            <li>{t("help.faq.setAsideResp3")}</li>
+            <li>{t("help.faq.setAsideResp4")}</li>
+            <li>{t("help.faq.setAsideResp5")}</li>
+          </ul>
+          {t("help.faq.setAsideResp6")}<br /><br />
+          {t("help.faq.setAsideResp7")}
         </span>
-      </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>      
+      </DoorwayCollapsibleSection>  
     </Card.Section>
-    <Card.Section>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-    </Card.Section>
-    <Card.Section>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title={t("")}>
-        <span>
-        <ul className="text__medium-normal list-disc ml-5">
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-        </span>
-      </DoorwayCollapsibleSection>
-    </Card.Section>
-    <Card.Footer>
-      <Card.Section>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ullam a sunt veniam officiis
-        quae vitae similique non odio, minus minima nisi voluptatem? Sequi veritatis, sunt cumque
-        delectus culpa harum? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Esse illo
-        ullam nulla possimus, incidunt mollitia culpa quam, ex sequi totam provident iusto. Velit
-        totam deleniti unde fugiat minima omnis commodi! Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. Voluptatem excepturi nemo doloribus est consequatur praesentium enim
-        voluptate fuga qui earum repellendus, placeat facere debitis ex eaque repudiandae provident
-        inventore illo.
-      </Card.Section>
-    </Card.Footer>
-  </Card>,
-  <Card
-    className="border-0"
-    key="blah-2"
-    jumplinkData={{ title: "I'm just a heading for blah 2 jumplink" }}
-  >
     <Card.Header>
       <Heading priority={2} className={"text-primary-lighter font-semibold"}>
-        {"I'm just a heading for blah 2"}
+        {t("help.faq.whatsNextHeader")}
       </Heading>
     </Card.Header>
-    <Card.Section>this blah blah blah is text</Card.Section>
     <Card.Section>
-      <DoorwayCollapsibleSection title="blah title">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ullam a sunt veniam officiis
-        quae vitae similique non odio, minus minima nisi voluptatem? Sequi veritatis, sunt cumque
-        delectus culpa harum? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Esse illo
-        ullam nulla possimus, incidunt mollitia culpa quam, ex sequi totam provident iusto. Velit
-        totam deleniti unde fugiat minima omnis commodi! Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. Voluptatem excepturi nemo doloribus est consequatur praesentium enim
-        voluptate fuga qui earum repellendus, placeat facere debitis ex eaque repudiandae provident
-        inventore illo.
+      <DoorwayCollapsibleSection title={t("help.faq.selections")}>
+        <span>
+          {t("help.faq.selectionsResp")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li> 
+              <span className="text__medium-weighted">{t("help.faq.selectionsResp1")}</span>
+              {t("help.faq.selectionsResp1b")}
+            </li>
+            <li><span className="text__medium-weighted">{t("help.faq.selectionsResp2")}</span>
+              {t("help.faq.selectionsResp2b")}</li>
+          </ul>
+        </span>
       </DoorwayCollapsibleSection>
-      <DoorwayCollapsibleSection title="blah title 2">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ullam a sunt veniam officiis
-        quae vitae similique non odio, minus minima nisi voluptatem? Sequi veritatis, sunt cumque
-        delectus culpa harum? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Esse illo
-        ullam nulla possimus, incidunt mollitia culpa quam, ex sequi totam provident iusto. Velit
-        totam deleniti unde fugiat minima omnis commodi! Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. Voluptatem excepturi nemo doloribus est consequatur praesentium enim
-        voluptate fuga qui earum repellendus, placeat facere debitis ex eaque repudiandae provident
-        inventore illo.
+      <DoorwayCollapsibleSection title={t("help.faq.longProcess")}>
+        <span>
+          {t("help.faq.longProcessResp1")}<br /><br />
+          {t("help.faq.longProcessResp2")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>{t("help.faq.longProcessResp3")}</li>
+            <li>{t("help.faq.longProcessResp4")}</li>            
+          </ul>
+          {t("help.faq.longProcessResp5")}<br /><br />
+          {t("help.faq.longProcessResp6")}
+        </span>
+      </DoorwayCollapsibleSection>
+      <DoorwayCollapsibleSection title={t("help.faq.selected")}>
+        <span>
+          {t("help.faq.selectedResp1")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>{t("help.faq.selectedResp2")}</li>
+            <li>{t("help.faq.selectedResp3")}</li>
+          </ul>
+        </span>
+      </DoorwayCollapsibleSection>
+      <DoorwayCollapsibleSection title={t("help.faq.remainEligible")}>
+        <span>          
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>{t("help.faq.remainEligibleResp1")}</li>
+            <li>{t("help.faq.remainEligibleResp2")}</li>
+          </ul>
+        </span>
       </DoorwayCollapsibleSection>
     </Card.Section>
-    <Card.Footer>
-      <Card.Section>
-        <p>Footer content here.</p>
-      </Card.Section>
-    </Card.Footer>
+    <Card.Header>
+      <Heading priority={2} className={"text-primary-lighter font-semibold"}>
+        {t("help.faq.whatElseToKnowHeader")}
+      </Heading>
+    </Card.Header>
+    <Card.Section>
+      <DoorwayCollapsibleSection title={t("help.faq.whatMakesAffordable")}>
+        <span>
+        {t("help.faq.whatMakesAffordableResp")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>
+              <span className="text__medium-weighted">{t("help.faq.whatMakesAffordableResp1")}</span>
+              {t("help.faq.whatMakesAffordableResp1b")}
+            </li>
+            <li>
+              <span className="text__medium-weighted">{t("help.faq.whatMakesAffordableResp2")}</span>
+              {t("help.faq.whatMakesAffordableResp2b")}
+            </li>
+          </ul>
+          {t("help.faq.whatMakesAffordableResp3")}<br /><br />
+          {t("help.faq.whatMakesAffordableResp4")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>{t("help.faq.whatMakesAffordableResp5")}</li>
+            <li>{t("help.faq.whatMakesAffordableResp6")}</li>
+            <li>{t("help.faq.whatMakesAffordableResp7")}</li>
+            <li>{t("help.faq.whatMakesAffordableResp8")}</li>
+          </ul>
+        </span>
+      </DoorwayCollapsibleSection>
+      <DoorwayCollapsibleSection title={t("help.faq.incomeAffect")}>
+        <span>
+          {t("help.faq.incomeAffectResp1")}<br /><br />
+          {t("help.faq.incomeAffectResp2")}
+          <a 
+            href="https://www.huduser.gov/portal/datasets/il.html" 
+            target="_blank"
+          >{t("help.faq.incomeAffectResp3")}</a>
+          {t("help.faq.incomeAffectResp4")}<br /><br />
+          {t("help.faq.incomeAffectResp5")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>{t("help.faq.incomeAffectResp6")}</li>
+            <li>{t("help.faq.incomeAffectResp7")}</li>
+          </ul>
+        </span>
+      </DoorwayCollapsibleSection>
+      <DoorwayCollapsibleSection title={t("help.faq.section8VoucherDiff")}>
+        <span>
+          {t("help.faq.section8VoucherDiffResp")}          
+        </span>
+      </DoorwayCollapsibleSection>
+      <DoorwayCollapsibleSection title={t("help.faq.scammed")}>
+        <span>
+          {t("help.faq.scammedResp")}
+          <ul className="text__medium-normal list-disc ml-5">
+            <li>{t("help.faq.scammedResp1")}</li>
+            <li>{t("help.faq.scammedResp2")}</li>
+          </ul>
+          {t("help.faq.scammedResp3")}
+          <a 
+            href="https://consumer.ftc.gov/articles/rental-listing-scams" 
+            target="_blank">{t("help.faq.scammedResp4")}
+          </a>
+          {t("help.faq.scammedResp5")}
+        </span>
+      </DoorwayCollapsibleSection>
+    </Card.Section>
   </Card>,
 ]

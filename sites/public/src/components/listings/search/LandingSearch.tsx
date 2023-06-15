@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react"
-import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
+import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
 import {
   Modal,
   ButtonGroup,
   FieldGroup,
   FieldSingle,
   Card,
+  Button,
 } from "@bloom-housing/doorway-ui-components"
 import { useForm } from "react-hook-form"
+import { LinkButton } from "@bloom-housing/ui-components"
 
 const inputSectionStyle: React.CSSProperties = {
   margin: "0px 15px",
@@ -32,15 +34,11 @@ export type FormOption = {
 }
 
 type LandingSearchProps = {
-  searchString?: string
   bedrooms: FormOption[]
   counties: FormOption[]
-  onSubmit: (params: ListingSearchParams) => void
 }
 
 export function LandingSearch(props: LandingSearchProps) {
-  const searchString = props.searchString || ""
-
   // We hold a map of county label to county FormOption
   const countyLabelMap = {}
   const countyLabels = []
@@ -56,36 +54,12 @@ export function LandingSearch(props: LandingSearchProps) {
     monthlyRent: "",
     counties: countyLabels,
   }
-  const initialState = parseSearchString(searchString, nullState)
+  const initialState = nullState
   const [formValues, setFormValues] = useState(initialState)
 
-  const countFilters = (params: ListingSearchParams) => {
-    let count = 0
-    // For each of our search params, count the number that aren't empty
-    Object.values(params).forEach((value) => {
-      if (value == null || value == "") return
-      if (Array.isArray(value) && value.length == props.counties.length) return
-      count++
-    })
-    return count
-  }
-
-  // Run this once immediately after first render
-  // Empty array is intentional; it's how we make sure it only runs once
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    // Fetch listings
-    onSubmit()
-  }, [])
-
-  const clearValues = () => {
-    // TODO: fix this
-    // This code gets called but the UI doesn't update in response to state change
-    setFormValues(nullState)
-  }
-
-  const onSubmit = () => {
-    props.onSubmit(formValues)
+  const createListingsUrl = (formValues: ListingSearchParams) => {
+    const searchUrl = buildSearchString(formValues)
+    return "/listings?search=" + searchUrl
   }
 
   const updateValue = (name: string, value: string) => {
@@ -180,6 +154,10 @@ export function LandingSearch(props: LandingSearchProps) {
           register={register}
         />
       </div>
+
+      <LinkButton href={createListingsUrl(formValues)} className="is-primary">
+        View listings
+      </LinkButton>
     </Card>
   )
 }

@@ -80,12 +80,17 @@ export class AssetsController {
       throw new PayloadTooLargeException(`Uploaded files must be less than ${maxFileSizeMb} MB`)
     }
 
+    // Allowlisting on extension instead of mimetype is also reasonable
     if (!allowedFileTypes.includes(file.mimetype)) {
       throw new UnsupportedMediaTypeException(`Uploaded files must be a pdf or image`)
     }
 
+    // The service used to create an asset instead of just returning a file upload result.
+    // Keeping this for now in case the original behavior needs to be restored.
+    
     //const asset = await this.assetsService.upload(label, file)
     //return mapTo(AssetDto, asset)
+
     return await this.assetsService.upload(label, file)
   }
 

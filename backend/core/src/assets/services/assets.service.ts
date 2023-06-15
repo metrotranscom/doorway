@@ -42,6 +42,13 @@ export class AssetsService {
     return result
 
     /*
+      This method originally created an asset and returned an AssetCreateDto, 
+      but the frontend isn't yet set up to handle that scenario. The benefit
+      of that approach over just the upload is having a queryable inventory of
+      all files.
+    */
+
+    /*
     const asset = {
       fileId: result.url,
       label: label,

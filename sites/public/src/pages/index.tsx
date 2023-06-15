@@ -18,7 +18,10 @@ import { MetaTags } from "../components/shared/MetaTags"
 import { fetchJurisdictionByName } from "../lib/hooks"
 import { runtimeConfig } from "../lib/runtime-config"
 import { FormOption, LandingSearch } from "../components/listings/search/LandingSearch"
-import { locations, bedroomOptions } from "../components/listings/search/ListingsSearchCombined"
+import {
+  locations,
+  bedroomOptionsForLandingPage,
+} from "../components/listings/search/ListingsSearchCombined"
 
 interface IndexProps {
   jurisdiction: Jurisdiction
@@ -196,7 +199,7 @@ export async function getServerSideProps() {
   return {
     props: {
       jurisdiction,
-      bedrooms: bedroomOptions,
+      bedrooms: bedroomOptionsForLandingPage,
       counties: locations,
     },
   }

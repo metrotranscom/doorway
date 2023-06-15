@@ -9,7 +9,7 @@ import {
   Button,
 } from "@bloom-housing/doorway-ui-components"
 import { useForm } from "react-hook-form"
-import { LinkButton } from "@bloom-housing/ui-components"
+import { LinkButton, t } from "@bloom-housing/ui-components"
 
 const inputSectionStyle: React.CSSProperties = {
   margin: "0px 15px",
@@ -110,19 +110,9 @@ export function LandingSearch(props: LandingSearchProps) {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register } = useForm()
   return (
-    <Card
-    /*title={"Filters"}
-      ariaDescription="Listing Search Filters"
-      actions={[
-        <button onClick={onSubmit}>Show matching listings</button>,
-        <div style={{ flexGrow: 1 }}></div>,
-        <button style={clearButtonStyle} onClick={clearValues}>
-          Clear all filters
-        </button>,
-      ]}*/
-    >
+    <Card>
       <div style={inputSectionStyle}>
-        <div>Bedrooms</div>
+        <div>{t("t.bedrooms")}</div>
         <ButtonGroup
           name="bedrooms"
           options={props.bedrooms}
@@ -132,12 +122,12 @@ export function LandingSearch(props: LandingSearchProps) {
       </div>
 
       <div style={inputSectionStyle}>
-        <div>Monthly Rent</div>
+        <div>{t("t.maxMonthlyRent")}</div>
         <input
           type="text"
           name="monthlyRent"
           value={formValues.monthlyRent}
-          placeholder="Max Price: $"
+          placeholder="$"
           style={textInputStyle}
           onChange={(e: React.FormEvent<HTMLInputElement>) => {
             updateValue("monthlyRent", e.currentTarget.value)
@@ -146,7 +136,7 @@ export function LandingSearch(props: LandingSearchProps) {
       </div>
 
       <div style={inputSectionStyle}>
-        <div>Counties</div>
+        <div>{t("t.counties")}</div>
         <FieldGroup
           name="counties"
           fields={countyFields}
@@ -156,7 +146,7 @@ export function LandingSearch(props: LandingSearchProps) {
       </div>
 
       <LinkButton href={createListingsUrl(formValues)} className="is-primary">
-        View listings
+        {t("welcome.viewListings")}
       </LinkButton>
     </Card>
   )

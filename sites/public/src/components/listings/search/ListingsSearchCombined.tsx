@@ -137,9 +137,31 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 }
 
 // Input values/options below are passed into the form to make it easier to
-// reuse it in multiple places.  This may not ultimately be necessary, but it's
+// reuse it in multiple places. This may not ultimately be necessary, but it's
 // easier to add it in at the beginning than it is to try to add make the change
 // later.
+const bedroomOptionsForLandingPage: FormOption[] = [
+  {
+    label: "Any",
+    value: null,
+  },
+  {
+    label: "Studio",
+    value: "0",
+  },
+  {
+    label: "1",
+    value: "1",
+  },
+  {
+    label: "2",
+    value: "2",
+  },
+  {
+    label: "3+",
+    value: "3",
+  },
+]
 
 const bedroomOptions: FormOption[] = [
   {
@@ -232,4 +254,10 @@ const locations: FormOption[] = [
   },
 ]
 
-export { ListingsSearchCombined as default, locations, bedroomOptions, bathroomOptions }
+export {
+  ListingsSearchCombined as default,
+  locations,
+  bedroomOptions,
+  bedroomOptionsForLandingPage,
+  bathroomOptions,
+}

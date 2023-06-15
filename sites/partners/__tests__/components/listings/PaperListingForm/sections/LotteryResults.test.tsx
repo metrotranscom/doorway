@@ -85,7 +85,7 @@ describe("LotteryResults", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         fileId: "https://lottery.com/results.pdf",
-        label: "cloudinaryPDF"
+        label: "cloudinaryPDF",
       },
       createdAt: new Date(),
       updatedAt: new Date(),

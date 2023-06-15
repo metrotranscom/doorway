@@ -191,9 +191,9 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
 
           const result = editMode
             ? await listingsService.update({
-              id: listing.id,
-              body: { id: listing.id, ...formattedData },
-            })
+                id: listing.id,
+                body: { id: listing.id, ...formattedData },
+              })
             : await listingsService.create({ body: formattedData })
           reset(formData)
 

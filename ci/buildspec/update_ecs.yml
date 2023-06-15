@@ -11,6 +11,6 @@ phases:
   build:
     commands:
       # Force ECS to use the new images
-      - aws ecs update-service --force-new-deployment --cluster "${ECS_BACKEND_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_BACKEND_SERVICE}"
+      #- aws ecs update-service --force-new-deployment --cluster "${ECS_BACKEND_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_BACKEND_SERVICE}"
       - aws ecs update-service --force-new-deployment --cluster "${ECS_PUBLIC_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_PUBLIC_SERVICE}"
-      - aws ecs update-service --force-new-deployment --cluster "${ECS_PARTNER_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_PARTNER_SERVICE}"
+      #- aws ecs update-service --force-new-deployment --cluster "${ECS_PARTNER_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_PARTNER_SERVICE}"

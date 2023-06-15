@@ -87,7 +87,7 @@ export class AssetsController {
 
     // The service used to create an asset instead of just returning a file upload result.
     // Keeping this for now in case the original behavior needs to be restored.
-    
+
     //const asset = await this.assetsService.upload(label, file)
     //return mapTo(AssetDto, asset)
 

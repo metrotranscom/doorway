@@ -137,14 +137,14 @@ export function LandingSearch(props: LandingSearchProps) {
           onChange={updateValueMulti}
           register={register}
           fieldGroupClassName="grid grid-cols-2 md:pl-16 uppercase"
-          fieldLabelClassName="text-primary-dark font-medium"
+          fieldLabelClassName="text-primary-dark font-medium tracking-wider"
         />
       </div>
 
-      <div className="flex justify-between">
+      <div className="flex justify-start">
         <LinkButton
           href={createListingsUrl(formValues)}
-          className="is-primary bg-primary-dark text-3xs md:text-xs text-white"
+          className="is-primary bg-primary-dark text-3xs md:text-xs text-white mr-8"
           size={AppearanceSizeType.small}
         >
           {t("welcome.viewListings")}

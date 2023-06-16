@@ -24,7 +24,7 @@ const FrequentlyAskedQuestions = () => {
       <PageHeader title={pageTitle} />
       <div className="my-14">
         <DoorwayLinkableCardGroup
-          cards={questionsLinkableCards}
+          cards={questionsLinkableCards()}
           className="m-auto"
         ></DoorwayLinkableCardGroup>
       </div>

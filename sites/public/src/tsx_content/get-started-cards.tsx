@@ -49,7 +49,7 @@ export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
       <DoorwayCollapsibleSection title={t("help.getStarted.seeDoorwayListings")}>
         <span>
           {t("help.getStarted.seeDoorwayListingsResp")}
-          <b>{t("nav.viewListings")}</b>
+          <span className="text__medium-weighted">{t("nav.viewListings")}</span>
           {t("help.getStarted.seeDoorwayListingsResp1")}
         </span>
       </DoorwayCollapsibleSection>

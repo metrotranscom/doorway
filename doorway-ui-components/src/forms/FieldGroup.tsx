@@ -4,6 +4,7 @@ import { ErrorMessage } from "../notifications/ErrorMessage"
 import { UseFormMethods, RegisterOptions } from "react-hook-form"
 import { Field } from "./Field"
 import { t } from "../helpers/translator"
+import "./FieldGroup.scss"
 
 export interface FieldSingle {
   additionalText?: boolean

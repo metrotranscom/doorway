@@ -7,17 +7,16 @@ import {
   FieldSingle,
   Card,
   Button,
+  ButtonGroupSpacing,
 } from "@bloom-housing/doorway-ui-components"
 import { useForm } from "react-hook-form"
 import { LinkButton, t } from "@bloom-housing/ui-components"
 
 const inputSectionStyle: React.CSSProperties = {
   margin: "0px 15px",
-  borderTop: "1px solid black",
 }
 
 const textInputStyle: React.CSSProperties = {
-  border: "1px solid black",
   padding: "2px 4px",
   margin: "5px",
 }
@@ -111,7 +110,7 @@ export function LandingSearch(props: LandingSearchProps) {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register } = useForm()
   return (
-    <Card>
+    <Card className="bg-accent-cool-light">
       <div style={inputSectionStyle}>
         <div>{t("t.bedrooms")}</div>
         <ButtonGroup
@@ -119,6 +118,8 @@ export function LandingSearch(props: LandingSearchProps) {
           options={props.bedrooms}
           onChange={updateValue}
           value={formValues.bedrooms}
+          className="bg-accent-cool-light"
+          spacing={ButtonGroupSpacing.left}
         />
       </div>
 

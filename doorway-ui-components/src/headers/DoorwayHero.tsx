@@ -12,7 +12,7 @@ const DoorwayHero = (props: DoorwayHeroProps) => {
   return (
     <div className="doorway-hero">
       <div className="doorway-hero_inner">
-        <h1>{props.title}</h1>
+        <div className={"doorway-hero_title"}>{props.title}</div>
         {props?.offsetImage && props?.offsetImageAlt && (
           <img
             src={props.offsetImage}

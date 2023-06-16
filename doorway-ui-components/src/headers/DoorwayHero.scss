@@ -20,6 +20,13 @@
   }
 }
 
+.doorway-hero_title {
+  @apply font-serif;
+  @apply text-3xl;
+  @apply text-primary-dark;
+  @apply font-semibold;
+}
+
 .doorway-hero_inner {
   background-color: var(--doorway-hero-inner-background-color);
   position: relative;

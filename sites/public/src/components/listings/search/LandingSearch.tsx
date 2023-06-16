@@ -108,7 +108,7 @@ export function LandingSearch(props: LandingSearchProps) {
           options={props.bedrooms}
           onChange={updateValue}
           value={formValues.bedrooms}
-          className="bg-accent-cool-light py-0 px-0 md:ml-8"
+          className="bg-accent-cool-light py-0 px-0 md:pl-12"
           spacing={ButtonGroupSpacing.left}
         />
       </div>
@@ -120,7 +120,7 @@ export function LandingSearch(props: LandingSearchProps) {
           name="monthlyRent"
           defaultValue={formValues.monthlyRent}
           placeholder="$"
-          className="doorway-field"
+          className="doorway-field md:pl-6"
           inputClassName="rent-input"
           labelClassName="input-label"
           onChange={(e: React.FormEvent<HTMLInputElement>) => {
@@ -136,7 +136,8 @@ export function LandingSearch(props: LandingSearchProps) {
           fields={countyFields}
           onChange={updateValueMulti}
           register={register}
-          fieldGroupClassName={"grid grid-cols-2"}
+          fieldGroupClassName="grid grid-cols-2 md:pl-16 uppercase"
+          fieldLabelClassName="text-primary-dark font-medium"
         />
       </div>
 

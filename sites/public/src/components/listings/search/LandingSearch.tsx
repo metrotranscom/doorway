@@ -8,22 +8,12 @@ import {
   Card,
   Button,
   ButtonGroupSpacing,
+  Field,
+  AppearanceSizeType,
 } from "@bloom-housing/doorway-ui-components"
 import { useForm } from "react-hook-form"
 import { LinkButton, t } from "@bloom-housing/ui-components"
-
-const inputSectionStyle: React.CSSProperties = {
-  margin: "0px 15px",
-}
-
-const textInputStyle: React.CSSProperties = {
-  padding: "2px 4px",
-  margin: "5px",
-}
-
-const clearButtonStyle: React.CSSProperties = {
-  textDecoration: "underline",
-}
+import styles from "./LandingSearch.module.scss"
 
 export type FormOption = {
   label: string
@@ -111,34 +101,36 @@ export function LandingSearch(props: LandingSearchProps) {
   const { register } = useForm()
   return (
     <Card className="bg-accent-cool-light">
-      <div style={inputSectionStyle}>
-        <div>{t("t.bedrooms")}</div>
+      <div className={styles["input-section"]}>
+        <div className={styles["input-section_title"]}>{t("t.bedrooms")}</div>
         <ButtonGroup
           name="bedrooms"
           options={props.bedrooms}
           onChange={updateValue}
           value={formValues.bedrooms}
-          className="bg-accent-cool-light"
+          className="bg-accent-cool-light py-0 px-0 md:ml-8"
           spacing={ButtonGroupSpacing.left}
         />
       </div>
 
-      <div style={inputSectionStyle}>
-        <div>{t("t.maxMonthlyRent")}</div>
-        <input
+      <div className={styles["input-section"]}>
+        <div className={styles["input-section_title"]}>{t("t.maxMonthlyRent")}</div>
+        <Field
           type="text"
           name="monthlyRent"
-          value={formValues.monthlyRent}
+          defaultValue={formValues.monthlyRent}
           placeholder="$"
-          style={textInputStyle}
+          className="doorway-field"
+          inputClassName="rent-input"
+          labelClassName="input-label"
           onChange={(e: React.FormEvent<HTMLInputElement>) => {
             updateValue("monthlyRent", e.currentTarget.value)
           }}
         />
       </div>
 
-      <div style={inputSectionStyle}>
-        <div>{t("t.counties")}</div>
+      <div className={styles["input-section"]}>
+        <div className={styles["input-section_title"]}>{t("t.counties")}</div>
         <FieldGroup
           name="counties"
           fields={countyFields}
@@ -148,20 +140,30 @@ export function LandingSearch(props: LandingSearchProps) {
         />
       </div>
 
-      <LinkButton href={createListingsUrl(formValues)} className="is-primary">
-        {t("welcome.viewListings")}
-      </LinkButton>
+      <div className="flex justify-between">
+        <LinkButton
+          href={createListingsUrl(formValues)}
+          className="is-primary bg-primary-dark text-3xs md:text-xs text-white"
+          size={AppearanceSizeType.small}
+        >
+          {t("welcome.viewListings")}
+        </LinkButton>
 
-      <Button
-        onClick={() => {
-          setOpenCountyMapModal(!openCountyMapModal)
-        }}
-      >
-        {t("welcome.viewCountyMap")}
-      </Button>
+        <Button
+          className="is-borderless is-inline is-unstyled underline text-primary-lighter uppercase tracking-widest text-3xs md:text-xs"
+          size={AppearanceSizeType.small}
+          onClick={() => {
+            setOpenCountyMapModal(!openCountyMapModal)
+          }}
+        >
+          {t("welcome.viewCountyMap")}
+        </Button>
+      </div>
+
       <Modal
         open={openCountyMapModal}
         title={t("welcome.bayAreaCountyMap")}
+        headerClassNames="text-primary-dark text-2xl font-medium"
         ariaDescription={t("welcome.bayAreaCountyMap")}
         onClose={() => setOpenCountyMapModal(!openCountyMapModal)}
       >

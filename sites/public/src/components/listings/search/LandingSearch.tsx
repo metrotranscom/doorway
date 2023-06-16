@@ -56,6 +56,7 @@ export function LandingSearch(props: LandingSearchProps) {
   }
   const initialState = nullState
   const [formValues, setFormValues] = useState(initialState)
+  const [openCountyMapModal, setOpenCountyMapModal] = useState(false)
 
   const createListingsUrl = (formValues: ListingSearchParams) => {
     const searchUrl = buildSearchString(formValues)
@@ -148,6 +149,22 @@ export function LandingSearch(props: LandingSearchProps) {
       <LinkButton href={createListingsUrl(formValues)} className="is-primary">
         {t("welcome.viewListings")}
       </LinkButton>
+
+      <Button
+        onClick={() => {
+          setOpenCountyMapModal(!openCountyMapModal)
+        }}
+      >
+        {t("welcome.viewCountyMap")}
+      </Button>
+      <Modal
+        open={openCountyMapModal}
+        title={t("welcome.bayAreaCountyMap")}
+        ariaDescription={t("welcome.bayAreaCountyMap")}
+        onClose={() => setOpenCountyMapModal(!openCountyMapModal)}
+      >
+        <img src={"images/county-map.png"} alt={t("welcome.bayAreaCountyMap")} />
+      </Modal>
     </Card>
   )
 }

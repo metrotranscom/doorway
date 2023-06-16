@@ -7,10 +7,6 @@ import {
   Heading,
 } from "@bloom-housing/doorway-ui-components"
 
-export const questionsCardIntro: React.ReactElement<CardProps> = (
-  <Card className="border-0 p-0"></Card>
-)
-
 export const questionsLinkableCards: React.ReactElement<CardProps>[] = [
   <Card
     className="border-0"

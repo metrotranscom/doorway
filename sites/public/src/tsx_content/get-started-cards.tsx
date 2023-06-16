@@ -7,11 +7,6 @@ import {
   Heading,
 } from "@bloom-housing/doorway-ui-components"
 
-export const getStartedCardIntro: React.ReactElement<CardProps> = (
-  <Card className="border-0 p-0"> "todo"
-  </Card>
-)
-
 export const getStartedLinkableCards: React.ReactElement<CardProps>[] = [
   <Card
     className="border-0"

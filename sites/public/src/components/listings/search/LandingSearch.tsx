@@ -144,6 +144,7 @@ export function LandingSearch(props: LandingSearchProps) {
           fields={countyFields}
           onChange={updateValueMulti}
           register={register}
+          fieldGroupClassName={"grid grid-cols-2"}
         />
       </div>
 

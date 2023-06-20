@@ -139,7 +139,7 @@ export function LandingSearch(props: LandingSearchProps) {
       <div className="flex justify-start p-2">
         <LinkButton
           href={createListingsUrl(formValues)}
-          className="is-primary bg-primary-dark text-3xs md:text-xs text-white mr-8"
+          className="is-primary is-borderless bg-primary-dark text-3xs md:text-xs text-white mr-8"
           size={AppearanceSizeType.small}
         >
           {t("welcome.viewListings")}

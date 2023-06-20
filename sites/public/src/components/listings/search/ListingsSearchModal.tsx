@@ -51,6 +51,7 @@ export type FormOption = {
   value: string
   isDisabled?: boolean
   labelNoteHTML?: string
+  doubleColumn?: boolean
 }
 
 type ListingsSearchModalProps = {
@@ -161,6 +162,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         value: county.value,
         defaultChecked: check,
         disabled: county.isDisabled || false,
+        doubleColumn: county.doubleColumn || false,
         note: county.labelNoteHTML || "",
       } as FieldSingle)
     })

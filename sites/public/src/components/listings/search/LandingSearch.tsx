@@ -115,7 +115,7 @@ export function LandingSearch(props: LandingSearchProps) {
           name="monthlyRent"
           defaultValue={formValues.monthlyRent}
           placeholder="$"
-          className="doorway-field md:pl-6"
+          className="doorway-field p-0 md:pl-6"
           inputClassName="rent-input"
           labelClassName="input-label"
           onChange={(e: React.FormEvent<HTMLInputElement>) => {

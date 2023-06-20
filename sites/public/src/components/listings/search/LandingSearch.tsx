@@ -136,7 +136,7 @@ export function LandingSearch(props: LandingSearchProps) {
         />
       </div>
 
-      <div className="flex justify-start">
+      <div className="flex justify-start p-2">
         <LinkButton
           href={createListingsUrl(formValues)}
           className="is-primary bg-primary-dark text-3xs md:text-xs text-white mr-8"

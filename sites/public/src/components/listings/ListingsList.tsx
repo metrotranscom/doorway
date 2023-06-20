@@ -48,9 +48,8 @@ const ListingsList = (props: ListingsListProps) => {
           subtitle={t("t.emergencyShelter")}
           className="is-normal-secondary-lighter"
         >
-          <LinkButton 
-            href="help/housing-help" 
-            className="is-secondary">{t("t.helpCenter")}
+          <LinkButton href="help/housing-help" className="is-secondary">
+            {t("t.helpCenter")}
           </LinkButton>
         </InfoCard>
         <InfoCard

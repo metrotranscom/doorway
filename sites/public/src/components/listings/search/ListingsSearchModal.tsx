@@ -251,7 +251,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
           onChange={updateValueMulti}
           register={register}
           fieldGroupClassName="grid grid-cols-2"
-          fieldLabelClassName="county-input"
+          fieldLabelClassName="text-primary-dark font-medium tracking-wider text-2xs uppercase"
         />
       </div>
     </Modal>

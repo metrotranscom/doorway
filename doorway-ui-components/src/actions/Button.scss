@@ -187,3 +187,13 @@ button {
   transform: translate(-50%, -50%);
   margin-top: 2px;
 }
+
+// This is an override to update the style of the landing page buttons when selected.
+// This is not ideal but is needed since the landing page search buttons and the listing
+// search modal buttons have to have different styles when selected.
+.landing-search-button {
+  .button.is-secondary {
+    background-color: var(--bloom-color-primary-lighter);
+    color: var(--bloom-color-white);
+  }
+}

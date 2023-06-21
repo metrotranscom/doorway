@@ -67,6 +67,10 @@
     @apply pr-72;
   }
 
+  @media (min-width: $screen-md) AND (max-width: $screen-lg) {
+    @apply pr-0;
+  }
+
   h1 {
     margin-bottom: var(--doorway-hero-between-margin);
   }
@@ -75,6 +79,10 @@
 .doorway-hero_image {
   @apply rounded-3xl;
   margin-bottom: var(--doorway-hero-between-margin);
+
+  @media (min-width: $screen-md) AND (max-width: $screen-lg) {
+    display: none;
+  }
 
   @media (min-width: $screen-md) {
     position: absolute;

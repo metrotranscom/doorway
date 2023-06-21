@@ -7,6 +7,9 @@ ARG LISTINGS_QUERY=/listings
 ARG BACKEND_API_BASE=http://localhost:3100
 ARG JURISDICTION_NAME=Bay Area
 ARG BLOOM_API_BASE=https://hba-dev-proxy.herokuapp.com
+ARG CACHE_REVALIDATE=60
+ARG IDLE_TIMEOUT=5
+ARG LANGUAGES=en
 
 # The base image will contain all the source code needed for our site
 FROM node:18.14-alpine AS base
@@ -31,11 +34,8 @@ COPY --chown=node:node sites/${SITE} ./sites/${SITE}
 # It turns out we do have a hard dependency on backend/core :(
 COPY --chown=node:node backend/core ./backend/core
 
-# And shared
+# And shared helpers
 COPY --chown=node:node shared-helpers ./shared-helpers
-
-# And shared services
-COPY --chown=node:node shared-services ./shared-services
 
 # And UIC
 COPY --chown=node:node doorway-ui-components ./doorway-ui-components
@@ -109,6 +109,9 @@ ARG LISTINGS_QUERY
 ARG BACKEND_API_BASE
 ARG JURISDICTION_NAME
 ARG BLOOM_API_BASE
+ARG CACHE_REVALIDATE
+ARG IDLE_TIMEOUT
+ARG LANGUAGES
 
 # We need to have this nested 2 layers deep due to hardcoded paths in package.json
 WORKDIR /app/sites/${SITE}
@@ -121,6 +124,9 @@ ENV LISTINGS_QUERY=$LISTINGS_QUERY
 ENV BACKEND_API_BASE=$BACKEND_API_BASE
 ENV JURISDICTION_NAME=$JURISDICTION_NAME
 ENV BLOOM_API_BASE=$BLOOM_API_BASE
+ENV CACHE_REVALIDATE=$CACHE_REVALIDATE
+ENV IDLE_TIMEOUT=$IDLE_TIMEOUT
+ENV LANGUAGES=$LANGUAGES
 
 # Build/compile
 RUN yarn build
@@ -162,7 +168,6 @@ COPY --from=optimize --chown=node:node /app/sites/${SITE}/node_modules ./sites/$
 # Bring in our local dependencies
 COPY --from=build /app/backend/core ./backend/core
 COPY --from=build /app/shared-helpers ./shared-helpers
-COPY --from=build /app/shared-services ./shared-services
 COPY --from=build /app/doorway-ui-components ./doorway-ui-components
 
 # Switch to our site

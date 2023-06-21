@@ -5,6 +5,7 @@ import Button from "./Button"
 export enum ButtonGroupSpacing {
   between = "between",
   even = "even",
+  left = "justify-left",
 }
 export type FormOption = {
   label: string
@@ -30,37 +31,33 @@ export interface ButtonGroupProps {
   value?: string
   showBorder?: boolean
   onChange?: (name: string, value: string | null) => void
+  className?: string
 }
-
-
 
 const ButtonGroup = (props: ButtonGroupProps) => {
   let spacing = ButtonGroupSpacing.between
   if (props.spacing) {
     spacing = props.spacing
   }
-  const nullState: {index: null | number, value: null | string} = {
+
+  const nullState: { index: null | number; value: null | string } = {
     index: null,
     value: null,
   }
+
+    const [selection, setSelection] = useState(nullState)
+
   let options: FormOption[] = []
   if (props.options) {
     options = props.options
   }
-
-  let initialState = nullState
-  if (props.value) {
+  let initialIndex = -1
     options.forEach((button, index) => {
-      if (button.value == props.value) {
-        initialState = {
-          index: index,
-          value: button.value,
-        }
-      }
+	if (button.value == props.value) {
+            initialIndex = index
+	}
     })
-  }
 
-  const [selection, setSelection] = useState(initialState)
   let name: string = ""
   if (props.name) {
     name = props.name
@@ -72,6 +69,7 @@ const ButtonGroup = (props: ButtonGroupProps) => {
       index: index,
       value: value,
     })
+
     if (props.onChange) {
       props.onChange(name, value)
     }
@@ -85,30 +83,34 @@ const ButtonGroup = (props: ButtonGroupProps) => {
       }
     }
   }
-
   const spacingClassName = `has-${spacing}-spacing`
   const classNames = ["button-group", spacingClassName]
   if (props.fullwidthMobile) classNames.push("has-fullwidth-mobile-buttons")
   if (props.reversed) classNames.push("is-reversed")
   if (props.pagination) classNames.push("pagination")
+  if (props.className) classNames.push(props.className)
 
   if (props.columns) {
-     return (
-    <div className={classNames.join(" ")}>
-      {props.columns.map((column, index) => (
-        <div key={index} className="button-group__column">
-          {column}
-        </div>
-      ))}
-    </div>
-     )
+    return (
+      <div className={classNames.join(" ")}>
+        {props.columns.map((column, index) => (
+          <div key={index} className="button-group__column">
+            {column}
+          </div>
+        ))}
+      </div>
+    )
   }
+
   return (
     <div className={classNames.join(" ")}>
-      {options.map((option, index) => (
+      {options.map((option, index) => {
+          let activate = false
+	  activate = (initialIndex == index)
+          return (
         <div key={index} className="button-group__column">
           <Button
-            isActive={selection.index == index}
+            isActive={activate}
             label={option.label}
             value={option.value}
             index={index}
@@ -118,7 +120,8 @@ const ButtonGroup = (props: ButtonGroupProps) => {
             children={option.label}
           />
         </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

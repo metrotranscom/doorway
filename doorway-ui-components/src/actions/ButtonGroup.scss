@@ -11,7 +11,7 @@
     --padding-inline: var(--padding-inline-mobile);
   }
 
-  background-color: var(--background-color);
+  background-color: var(--bloom-color-white);
   padding-block: var(--padding-block);
   padding-inline: var(--padding-inline);
   display: flex;
@@ -37,6 +37,12 @@
 
   &.has-even-spacing {
     justify-content: space-evenly;
+  }
+
+  &.has-justify-left-spacing {
+    padding-left: 0;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   &.has-fullwidth-mobile-buttons {

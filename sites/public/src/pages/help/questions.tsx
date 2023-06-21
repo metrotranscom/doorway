@@ -4,7 +4,8 @@ import { DoorwayLinkableCardGroup, PageHeader } from "@bloom-housing/doorway-ui-
 import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
-import { questionsCardIntro, questionsLinkableCards } from "../../tsx_content/questions-cards"
+import { questionsLinkableCards } from "../../tsx_content/questions-cards"
+import { MetaTags } from "../../components/shared/MetaTags"
 
 const FrequentlyAskedQuestions = () => {
   const { profile } = useContext(AuthContext)
@@ -17,15 +18,17 @@ const FrequentlyAskedQuestions = () => {
     })
   }, [profile])
 
-  const pageTitle = <>{t("pageTitle.questions")}</>
+  const metaDescription = t("pageDescription.questions")
 
   return (
     <Layout>
-      <PageHeader title={pageTitle} />
-      <div className="my-0 lg:my-12">
-        <DoorwayLinkableCardGroup cards={questionsLinkableCards} className="m-auto">
-          {questionsCardIntro}
-        </DoorwayLinkableCardGroup>
+      <PageHeader title={t("pageTitle.questions")} />
+      <MetaTags title={t("pageTitle.questions")} description={metaDescription} />
+      <div className="my-14">
+        <DoorwayLinkableCardGroup
+          cards={questionsLinkableCards()}
+          className="m-auto"
+        ></DoorwayLinkableCardGroup>
       </div>
     </Layout>
   )

@@ -1,7 +1,6 @@
 import React from "react"
 import Head from "next/head"
 import { t } from "@bloom-housing/ui-components"
-import LayoutWithoutFooter from "../layouts/LayoutWithoutFooter"
 import { MetaTags } from "../components/shared/MetaTags"
 import ListingsSearchCombined, {
   locations,
@@ -10,6 +9,7 @@ import ListingsSearchCombined, {
 } from "../components/listings/search/ListingsSearchCombined"
 import { FormOption } from "../components/listings/search/ListingsSearchModal"
 import { runtimeConfig } from "../lib/runtime-config"
+import Layout from "../layouts/application"
 
 export interface ListingsProps {
   listingsEndpoint: string
@@ -22,7 +22,7 @@ export interface ListingsProps {
 
 export default function ListingsPage(props: ListingsProps) {
   const pageTitle = `${t("pageTitle.rent")} - ${t("nav.siteTitle")}`
-  const metaDescription = t("pageDescription.welcome", { regionName: t("region.name") })
+  const metaDescription = t("pageDescription.welcome")
   const metaImage = "" // TODO: replace with hero image
   let searchString = props.initialSearch || ""
   const url = new URL(document.location.toString())
@@ -33,7 +33,7 @@ export default function ListingsPage(props: ListingsProps) {
     searchString = searchParam
   }
   return (
-    <LayoutWithoutFooter>
+    <Layout>
       <Head>
         <title>{pageTitle}</title>
       </Head>
@@ -47,7 +47,7 @@ export default function ListingsPage(props: ListingsProps) {
         bathrooms={props.bathrooms}
         counties={props.locations}
       />
-    </LayoutWithoutFooter>
+    </Layout>
   )
 }
 
@@ -58,7 +58,7 @@ export function getServerSideProps() {
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
       // show Bloom counties by default
       initialSearch:
-        "counties:Alameda,Contra Costa,Marin,San Francisco,San Mateo,Santa Clara,Solano,Sonoma",
+        "counties:Alameda,Contra Costa,Marin,Napa,San Francisco,San Mateo,Santa Clara,Solano,Sonoma",
       bedrooms: bedroomOptions,
       bathrooms: bathroomOptions,
       locations: locations,

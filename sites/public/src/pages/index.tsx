@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import Head from "next/head"
 import { Jurisdiction } from "@bloom-housing/backend-core/types"
 import {
@@ -17,9 +17,16 @@ import { ConfirmationModal } from "../components/account/ConfirmationModal"
 import { MetaTags } from "../components/shared/MetaTags"
 import { fetchJurisdictionByName } from "../lib/hooks"
 import { runtimeConfig } from "../lib/runtime-config"
+import { FormOption, LandingSearch } from "../components/listings/search/LandingSearch"
+import {
+  locations,
+  bedroomOptionsForLandingPage,
+} from "../components/listings/search/ListingsSearchCombined"
 
 interface IndexProps {
   jurisdiction: Jurisdiction
+  bedrooms: FormOption[]
+  counties: FormOption[]
 }
 
 export default function Home(props: IndexProps) {
@@ -33,13 +40,13 @@ export default function Home(props: IndexProps) {
   useEffect(() => {
     pushGtmEvent<PageView>({
       event: "pageView",
-      pageTitle: "🚪 Housing Portal",
+      pageTitle: "Doorway Housing Portal",
       status: profile ? UserStatus.LoggedIn : UserStatus.NotLoggedIn,
     })
   }, [profile])
 
-  const metaDescription = t("welcome.findAffordableHousing", { regionName: t("region.name") })
-  const metaImage = "" // TODO: replace with hero image
+  const metaDescription = t("pageDescription.welcome")
+  const metaImage = t("welcome.personWithChildAlt")
   const alertClasses = "flex-grow mt-6 max-w-6xl w-full"
   return (
     <Layout>
@@ -65,18 +72,30 @@ export default function Home(props: IndexProps) {
         offsetImage={"images/person-with-child.jpg"}
         offsetImageAlt={t("welcome.personWithChildAlt")}
       >
-        <p className="bg-gray-300 h-64">TODO: Add search component here</p>
+        <LandingSearch bedrooms={props.bedrooms} counties={props.counties} />
       </DoorwayHero>
       <ActionBlock
         className="p-12"
         header={<Heading priority={2}>{t("welcome.introduction")}</Heading>}
         subheader={t("welcome.useDoorway")}
+        body={
+          <span>
+            {t("welcome.useDoorwayBAHFAtext")}
+            <br />
+            <a
+              href="https://mtc.ca.gov/about-mtc/authorities/bay-area-housing-finance-authority-bahfa"
+              target="_blank"
+            >
+              {t("welcome.useDoorwayBAHFAlink")}
+            </a>
+          </span>
+        }
         background="secondary-lighter"
         actions={[
           <LinkButton
             className="is-borderless is-inline is-unstyled underline text-primary-lighter"
-            href="/additional-resources"
-            key={"additional-resources"}
+            href="/help/get-started"
+            key={"get-started"}
             size={AppearanceSizeType.small}
             normalCase
             icon="arrowForward"
@@ -88,49 +107,55 @@ export default function Home(props: IndexProps) {
       />
       <div className="homepage-extra warn">
         <div className="action-blocks pb-4 pt-4 w-full space-between items-start">
-          <InfoCard title="I am a title" className="flex-1 is-inline is-normal text-left">
+          <InfoCard
+            title={t("welcome.needOtherHelp")}
+            className="flex-1 is-inline is-normal text-left"
+          >
             <img
               src={"images/person-holding-hands.jpg"}
               alt={t("welcome.peopleHoldingHandsAlt")}
               className={"mt-4 mb-4 rounded-3xl"}
             />
-            <ul className="text__medium-normal list-disc ml-5">
-              <li>List Item 1</li>
-              <li>List Item 2</li>
-            </ul>
             <p className="text-gray-950 text__medium-normal mb-4 font-semibold">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod, labore animi autem
-              rerum nostrum impedit amet velit, eveniet perspiciatis maiores tenetur natus porro
-              tempore atque ad praesentium hic eos cupiditate!
+              {t("welcome.emergencyHousing")}
             </p>
+            <ul className="text__medium-normal list-disc ml-5">
+              <li>{t("welcome.call211")}</li>
+              <li>{t("welcome.findRelatedServices")}</li>
+            </ul>
             <LinkButton
-              key={"temporary"}
+              key={"get-help"}
               className="is-primary"
-              href={props.jurisdiction.notificationsSignUpURL}
+              href={"/help/housing-help"}
               size={AppearanceSizeType.small}
             >
-              Blah blah
+              {t("welcome.getHelp")}
             </LinkButton>
           </InfoCard>
-          <InfoCard title={"I am another title"} className="flex-1 is-inline is-normal text-left">
+          <InfoCard
+            title={t("welcome.haveQuestions")}
+            className="flex-1 is-inline is-normal text-left"
+          >
             <img
               src={"images/person-laptop.jpg"}
               alt={t("welcome.personLaptopAlt")}
               className={"mt-4 mb-4 rounded-3xl"}
             />
+            <p className="text-gray-950 text__medium-normal mb-4 font-semibold">
+              {t("welcome.getAnswers")}
+            </p>
             <ul className="text__medium-normal list-disc ml-5">
-              <li>List Item 1</li>
-              <li>List Item 2</li>
-              <li>List Item 3</li>
-              <li>List Item 4</li>
+              <li>{t("welcome.whatHappens")}</li>
+              <li>{t("welcome.incomeAffectRent")}</li>
+              <li>{t("welcome.whatDoesAffordableMean")}</li>
             </ul>
             <LinkButton
-              key={"temporary"}
+              key={"learn-more"}
               className="is-primary"
-              href={props.jurisdiction.notificationsSignUpURL}
+              href={"/help/questions"}
               size={AppearanceSizeType.small}
             >
-              Blah blah
+              {t("welcome.learnMore")}
             </LinkButton>
           </InfoCard>
         </div>
@@ -143,13 +168,14 @@ export default function Home(props: IndexProps) {
               {t("t.signUpForAlerts")}
             </Heading>
           }
-          subheader={t("t.subscribeToNewsletter")}
+          subheader={t("t.subscribeToListingAlerts")}
           background="primary-lightest"
           actions={[
             <LinkButton
               key={"sign-up"}
               className="is-primary"
               href={props.jurisdiction.notificationsSignUpURL}
+              newTab={true}
               size={AppearanceSizeType.small}
             >
               {t("t.signUp")}
@@ -171,6 +197,10 @@ export async function getServerSideProps() {
   )
 
   return {
-    props: { jurisdiction },
+    props: {
+      jurisdiction,
+      bedrooms: bedroomOptionsForLandingPage,
+      counties: locations,
+    },
   }
 }

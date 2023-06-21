@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Listing } from "@bloom-housing/backend-core/types"
 import { ListingsMap } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
@@ -48,6 +48,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         }
       }
     },
+    preventScrollOnSwipe: true,
   })
 
   const getListingsList = () => {
@@ -120,16 +121,37 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     )
   }
 
+  const hideFooter = () => {
+    const footer = Array.from(
+      document.getElementsByClassName("site-footer") as HTMLCollectionOf<HTMLElement>
+    )[0]
+    if (footer !== undefined && footer.style.display !== "none") {
+      footer.style.display = "none"
+    }
+  }
+  const showFooter = () => {
+    const footer = Array.from(
+      document.getElementsByClassName("site-footer") as HTMLCollectionOf<HTMLElement>
+    )[0]
+    if (footer !== undefined && footer.style.display == "none") {
+      footer.style.display = "flex"
+    }
+  }
+
   let div: JSX.Element
 
   if (showListingsList && !showListingsMap) {
     div = getListingsList()
+    showFooter()
   } else if (showListingsMap && !showListingsList) {
     div = getListingsMap()
+    hideFooter()
   } else if (showListingsList && showListingsMap) {
     div = getListingsCombined()
+    showFooter()
   }
 
   return div
 }
+
 export { ListingsCombined as default, ListingsCombined }

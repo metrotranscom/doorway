@@ -4,7 +4,8 @@ import { DoorwayLinkableCardGroup, PageHeader } from "@bloom-housing/doorway-ui-
 import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
-import { getStartedCardIntro, getStartedLinkableCards } from "../../tsx_content/get-started-cards"
+import { getStartedLinkableCards } from "../../tsx_content/get-started-cards"
+import { MetaTags } from "../../components/shared/MetaTags"
 
 const GetStarted = () => {
   const { profile } = useContext(AuthContext)
@@ -17,15 +18,17 @@ const GetStarted = () => {
     })
   }, [profile])
 
-  const pageTitle = <>{t("pageTitle.getStarted")}</>
+  const metaDescription = t("pageDescription.getStarted")
 
   return (
     <Layout>
-      <PageHeader title={pageTitle} />
-      <div className="my-0 lg:my-12">
-        <DoorwayLinkableCardGroup cards={getStartedLinkableCards} className="m-auto">
-          {getStartedCardIntro}
-        </DoorwayLinkableCardGroup>
+      <PageHeader title={t("pageTitle.getStarted")} />
+      <MetaTags title={t("pageTitle.getStarted")} description={metaDescription} />
+      <div className="my-14">
+        <DoorwayLinkableCardGroup
+          cards={getStartedLinkableCards()}
+          className="m-auto"
+        ></DoorwayLinkableCardGroup>
       </div>
     </Layout>
   )

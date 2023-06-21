@@ -186,7 +186,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         </Button>,
         <div style={{ flexGrow: 1 }}></div>,
         <button style={clearButtonStyle} onClick={clearValues}>
-         {t("t.clearAllFilters")}
+          {t("t.clearAllFilters")}
         </button>,
       ]}
     >

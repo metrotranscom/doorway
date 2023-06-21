@@ -1,7 +1,7 @@
 import csv from "csv-parser"
 import fs from "fs"
 import axios from "axios"
-import { importListing, ListingImport, UnitsSummaryImport } from "./import-helpers"
+import { importListing, ListingImport } from "./import-helpers"
 import * as client from "../types/src/backend-swagger"
 import {
   AddressCreate,
@@ -47,7 +47,7 @@ async function main() {
 //   console.log(`Got ${hrdIds.size} HRD ids.`)
 
   // Regex used to parse the AMI from an AMI column name
-  const amiColumnRegex = /(\d+) Pct AMI/ // e.g. 30 Pct AMI
+  // const amiColumnRegex = /(\d+) Pct AMI/ // e.g. 30 Pct AMI
 
   // Read raw CSV data into memory.
   // Note: createReadStream creates ReadStream's whose on("data", ...) methods are called
@@ -58,7 +58,7 @@ async function main() {
     fs.createReadStream(csvFilePath)
       .pipe(csv())
       .on("data", (listingFields) => {
-        const listingName: string = listingFields["Project Name"].trim()
+        //const listingName: string = listingFields["Project Name"].trim()
         // Exclude listings that are not "regulated" affordable housing
         // const affordabilityStatus: string = listingFields["Affordability status"]
         // if (affordabilityStatus?.toLowerCase() !== "regulated") {
@@ -78,16 +78,16 @@ async function main() {
         // Some listings are in the "development pipeline" and should not yet be shown to
         // housing seekers. The "Development Pipeline Bucket" below is a code that is meaningful
         // within HRD.
-        const projectType: string = listingFields["Project Type"]
-        const developmentPipelineBucket: number = parseInt(
-          listingFields["Development Pipeline Bucket"]
-        )
-        if (projectType?.toLowerCase() !== "existing occupied" && developmentPipelineBucket < 3) {
-          console.log(
-            `Skipping listing because it is not far enough along in the development pipeline: ${listingName}`
-          )
-          return
-        }
+        //const projectType: string = listingFields["Project Type"]
+        // const developmentPipelineBucket: number = parseInt(
+        //   listingFields["Development Pipeline Bucket"]
+        // )
+        // if (projectType?.toLowerCase() !== "existing occupied" && developmentPipelineBucket < 3) {
+        //   console.log(
+        //     `Skipping listing because it is not far enough along in the development pipeline: ${listingName}`
+        //   )
+        //   return
+        // }
 
         rawListingFields.push(listingFields)
       })
@@ -102,14 +102,15 @@ async function main() {
   let numListingsSuccessfullyUploaded = 0
   for (const listingFields of rawListingFields) {
     const address: AddressCreate = {
-      street: listingFields["Project Address"],
+      street: listingFields["Project Address / Building Address"],
       zipCode: listingFields["Zip Code"],
       city: listingFields["City"],
       state: listingFields["State"],
+      county: listingFields["County"],
       longitude: listingFields["Longitude"],
       latitude: listingFields["Latitude"],
     }
-
+console.log(`Address is ${address.street} and ${address.county}`)
     // Add data about unitsSummaries
     // const unitsSummaries: UnitsSummaryImport[] = []
     // TODO: Update with new unit groups model
@@ -148,21 +149,21 @@ async function main() {
     // }
 
     // Listing affordability details
-    let amiPercentageMin, amiPercentageMax
-    const listingFieldsArray = Object.entries(listingFields)
-    const colStart = listingFieldsArray.findIndex((element) => element[0] === "15 Pct AMI")
-    const colEnd = listingFieldsArray.findIndex((element) => element[0] === "80 Pct AMI")
-    for (const [key, value] of listingFieldsArray.slice(colStart, colEnd + 1)) {
-      if (!value) continue
-      if (!amiPercentageMin) {
-        amiPercentageMin = parseInt(amiColumnRegex.exec(key)[1])
-      }
-      amiPercentageMax = parseInt(amiColumnRegex.exec(key)[1])
-    }
+    // let amiPercentageMin, amiPercentageMax
+    // const listingFieldsArray = Object.entries(listingFields)
+    // const colStart = listingFieldsArray.findIndex((element) => element[0] === "15 Pct AMI")
+    // const colEnd = listingFieldsArray.findIndex((element) => element[0] === "80 Pct AMI")
+    // for (const [key, value] of listingFieldsArray.slice(colStart, colEnd + 1)) {
+    //   if (!value) continue
+    //   if (!amiPercentageMin) {
+    //     amiPercentageMin = parseInt(amiColumnRegex.exec(key)[1])
+    //   }
+    //   amiPercentageMax = parseInt(amiColumnRegex.exec(key)[1])
+    // }
 
     let leasingAgentEmail = null
-    if (listingFields["Manager Email"]) {
-      leasingAgentEmail = listingFields["Manager Email"]
+    if (listingFields["Leasing Agent Email"]) {
+      leasingAgentEmail = listingFields["Leasing Agent Email"]
     }
 
     // let reservedCommunityTypeName: string = null
@@ -181,9 +182,8 @@ async function main() {
     //   TODO: ADD PHOTOs
       buildingAddress: address,
       neighborhood: listingFields["Neigborhood"],
-      yearBuilt: listingFields["YearBuilt"],
+      yearBuilt: listingFields["Year Built"],
       leasingAgentName: listingFields["Leasing Agent Name"],
-    //   leasingAgentPhone: listingFields["Leasing Agent Phone"],
     //   managementWebsite: listingFields["Management Website"],
       leasingAgentEmail: leasingAgentEmail,
       leasingAgentPhone: listingFields["Leasing Agent Phone"],

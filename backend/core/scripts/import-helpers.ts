@@ -152,17 +152,25 @@ export async function importListing(
     withCredentials: true,
     timeout: 10000,
   })
-  const unitTypes = await unitTypesService.list()
-  const priorityTypes = await unitAccessibilityPriorityTypesService.list()
+  console.log(serviceOptions.axios)
+  console.log(`unitTypes start`)
   const jurisdictions = await jurisdictionService.list()
+  
+  const unitTypes = await unitTypesService.list().then((req)=>{console.log(req)})
+  console.log(`unitTypes stop`)
+  const priorityTypes = await unitAccessibilityPriorityTypesService.list()
+  
 
   // Tidy a few of the listing's fields.
   const relationsKeys = []
   listing = reformatListing(listing, relationsKeys)
+  console.log(`reformatted listing successfully`)
 
   // Upload new entities.
   listing = await uploadEntity("multiselectQuestions", multiselectQuestionsService, listing)
+  console.log(`multiselect worked`)
   listing = await uploadEntity("applicationMethods", applicationMethodsService, listing)
+  console.log('ApplicationMethods worked')
 
   // Look up the reserved community type by name, or create it if it doesn't yet exist.
   let reservedCommunityType: client.ReservedCommunityType

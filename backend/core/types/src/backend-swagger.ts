@@ -1189,9 +1189,9 @@ export class JurisdictionsService {
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
 
-      let data = null
+      //let data = null
 
-      configs.data = data
+      //configs.data = data
       axios(configs, resolve, reject)
     })
   }
@@ -2059,9 +2059,10 @@ export class UnitTypesService {
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
 
-      let data = null
+      //let data = null
 
-      configs.data = data
+      //configs.data = data
+      console.log(`list UT ${configs.data} and ${configs.url} and ${configs.headers} and ${configs.params}`)
       axios(configs, resolve, reject)
     })
   }

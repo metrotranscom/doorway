@@ -192,8 +192,46 @@ button {
 // This is not ideal but is needed since the landing page search buttons and the listing
 // search modal buttons have to have different styles when selected.
 .landing-search-button {
+  --landing-button-color: var(--bloom-color-primary-lighter);
+  --landing-button-hover-color: var(--bloom-color-primary-light);
+  --landing-button-active-color: var(--bloom-color-primary);
+  --landing-button-text-color: var(--bloom-color-white);
+
   .button.is-secondary {
-    background-color: var(--bloom-color-primary-lighter);
-    color: var(--bloom-color-white);
+    background-color: var(--landing-button-color);
+    border-color: var(--landing-button-color);
+    color: var(--landing-button-text-color);
+
+    &:hover {
+      background-color: var(--landing-button-hover-color);
+      border-color: var(--landing-button-hover-color);
+      color: var(--landing-button-text-color);
+    }
+
+    &:active {
+      background-color: var(--landing-button-active-color);
+      border-color: var(--landing-button-active-color);
+      color: var(--landing-button-text-color);
+    }
   }
 }
+
+/*
+&.is-secondary {
+    border-color: var(--doorway-color-secondary);
+    background-color: var(--doorway-color-secondary);
+    color: var(--secondary-text-color);
+
+    &:hover {
+      background-color: var(--doorway-color-cyan-500);
+      color: var(--secondary-text-color);
+      border-color: var(--doorway-color-cyan-500);
+    }
+
+    &:active {
+      background-color: var(--doorway-color-cyan-700);
+      color: var(--secondary-text-color);
+      border-color: var(--doorway-color-cyan-700);
+    }
+  }
+*/

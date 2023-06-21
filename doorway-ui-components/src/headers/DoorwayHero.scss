@@ -55,12 +55,6 @@
   position: relative;
   width: 100%;
 
-  @media (min-width: $screen-md) {
-    max-width: var(--doorway-hero-inner-max-width);
-
-    @apply pr-36;
-  }
-
   @media (min-width: $screen-lg) {
     max-width: var(--doorway-hero-inner-max-width);
 

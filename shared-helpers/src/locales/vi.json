@@ -446,6 +446,8 @@
   "errors.streetError": "Vui lòng nhập địa chỉ",
   "errors.timeError": "Vui lòng nhập thời gian hợp lệ",
   "errors.zipCodeError": "Vui lòng nhập số zipcode",
+  "filter.goToDahlia": "Đối với danh sách San Francisco, hãy truy cập ",
+  "filter.goToDahliaLink": "DAHLIA",
   "footer.giveFeedback": "Đưa ra Phản hồi",
   "footer.bahfaCopyright": "Bản quyền © 2023 Bay Area Housing Finance Authority. Bảo lưu mọi quyền",
   "footer.bahfaLogo": "Bay Area Housing Finance Authority Logo",

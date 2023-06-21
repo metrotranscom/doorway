@@ -447,6 +447,8 @@
   "errors.streetError": "請輸入地址",
   "errors.timeError": "請輸入有效的時間",
   "errors.zipCodeError": "請輸入郵遞區號",
+  "filter.goToDahlia": "对于旧金山列表，请转到 ",
+  "filter.goToDahliaLink": "DAHLIA",
   "footer.bahfaCopyright": "版权所有 © 2023 湾区住房金融管理局。 版权所有。",
   "footer.bahfaLogo": "湾区住房金融管理局",
   "footer.contact": "聯絡方式",

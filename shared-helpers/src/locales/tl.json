@@ -400,6 +400,8 @@
   "errors.streetError": "Pakilagay ang address",
   "errors.timeError": "Pakilagay ang tamang oras",
   "errors.zipCodeError": "Pakilagay ang zipcode",
+  "filter.goToDahlia": "Para sa mga listahan ng San Francisco, pumunta sa ",
+  "filter.goToDahliaLink": "DAHLIA",
   "footer.contact": "Contact",
   "footer.copyright": "Demonstration Jurisdiction © 2021 • Ang Lahat ng Karapatan ay Nakalaan",
   "footer.bahfaCopyright": "Karapatang-ari © 2023 Bay Area Housing Finance Authority. Ang lahat ng karapatan ay nakalaan",

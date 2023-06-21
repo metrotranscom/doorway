@@ -465,6 +465,8 @@
   "errors.streetError": "Por favor ingrese una dirección",
   "errors.timeError": "Por favor_ ingrese una hora válida",
   "errors.zipCodeError": "Por favor ingrese un código postal",
+  "filter.goToDahlia": "Para listados de San Francisco, vaya a",
+  "filter.goToDahliaLink": "DAHLIA",
   "footer.bahfaCopyright": "Derechos de autor © 2023 Bay Area Housing Finance Authority. Todos los derechos reservados",
   "footer.bahfaLogo": "Logo de Bay Area Housing Finance Authority",
   "footer.contact": "Contacto",

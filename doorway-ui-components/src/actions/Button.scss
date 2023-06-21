@@ -191,7 +191,7 @@ button {
 // This is an override to update the style of the landing page buttons when selected.
 // This is not ideal but is needed since the landing page search buttons and the listing
 // search modal buttons have to have different styles when selected.
-.landing-search-button {
+.landing-search-button-group {
   --landing-button-color: var(--bloom-color-primary-lighter);
   --landing-button-hover-color: var(--bloom-color-primary-light);
   --landing-button-active-color: var(--bloom-color-primary);

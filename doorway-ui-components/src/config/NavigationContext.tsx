@@ -38,7 +38,6 @@ export interface NavigationContextProps {
 
 export const NavigationContext = createContext<NavigationContextProps>({
   LinkComponent: (props) => {
-    debugger
     const { className, linkRef, ...defaultProps } = props
     return (
       <a className={className} ref={linkRef} {...defaultProps}>

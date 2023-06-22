@@ -259,6 +259,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
           fieldLabelClassName="text-primary-dark font-medium tracking-wider text-2xs uppercase"
         />
       </div>
+      <img src={"/images/county-map.png"} alt={t("welcome.bayAreaCountyMap")} />
     </Modal>
   )
 }

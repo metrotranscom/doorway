@@ -18,6 +18,11 @@ import { ListingsQueryBuilder } from "../db/listing-query-builder"
 import { Listing } from "../entities/listing.entity"
 import { User } from "../../auth/entities/user.entity"
 import { UserService } from "../../auth/services/user.service"
+<<<<<<< HEAD
+=======
+import { HttpService } from "@nestjs/axios"
+import { CachePurgeService } from "../cache-purge.service"
+>>>>>>> ca63b798d (fix: do a cache purge on listings cron job (#3512))
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -150,6 +155,7 @@ describe("ListingsService", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ListingsService,
+        CachePurgeService,
         {
           provide: ApplicationFlaggedSetsService,
           useValue: { scheduleAfsProcessing: jest.fn() },

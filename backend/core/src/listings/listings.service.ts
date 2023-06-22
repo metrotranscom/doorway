@@ -1,4 +1,3 @@
-import { HttpService } from "@nestjs/axios"
 import {
   BadRequestException,
   Inject,
@@ -7,11 +6,9 @@ import {
   Scope,
   UnauthorizedException,
 } from "@nestjs/common"
-import { ConfigService } from "@nestjs/config"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { Brackets, In, Repository } from "typeorm"
-import { firstValueFrom } from "rxjs"
 import { Listing } from "./entities/listing.entity"
 import { getView } from "./views/view"
 import { summarizeUnits, summarizeUnitsByTypeAndRent } from "../shared/units-transformations"
@@ -32,6 +29,8 @@ import { ListingsQueryBuilder } from "./db/listing-query-builder"
 import { CombinedListingsQueryParams } from "./combined/combined-listings-query-params"
 import { CombinedListingFilterParams } from "./combined/combined-listing-filter-params"
 import { Compare } from "../shared/dto/filter.dto"
+import { CachePurgeService } from "./cache-purge.service"
+import { CombinedListingsQueryBuilder } from "./combined/combined-listing-query-builder"
 
 type JurisdictionIdToExternalResponse = { [Identifier: string]: Pagination<Listing> }
 export type ListingIncludeExternalResponse = {
@@ -49,8 +48,7 @@ export class ListingsService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @Inject(REQUEST) private req: ExpressRequest,
     private readonly afsService: ApplicationFlaggedSetsService,
-    private readonly httpService: HttpService,
-    private readonly configService: ConfigService
+    private readonly cachePurgeService: CachePurgeService
   ) {}
 
   private getFullyJoinedQueryBuilder() {
@@ -115,7 +113,7 @@ export class ListingsService {
 
   // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
   public async listCombined(params: CombinedListingsQueryParams): Promise<Pagination<Listing>> {
-    const qb = this.listingRepository.createCombinedListingsQueryBuilder("combined")
+    const qb = this.createCombinedListingsQueryBuilder("combined")
 
     // Only show active listings
     const statusParam = new CombinedListingFilterParams()
@@ -205,7 +203,7 @@ export class ListingsService {
     })
 
     const saveResponse = await this.listingRepository.save(listing)
-    await this.cachePurge(listing, listingDto, saveResponse)
+    await this.cachePurgeService.cachePurgeForSingleListing(listing, listingDto, saveResponse)
     return saveResponse
   }
 
@@ -237,6 +235,14 @@ export class ListingsService {
 
   public createQueryBuilder(alias: string): ListingsQueryBuilder {
     return new ListingsQueryBuilder(this.listingRepository.createQueryBuilder(alias))
+  }
+
+  public createCombinedListingsQueryBuilder(alias: string): CombinedListingsQueryBuilder {
+    const conn = this.listingRepository.manager.connection
+
+    const qb = conn.createQueryBuilder().select().from("combined_listings", alias)
+
+    return new CombinedListingsQueryBuilder(qb)
   }
 
   public async getJurisdictionIdByListingId(listingId: string | null): Promise<string | null> {
@@ -376,40 +382,5 @@ export class ListingsService {
     result.units = unitData.units
 
     return result
-  }
-
-  /**
-   * Send purge request to Nginx.
-   * Wrapped in try catch, because it's possible that content may not be cached in between edits,
-   * and will return a 404, which is expected.
-   * listings* purges all /listings locations (with args, details), so if we decide to clear on certain locations,
-   * like all lists and only the edited listing, then we can do that here (with a corresponding update to nginx config)
-   */
-  private async cachePurge(
-    currentListing: Listing,
-    incomingChanges: ListingCreateDto | ListingUpdateDto,
-    saveReponse: Listing
-  ) {
-    if (process.env.PROXY_URL) {
-      await firstValueFrom(
-        this.httpService.request({
-          baseURL: process.env.PROXY_URL,
-          method: "PURGE",
-          url: `/listings/${saveReponse.id}*`,
-        })
-      ).catch((e) => console.log(`purge listing ${saveReponse.id} error = `, e))
-      if (
-        incomingChanges.status !== ListingStatus.pending ||
-        currentListing.status === ListingStatus.active
-      ) {
-        await firstValueFrom(
-          this.httpService.request({
-            baseURL: process.env.PROXY_URL,
-            method: "PURGE",
-            url: "/listings?*",
-          })
-        ).catch((e) => console.log("purge all listings error = ", e))
-      }
-    }
   }
 }

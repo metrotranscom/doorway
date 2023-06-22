@@ -1,10 +1,23 @@
 import { Expose, Type } from "class-transformer"
-import { IsDate, IsOptional, IsUUID } from "class-validator"
+import { IsDate, IsString, IsOptional, IsUUID, MaxLength } from "class-validator"
 import { OmitType } from "@nestjs/swagger"
 import { Address } from "../entities/address.entity"
 import { ValidationsGroupsEnum } from "../types/validations-groups-enum"
 
 export class AddressDto extends OmitType(Address, []) {}
+
+export class AddressCountyRequiredCreateDto extends OmitType(Address, [
+  "county",
+  "id",
+  "createdAt",
+  "updatedAt",
+]) {
+  @Expose()
+  @IsString({ groups: [ValidationsGroupsEnum.default] })
+  @MaxLength(64, { groups: [ValidationsGroupsEnum.default] })
+  county?: string
+}
+
 export class AddressCreateDto extends OmitType(Address, ["id", "createdAt", "updatedAt"]) {}
 
 export class AddressUpdateDto extends OmitType(Address, ["id", "createdAt", "updatedAt"]) {

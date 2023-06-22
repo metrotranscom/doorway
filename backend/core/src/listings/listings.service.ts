@@ -124,7 +124,7 @@ export class ListingsService {
     statusParam.$comparison = Compare["="]
     statusParam.status = ListingStatus.active
 
-    if(Array.isArray(params.filter)) {
+    if (Array.isArray(params.filter)) {
       params.filter.push(statusParam)
     } else {
       params.filter = [statusParam]

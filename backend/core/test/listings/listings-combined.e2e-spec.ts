@@ -223,7 +223,7 @@ describe("CombinedListings", () => {
 
     // Skipping because:
     // 1) /listings/combined?search=<name> isn't being used
-    // 2) test fails when creating the test listing with 'units must contain at least 1 elements' 
+    // 2) test fails when creating the test listing ("units must contain at least 1 elements")
     it.skip("should find listing by search", async () => {
       const anyJurisdiction = (await jurisdictionsRepository.find({ take: 1 }))[0]
       const newListingCreateDto = makeTestListing(anyJurisdiction.id)
@@ -282,7 +282,7 @@ describe("CombinedListings", () => {
         page: 1,
         view: "base",
         // /listings/combined only shows active listings
-        filter: [{ $comparison: "=", status: "active" }]
+        filter: [{ $comparison: "=", status: "active" }],
       }
       const localQuery = qs.stringify(queryParams)
       const localRes = await supertest(app.getHttpServer())
@@ -295,7 +295,7 @@ describe("CombinedListings", () => {
       const combinedLocalQuery = qs.stringify({
         filter: [
           { $comparison: "=", isExternal: false },
-          { $comparison: "=", status: "active" }
+          { $comparison: "=", status: "active" },
         ],
       })
       const combinedLocalRes = await supertest(app.getHttpServer())
@@ -333,9 +333,7 @@ describe("CombinedListings", () => {
         view: "base", // /listings/combined always returns view=base
 
         // /listings/combined only shows active listings
-        filter: [
-          { $comparison: "=", status: "active" }
-        ],
+        filter: [{ $comparison: "=", status: "active" }],
 
         // we have to sort by name to ensure consistency
         // application_due_date is identical for some seed listings
@@ -352,7 +350,7 @@ describe("CombinedListings", () => {
         ...queryParams,
         filter: [
           { $comparison: "=", isExternal: false },
-          { $comparison: "=", status: "active" }
+          { $comparison: "=", status: "active" },
         ],
       })
       const combinedRes = await supertest(app.getHttpServer())

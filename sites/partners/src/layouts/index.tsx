@@ -54,8 +54,8 @@ const Layout = (props) => {
         <Head>
           <title>{t("nav.siteTitlePartners")}</title>
         </Head>
-
         <SiteHeader
+          imageOnly={true}
           logoSrc="/images/doorway-logo-partners.png"
           logoWidth={"medium"}
           menuLinks={menuLinks}
@@ -68,7 +68,7 @@ const Layout = (props) => {
         <SiteFooter>
           <FooterNav copyright={`© ${currentYear} • All Rights Reserved`} />
           <FooterSection className="bg-black" small>
-            <ExygyFooter />
+            {t("nav.siteTitlePartners")}<ExygyFooter />
           </FooterSection>
         </SiteFooter>
       </div>

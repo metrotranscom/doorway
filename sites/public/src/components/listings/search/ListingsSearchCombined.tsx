@@ -11,6 +11,7 @@ import {
   t,
 } from "@bloom-housing/doorway-ui-components"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
+import { jurisdiction } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
 
 type ListingsSearchCombinedProps = {
   searchString?: string
@@ -128,6 +129,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       />
 
       <ListingsCombined
+        jurisdiction={jurisdiction}
         listings={searchResults.listings}
         currentPage={searchResults.currentPage}
         lastPage={searchResults.lastPage}

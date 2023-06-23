@@ -390,7 +390,7 @@
   "authentication.signOut.success": "您已成功登出帳戶。",
   "authentication.terms.acceptToc": "我接受服務條款",
   "authentication.terms.reviewToc": "檢閱服務條款",
-  "authentication.terms.termsOfService": "服務條款 https://mtc.ca.gov/doorway-housing-portal-terms-use",
+  "authentication.terms.termsOfService": "服務條款",
   "authentication.terms.youMustAcceptToc": "若要繼續，您必須接受服務條款",
   "authentication.timeout.action": "保持登入狀態",
   "authentication.timeout.signOutMessage": "我們關心您的網上安全。由於網頁閒置，我們已將您登出。請登入以便繼續。",

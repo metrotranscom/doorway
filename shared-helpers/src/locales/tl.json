@@ -343,7 +343,7 @@
   "authentication.signOut.success": "Matagumpay kang nakapag-log out sa iyong account.",
   "authentication.terms.acceptToc": "Tinatanggap ko ang Mga Tuntunin ng Serbisyo",
   "authentication.terms.reviewToc": "Repasuhin ang Mga Tuntunin ng Serbisyo",
-  "authentication.terms.termsOfService": "Mga Tuntunin ng Serbisyo: https://mtc.ca.gov/doorway-housing-portal-terms-use",
+  "authentication.terms.termsOfService": "Mga Tuntunin ng Serbisyo",
   "authentication.terms.youMustAcceptToc": "Upang magpatuloy_ dapat mong tanggapin ang Mga Tuntunin ng Serbisyo",
   "authentication.timeout.action": "Manatiling naka-login",
   "authentication.timeout.signOutMessage": "Pinapahalagahan namin ang iyong seguridad. Ni-log out ka namin dahil sa kawalan ng aktibidad. Mangyaring mag-sign in upang magpatuloy.",

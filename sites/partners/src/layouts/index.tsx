@@ -57,7 +57,7 @@ const Layout = (props) => {
 
         <SiteHeader
           logoSrc="/images/doorway-logo-partners.png"
-          logoWidth={"wide"}
+          logoWidth={"medium"}
           menuLinks={menuLinks}
           siteHeaderWidth={"wide"}
           homeURL={"/"}

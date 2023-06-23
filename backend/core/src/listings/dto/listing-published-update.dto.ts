@@ -1,4 +1,4 @@
-import { AddressCountyRequiredUpdateDto, AddressUpdateDto } from "../../shared/dto/address.dto"
+import { AddressCountyRequiredUpdateDto } from "../../shared/dto/address.dto"
 import { Expose, Type } from "class-transformer"
 import {
   ArrayMaxSize,

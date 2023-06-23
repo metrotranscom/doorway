@@ -38,3 +38,15 @@ export class AddressUpdateDto extends OmitType(Address, ["id", "createdAt", "upd
   @Type(() => Date)
   updatedAt?: Date
 }
+
+export class AddressCountyRequiredUpdateDto extends OmitType(Address, [
+  "county",
+  "id",
+  "createdAt",
+  "updatedAt",
+]) {
+  @Expose()
+  @IsString({ groups: [ValidationsGroupsEnum.default] })
+  @MaxLength(64, { groups: [ValidationsGroupsEnum.default] })
+  county?: string
+}

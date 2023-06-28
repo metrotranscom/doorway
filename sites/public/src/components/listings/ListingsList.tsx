@@ -9,7 +9,6 @@ import {
   t,
 } from "@bloom-housing/doorway-ui-components"
 import { Pagination } from "./Pagination"
-import { LoadingOverlay } from "@bloom-housing/ui-components"
 
 type ListingsListProps = {
   jurisdiction: Jurisdiction
@@ -17,7 +16,6 @@ type ListingsListProps = {
   currentPage: number
   lastPage: number
   onPageChange: (page: number) => void
-  loading: boolean
   setClearButtonState?: (boolean) => void
   clearButtonState?: boolean
 }
@@ -41,7 +39,7 @@ const ListingsList = (props: ListingsListProps) => {
   }
 
   const listingsDiv =
-    props.listings.length > 0 || props.loading ? (
+    props.listings.length > 0 ? (
       <div className="listingsList">{getListings(props.listings)}</div>
     ) : (
       <ZeroListingsItem title={t("t.noMatchingListings")} description={t("t.tryRemovingFilters")}>
@@ -99,7 +97,7 @@ const ListingsList = (props: ListingsListProps) => {
     )
   return (
     <div>
-      <LoadingOverlay isLoading={props.loading}>{listingsDiv}</LoadingOverlay>
+      {listingsDiv}
       {pagination}
       {infoCards}
     </div>

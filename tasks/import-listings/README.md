@@ -13,7 +13,23 @@ This code provides a mechanism for pulling listings from a different Bloom backe
 | JURISDICTION_INCLUDE_LIST  | The names of jurisdictions to import listings from                | San Jose,San Mateo,Alameda                      |                | comma-delimited string |
 | LISTING_VIEW               | The listing view to request from the endpoint                     | base                                            | base           | "base" \| "full"       |
 
-## Example Import Command
+## Commands
+
+### Install/Build
+
+Install dependencies using `yarn install`, then build the output artifacts using `yarn build`.
+
+### Linting
+
+Linting is handled separately from the rest of the codebase to speed up the lint process and improve the developer experience. Run `yarn lint` to lint just the code in this directory.
+
+### Testing
+
+To run unit tests, run `yarn test`. If you want to output coverage info, run `yarn test:cov`.
+
+### Running the import
+
+There are a few ways you can run the import directly. An example command for the most basic execution might look something like this:
 
 ```
 DATABASE_URL=postgres://bloom-dev:bloom@localhost:5432/bloom \
@@ -23,13 +39,15 @@ LISTING_VIEW=full \
 yarn import:run
 ```
 
+There are also shortcut commands to run the import using established presets. Run `yarn import:run:local:dev` to import listings from a predetermined dev environment or `yarn import:run:local:prod` to import listings from a predetermined production environment.
+
 ## Docker
 
 Docker builds are handled automatically by AWS CodePipeline using the buildspec file in `ci/buildspec/build_import_listings.yml`, but you can manually build and run this task as a Docker image using the instructions below.
 
 ### Running unit tests
 
-From this directory, run this command to build an image that can run unit tests. This will build a local image named `doorway/import-listings` with the tag `test`.
+From within this directory, run the command below to build an image that can run unit tests. This will build a local image named `doorway/import-listings` with the tag `test`.
 
 `docker build --target test -t doorway/import-listings:test .`
 
@@ -42,7 +60,7 @@ If you want to run different tests (ie to generate coverage metrics), pass in th
 
 ### Running the import
 
-From this directory, run this command to build an image that can run the import task. This will build a local image named `doorway/import-listings` with the tag `run`.
+From within this directory, run the command below to build an image that can run the import task. This will build a local image named `doorway/import-listings` with the tag `run`.
 
 `docker build --target run -t doorway/import-listings:run .`
 

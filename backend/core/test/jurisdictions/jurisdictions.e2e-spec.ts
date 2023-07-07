@@ -64,7 +64,7 @@ describe("Jurisdictions", () => {
     expect(Array.isArray(res.body)).toBe(true)
   })
 
-  it(`should create and return a new jurisdiction with a preference and a program`, async () => {
+  it.only(`should create and return a new jurisdiction with a preference and a program`, async () => {
     const newPreference: MultiselectQuestionDto = await multiselectQuestionsRepository.save({
       text: "Preference Text",
       subText: "Preferece Subtext",

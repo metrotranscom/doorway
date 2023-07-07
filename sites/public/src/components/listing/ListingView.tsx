@@ -34,6 +34,7 @@ import {
   EventType,
   StandardTableData,
   ExpandableSection,
+  SiteAlert,
 } from "@bloom-housing/ui-components"
 import {
   ApplicationStatus,
@@ -514,6 +515,7 @@ export const ListingView = (props: ListingProps) => {
   return (
     <article className="flex flex-wrap relative max-w-5xl m-auto md:mt-8">
       <header className="image-card--leader">
+        <SiteAlert type="alert" dismissable />
         <ImageCard
           images={imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize)).map(
             (imageUrl: string) => {

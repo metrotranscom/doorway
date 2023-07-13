@@ -9,7 +9,7 @@ export const numericSearchFieldGenerator = (
   const fieldValues = []
   for (let i = start; i <= end; i++) {
     const numString = i.toString()
-    if (i < start || !includeMore) {
+    if (i < end || !includeMore) {
       fieldValues.push({
         label: numString,
         value: numString,

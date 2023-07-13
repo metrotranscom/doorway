@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
 import {
   Modal,
@@ -62,6 +62,29 @@ export function LandingSearch(props: LandingSearchProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
+  const bedroomOptions: FormOption[] = [
+    {
+      label: t("listings.unitTypes.any"),
+      value: null,
+    },
+    {
+      label: t("listings.unitTypes.studio"),
+      value: "0",
+    },
+    {
+      label: "1",
+      value: "1",
+    },
+    {
+      label: "2",
+      value: "2",
+    },
+    {
+      label: "3+",
+      value: "3",
+    },
+  ]
+
   const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
     const countyFields: FieldSingle[] = [] as FieldSingle[]
 
@@ -71,6 +94,10 @@ export function LandingSearch(props: LandingSearchProps) {
       selected[label] = true
     })
     let check = false
+    const dahliaNote = `(${t(
+      "filter.goToDahlia"
+    )} <a href="https://housing.sfgov.org/" target="_blank">DAHLIA</a>)`
+
     counties.forEach((county, idx) => {
       // FieldGroup uses the label attribute to check for selected inputs.
       check = selected[county.label] !== undefined
@@ -85,7 +112,7 @@ export function LandingSearch(props: LandingSearchProps) {
         defaultChecked: check,
         disabled: county.isDisabled || false,
         doubleColumn: county.doubleColumn || false,
-        note: county.labelNoteHTML || "",
+        note: county.label === "San Francisco" ? dahliaNote : county.labelNoteHTML || "",
       } as FieldSingle)
     })
     return countyFields
@@ -100,7 +127,7 @@ export function LandingSearch(props: LandingSearchProps) {
         <div className={styles["input-section_title"]}>{t("t.bedrooms")}</div>
         <ButtonGroup
           name="bedrooms"
-          options={props.bedrooms}
+          options={bedroomOptions}
           onChange={updateValue}
           value={formValues.bedrooms}
           className="bg-accent-cool-light py-0 px-0 md:pl-12 landing-search-button-group"

@@ -160,8 +160,14 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     },
   ]
 
-  const bedroomOptions = [...translatedBedroomOptions, ...numericSearchFieldGenerator(1, 4)]
-  const bathroomOptions = [...translatedBathroomOptions, ...numericSearchFieldGenerator(1, 4)]
+  const bedroomOptions: FormOption[] = [
+    ...translatedBedroomOptions,
+    ...numericSearchFieldGenerator(1, 4),
+  ]
+  const bathroomOptions: FormOption[] = [
+    ...translatedBathroomOptions,
+    ...numericSearchFieldGenerator(1, 4),
+  ]
   const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
     const countyFields: FieldSingle[] = [] as FieldSingle[]
 

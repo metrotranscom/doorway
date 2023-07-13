@@ -73,7 +73,10 @@ export function LandingSearch(props: LandingSearchProps) {
       value: "0",
     },
   ]
-  const bedroomOptions = [...numericSearchFieldGenerator(1, 3), translatedBedroomOptions]
+  const bedroomOptions: FormOption[] = [
+    ...translatedBedroomOptions,
+    ...numericSearchFieldGenerator(1, 3),
+  ]
 
   const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
     const countyFields: FieldSingle[] = [] as FieldSingle[]

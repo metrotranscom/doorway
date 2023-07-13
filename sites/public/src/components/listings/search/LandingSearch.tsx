@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form"
 import { LinkButton, t } from "@bloom-housing/ui-components"
 import styles from "./LandingSearch.module.scss"
 import { FormOption } from "./ListingsSearchModal"
+import { numericSearchFieldGenerator } from "./helpers"
 
 type LandingSearchProps = {
   bedrooms: FormOption[]
@@ -62,7 +63,7 @@ export function LandingSearch(props: LandingSearchProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
-  const bedroomOptions: FormOption[] = [
+  const translatedBedroomOptions: FormOption[] = [
     {
       label: t("listings.unitTypes.any"),
       value: null,
@@ -71,19 +72,8 @@ export function LandingSearch(props: LandingSearchProps) {
       label: t("listings.unitTypes.studio"),
       value: "0",
     },
-    {
-      label: "1",
-      value: "1",
-    },
-    {
-      label: "2",
-      value: "2",
-    },
-    {
-      label: "3+",
-      value: "3",
-    },
   ]
+  const bedroomOptions = [...numericSearchFieldGenerator(1, 3), translatedBedroomOptions]
 
   const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
     const countyFields: FieldSingle[] = [] as FieldSingle[]

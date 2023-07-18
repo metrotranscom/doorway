@@ -80,20 +80,17 @@ const ListingPhotos = () => {
    */
   const photoTableHeaders = {
     preview: "t.preview",
-    fileName: "t.fileName",
     primary: "t.primary",
     actions: "",
   }
 
   const listingPhotoTableRows: StandardTableData = []
   listingFormPhotos.forEach((image, index) => {
-    const listingPhotoUrl = getImageUrlFromAsset(image.image)
-
     listingPhotoTableRows.push({
       preview: {
         content: (
           <TableThumbnail>
-            <img src={listingPhotoUrl} alt="" />
+            <img src={getUrlForListingImage(image.image as Asset)} alt="" />
           </TableThumbnail>
         ),
       },
@@ -121,12 +118,10 @@ const ListingPhotos = () => {
   /*
    Show a re-orderable list of uploaded images within the drawer
    */
+
   const drawerTableRows: StandardTableData = useMemo(() => {
     return drawerImages.map((item, index) => {
       const image = item.image as Asset
-
-      const imageUrl = getImageUrlFromAsset(image)
-
       return {
         ordinal: {
           content: item.ordinal + 1,
@@ -134,7 +129,7 @@ const ListingPhotos = () => {
         preview: {
           content: (
             <TableThumbnail>
-              <img src={imageUrl} alt="" />
+              <img src={getUrlForListingImage(image)} alt="" />
             </TableThumbnail>
           ),
         },
@@ -188,7 +183,11 @@ const ListingPhotos = () => {
    Pass the file for the dropzone callback along to the uploader
    */
   const photoUploader = async (file: File) => {
-    await uploadAssetAndSetData(file, "building", setProgressValue, setLatestUpload)
+    void (await cloudinaryFileUploader({
+      file,
+      setCloudinaryData: setLatestUpload,
+      setProgressValue,
+    }))
   }
 
   /*

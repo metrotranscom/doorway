@@ -69,6 +69,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     const qb = generateSearchQuery(params)
     const listingService = new ListingService(props.listingsEndpoint)
     const result = await listingService.searchListings(qb, pageSize, page)
+    console.log(result)
 
     const listings = result.items
     const meta = result.meta

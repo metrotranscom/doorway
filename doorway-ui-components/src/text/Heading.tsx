@@ -5,6 +5,7 @@ export interface HeadingProps {
   className?: string
   priority?: number
   styleType?: HeaderType
+  id?: string
 }
 
 export type HeaderType = keyof typeof HeaderStyleMap
@@ -26,7 +27,11 @@ const Heading = (props: HeadingProps) => {
   if (props.styleType) classNames.push(HeaderStyleMap[props.styleType])
   if (props.className) classNames.push(props.className)
 
-  return <Tag className={classNames.join(" ")}>{props.children}</Tag>
+  return (
+    <Tag id={props.id} className={classNames.join(" ")}>
+      {props.children}
+    </Tag>
+  )
 }
 
 export { Heading as default, Heading }

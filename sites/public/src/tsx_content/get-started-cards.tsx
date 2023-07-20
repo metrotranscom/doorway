@@ -22,10 +22,13 @@ export function getStartedLinkableCards(): React.ReactElement<CardProps>[] {
         </Heading>
       </Card.Header>
       <Card.Section>
-        <DoorwayCollapsibleSection title={t("help.getStarted.howDoorwayCanHelp")}>
+        <DoorwayCollapsibleSection
+          title={t("help.getStarted.howDoorwayCanHelp")}
+          id="doorwayPurposeSect"
+        >
           {t("help.getStarted.howDoorwayCanHelpResp")}
         </DoorwayCollapsibleSection>
-        <DoorwayCollapsibleSection title={t("help.getStarted.iNeedMoreHelp")}>
+        <DoorwayCollapsibleSection title={t("help.getStarted.iNeedMoreHelp")} id="moreHelpSect">
           <span>
             {t("help.getStarted.iNeedMoreHelpResp")}
             <a href="/help/housing-help">{t("help.getStarted.iNeedMoreHelpRespLink")}</a>.
@@ -47,14 +50,20 @@ export function getStartedLinkableCards(): React.ReactElement<CardProps>[] {
         </Heading>
       </Card.Header>
       <Card.Section>
-        <DoorwayCollapsibleSection title={t("help.getStarted.seeDoorwayListings")}>
+        <DoorwayCollapsibleSection
+          title={t("help.getStarted.seeDoorwayListings")}
+          id="allListingsSect"
+        >
           <span>
             {t("help.getStarted.seeDoorwayListingsResp")}
             <span className="text__medium-weighted">{t("nav.viewListings")}</span>
             {t("help.getStarted.seeDoorwayListingsResp1")}
           </span>
         </DoorwayCollapsibleSection>
-        <DoorwayCollapsibleSection title={t("help.getStarted.seeListingsHousehold")}>
+        <DoorwayCollapsibleSection
+          title={t("help.getStarted.seeListingsHousehold")}
+          id="filteredListingsSect"
+        >
           <span>
             <ol className="text__medium-normal numbered-list-small ml-5">
               <li>{t("help.getStarted.seeListingsHouseholdResp1")}</li>
@@ -69,7 +78,10 @@ export function getStartedLinkableCards(): React.ReactElement<CardProps>[] {
             </ol>
           </span>
         </DoorwayCollapsibleSection>
-        <DoorwayCollapsibleSection title={t("help.getStarted.applyLotteryWaitlist")}>
+        <DoorwayCollapsibleSection
+          title={t("help.getStarted.applyLotteryWaitlist")}
+          id="lotteryWaitlistSect"
+        >
           <span>
             <ol className="text__medium-normal numbered-list-small ml-5">
               <li>{t("help.getStarted.applyLotteryWaitlistResp1")}</li>
@@ -97,7 +109,10 @@ export function getStartedLinkableCards(): React.ReactElement<CardProps>[] {
             </ol>
           </span>
         </DoorwayCollapsibleSection>
-        <DoorwayCollapsibleSection title={t("help.getStarted.checkApplications")}>
+        <DoorwayCollapsibleSection
+          title={t("help.getStarted.checkApplications")}
+          id="existingApplicationSect"
+        >
           <span>
             {t("help.getStarted.checkApplicationsResp")}
             <ul className="text__medium-normal list-disc ml-5">

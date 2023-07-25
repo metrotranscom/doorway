@@ -51,7 +51,7 @@ const MapControlZoomOut = (props: MapControlProps) => {
 
 const MapControl = (props: MapControlProps) => {
   return (
-    <div aria-label={t("t.mapControls")} role="group" className={styles["map-control"]}>
+    <div className={styles["map-control"]}>
       <MapControlZoomIn mapRef={props.mapRef} />
       <MapControlZoomOut mapRef={props.mapRef} />
     </div>

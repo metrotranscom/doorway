@@ -101,7 +101,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
   const getListingsCombined = () => {
     return (
       <div className={styles["listings-combined"]}>
-        <div aria-hidden className={styles["listings-map"]}>
+        <div className={styles["listings-map"]}>
           <ListingsMap
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}

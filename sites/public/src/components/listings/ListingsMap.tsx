@@ -76,7 +76,7 @@ const ListingsMap = (props: ListingsMapProps) => {
   const mapRef = React.useRef(null)
   return isLoaded ? (
     <div className={styles["listings-map"]}>
-      <a className="site-header__skip-link" href={`#listingsList`}>
+      <a className={styles["listings-map-skip-link"]} href={`#listingsList`}>
         {t("t.skipMapOfListings")}
       </a>
       <MapControl mapRef={mapRef} />

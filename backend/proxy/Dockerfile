@@ -1,4 +1,4 @@
-FROM nginx:1.19.0
+FROM nginx:1.24
 
 MAINTAINER David Galoyan <davojan@gmail.com>
 

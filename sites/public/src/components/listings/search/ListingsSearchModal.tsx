@@ -48,20 +48,20 @@ const clearButtonStyle: React.CSSProperties = {
   textDecoration: "underline",
 }
 
-export type FormOption = {
-  label: string
-  value: string
-  isDisabled?: boolean
-  labelNoteHTML?: string
-  doubleColumn?: boolean
-}
+// export type FieldSingle = {
+//   label: string
+//   value: string
+//   isDisabled?: boolean
+//   labelNoteHTML?: string
+//   doubleColumn?: boolean
+// }
 
 type ListingsSearchModalProps = {
   open: boolean
   searchString?: string
-  bedrooms: FormOption[]
-  bathrooms: FormOption[]
-  counties: FormOption[]
+  bedrooms: FieldSingle[]
+  bathrooms: FieldSingle[]
+  counties: FieldSingle[]
   onSubmit: (params: ListingSearchParams) => void
   onClose: () => void
   onFilterChange: (count: number) => void
@@ -142,33 +142,36 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
-  const translatedBedroomOptions: FormOption[] = [
+  const translatedBedroomOptions: FieldSingle[] = [
     {
+      id: "listings.unitTypes.any",
       label: t("listings.unitTypes.any"),
       value: null,
     },
     {
+      id: "listings.unitTypes.studio",
       label: t("listings.unitTypes.studio"),
       value: "0",
     },
   ]
 
-  const translatedBathroomOptions: FormOption[] = [
+  const translatedBathroomOptions: FieldSingle[] = [
     {
+      id: "listings.unitTypes.any",
       label: t("listings.unitTypes.any"),
       value: null,
     },
   ]
 
-  const bedroomOptions: FormOption[] = [
+  const bedroomOptions: FieldSingle[] = [
     ...translatedBedroomOptions,
     ...numericSearchFieldGenerator(1, 4),
   ]
-  const bathroomOptions: FormOption[] = [
+  const bathroomOptions: FieldSingle[] = [
     ...translatedBathroomOptions,
     ...numericSearchFieldGenerator(1, 4),
   ]
-  const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
+  const mkCountyFields = (counties: FieldSingle[]): FieldSingle[] => {
     const countyFields: FieldSingle[] = [] as FieldSingle[]
 
     const selected = {}
@@ -183,7 +186,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     counties.forEach((county, idx) => {
       // FieldGroup uses the label attribute to check for selected inputs.
       check = selected[county.label] !== undefined
-      if (county.isDisabled) {
+      if (county.disabled) {
         check = false
       }
       countyFields.push({
@@ -192,9 +195,9 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         label: county.label,
         value: county.value,
         defaultChecked: check,
-        disabled: county.isDisabled || false,
+        disabled: county.disabled || false,
         doubleColumn: county.doubleColumn || false,
-        note: county.label === "San Francisco" ? dahliaNote : county.labelNoteHTML || "",
+        note: county.label === "San Francisco" ? dahliaNote : county.note || "",
       } as FieldSingle)
     })
     return countyFields
@@ -202,7 +205,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const countyFields = mkCountyFields(props.counties)
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register } = useForm()
+  const { register, setValue } = useForm()
   return (
     <Modal
       open={props.open}
@@ -222,23 +225,23 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     >
       <div style={inputSectionStyle}>
         <div style={sectionTitle}>{t("t.bedrooms")}</div>
-        <ButtonGroup
+        <FieldGroup
           name="bedrooms"
-          options={bedroomOptions}
-          onChange={updateValue}
-          value={formValues.bedrooms}
-          spacing={ButtonGroupSpacing.left}
+          fields={bedroomOptions}
+          onChange={setValue}
+          register={register}
+          // value={formValues.bedrooms}
+          // spacing={ButtonGroupSpacing.left}
         />
       </div>
 
       <div style={inputSectionStyle}>
         <div style={sectionTitle}>{t("t.bathrooms")}</div>
-        <ButtonGroup
+        <FieldGroup
           name="bathrooms"
-          options={bathroomOptions}
-          onChange={updateValue}
-          value={formValues.bathrooms}
-          spacing={ButtonGroupSpacing.left}
+          fields={bathroomOptions}
+          onChange={setValue}
+          register={register}
         />
       </div>
       <div style={inputSectionStyle}>
@@ -262,18 +265,15 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
             <div style={hyphenStyle}>-</div>
           </div>
           <Field
-            type="number"
+            type="currency"
             name="monthlyRent"
+            register={register}
+            setValue={setValue}
             defaultValue={formValues.monthlyRent}
             placeholder={t("t.maxPrice")}
             className="doorway-field"
             inputClassName="rent-input"
             labelClassName="input-label"
-            inputMode="numeric"
-            pattern="\d*"
-            onChange={(e: React.FormEvent<HTMLInputElement>) => {
-              updateValue("monthlyRent", e.currentTarget.value)
-            }}
           ></Field>
         </div>
       </div>

@@ -14,12 +14,11 @@ import {
 import { useForm } from "react-hook-form"
 import { LinkButton, t } from "@bloom-housing/ui-components"
 import styles from "./LandingSearch.module.scss"
-import { FormOption } from "./ListingsSearchModal"
 import { numericSearchFieldGenerator } from "./helpers"
 
 type LandingSearchProps = {
-  bedrooms: FormOption[]
-  counties: FormOption[]
+  bedrooms: FieldSingle[]
+  counties: FieldSingle[]
 }
 
 export function LandingSearch(props: LandingSearchProps) {
@@ -53,7 +52,7 @@ export function LandingSearch(props: LandingSearchProps) {
     Object.assign(newValues, formValues)
     newValues[name] = value
     setFormValues(newValues)
-    // console.log(`${name} has been set to ${value}`) // uncomment to debug
+    console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
   const updateValueMulti = (name: string, labels: string[]) => {
@@ -63,22 +62,24 @@ export function LandingSearch(props: LandingSearchProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
-  const translatedBedroomOptions: FormOption[] = [
+  const translatedBedroomOptions: FieldSingle[] = [
     {
+      id: "listings.unitTypes.any",
       label: t("listings.unitTypes.any"),
       value: null,
     },
     {
+      id: "listings.unitTypes.studio",
       label: t("listings.unitTypes.studio"),
       value: "0",
     },
   ]
-  const bedroomOptions: FormOption[] = [
+  const bedroomOptions: FieldSingle[] = [
     ...translatedBedroomOptions,
     ...numericSearchFieldGenerator(1, 3),
   ]
 
-  const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
+  const mkCountyFields = (counties: FieldSingle[]): FieldSingle[] => {
     const countyFields: FieldSingle[] = [] as FieldSingle[]
 
     const selected = {}
@@ -94,7 +95,7 @@ export function LandingSearch(props: LandingSearchProps) {
     counties.forEach((county, idx) => {
       // FieldGroup uses the label attribute to check for selected inputs.
       check = selected[county.label] !== undefined
-      if (county.isDisabled) {
+      if (county.disabled) {
         check = false
       }
       countyFields.push({
@@ -103,9 +104,9 @@ export function LandingSearch(props: LandingSearchProps) {
         label: county.label,
         value: county.value,
         defaultChecked: check,
-        disabled: county.isDisabled || false,
+        disabled: county.disabled || false,
         doubleColumn: county.doubleColumn || false,
-        note: county.label === "San Francisco" ? dahliaNote : county.labelNoteHTML || "",
+        note: county.label === "San Francisco" ? dahliaNote : county.note || "",
       } as FieldSingle)
     })
     return countyFields
@@ -113,36 +114,43 @@ export function LandingSearch(props: LandingSearchProps) {
   const countyFields = mkCountyFields(props.counties)
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register } = useForm()
+  const { register, getValues, setValue } = useForm()
+
   return (
     <Card className="bg-accent-cool-light">
       <div className={styles["input-section"]}>
         <div className={styles["input-section_title"]}>{t("t.bedrooms")}</div>
-        <ButtonGroup
+        <FieldGroup
           name="bedrooms"
-          options={bedroomOptions}
-          onChange={updateValue}
-          value={formValues.bedrooms}
-          className="bg-accent-cool-light py-0 px-0 md:pl-12 landing-search-button-group"
-          spacing={ButtonGroupSpacing.left}
+          type="button"
+          fields={bedroomOptions}
+          register={register}
+          onChange={setValue}
+          fieldGroupClassName="bg-accent-cool-light py-0 px-0 md:pl-12 landing-search-button-group"
         />
       </div>
 
       <div className={styles["input-section"]}>
         <div className={styles["input-section_title"]}>{t("t.maxMonthlyRent")}</div>
         <Field
-          type="number"
+          type="currency"
           name="monthlyRent"
+          id="monthlyRent"
           defaultValue={formValues.monthlyRent}
+          register={register}
+          setValue={setValue}
+          getValues={getValues}
           placeholder="$"
           className="doorway-field p-0 md:pl-6"
           inputClassName="rent-input"
           labelClassName="input-label"
           inputMode="numeric"
-          pattern="\d*"
-          onChange={(e: React.FormEvent<HTMLInputElement>) => {
-            updateValue("monthlyRent", e.currentTarget.value)
-          }}
+          // inputProps={{
+          //   onChange: (e: React.FormEvent<HTMLInputElement>) => {
+          //     console.log("testingg")
+          //     updateValue("monthlyRent", e.currentTarget.value)
+          //   },
+          // }}
         />
       </div>
 

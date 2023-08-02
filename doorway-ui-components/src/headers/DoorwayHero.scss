@@ -44,10 +44,6 @@
     @apply p-12;
     @apply rounded-3xl;
   }
-
-  @media (min-width: $screen-lg) {
-    left: var(--doorway-hero-inner-offset);
-  }
 }
 
 .doorway-hero_inner {

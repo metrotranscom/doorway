@@ -202,7 +202,27 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const countyFields = mkCountyFields(props.counties)
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register } = useForm()
+  const { register, getValues, setValue, watch } = useForm()
+  const monthlyRentFormatted = watch("monthlyRent")
+  const minRentFormatted = watch("minRent")
+  const currencyFormatting = /,|\.\d{2}/g
+
+  useEffect(() => {
+    if (minRentFormatted) {
+      const minRentRaw = minRentFormatted.replaceAll(currencyFormatting, "")
+      updateValue("minRent", minRentRaw)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minRentFormatted])
+
+  useEffect(() => {
+    if (monthlyRentFormatted) {
+      const monthlyRentRaw = monthlyRentFormatted.replaceAll(currencyFormatting, "")
+      updateValue("monthlyRent", monthlyRentRaw)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthlyRentFormatted])
+
   return (
     <Modal
       open={props.open}
@@ -245,35 +265,33 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         <div style={sectionTitleTopBorder}>{t("t.monthlyRent")}</div>
         <div style={rentStyle}>
           <Field
-            type="number"
+            type="currency"
             name="minRent"
+            id="minRent"
+            register={register}
+            setValue={setValue}
+            getValues={getValues}
             defaultValue={formValues.minRent}
             placeholder={t("t.minPrice")}
             className="doorway-field"
             inputClassName="rent-input"
             labelClassName="input-label"
-            inputMode="numeric"
-            pattern="\d*"
-            onChange={(e: React.FormEvent<HTMLInputElement>) => {
-              updateValue("minRent", e.currentTarget.value)
-            }}
           ></Field>
           <div style={hyphenContainerStyle}>
             <div style={hyphenStyle}>-</div>
           </div>
           <Field
-            type="number"
+            type="currency"
             name="monthlyRent"
+            id="monthlyRent"
+            register={register}
+            setValue={setValue}
+            getValues={getValues}
             defaultValue={formValues.monthlyRent}
             placeholder={t("t.maxPrice")}
             className="doorway-field"
             inputClassName="rent-input"
             labelClassName="input-label"
-            inputMode="numeric"
-            pattern="\d*"
-            onChange={(e: React.FormEvent<HTMLInputElement>) => {
-              updateValue("monthlyRent", e.currentTarget.value)
-            }}
           ></Field>
         </div>
       </div>

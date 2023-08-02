@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
 import {
   Modal,
@@ -113,7 +113,18 @@ export function LandingSearch(props: LandingSearchProps) {
   const countyFields = mkCountyFields(props.counties)
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register } = useForm()
+  const { register, getValues, setValue, watch } = useForm()
+
+  const monthlyRentFormatted = watch("monthlyRent")
+  useEffect(() => {
+    if (monthlyRentFormatted) {
+      const currencyFormatting = /,|\.\d{2}/g
+      const monthlyRentRaw = monthlyRentFormatted.replaceAll(currencyFormatting, "")
+      updateValue("monthlyRent", monthlyRentRaw)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthlyRentFormatted])
+
   return (
     <Card className="bg-accent-cool-light">
       <div className={styles["input-section"]}>
@@ -131,18 +142,17 @@ export function LandingSearch(props: LandingSearchProps) {
       <div className={styles["input-section"]}>
         <div className={styles["input-section_title"]}>{t("t.maxMonthlyRent")}</div>
         <Field
-          type="number"
+          type="currency"
+          id="monthlyRent"
           name="monthlyRent"
+          register={register}
+          setValue={setValue}
+          getValues={getValues}
           defaultValue={formValues.monthlyRent}
           placeholder="$"
           className="doorway-field p-0 md:pl-6"
           inputClassName="rent-input"
           labelClassName="input-label"
-          inputMode="numeric"
-          pattern="\d*"
-          onChange={(e: React.FormEvent<HTMLInputElement>) => {
-            updateValue("monthlyRent", e.currentTarget.value)
-          }}
         />
       </div>
 

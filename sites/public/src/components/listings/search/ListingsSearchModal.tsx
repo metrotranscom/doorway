@@ -66,7 +66,9 @@ type ListingsSearchModalProps = {
   onClose: () => void
   onFilterChange: (count: number) => void
 }
-
+// TODO: Refactor ListingSearchModal to utilize react-hook-form. It is currently using a custom form object and custom valueSetters
+// which is mostly functional but fails to leverage UI-C's formatting, accessibility and any other future improvements to the
+// package. To expedite development and avoid excessive workarounds, a full form refactor should be completed.
 export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const searchString = props.searchString || ""
 

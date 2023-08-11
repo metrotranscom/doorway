@@ -66,9 +66,9 @@ type ListingsSearchModalProps = {
   onClose: () => void
   onFilterChange: (count: number) => void
 }
-// TODO: Refactor ListingSearchModal to utilize react-hook-form. It is currently using a custom form object and custom valueSetters
+// TODO: Refactor ListingsSearchModal to utilize react-hook-form. It is currently using a custom form object and custom valueSetters
 // which is mostly functional but fails to leverage UI-C's formatting, accessibility and any other future improvements to the
-// package. To expedite development and avoid excessive workarounds, a full form refactor should be completed.
+// package. To expedite development and avoid excessive workarounds (ie. lines 213, 221), a full form refactor should be completed.
 export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const searchString = props.searchString || ""
 
@@ -209,6 +209,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const minRentFormatted = watch("minRent")
   const currencyFormatting = /,|\.\d{2}/g
 
+  // workarounds to leverage UI-C's currency formatting without full refactor
   useEffect(() => {
     if (minRentFormatted) {
       const minRentRaw = minRentFormatted.replaceAll(currencyFormatting, "")

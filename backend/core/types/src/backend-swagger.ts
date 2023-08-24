@@ -5688,9 +5688,6 @@ REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
 
   /**  */
   utilities?: ListingUtilities
-
-  /**  */
-  requestedChangesUser?: CombinedRequestedChangesUserTypes
 }
 
 export interface ListingEventUpdate {
@@ -6107,9 +6104,6 @@ REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
 
   /**  */
   utilities?: ListingUtilities
-
-  /**  */
-  requestedChangesUser?: CombinedRequestedChangesUserTypes
 }
 
 export interface MultiselectQuestionsFilterParams {

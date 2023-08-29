@@ -66,7 +66,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         <div className={styles["swipe-area"]} {...swipeHandler}>
           <div className={styles["swipe-area-line"]}></div>
         </div>
-        <div className={styles["listings-list-expanded"]}>
+        <div id="listings-list-expanded" className={styles["listings-list-expanded"]}>
           <ListingsList
             jurisdiction={props.jurisdiction}
             listings={props.listings}
@@ -112,7 +112,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           <div className={styles["swipe-area"]} {...swipeHandler}>
             <div className={styles["swipe-area-line"]}></div>
           </div>
-          <div className={styles["listings-list"]}>
+          <div id="listings-list" className={styles["listings-list"]}>
             <ListingsList
               jurisdiction={props.jurisdiction}
               listings={props.listings}

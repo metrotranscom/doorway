@@ -83,6 +83,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     searchParams.current = params
 
     document.getElementById("listings-outer-container")?.scrollTo(0, 0)
+    document.getElementById("listings-list")?.scrollTo(0, 0)
+    document.getElementById("listings-list-expanded")?.scrollTo(0, 0)
     window.scrollTo(0, 0)
 
     // Keeping this until pagination is implemented

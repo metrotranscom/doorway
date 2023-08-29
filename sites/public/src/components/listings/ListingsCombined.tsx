@@ -108,7 +108,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             isMapExpanded={false}
           />
         </div>
-        <div className={styles["listings-outer-container"]}>
+        <div id="listings-outer-container" className={styles["listings-outer-container"]}>
           <div className={styles["swipe-area"]} {...swipeHandler}>
             <div className={styles["swipe-area-line"]}></div>
           </div>

@@ -5,6 +5,12 @@ export class newOaklandAmiChart20231693243858535 implements MigrationInterface {
   name = "newOaklandAmiChart20231693243858535"
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    const res = await queryRunner.query(`SELECT id FROM ami_chart WHERE name = '${ami.name}'`)
+    if (res?.length) {
+      // if ami chart already exists, do nothing
+      return
+    }
+
     const [{ id }] = await queryRunner.query(`SELECT id FROM jurisdictions WHERE name = 'Bay Area'`)
 
     await queryRunner.query(`

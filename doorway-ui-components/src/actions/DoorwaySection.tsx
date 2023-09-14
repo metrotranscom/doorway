@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { Heading } from "../.."
 import "./DoorwaySection.scss"
 
@@ -9,15 +9,11 @@ type DoorwaySectionProps = {
 }
 
 const DoorwaySection = ({ children, title, className }: DoorwaySectionProps) => {
-  const [isExpanded, setExpanded] = useState(false)
   const rootClassNames = className ? `${className}` : ""
 
   return (
     <div
       className={`doorway-expanded-section ${rootClassNames}`}
-      onClick={() => {
-        setExpanded(!isExpanded)
-      }}
     >
       <div className="doorway-expanded_heading-container">
         <Heading priority={4} className={"text__large-primary text-left"}>

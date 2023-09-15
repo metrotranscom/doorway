@@ -90,28 +90,30 @@ export function professionalsPartnersDevelopersCards(): React.ReactElement<CardP
               </a>
               {t("professionalPartners.dev.howDoWeListPropertyResp3b")}
             </li>
-            <li>{t("professionalPartners.dev.howDoWeListPropertyResp4")}</li>
-            <ul className="text__medium-normal list-disc ml-5">
-              <li>
-                {t("professionalPartners.dev.howDoWeListPropertyResp4a1")}
-                <a href={`mailto:${t("professionalPartners.doorwayEmail")}`}>
-                  {t("professionalPartners.doorwayEmail")}
-                </a>
-                {t("professionalPartners.dev.howDoWeListPropertyResp4a2")}
-              </li>
+            <li>
+              {t("professionalPartners.dev.howDoWeListPropertyResp4")}
               <ul className="text__medium-normal list-disc ml-5">
-                <li>{t("professionalPartners.dev.howDoWeListPropertyResp4aInfo")}</li>
+                <li>
+                  {t("professionalPartners.dev.howDoWeListPropertyResp4a1")}
+                  <a href={`mailto:${t("professionalPartners.doorwayEmail")}`}>
+                    {t("professionalPartners.doorwayEmail")}
+                  </a>
+                  {t("professionalPartners.dev.howDoWeListPropertyResp4a2")}
+                  <ul className="text__medium-normal list-disc ml-5">
+                    <li>{t("professionalPartners.dev.howDoWeListPropertyResp4aInfo")}</li>
+                  </ul>
+                </li>
+                <li>{t("professionalPartners.dev.howDoWeListPropertyResp4b")}</li>
+                <li>{t("professionalPartners.dev.howDoWeListPropertyResp4c")}</li>
+                <li>
+                  {t("professionalPartners.dev.howDoWeListPropertyResp4d1")}
+                  <a href={`mailto:${t("professionalPartners.doorwayEmail")}`}>
+                    {t("professionalPartners.doorwayEmail")}
+                  </a>
+                  {t("professionalPartners.dev.howDoWeListPropertyResp4d2")}
+                </li>
               </ul>
-              <li>{t("professionalPartners.dev.howDoWeListPropertyResp4b")}</li>
-              <li>{t("professionalPartners.dev.howDoWeListPropertyResp4c")}</li>
-              <li>
-                {t("professionalPartners.dev.howDoWeListPropertyResp4d1")}
-                <a href={`mailto:${t("professionalPartners.doorwayEmail")}`}>
-                  {t("professionalPartners.doorwayEmail")}
-                </a>
-                {t("professionalPartners.dev.howDoWeListPropertyResp4d2")}
-              </li>
-            </ul>
+            </li>
           </ul>
         </DoorwaySection>
         <DoorwaySection title={t("professionalPartners.dev.whatIfIHaveAnAccount")}>

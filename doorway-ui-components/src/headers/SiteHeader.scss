@@ -488,7 +488,8 @@
   top: var(--dropdown-container-top-offset);
   border: 1px solid var(--border-color);
   border-top: var(--dropdown-container-border-top);
-  width: 100%;
+  min-width: 100%;
+  width: max-content;
   display: var(--dropdown-container-display);
 }
 

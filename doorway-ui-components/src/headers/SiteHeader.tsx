@@ -63,7 +63,7 @@ const SiteHeader = (props: SiteHeaderProps) => {
     // If the links have flex-wrapped onto the next line, apply the background color
     const logoOffset = document.getElementById("site-header-logo")?.offsetLeft
     const linksOffset = document.getElementById("site-header-links")?.offsetLeft
-    if (!linksOffset || !logoOffset) return
+    if (linksOffset === undefined || logoOffset === undefined) return
     return linksOffset === 0 || linksOffset === logoOffset
       ? setNavbarClass("site-header__navbar-wrapped")
       : setNavbarClass("site-header__navbar-inline")
@@ -530,7 +530,7 @@ const SiteHeader = (props: SiteHeaderProps) => {
         <div
           className={`site-header__base ${
             props.siteHeaderWidth === "wide" ? "site-header__width-wide" : ""
-          }`}
+          } ${navbarClass === "site-header__navbar-wrapped" ? "mb-12" : "mb-0"}`}
         >
           {getLogo()}
           <div

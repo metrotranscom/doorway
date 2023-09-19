@@ -102,6 +102,7 @@
   --navbar-menu-mobile-margin: inherit;
   --navbar-menu-mobile-padding: inherit;
   --navbar-menu-mobile-width: inherit;
+  --navbar-menu-wrap: 450px;
 }
 
 .site-header__mobile-dropdown-container {
@@ -196,7 +197,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  flex-flow: wrap;
+  flex-flow: initial;
   z-index: 10;
   max-width: 100%;
   align-items: var(--base-align-items);
@@ -204,6 +205,7 @@
   width: var(--base-mobile-width);
 
   @media (min-width: $screen-md) {
+    flex-flow: wrap;
     padding: var(--base-desktop-padding);
     width: var(--base-desktop-width);
   }
@@ -242,6 +244,7 @@
   max-height: var(--logo-max-height);
   max-width: var(--logo-max-width);
   box-shadow: var(--logo-box-shadow);
+  min-width: 150px;
 
   @media (min-width: $screen-md) {
     height: var(--logo-desktop-height);
@@ -345,7 +348,7 @@
 .site-header__navbar-menu {
   display: flex;
   justify-content: flex-end;
-  flex-basis: 450px;
+  flex-basis: var(--navbar-menu-wrap);
   flex-grow: 1;
 
   min-width: var(--navbar-menu-min-width);
@@ -426,10 +429,12 @@
 
 .site-header__navbar-wrapped {
   background-color: var(--wrapped-background-color);
+  justify-content: center;
 }
 
 .site-header__navbar-inline {
   background-color: var(--background-color);
+  justify-content: flex-end;
 }
 
 .site-header__link {

@@ -87,7 +87,7 @@ const SiteHeader = (props: SiteHeaderProps) => {
 
     window.addEventListener("resize", updateMedia)
     return () => window.removeEventListener("resize", updateMedia)
-  }, [DESKTOP_MIN_WIDTH])
+  }, [DESKTOP_MIN_WIDTH, props.languages])
 
   const getLogoWidthClass = () => {
     if (props.logoWidth === "slim") return "site-header__logo-width-slim"
@@ -530,7 +530,11 @@ const SiteHeader = (props: SiteHeaderProps) => {
         <div
           className={`site-header__base ${
             props.siteHeaderWidth === "wide" ? "site-header__width-wide" : ""
-          } ${navbarClass === "site-header__navbar-wrapped" ? "mb-12" : "mb-0"}`}
+          } ${
+            navbarClass === "site-header__navbar-wrapped"
+              ? "site-header__base-wrapped"
+              : "site-header__base-inline"
+          }`}
         >
           {getLogo()}
           <div

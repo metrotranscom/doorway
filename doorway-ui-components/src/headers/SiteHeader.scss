@@ -94,7 +94,7 @@
 
   // Link menu
   --navbar-menu-desktop-height: 75px;
-  --navbar-menu-desktop-margin: var(--bloom-s2) 0 0 0;
+  --navbar-menu-desktop-margin: inherit;
   --navbar-menu-desktop-padding: inherit;
   --navbar-menu-desktop-width: inherit;
   --navbar-menu-min-width: inherit;
@@ -102,7 +102,7 @@
   --navbar-menu-mobile-margin: inherit;
   --navbar-menu-mobile-padding: inherit;
   --navbar-menu-mobile-width: inherit;
-  --navbar-menu-wrap: 450px;
+  --navbar-menu-wrap: inherit;
 }
 
 .site-header__mobile-dropdown-container {
@@ -211,6 +211,17 @@
   }
 }
 
+.site-header__base-wrapped {
+  margin-top: 0.2rem;
+  margin-bottom: var(--bloom-s12);
+  padding-left: 0;
+}
+
+.site-header__base-inline {
+  margin-top: 0.025rem;
+  margin-bottom: 0;
+}
+
 .site-header__logo-container {
   display: flex;
   align-items: center;
@@ -221,6 +232,7 @@
   margin-left: var(--logo-container-margin-mobile);
 
   @media (min-width: $screen-md) {
+    flex-grow: 0;
     padding: var(--logo-container-padding-desktop);
     margin: var(--logo-container-margin-desktop);
     flex-shrink: 0;
@@ -348,8 +360,8 @@
 .site-header__navbar-menu {
   display: flex;
   justify-content: flex-end;
-  flex-basis: var(--navbar-menu-wrap);
-  flex-grow: 1;
+  flex-basis: inherit;
+  flex-grow: 0;
 
   min-width: var(--navbar-menu-min-width);
   height: var(--navbar-menu-mobile-height);
@@ -358,6 +370,8 @@
   padding: var(--navbar-menu-mobile-padding);
 
   @media (min-width: $screen-md) {
+    flex-basis: var(--navbar-menu-wrap);
+    flex-grow: 1;
     height: var(--navbar-menu-desktop-height);
     margin: var(--navbar-menu-desktop-margin);
     width: var(--navbar-menu-desktop-width);
@@ -429,7 +443,7 @@
 
 .site-header__navbar-wrapped {
   background-color: var(--wrapped-background-color);
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .site-header__navbar-inline {

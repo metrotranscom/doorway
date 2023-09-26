@@ -1,3 +1,5 @@
+import { AppearanceBorderType } from "@bloom-housing/ui-components"
+
 export enum AppearanceStyleType {
   primary = "is-primary",
   secondary = "is-secondary",
@@ -14,12 +16,6 @@ export enum AppearanceSizeType {
   small = "is-small",
   normal = "is-normal",
   big = "is-big",
-}
-
-export enum AppearanceBorderType {
-  borderless = "is-borderless",
-  normal = "",
-  outlined = "is-outlined",
 }
 
 export enum AppearanceShadeType {

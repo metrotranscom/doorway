@@ -1,6 +1,5 @@
 import React from "react"
 import {
-  AppearanceStyleType,
   Button,
   Field,
   Form,
@@ -11,6 +10,7 @@ import {
 } from "../../.."
 import Markdown from "markdown-to-jsx"
 import { useForm } from "react-hook-form"
+import { AppearanceStyleType } from "@bloom-housing/ui-components"
 
 type FormTermsInValues = {
   agree: boolean

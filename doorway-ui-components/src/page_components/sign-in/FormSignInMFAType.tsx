@@ -1,6 +1,5 @@
 import React from "react"
 import {
-  AppearanceStyleType,
   Button,
   Field,
   Form,
@@ -12,6 +11,7 @@ import {
 } from "../../.."
 import type { UseFormMethods } from "react-hook-form"
 import { NetworkStatus } from "./FormSignIn"
+import { AppearanceStyleType } from "@bloom-housing/ui-components"
 
 export type FormSignInMFAProps = {
   control: FormSignInMFAControl

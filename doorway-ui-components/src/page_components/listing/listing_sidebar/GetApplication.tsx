@@ -2,12 +2,12 @@ import React, { useState } from "react"
 import Markdown from "markdown-to-jsx"
 import { Button } from "../../../actions/Button"
 import { LinkButton } from "../../../actions/LinkButton"
-import { AppearanceStyleType } from "../../../global/AppearanceTypes"
 import { Address } from "../../../helpers/MultiLineAddress"
 import { Heading } from "../../../text/Heading"
 import { t } from "../../../helpers/translator"
 import { OrDivider } from "./OrDivider"
 import { ContactAddress } from "./ContactAddress"
+import { AppearanceStyleType } from "@bloom-housing/ui-components"
 
 export interface PaperApplication {
   fileURL: string

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react"
-import { Heading } from "@bloom-housing/ui-components"
+import { Heading, LinkButton } from "@bloom-housing/ui-components"
 import { ImageCard, ImageCardProps, ImageTag } from "../../blocks/ImageCard"
-import { LinkButton } from "../../actions/LinkButton"
 import { StackedTableProps } from "../../tables/StackedTable"
 import { StandardTableProps } from "../../tables/StandardTable"
 import { Tag } from "../../text/Tag"

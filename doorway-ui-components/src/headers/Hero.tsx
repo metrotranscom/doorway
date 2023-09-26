@@ -1,7 +1,7 @@
 import * as React from "react"
-import { LinkButton } from "../actions/LinkButton"
 import { t } from "../helpers/translator"
 import "./Hero.scss"
+import { LinkButton } from "@bloom-housing/ui-components"
 
 export interface HeroProps {
   allApplicationsClosed?: boolean

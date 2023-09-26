@@ -1,9 +1,9 @@
 import * as React from "react"
 import { getListings } from "../../lib/helpers"
 import { Listing, Jurisdiction } from "@bloom-housing/backend-core"
-import { InfoCard, LinkButton, ZeroListingsItem, t } from "@bloom-housing/doorway-ui-components"
+import { InfoCard, ZeroListingsItem, t } from "@bloom-housing/doorway-ui-components"
 import { Pagination } from "./Pagination"
-import { LoadingOverlay } from "@bloom-housing/ui-components"
+import { LinkButton, LoadingOverlay } from "@bloom-housing/ui-components"
 
 type ListingsListProps = {
   jurisdiction: Jurisdiction

@@ -168,6 +168,5 @@ export * from "./src/tables/AgPagination"
 
 /* Text */
 export * from "./src/text/Description"
-export * from "./src/text/Heading"
 export * from "./src/text/Message"
 export * from "./src/text/Tag"

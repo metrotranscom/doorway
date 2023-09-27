@@ -155,3 +155,21 @@ export async function fetchJurisdictionByName(backendApiBase: string, jurisdicti
 
   return jurisdiction
 }
+
+let jurisdictions: Jurisdiction[] | null = null
+export async function fetchJurisdictionsByName(backendApiBase: string, jurisdictionNames: string) {
+  console.log(jurisdictionNames)
+  try {
+    if (jurisdiction) {
+      return jurisdiction
+    }
+    const jurisdictionsRes = await axios.get(
+      `${backendApiBase}/jurisdictions/byNames/${jurisdictionNames}`
+    )
+    jurisdictions = jurisdictionsRes?.data
+  } catch (error) {
+    console.log("error = ", error)
+  }
+
+  return jurisdictions
+}

@@ -15,7 +15,7 @@ import {
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
 
 type ListingsSearchCombinedProps = {
-  jurisdiction: Jurisdiction
+  jurisdictions: Jurisdiction[]
   searchString?: string
   googleMapsApiKey: string
   listingsEndpoint: string
@@ -67,6 +67,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   const search = async (params: ListingSearchParams, page: number) => {
     const qb = generateSearchQuery(params)
+    console.log(qb)
     const listingService = new ListingService(props.listingsEndpoint)
     const result = await listingService.searchListings(qb, pageSize, page)
 
@@ -131,7 +132,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       />
 
       <ListingsCombined
-        jurisdiction={props.jurisdiction}
+        jurisdictions={props.jurisdictions}
         listings={searchResults.listings}
         currentPage={searchResults.currentPage}
         lastPage={searchResults.lastPage}

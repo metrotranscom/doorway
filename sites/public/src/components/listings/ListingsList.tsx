@@ -6,7 +6,7 @@ import { Pagination } from "./Pagination"
 import { LoadingOverlay } from "@bloom-housing/ui-components"
 
 type ListingsListProps = {
-  jurisdiction: Jurisdiction
+  jurisdictions: Jurisdiction[]
   listings: Listing[]
   currentPage: number
   lastPage: number
@@ -36,7 +36,7 @@ const ListingsList = (props: ListingsListProps) => {
           className="is-normal-primary-lighter"
         >
           <LinkButton
-            href={props.jurisdiction.notificationsSignUpURL}
+            href={props.jurisdictions[0]?.notificationsSignUpURL}
             newTab={true}
             className="is-primary"
           >

@@ -15,14 +15,14 @@ import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { ConfirmationModal } from "../components/account/ConfirmationModal"
 import { MetaTags } from "../components/shared/MetaTags"
-import { fetchJurisdictionByName } from "../lib/hooks"
+import { fetchJurisdictionsByName } from "../lib/hooks"
 import { runtimeConfig } from "../lib/runtime-config"
 import { LandingSearch } from "../components/listings/search/LandingSearch"
 import { FormOption } from "../components/listings/search/ListingsSearchModal"
 import { locations } from "../components/listings/search/ListingsSearchCombined"
 
 interface IndexProps {
-  jurisdiction: Jurisdiction
+  jurisdictions: Jurisdiction[]
   bedrooms: FormOption[]
   counties: FormOption[]
 }
@@ -160,7 +160,7 @@ export default function Home(props: IndexProps) {
           </InfoCard>
         </div>
       </div>
-      {props.jurisdiction && props.jurisdiction.notificationsSignUpURL && (
+      {props.jurisdictions && props.jurisdictions[0]?.notificationsSignUpURL && (
         <ActionBlock
           className="p-12"
           header={
@@ -174,7 +174,7 @@ export default function Home(props: IndexProps) {
             <LinkButton
               key={"sign-up"}
               className="is-primary"
-              href={props.jurisdiction.notificationsSignUpURL}
+              href={props.jurisdictions[0]?.notificationsSignUpURL}
               newTab={true}
               size={AppearanceSizeType.small}
             >
@@ -191,14 +191,14 @@ export default function Home(props: IndexProps) {
 }
 
 export async function getServerSideProps() {
-  const jurisdiction = await fetchJurisdictionByName(
+  const jurisdictions = await fetchJurisdictionsByName(
     runtimeConfig.getBackendApiBase(),
     runtimeConfig.getJurisdictionName()
   )
 
   return {
     props: {
-      jurisdiction,
+      jurisdictions,
       counties: locations,
     },
   }

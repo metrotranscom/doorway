@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import axios from "axios"
 //import qs from "qs"
 import { useRouter } from "next/router"
@@ -15,6 +15,7 @@ import {
 import { ParsedUrlQuery } from "querystring"
 import { AppSubmissionContext } from "./applications/AppSubmissionContext"
 import { getListingApplicationStatus } from "./helpers"
+import { AuthContext } from "@bloom-housing/shared-helpers"
 
 export const useRedirectToPrevPage = (defaultPath = "/") => {
   const router = useRouter()
@@ -157,16 +158,18 @@ export async function fetchJurisdictionByName(backendApiBase: string, jurisdicti
 }
 
 let jurisdictions: Jurisdiction[] | null = null
-export async function fetchJurisdictionsByName(backendApiBase: string, jurisdictionNames: string) {
-  console.log(jurisdictionNames)
+export function fecthJurisdictions(jurisdictionNames?: string) {
+  const { jurisdictionsService } = useContext(AuthContext)
+  const jurisArray = jurisdictionNames.split(",")
   try {
-    if (jurisdiction) {
-      return jurisdiction
+    if (jurisdictions) {
+      return jurisdictions
     }
-    const jurisdictionsRes = await axios.get(
-      `${backendApiBase}/jurisdictions/byNames/${jurisdictionNames}`
-    )
-    jurisdictions = jurisdictionsRes?.data
+    useCallback(acync() => {
+    const jurisdictionsRes = await jurisdictionsService.list({ names: jurisArray })
+
+    jurisdictions = jurisdictionsRes
+    })
   } catch (error) {
     console.log("error = ", error)
   }

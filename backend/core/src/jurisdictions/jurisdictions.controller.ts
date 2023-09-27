@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -21,7 +22,7 @@ import { JurisdictionDto } from "./dto/jurisdiction.dto"
 import { JurisdictionCreateDto } from "./dto/jurisdiction-create.dto"
 import { JurisdictionUpdateDto } from "./dto/jurisdiction-update.dto"
 import { IdDto } from "../shared/dto/id.dto"
-import { In } from "typeorm"
+import { JurisdictionsListParams } from "./dto/jurisdictions-list-query-params"
 
 @Controller("jurisdictions")
 @ApiTags("jurisdictions")
@@ -34,8 +35,11 @@ export class JurisdictionsController {
 
   @Get()
   @ApiOperation({ summary: "List jurisdictions", operationId: "list" })
-  async list(): Promise<JurisdictionDto[]> {
-    return mapTo(JurisdictionDto, await this.jurisdictionsService.list())
+  async list(
+    @Query()
+    queryParams: JurisdictionsListParams
+  ): Promise<JurisdictionDto[]> {
+    return mapTo(JurisdictionDto, await this.jurisdictionsService.list(queryParams?.names))
   }
 
   @Post()
@@ -67,18 +71,6 @@ export class JurisdictionsController {
     return mapTo(
       JurisdictionDto,
       await this.jurisdictionsService.findOne({ where: { name: jurisdictionName } })
-    )
-  }
-
-  @Get(`byNames/:jurisdictionNames`)
-  @ApiOperation({ summary: "Get jurisdictions from list of names", operationId: "retrieveByNames" })
-  async retrieveByNames(
-    @Param("jurisdictionNames") jurisdictionNames: string
-  ): Promise<JurisdictionDto[]> {
-    const jurisArr = jurisdictionNames?.split(",")
-    return mapTo(
-      JurisdictionDto,
-      await this.jurisdictionsService.findMany({ where: { name: In([...jurisArr]) } })
     )
   }
 

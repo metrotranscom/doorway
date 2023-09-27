@@ -15,6 +15,9 @@ type ListingsListProps = {
 }
 
 const ListingsList = (props: ListingsListProps) => {
+  const notificationsSignUpURL = props.jurisdictions?.find((juris) => juris.notificationsSignUpURL)
+    ?.notificationsSignUpURL
+
   const listingsDiv = (
     <div id="listingsList">
       {props.listings.length > 0 || props.loading ? (
@@ -35,11 +38,7 @@ const ListingsList = (props: ListingsListProps) => {
           subtitle={t("t.subscribeToListingAlerts")}
           className="is-normal-primary-lighter"
         >
-          <LinkButton
-            href={props.jurisdictions[0]?.notificationsSignUpURL}
-            newTab={true}
-            className="is-primary"
-          >
+          <LinkButton href={notificationsSignUpURL} newTab={true} className="is-primary">
             {t("t.signUp")}
           </LinkButton>
         </InfoCard>

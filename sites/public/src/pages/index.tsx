@@ -15,7 +15,7 @@ import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { ConfirmationModal } from "../components/account/ConfirmationModal"
 import { MetaTags } from "../components/shared/MetaTags"
-import { fetchJurisdictionsByName } from "../lib/hooks"
+import { fecthJurisdictions, useGetJurisdictions } from "../lib/hooks"
 import { runtimeConfig } from "../lib/runtime-config"
 import { LandingSearch } from "../components/listings/search/LandingSearch"
 import { FormOption } from "../components/listings/search/ListingsSearchModal"
@@ -46,6 +46,8 @@ export default function Home(props: IndexProps) {
   const metaDescription = t("pageDescription.welcome")
   const metaImage = t("welcome.personWithChildAlt")
   const alertClasses = "flex-grow mt-6 max-w-6xl w-full"
+  const notificationsSignUpURL = props.jurisdictions?.find((juris) => juris.notificationsSignUpURL)
+    ?.notificationsSignUpURL
   return (
     <Layout>
       <Head>
@@ -160,7 +162,7 @@ export default function Home(props: IndexProps) {
           </InfoCard>
         </div>
       </div>
-      {props.jurisdictions && props.jurisdictions[0]?.notificationsSignUpURL && (
+      {props.jurisdictions && notificationsSignUpURL && (
         <ActionBlock
           className="p-12"
           header={
@@ -174,7 +176,7 @@ export default function Home(props: IndexProps) {
             <LinkButton
               key={"sign-up"}
               className="is-primary"
-              href={props.jurisdictions[0]?.notificationsSignUpURL}
+              href={notificationsSignUpURL}
               newTab={true}
               size={AppearanceSizeType.small}
             >
@@ -191,7 +193,7 @@ export default function Home(props: IndexProps) {
 }
 
 export async function getServerSideProps() {
-  const jurisdictions = await fetchJurisdictionsByName(
+  const jurisdictions = await fecthJurisdictions(
     runtimeConfig.getBackendApiBase(),
     runtimeConfig.getJurisdictionName()
   )

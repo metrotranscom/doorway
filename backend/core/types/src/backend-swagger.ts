@@ -1207,12 +1207,18 @@ export class JurisdictionsService {
   /**
    * List jurisdictions
    */
-  list(options: IRequestOptions = {}): Promise<Jurisdiction[]> {
+  list(
+    params: {
+      /**  */
+      names?: any | null[]
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<Jurisdiction[]> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/jurisdictions"
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-
+      configs.params = { names: params["names"] }
       let data = null
 
       configs.data = data
@@ -1317,28 +1323,6 @@ export class JurisdictionsService {
     return new Promise((resolve, reject) => {
       let url = basePath + "/jurisdictions/byName/{jurisdictionName}"
       url = url.replace("{jurisdictionName}", params["jurisdictionName"] + "")
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-
-      let data = null
-
-      configs.data = data
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Get jurisdictions from list of names
-   */
-  retrieveByNames(
-    params: {
-      /**  */
-      jurisdictionNames: string
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<Jurisdiction[]> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/jurisdictions/byNames/{jurisdictionNames}"
-      url = url.replace("{jurisdictionNames}", params["jurisdictionNames"] + "")
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
 
@@ -1555,7 +1539,7 @@ export class ListingsService {
       body?: ListingUpdate
     } = {} as any,
     options: IRequestOptions = {}
-  ): Promise<any> {
+  ): Promise<Listing> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/listings/updateAndNotify/{id}"
       url = url.replace("{id}", params["id"] + "")
@@ -5068,15 +5052,15 @@ REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   /**  */
   utilities?: ListingUtilities
 
+  /**  */
+  requestedChangesUser?: CombinedRequestedChangesUserTypes
+
   /** This is used to signal to the frontend whether the listing is internal or
 external.  This should only be anything other than `false` if it's coming
 from an external listing pulled from combined_listings.
 
 REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   isExternal?: boolean
-
-  /**  */
-  requestedChangesUser?: CombinedRequestedChangesUserTypes
 
   /**  */
   id: string
@@ -5414,6 +5398,35 @@ export interface UnitCreate {
   bmrProgramChart?: boolean
 }
 
+export interface AddressCountyRequiredCreate {
+  /**  */
+  county?: string
+
+  /**  */
+  placeName?: string
+
+  /**  */
+  city: string
+
+  /**  */
+  state: string
+
+  /**  */
+  street: string
+
+  /**  */
+  street2?: string
+
+  /**  */
+  zipCode: string
+
+  /**  */
+  latitude?: number
+
+  /**  */
+  longitude?: number
+}
+
 export interface UnitsSummaryCreate {
   /**  */
   monthlyRentMin?: number
@@ -5713,18 +5726,18 @@ export interface ListingCreate {
   /**  */
   lastApplicationUpdateAt?: Date
 
+  /**  */
+  requestedChanges?: string
+
+  /**  */
+  requestedChangesDate?: Date
+
   /** This is used to signal to the frontend whether the listing is internal or
 external.  This should only be anything other than `false` if it's coming
 from an external listing pulled from combined_listings.
 
 REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   isExternal?: boolean
-
-  /**  */
-  requestedChanges?: string
-
-  /**  */
-  requestedChangesDate?: Date
 
   /**  */
   countyCode?: string
@@ -5833,6 +5846,44 @@ export interface UnitUpdate {
 
   /**  */
   bmrProgramChart?: boolean
+}
+
+export interface AddressCountyRequiredUpdate {
+  /**  */
+  county?: string
+
+  /**  */
+  id?: string
+
+  /**  */
+  createdAt?: Date
+
+  /**  */
+  updatedAt?: Date
+
+  /**  */
+  placeName?: string
+
+  /**  */
+  city: string
+
+  /**  */
+  state: string
+
+  /**  */
+  street: string
+
+  /**  */
+  street2?: string
+
+  /**  */
+  zipCode: string
+
+  /**  */
+  latitude?: number
+
+  /**  */
+  longitude?: number
 }
 
 export interface UnitsSummaryUpdate {
@@ -6129,18 +6180,18 @@ export interface ListingUpdate {
   /**  */
   lastApplicationUpdateAt?: Date
 
+  /**  */
+  requestedChanges?: string
+
+  /**  */
+  requestedChangesDate?: Date
+
   /** This is used to signal to the frontend whether the listing is internal or
 external.  This should only be anything other than `false` if it's coming
 from an external listing pulled from combined_listings.
 
 REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   isExternal?: boolean
-
-  /**  */
-  requestedChanges?: string
-
-  /**  */
-  requestedChangesDate?: Date
 
   /**  */
   countyCode?: string
@@ -6537,6 +6588,7 @@ export type CombinedApplicationMailingAddressTypes = AddressUpdate
 export type CombinedBuildingSelectionCriteriaFileTypes = AssetUpdate
 export type CombinedLeasingAgentAddressTypes = AddressUpdate
 export type CombinedResultTypes = AssetCreate
+export type CombinedRequestedChangesUserTypes = User
 export enum EnumCombinedListingFilterParamsComparison {
   "=" = "=",
   "<>" = "<>",
@@ -6547,15 +6599,16 @@ export enum EnumCombinedListingFilterParamsComparison {
 }
 export enum EnumCombinedListingFilterParamsStatus {
   "active" = "active",
-  "pending" = "pending",
+  "changesRequested" = "changesRequested",
   "closed" = "closed",
+  "pending" = "pending",
+  "pendingReview" = "pendingReview",
 }
 export enum EnumCombinedListingsQueryParamsOrderDir {
   "ASC" = "ASC",
   "DESC" = "DESC",
 }
-export type CombinedRequestedChangesUserTypes = User
-export type CombinedBuildingAddressTypes = AddressUpdate
+export type CombinedBuildingAddressTypes = AddressCountyRequiredUpdate
 export enum EnumMultiselectQuestionsFilterParamsComparison {
   "=" = "=",
   "<>" = "<>",

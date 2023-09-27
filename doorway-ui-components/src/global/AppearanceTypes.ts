@@ -1,16 +1,4 @@
-import { AppearanceBorderType } from "@bloom-housing/ui-components"
-
-export enum AppearanceStyleType {
-  primary = "is-primary",
-  secondary = "is-secondary",
-  success = "is-success",
-  alert = "is-alert",
-  warning = "is-warning",
-  info = "is-info",
-  accentCool = "is-accent-cool",
-  accentWarm = "is-accent-warm",
-  closed = "is-closed",
-}
+import { AppearanceBorderType, AppearanceStyleType } from "@bloom-housing/ui-components"
 
 export enum AppearanceSizeType {
   small = "is-small",

@@ -1,7 +1,7 @@
 import React from "react"
+import { t } from "@bloom-housing/ui-components"
 import { AppearanceSizeType, AppearanceStyleType } from "../global/AppearanceTypes"
 import { Tag } from "../text/Tag"
-import { t } from "../helpers/translator"
 
 import "./StatusMessage.scss"
 

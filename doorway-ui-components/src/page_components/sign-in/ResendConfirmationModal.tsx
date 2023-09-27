@@ -1,7 +1,6 @@
 import {
   Button,
   Modal,
-  t,
   Form,
   Field,
   emailRegex,
@@ -9,7 +8,7 @@ import {
 } from "../../.."
 import React, { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
-import { AppearanceStyleType } from "@bloom-housing/ui-components"
+import { AppearanceStyleType, t } from "@bloom-housing/ui-components"
 
 export type ResendConfirmationModalProps = {
   isOpen: boolean

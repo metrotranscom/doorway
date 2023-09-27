@@ -1,6 +1,6 @@
 import React from "react"
-import { t } from "@bloom-housing/ui-components"
-import { AppearanceSizeType, AppearanceStyleType } from "../global/AppearanceTypes"
+import { AppearanceStyleType, t } from "@bloom-housing/ui-components"
+import { AppearanceSizeType } from "../global/AppearanceTypes"
 import { Tag } from "../text/Tag"
 
 import "./StatusMessage.scss"

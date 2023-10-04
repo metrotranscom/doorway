@@ -506,7 +506,6 @@ export const ListingView = (props: ListingProps) => {
 
   const getFooterContent = () => {
     const footerContent: (string | React.ReactNode)[] = []
-    console.log(props.jurisdiction)
     if (props.jurisdiction.enableUtilitiesIncluded) {
       const utilitiesDisplay = getUtilitiesIncluded()
       if (utilitiesDisplay) footerContent.push(utilitiesDisplay)

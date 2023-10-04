@@ -16,6 +16,7 @@ import { MetaTags } from "../../../components/shared/MetaTags"
 import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
 import { runtimeConfig } from "../../../lib/runtime-config"
+import { fetchJurisdictionByName } from "../../../lib/hooks"
 
 interface ListingProps {
   listing: Listing
@@ -126,6 +127,7 @@ export async function getServerSideProps(context: {
   locale: string
 }) {
   let response
+  let jurisdiction: Jurisdiction
 
   const listingServiceUrl = runtimeConfig.getListingServiceUrl()
 
@@ -133,13 +135,17 @@ export async function getServerSideProps(context: {
     response = await axios.get(`${listingServiceUrl}/${context.params.id}`, {
       headers: { language: context.locale },
     })
+    jurisdiction = await fetchJurisdictionByName(
+      runtimeConfig.getBackendApiBase(),
+      response.data.jurisdiction.name
+    )
   } catch (e) {
     return { notFound: true }
   }
   return {
     props: {
       listing: response.data,
-      jurisdiction: response.data.jurisdiction,
+      jurisdiction,
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },
   }

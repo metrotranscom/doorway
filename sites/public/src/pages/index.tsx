@@ -15,8 +15,6 @@ import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { ConfirmationModal } from "../components/account/ConfirmationModal"
 import { MetaTags } from "../components/shared/MetaTags"
-import { fetchJurisdictionByName } from "../lib/hooks"
-import { runtimeConfig } from "../lib/runtime-config"
 import { LandingSearch } from "../components/listings/search/LandingSearch"
 import { FormOption } from "../components/listings/search/ListingsSearchModal"
 import { locations } from "../components/listings/search/ListingsSearchCombined"
@@ -191,15 +189,9 @@ export default function Home(props: IndexProps) {
   )
 }
 
-export async function getServerSideProps() {
-  const jurisdiction = await fetchJurisdictionByName(
-    runtimeConfig.getBackendApiBase(),
-    runtimeConfig.getJurisdictionName()
-  )
-
+export function getServerSideProps() {
   return {
     props: {
-      jurisdiction,
       counties: locations,
     },
   }

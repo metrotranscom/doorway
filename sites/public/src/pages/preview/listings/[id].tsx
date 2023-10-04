@@ -9,6 +9,7 @@ import Layout from "../../../layouts/application"
 import { ListingView } from "../../../components/listing/ListingView"
 import { MetaTags } from "../../../components/shared/MetaTags"
 import { runtimeConfig } from "../../../lib/runtime-config"
+import { fetchJurisdictionByName } from "../../../lib/hooks"
 
 interface ListingProps {
   listing: Listing
@@ -52,11 +53,16 @@ export default function ListingPage(props: ListingProps) {
 
 export async function getServerSideProps(context: { params: Record<string, string> }) {
   let response
+  let jurisdiction: Jurisdiction
 
   const listingServiceUrl = runtimeConfig.getListingServiceUrl()
 
   try {
     response = await axios.get(`${listingServiceUrl}/${context.params.id}`)
+    jurisdiction = await fetchJurisdictionByName(
+      runtimeConfig.getBackendApiBase(),
+      response.data.jurisdiction.name
+    )
   } catch (e) {
     return { notFound: true }
   }
@@ -66,7 +72,7 @@ export async function getServerSideProps(context: { params: Record<string, strin
       listing: response.data,
       // There's nothing missing from the listing jurisdiction that
       // requires another call to the jurisdiction endpoint
-      jurisdiction: response.data.jurisdiction,
+      jurisdiction,
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },
   }

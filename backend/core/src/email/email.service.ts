@@ -225,9 +225,9 @@ export class EmailService {
       )
     }
 
+    // TODO: This is mock data just for the template that will need to be updated
     await this.send(
       user.email,
-
       jurisdiction.emailFromAddress,
       "New rental opportunity",
       compiledTemplate({

@@ -13,17 +13,16 @@ import Layout from "../layouts/application"
 export interface ListingsProps {
   listingsEndpoint: string
   googleMapsApiKey: string
-  initialSearch?: string
   bedrooms: FormOption[]
   bathrooms: FormOption[]
-  locations: FormOption[]
 }
 
 export default function ListingsPage(props: ListingsProps) {
   const pageTitle = `${t("pageTitle.rent")} - ${t("nav.siteTitle")}`
   const metaDescription = t("pageDescription.welcome")
   const metaImage = "" // TODO: replace with hero image
-  let searchString = props.initialSearch || ""
+  let searchString =
+    "counties:Alameda,Contra Costa,Marin,Napa,San Francisco,San Mateo,Santa Clara,Solano,Sonoma"
   const url = new URL(document.location.toString())
   const searchParam = url.searchParams.get("search")
 
@@ -44,7 +43,7 @@ export default function ListingsPage(props: ListingsProps) {
         searchString={searchString}
         bedrooms={props.bedrooms}
         bathrooms={props.bathrooms}
-        counties={props.locations}
+        counties={locations}
       />
     </Layout>
   )
@@ -55,10 +54,6 @@ export function getServerSideProps() {
     props: {
       listingsEndpoint: runtimeConfig.getListingServiceUrl(),
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
-      // show Bloom counties by default
-      initialSearch:
-        "counties:Alameda,Contra Costa,Marin,Napa,San Francisco,San Mateo,Santa Clara,Solano,Sonoma",
-      locations: locations,
     },
   }
 }

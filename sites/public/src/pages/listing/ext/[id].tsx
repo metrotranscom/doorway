@@ -16,7 +16,6 @@ import { MetaTags } from "../../../components/shared/MetaTags"
 import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
 import { runtimeConfig } from "../../../lib/runtime-config"
-import { fetchJurisdictionByName } from "../../../lib/hooks"
 
 interface ListingProps {
   listing: Listing
@@ -87,16 +86,11 @@ export async function getServerSideProps(context: {
   locale: string
 }) {
   let response: AxiosResponse
-  let jurisdiction: Jurisdiction
   try {
     const extUrl = `${process.env.BLOOM_API_BASE}/listings/${context.params.id}`
     response = await axios.get(extUrl, {
       headers: { language: context.locale },
     })
-    jurisdiction = await fetchJurisdictionByName(
-      process.env.BLOOM_API_BASE,
-      response.data.jurisdiction.name
-    )
   } catch (e) {
     return { notFound: true }
   }
@@ -104,7 +98,7 @@ export async function getServerSideProps(context: {
   return {
     props: {
       listing: response.data,
-      jurisdiction,
+      jurisdiction: response.data.jurisdiction,
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },
   }

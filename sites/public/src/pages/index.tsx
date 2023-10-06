@@ -69,7 +69,7 @@ export default function Home(props: IndexProps) {
         offsetImage={"images/person-with-child.jpg"}
         offsetImageAlt={t("welcome.personWithChildAlt")}
       >
-        <LandingSearch bedrooms={props.bedrooms} counties={props.counties} />
+        <LandingSearch bedrooms={props.bedrooms} counties={locations} />
       </DoorwayHero>
       <ActionBlock
         className="p-12"
@@ -187,12 +187,4 @@ export default function Home(props: IndexProps) {
       />
     </Layout>
   )
-}
-
-export function getServerSideProps() {
-  return {
-    props: {
-      counties: locations,
-    },
-  }
 }

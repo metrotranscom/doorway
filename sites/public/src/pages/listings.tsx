@@ -6,7 +6,6 @@ import ListingsSearchCombined, {
   locations,
 } from "../components/listings/search/ListingsSearchCombined"
 import { FormOption } from "../components/listings/search/ListingsSearchModal"
-import { runtimeConfig } from "../lib/runtime-config"
 
 import Layout from "../layouts/application"
 
@@ -25,6 +24,10 @@ export default function ListingsPage(props: ListingsProps) {
     "counties:Alameda,Contra Costa,Marin,Napa,San Francisco,San Mateo,Santa Clara,Solano,Sonoma"
   const url = new URL(document.location.toString())
   const searchParam = url.searchParams.get("search")
+  const listingsEndpoint = `${process.env.backendProxyBase || process.env.backendApiBase}${
+    process.env.listingsQuery
+  }`
+  const googleMapsApiKey = process.env.googleMapsApiKey
 
   // override the search value if present in url
   if (searchParam) {
@@ -38,8 +41,8 @@ export default function ListingsPage(props: ListingsProps) {
 
       <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
       <ListingsSearchCombined
-        listingsEndpoint={props.listingsEndpoint}
-        googleMapsApiKey={props.googleMapsApiKey}
+        listingsEndpoint={listingsEndpoint}
+        googleMapsApiKey={googleMapsApiKey}
         searchString={searchString}
         bedrooms={props.bedrooms}
         bathrooms={props.bathrooms}
@@ -47,13 +50,4 @@ export default function ListingsPage(props: ListingsProps) {
       />
     </Layout>
   )
-}
-
-export function getServerSideProps() {
-  return {
-    props: {
-      listingsEndpoint: runtimeConfig.getListingServiceUrl(),
-      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
-    },
-  }
 }

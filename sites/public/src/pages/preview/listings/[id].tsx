@@ -64,6 +64,8 @@ export async function getServerSideProps(context: { params: Record<string, strin
   return {
     props: {
       listing: response.data,
+      // There's nothing missing from the listing jurisdiction that
+      // requires another call to the jurisdiction endpoint
       jurisdiction: response.data.jurisdiction,
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
     },

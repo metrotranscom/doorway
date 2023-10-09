@@ -513,7 +513,7 @@ export const ListingView = (props: ListingProps) => {
     if (appStatusContent || appStatusSubContent) {
       return (
         <Message
-          className="application-status"
+          className="doorway-message application-status"
           fullwidth
           customIcon={<Icon size="medium" symbol="clock" />}
         >
@@ -588,7 +588,7 @@ export const ListingView = (props: ListingProps) => {
 
       <div className="w-full md:w-2/3 md:mt-6 md:mb-6 md:px-3 md:pr-8">
         {listing.reservedCommunityType && (
-          <Message variant="warn" className="warning-message" fullwidth>
+          <Message variant="warn" className="doorway-message warning-message" fullwidth>
             {t("listings.reservedFor", {
               type: t(
                 `listings.reservedCommunityTypeDescriptions.${listing.reservedCommunityType.name}`

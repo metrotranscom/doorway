@@ -37,12 +37,7 @@ import {
   SiteAlert,
   StandardTable,
 } from "@bloom-housing/ui-components"
-import {
-  ApplicationStatus,
-  GroupedTable,
-  ImageCard,
-  Icon,
-} from "@bloom-housing/doorway-ui-components"
+import { ApplicationStatus, ImageCard, Icon } from "@bloom-housing/doorway-ui-components"
 import {
   getOccupancyDescription,
   imageUrlFromListing,
@@ -596,18 +591,20 @@ export const ListingView = (props: ListingProps) => {
                   <h2 className="mt-4 mb-2">
                     {t("listings.percentAMIUnit", { percent: percent })}
                   </h2>
-                  <GroupedTable
+                  <StandardTable
+                    className="table-container"
                     headers={unitSummariesHeaders}
-                    data={[{ data: groupedUnits }]}
+                    data={groupedUnits}
                     responsiveCollapse={true}
                   />
                 </React.Fragment>
               )
             })}
           {amiValues.length == 1 && (
-            <GroupedTable
+            <StandardTable
+              className="table-container"
               headers={unitSummariesHeaders}
-              data={[{ data: groupedUnits }]}
+              data={groupedUnits}
               responsiveCollapse={true}
             />
           )}

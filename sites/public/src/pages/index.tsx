@@ -15,8 +15,6 @@ import { UserStatus } from "../lib/constants"
 import Layout from "../layouts/application"
 import { ConfirmationModal } from "../components/account/ConfirmationModal"
 import { MetaTags } from "../components/shared/MetaTags"
-import { fetchJurisdictionByName } from "../lib/hooks"
-import { runtimeConfig } from "../lib/runtime-config"
 import { LandingSearch } from "../components/listings/search/LandingSearch"
 import { FormOption } from "../components/listings/search/ListingsSearchModal"
 import { locations } from "../components/listings/search/ListingsSearchCombined"
@@ -43,6 +41,7 @@ export default function Home(props: IndexProps) {
     })
   }, [profile])
 
+  const notificationsSignUpURL = process.env.notificationsSignUpUrl
   const metaDescription = t("pageDescription.welcome")
   const metaImage = t("welcome.personWithChildAlt")
   const alertClasses = "flex-grow mt-6 max-w-6xl w-full"
@@ -70,7 +69,7 @@ export default function Home(props: IndexProps) {
         offsetImage={"images/person-with-child.jpg"}
         offsetImageAlt={t("welcome.personWithChildAlt")}
       >
-        <LandingSearch bedrooms={props.bedrooms} counties={props.counties} />
+        <LandingSearch bedrooms={props.bedrooms} counties={locations} />
       </DoorwayHero>
       <ActionBlock
         className="p-12"
@@ -160,7 +159,7 @@ export default function Home(props: IndexProps) {
           </InfoCard>
         </div>
       </div>
-      {props.jurisdiction && props.jurisdiction.notificationsSignUpURL && (
+      {notificationsSignUpURL && (
         <ActionBlock
           className="p-12"
           header={
@@ -174,7 +173,7 @@ export default function Home(props: IndexProps) {
             <LinkButton
               key={"sign-up"}
               className="is-primary"
-              href={props.jurisdiction.notificationsSignUpURL}
+              href={notificationsSignUpURL}
               newTab={true}
               size={AppearanceSizeType.small}
             >
@@ -188,18 +187,4 @@ export default function Home(props: IndexProps) {
       />
     </Layout>
   )
-}
-
-export async function getServerSideProps() {
-  const jurisdiction = await fetchJurisdictionByName(
-    runtimeConfig.getBackendApiBase(),
-    runtimeConfig.getJurisdictionName()
-  )
-
-  return {
-    props: {
-      jurisdiction,
-      counties: locations,
-    },
-  }
 }

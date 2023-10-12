@@ -25,6 +25,27 @@ export class addJurisdictions1695143897902 implements MigrationInterface {
         jurisValues
       )
     })
+
+    // add new jurisdiction info
+    const existingListings = await queryRunner.query(
+      `SELECT id,county
+       FROM listings 
+       LEFT JOIN address on listings.building_address_id = address.id`
+    )
+    const existingJurisdictionIds = await queryRunner.query(
+      `SELECT id,name
+       FROM jurisdictions`
+    )
+
+    existingListings.forEach(async (listing) => {
+      const matchingJuris = existingJurisdictionIds.find((juris) => juris.name === listing.county)
+        .id
+      await queryRunner.query(
+        `UPDATE listings
+        SET jurisdiction_id=${matchingJuris}
+        WHERE id=${listing.id}`
+      )
+    })
   }
   public async down(queryRunner: QueryRunner): Promise<void> {}
 }

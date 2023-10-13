@@ -18,7 +18,15 @@ export const basicJurisInfo: JurisdictionCreateDto = {
   enableUtilitiesIncluded: true,
   listingApprovalPermissions: [UserRoleEnum.admin],
 }
-const jurisNames = ["Bay Area", "Contra Costa", "Marin", "Napa", "Santa Clara", "Solano", "Sonoma"]
+export const jurisNames = [
+  "Bay Area",
+  "Contra Costa",
+  "Marin",
+  "Napa",
+  "Santa Clara",
+  "Solano",
+  "Sonoma",
+]
 const activeJurisdictions: JurisdictionCreateDto[] = jurisNames.map((name) => {
   return { ...basicJurisInfo, name: name }
 })

@@ -3,6 +3,7 @@ import { JurisdictionCreateDto } from "../../jurisdictions/dto/jurisdiction-crea
 import { Language } from "../../shared/types/language-enum"
 import { JurisdictionsService } from "../../jurisdictions/services/jurisdictions.service"
 import { UserRoleEnum } from "../../../src/auth/enum/user-role-enum"
+import { DoorwayJurisdictions } from "../../../src/shared/types/doorway-jurisdictions"
 
 export const basicJurisInfo: JurisdictionCreateDto = {
   name: "",
@@ -18,18 +19,12 @@ export const basicJurisInfo: JurisdictionCreateDto = {
   enableUtilitiesIncluded: true,
   listingApprovalPermissions: [UserRoleEnum.admin],
 }
-export const jurisNames = [
-  "Bay Area",
-  "Contra Costa",
-  "Marin",
-  "Napa",
-  "Santa Clara",
-  "Solano",
-  "Sonoma",
-]
-const activeJurisdictions: JurisdictionCreateDto[] = jurisNames.map((name) => {
-  return { ...basicJurisInfo, name: name }
-})
+
+const activeJurisdictions: JurisdictionCreateDto[] = Object.values(DoorwayJurisdictions).map(
+  (name) => {
+    return { ...basicJurisInfo, name: name }
+  }
+)
 
 export async function createJurisdictions(app: INestApplicationContext) {
   const jurisdictionService = await app.resolve<JurisdictionsService>(JurisdictionsService)

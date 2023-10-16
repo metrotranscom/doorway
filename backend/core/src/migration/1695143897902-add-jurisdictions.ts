@@ -62,7 +62,6 @@ export class addJurisdictions1695143897902 implements MigrationInterface {
       "Santa Clara - CA TCAC": "Santa Clara",
       "Solano - CA TCAC": "Solano",
       "Sonoma - CA TCAC": "Sonoma",
-      "Oakland 2023": "Bay Area",
     }
     const amiCharts = await queryRunner.query(
       `SELECT id,name

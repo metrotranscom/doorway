@@ -44,16 +44,19 @@ h6 {
 }
 
 a {
-  @apply text-primary-lighter;
-  @apply underline;
+  @apply text-primary;
 
   &:hover {
-    @apply text-primary-light;
+    @apply text-primary-darker;
   }
 
   &:focus {
     outline: none;
     box-shadow: 0 0 3px 4px $tailwind-accent-cool;
+  }
+
+  &.lined {
+    @apply underline;
   }
 
   &.alert {

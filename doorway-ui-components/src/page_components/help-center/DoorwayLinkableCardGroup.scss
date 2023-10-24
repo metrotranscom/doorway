@@ -16,6 +16,13 @@
   }
 }
 
-.doorway-linkable-card-group-main {
-  flex: 1;
+.doorway-linkable-card-group_main {
+  a {
+    text-decoration: underline;
+    color: var(--bloom-color-primary-lighter);
+
+    &:hover {
+      color: var(--bloom-color-primary-light);
+    }
+  }
 }

@@ -329,6 +329,12 @@ export class EmailService {
     return partials
   }
 
+  private async govSend() {
+    const xhr = new XMLHttpRequest()
+    xhr.open("POST", "/server", true)
+    xhr.setRequestHeader("Content-Type", "/api/account/ACCOUNT_CODE/bulletins/send_now")
+  }
+
   private async send(
     to: string | string[],
     from: string,

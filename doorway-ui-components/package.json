@@ -119,7 +119,7 @@
     "ag-grid-community": "^26.0.0",
     "ag-grid-react": "^26.0.0",
     "aria-autocomplete": "^1.4.0",
-    "axios": "0.21.2",
+    "axios": "1.6.0",
     "dayjs": "^1.10.7",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.21",

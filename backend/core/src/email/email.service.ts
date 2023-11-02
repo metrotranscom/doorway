@@ -21,7 +21,7 @@ import { Translation } from "../translations/entities/translation.entity"
 import { IdName } from "../../types"
 import { formatLocalDate } from "../shared/utils/format-local-date"
 import axios from "axios"
-import { xmlEmailBuilder } from "./helpers"
+import { govEmailBuilder, templateDeconstructor } from "./helpers"
 
 type EmailAttachmentData = {
   data: string
@@ -201,22 +201,23 @@ export class EmailService {
   }
 
   public async forgotPassword(user: User, appUrl: string) {
-    await this.govSend(
-      this.template("listing-opportunity")({
-        appUrl,
-        tableRows: [
-          { label: "Community", value: "Senior 55+" },
-          { label: "Applications Due", value: "August 11, 2021" },
-          { label: "Address", value: "2330 Webster Street, Oakland CA 94612" },
-          { label: "1 Bedrooms", value: "1 unit, 1 bath, 668 sqft" },
-          { label: "2 Bedrooms", value: "2 units, 1-2 baths, 900 - 968 sqft" },
-          { label: "Rent", value: "$1,251 - $1,609 per month" },
-          { label: "Minimum Income", value: "$2,502 - $3,218 per month" },
-          { label: "Maximum Income", value: "$6,092 - $10,096 per month" },
-          { label: "Lottery Date", value: "August 31, 2021" },
-        ],
-      })
-    )
+    const compiledEmail = this.template("listing-opportunity")({
+      appUrl,
+      tableRows: [
+        { label: "Community", value: "Senior 55+" },
+        { label: "Applications Due", value: "August 11, 2021" },
+        { label: "Address", value: "2330 Webster Street, Oakland CA 94612" },
+        { label: "1 Bedrooms", value: "1 unit, 1 bath, 668 sqft" },
+        { label: "2 Bedrooms", value: "2 units, 1-2 baths, 900 - 968 sqft" },
+        { label: "Rent", value: "$1,251 - $1,609 per month" },
+        { label: "Minimum Income", value: "$2,502 - $3,218 per month" },
+        { label: "Maximum Income", value: "$6,092 - $10,096 per month" },
+        { label: "Lottery Date", value: "August 31, 2021" },
+      ],
+    })
+    // const deconstructedObj = templateDeconstructor(compiledEmail)
+    await this.govSend(compiledEmail)
+
     // const jurisdiction = await this.getUserJurisdiction(user)
     // void (await this.loadTranslations(jurisdiction, user.language))
     // const compiledTemplate = this.template("forgot-password")
@@ -252,22 +253,22 @@ export class EmailService {
     }
 
     // TODO: This is mock data just for the template that will need to be updated
-    await this.govSend(
-      compiledTemplate({
-        appUrl,
-        tableRows: [
-          { label: "Community", value: "Senior 55+" },
-          { label: "Applications Due", value: "August 11, 2021" },
-          { label: "Address", value: "2330 Webster Street, Oakland CA 94612" },
-          { label: "1 Bedrooms", value: "1 unit, 1 bath, 668 sqft" },
-          { label: "2 Bedrooms", value: "2 units, 1-2 baths, 900 - 968 sqft" },
-          { label: "Rent", value: "$1,251 - $1,609 per month" },
-          { label: "Minimum Income", value: "$2,502 - $3,218 per month" },
-          { label: "Maximum Income", value: "$6,092 - $10,096 per month" },
-          { label: "Lottery Date", value: "August 31, 2021" },
-        ],
-      })
-    )
+    // await this.govSend(
+    //   compiledTemplate({
+    //     appUrl,
+    //     tableRows: [
+    //       { label: "Community", value: "Senior 55+" },
+    //       { label: "Applications Due", value: "August 11, 2021" },
+    //       { label: "Address", value: "2330 Webster Street, Oakland CA 94612" },
+    //       { label: "1 Bedrooms", value: "1 unit, 1 bath, 668 sqft" },
+    //       { label: "2 Bedrooms", value: "2 units, 1-2 baths, 900 - 968 sqft" },
+    //       { label: "Rent", value: "$1,251 - $1,609 per month" },
+    //       { label: "Minimum Income", value: "$2,502 - $3,218 per month" },
+    //       { label: "Maximum Income", value: "$6,092 - $10,096 per month" },
+    //       { label: "Lottery Date", value: "August 31, 2021" },
+    //     ],
+    //   })
+    // )
   }
 
   private async loadTranslations(jurisdiction: Jurisdiction | null, language: Language) {
@@ -344,18 +345,20 @@ export class EmailService {
     return partials
   }
 
-  private async govSend(emailBody: string) {
-    console.log(xmlEmailBuilder)
+  // private async govSend(emailObj?: { body: string; head: string }) {
+  private async govSend(emailObj?: string) {
+    // console.log(xmlEmailBuilder())
     console.log(process.env.GOVDELIVERY_ACCOUNT_CODE)
     console.log(process.env.GOVDELIVERY_USERNAME, process.env.GOVDELIVERY_PASSWORD)
     await axios.post(
-      `http://stage-api.govdelivery.com/api/account/${process.env.GOVDELIVERY_ACCOUNT_CODE}/bulletins/send_now`,
-      xmlEmailBuilder(emailBody),
+      `https://stage-api.govdelivery.com/api/account/${process.env.GOVDELIVERY_ACCOUNT_CODE}/bulletins/send_now`,
+      govEmailBuilder(emailObj),
       {
-        headers: { "Content-Type": "text/xml", charset: "utf-8" },
-        auth: {
-          username: process.env.GOVDELIVERY_USERNAME,
-          password: process.env.GOVDELIVERY_PASSWORD,
+        headers: {
+          "Content-Type": "application/xml",
+          Authorization: `Basic ${Buffer.from(
+            `${process.env.GOVDELIVERY_USERNAME}:${process.env.GOVDELIVERY_PASSWORD}`
+          ).toString("base64")}`,
         },
       }
     )

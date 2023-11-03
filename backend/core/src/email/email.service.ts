@@ -7,6 +7,7 @@ import Handlebars from "handlebars"
 import path from "path"
 import Polyglot from "node-polyglot"
 import fs from "fs"
+import inlineCss from "inline-css"
 import { ConfigService } from "@nestjs/config"
 import { TranslationsService } from "../translations/services/translations.service"
 import { JurisdictionResolverService } from "../jurisdictions/services/jurisdiction-resolver.service"
@@ -21,7 +22,6 @@ import { Translation } from "../translations/entities/translation.entity"
 import { IdName } from "../../types"
 import { formatLocalDate } from "../shared/utils/format-local-date"
 import axios from "axios"
-import { govEmailBuilder, templateDeconstructor } from "./helpers"
 
 type EmailAttachmentData = {
   data: string
@@ -201,44 +201,27 @@ export class EmailService {
   }
 
   public async forgotPassword(user: User, appUrl: string) {
-    const compiledEmail = this.template("listing-opportunity")({
-      appUrl,
-      tableRows: [
-        { label: "Community", value: "Senior 55+" },
-        { label: "Applications Due", value: "August 11, 2021" },
-        { label: "Address", value: "2330 Webster Street, Oakland CA 94612" },
-        { label: "1 Bedrooms", value: "1 unit, 1 bath, 668 sqft" },
-        { label: "2 Bedrooms", value: "2 units, 1-2 baths, 900 - 968 sqft" },
-        { label: "Rent", value: "$1,251 - $1,609 per month" },
-        { label: "Minimum Income", value: "$2,502 - $3,218 per month" },
-        { label: "Maximum Income", value: "$6,092 - $10,096 per month" },
-        { label: "Lottery Date", value: "August 31, 2021" },
-      ],
-    })
-    // const deconstructedObj = templateDeconstructor(compiledEmail)
-    await this.govSend(compiledEmail)
+    const jurisdiction = await this.getUserJurisdiction(user)
+    void (await this.loadTranslations(jurisdiction, user.language))
+    const compiledTemplate = this.template("forgot-password")
+    const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
 
-    // const jurisdiction = await this.getUserJurisdiction(user)
-    // void (await this.loadTranslations(jurisdiction, user.language))
-    // const compiledTemplate = this.template("forgot-password")
-    // const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
+    if (this.configService.get<string>("NODE_ENV") == "production") {
+      Logger.log(
+        `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
+      )
+    }
 
-    // if (this.configService.get<string>("NODE_ENV") == "production") {
-    //   Logger.log(
-    //     `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
-    //   )
-    // }
-
-    // await this.send(
-    //   user.email,
-    //   jurisdiction.emailFromAddress,
-    //   this.polyglot.t("forgotPassword.subject"),
-    //   compiledTemplate({
-    //     resetUrl: resetUrl,
-    //     resetOptions: { appUrl: appUrl },
-    //     user: user,
-    //   })
-    // )
+    await this.send(
+      user.email,
+      jurisdiction.emailFromAddress,
+      this.polyglot.t("forgotPassword.subject"),
+      compiledTemplate({
+        resetUrl: resetUrl,
+        resetOptions: { appUrl: appUrl },
+        user: user,
+      })
+    )
   }
 
   public async listingOpportunity(user: User, appUrl: string) {
@@ -252,23 +235,23 @@ export class EmailService {
       )
     }
 
+    const rawHtml = compiledTemplate({
+      appUrl,
+      tableRows: [
+        { label: "Community", value: "Senior 55+" },
+        { label: "Applications Due", value: "August 11, 2021" },
+        { label: "Address", value: "2330 Webster Street, Oakland CA 94612" },
+        { label: "1 Bedrooms", value: "1 unit, 1 bath, 668 sqft" },
+        { label: "2 Bedrooms", value: "2 units, 1-2 baths, 900 - 968 sqft" },
+        { label: "Rent", value: "$1,251 - $1,609 per month" },
+        { label: "Minimum Income", value: "$2,502 - $3,218 per month" },
+        { label: "Maximum Income", value: "$6,092 - $10,096 per month" },
+        { label: "Lottery Date", value: "August 31, 2021" },
+      ],
+    })
+
     // TODO: This is mock data just for the template that will need to be updated
-    // await this.govSend(
-    //   compiledTemplate({
-    //     appUrl,
-    //     tableRows: [
-    //       { label: "Community", value: "Senior 55+" },
-    //       { label: "Applications Due", value: "August 11, 2021" },
-    //       { label: "Address", value: "2330 Webster Street, Oakland CA 94612" },
-    //       { label: "1 Bedrooms", value: "1 unit, 1 bath, 668 sqft" },
-    //       { label: "2 Bedrooms", value: "2 units, 1-2 baths, 900 - 968 sqft" },
-    //       { label: "Rent", value: "$1,251 - $1,609 per month" },
-    //       { label: "Minimum Income", value: "$2,502 - $3,218 per month" },
-    //       { label: "Maximum Income", value: "$6,092 - $10,096 per month" },
-    //       { label: "Lottery Date", value: "August 31, 2021" },
-    //     ],
-    //   })
-    // )
+    await this.govSend(rawHtml, "Listing Opportunity")
   }
 
   private async loadTranslations(jurisdiction: Jurisdiction | null, language: Language) {
@@ -346,22 +329,20 @@ export class EmailService {
   }
 
   // private async govSend(emailObj?: { body: string; head: string }) {
-  private async govSend(emailObj?: string) {
-    // console.log(xmlEmailBuilder())
-    console.log(process.env.GOVDELIVERY_ACCOUNT_CODE)
-    console.log(process.env.GOVDELIVERY_USERNAME, process.env.GOVDELIVERY_PASSWORD)
-    await axios.post(
-      `https://stage-api.govdelivery.com/api/account/${process.env.GOVDELIVERY_ACCOUNT_CODE}/bulletins/send_now`,
-      govEmailBuilder(emailObj),
-      {
-        headers: {
-          "Content-Type": "application/xml",
-          Authorization: `Basic ${Buffer.from(
-            `${process.env.GOVDELIVERY_USERNAME}:${process.env.GOVDELIVERY_PASSWORD}`
-          ).toString("base64")}`,
-        },
-      }
-    )
+  private async govSend(rawHtml: string, subject: string) {
+    const govEmailXml = `<bulletin>\n <subject>${subject}</subject>\n  <body><![CDATA[\n     
+      ${inlineCss(
+        rawHtml
+      )}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>doorway-listings</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`
+
+    await axios.post(process.env.GOVDELIVERY_API, govEmailXml, {
+      headers: {
+        "Content-Type": "application/xml",
+        Authorization: `Basic ${Buffer.from(
+          `${process.env.GOVDELIVERY_USERNAME}:${process.env.GOVDELIVERY_PASSWORD}`
+        ).toString("base64")}`,
+      },
+    })
   }
 
   private async send(

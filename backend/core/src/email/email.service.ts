@@ -201,26 +201,25 @@ export class EmailService {
   }
 
   public async forgotPassword(user: User, appUrl: string) {
-    await this.listingOpportunity(user, appUrl)
-    // const jurisdiction = await this.getUserJurisdiction(user)
-    // void (await this.loadTranslations(jurisdiction, user.language))
-    // const compiledTemplate = this.template("forgot-password")
-    // const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
-    // if (this.configService.get<string>("NODE_ENV") == "production") {
-    //   Logger.log(
-    //     `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
-    //   )
-    // }
-    // await this.send(
-    //   user.email,
-    //   jurisdiction.emailFromAddress,
-    //   this.polyglot.t("forgotPassword.subject"),
-    //   compiledTemplate({
-    //     resetUrl: resetUrl,
-    //     resetOptions: { appUrl: appUrl },
-    //     user: user,
-    //   })
-    // )
+    const jurisdiction = await this.getUserJurisdiction(user)
+    void (await this.loadTranslations(jurisdiction, user.language))
+    const compiledTemplate = this.template("forgot-password")
+    const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
+    if (this.configService.get<string>("NODE_ENV") == "production") {
+      Logger.log(
+        `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
+      )
+    }
+    await this.send(
+      user.email,
+      jurisdiction.emailFromAddress,
+      this.polyglot.t("forgotPassword.subject"),
+      compiledTemplate({
+        resetUrl: resetUrl,
+        resetOptions: { appUrl: appUrl },
+        user: user,
+      })
+    )
   }
 
   public async listingOpportunity(user: User, appUrl: string) {
@@ -236,6 +235,7 @@ export class EmailService {
 
     const rawHtml = compiledTemplate({
       appUrl,
+      // TODO: This is mock data just for the template that will need to be updated
       tableRows: [
         { label: "Community", value: "Senior 55+" },
         { label: "Applications Due", value: "August 11, 2021" },
@@ -249,7 +249,6 @@ export class EmailService {
       ],
     })
 
-    // TODO: This is mock data just for the template that will need to be updated
     await this.govSend(rawHtml, "Listing Opportunity")
   }
 

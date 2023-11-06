@@ -205,11 +205,13 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction, user.language))
     const compiledTemplate = this.template("forgot-password")
     const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
+
     if (this.configService.get<string>("NODE_ENV") == "production") {
       Logger.log(
         `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
       )
     }
+
     await this.send(
       user.email,
       jurisdiction.emailFromAddress,

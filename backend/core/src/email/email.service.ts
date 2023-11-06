@@ -2,6 +2,7 @@ import { HttpException, Injectable, Logger, Scope } from "@nestjs/common"
 import { SendGridService } from "@anchan828/nest-sendgrid"
 import { ResponseError } from "@sendgrid/helpers/classes"
 import { MailDataRequired } from "@sendgrid/helpers/classes/mail"
+import axios from "axios"
 import merge from "lodash/merge"
 import Handlebars from "handlebars"
 import path from "path"
@@ -21,7 +22,6 @@ import { JurisdictionsService } from "../jurisdictions/services/jurisdictions.se
 import { Translation } from "../translations/entities/translation.entity"
 import { IdName } from "../../types"
 import { formatLocalDate } from "../shared/utils/format-local-date"
-import axios from "axios"
 
 type EmailAttachmentData = {
   data: string
@@ -201,27 +201,26 @@ export class EmailService {
   }
 
   public async forgotPassword(user: User, appUrl: string) {
-    const jurisdiction = await this.getUserJurisdiction(user)
-    void (await this.loadTranslations(jurisdiction, user.language))
-    const compiledTemplate = this.template("forgot-password")
-    const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
-
-    if (this.configService.get<string>("NODE_ENV") == "production") {
-      Logger.log(
-        `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
-      )
-    }
-
-    await this.send(
-      user.email,
-      jurisdiction.emailFromAddress,
-      this.polyglot.t("forgotPassword.subject"),
-      compiledTemplate({
-        resetUrl: resetUrl,
-        resetOptions: { appUrl: appUrl },
-        user: user,
-      })
-    )
+    await this.listingOpportunity(user, appUrl)
+    // const jurisdiction = await this.getUserJurisdiction(user)
+    // void (await this.loadTranslations(jurisdiction, user.language))
+    // const compiledTemplate = this.template("forgot-password")
+    // const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
+    // if (this.configService.get<string>("NODE_ENV") == "production") {
+    //   Logger.log(
+    //     `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
+    //   )
+    // }
+    // await this.send(
+    //   user.email,
+    //   jurisdiction.emailFromAddress,
+    //   this.polyglot.t("forgotPassword.subject"),
+    //   compiledTemplate({
+    //     resetUrl: resetUrl,
+    //     resetOptions: { appUrl: appUrl },
+    //     user: user,
+    //   })
+    // )
   }
 
   public async listingOpportunity(user: User, appUrl: string) {
@@ -328,14 +327,13 @@ export class EmailService {
     return partials
   }
 
-  // private async govSend(emailObj?: { body: string; head: string }) {
   private async govSend(rawHtml: string, subject: string) {
+    const inlineOptions = { url: "https://" }
+    const inlineHtml = await inlineCss(rawHtml, inlineOptions)
     const govEmailXml = `<bulletin>\n <subject>${subject}</subject>\n  <body><![CDATA[\n     
-      ${inlineCss(
-        rawHtml
-      )}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>doorway-listings</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`
+      ${inlineHtml}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>doorway-listings</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`
 
-    await axios.post(process.env.GOVDELIVERY_API, govEmailXml, {
+    await axios.post(process.env.GOVDELIVERY_API_URL, govEmailXml, {
       headers: {
         "Content-Type": "application/xml",
         Authorization: `Basic ${Buffer.from(

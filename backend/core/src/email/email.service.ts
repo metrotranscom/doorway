@@ -8,7 +8,7 @@ import Handlebars from "handlebars"
 import path from "path"
 import Polyglot from "node-polyglot"
 import fs from "fs"
-import inlineCss from "inline-css"
+import juice from "juice"
 import { ConfigService } from "@nestjs/config"
 import { TranslationsService } from "../translations/services/translations.service"
 import { JurisdictionResolverService } from "../jurisdictions/services/jurisdiction-resolver.service"
@@ -329,8 +329,8 @@ export class EmailService {
   }
 
   private async govSend(rawHtml: string, subject: string) {
-    const inlineOptions = { url: "https://" }
-    const inlineHtml = await inlineCss(rawHtml, inlineOptions)
+    // juice inlines css to allow for email styling
+    const inlineHtml = juice(rawHtml)
     const govEmailXml = `<bulletin>\n <subject>${subject}</subject>\n  <body><![CDATA[\n     
       ${inlineHtml}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>doorway-listings</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`
 

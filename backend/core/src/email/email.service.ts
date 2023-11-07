@@ -328,21 +328,6 @@ export class EmailService {
     return partials
   }
 
-  private isGovConfigured(): boolean {
-    const {
-      GOVDELIVERY_API_URL,
-      GOVDELIVERY_USERNAME,
-      GOVDELIVERY_PASSWORD,
-      GOVDELIVERY_TOPIC,
-    } = process.env
-    return (
-      !!GOVDELIVERY_API_URL &&
-      !!GOVDELIVERY_USERNAME &&
-      !!GOVDELIVERY_PASSWORD &&
-      !!GOVDELIVERY_TOPIC
-    )
-  }
-
   private async govSend(rawHtml: string, subject: string) {
     const {
       GOVDELIVERY_API_URL,

@@ -92,7 +92,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.4",
-    "swagger-ui-express": "^4.1.4",
+    "swagger-ui-express": "^4.2.0",
     "ts-node": "10.8.0",
     "twilio": "^3.71.3",
     "typeorm": "0.3.12",

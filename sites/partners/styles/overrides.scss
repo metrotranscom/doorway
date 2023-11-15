@@ -18,4 +18,11 @@
     --normal-rounded: var(--bloom-rounded-full);
     --small-rounded: var(--bloom-rounded-full);
   }
+  
+  .site-header__logo {
+    @media (min-width: $screen-md) {
+      margin-bottom: -0.75rem;
+      margin-top: -2.4rem;
+    }
+  }
 }

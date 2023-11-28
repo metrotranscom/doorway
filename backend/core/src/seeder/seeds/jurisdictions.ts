@@ -18,7 +18,7 @@ export const basicJurisInfo: JurisdictionCreateDto = {
   enableAccessibilityFeatures: false,
   enableUtilitiesIncluded: true,
   enableListingOpportunity: false,
-  enableGeocodingPreferences: false,
+  enableGeocodingPreferences: true,
   listingApprovalPermissions: [UserRoleEnum.admin],
 }
 

@@ -22,7 +22,7 @@ export class addJurisdictions1695143897902 implements MigrationInterface {
       const jurisValues = Object.values(newJuris)
       await queryRunner.query(
         `INSERT INTO jurisdictions (${jurisKeys}) 
-        VALUES ($1, $2, $3,$4, $5, $6,$7, $8, $9, $10, $11)`,
+        VALUES (${jurisValues.map((_, index) => `$${index+1}`).toString()})`,
         jurisValues
       )
     })
@@ -45,6 +45,49 @@ export class addJurisdictions1695143897902 implements MigrationInterface {
         SET jurisdiction_id='${matchingJuris}'
         WHERE id='${listing.id}'`
       )
+    })
+
+    const existingUsersAndRoles = await queryRunner.query(
+      `SELECT user_id,is_admin,is_jurisdictional_admin,is_partner
+      FROM user_roles`
+    )
+
+    // Update user information
+    existingUsersAndRoles.forEach(async (user) => {
+      // Add all jurisdictions to the admin users
+      if (user.is_admin) {
+        existingJurisdictions.forEach(async (jurisdiction) => {
+          if (jurisdiction.name !== "Bay Area") {
+            await queryRunner.query(
+              `INSERT INTO user_accounts_jurisdictions_jurisdictions
+              (user_accounts_id, jurisdictions_id)
+              VALUES ($1, $2)`,
+              [user.user_id, jurisdiction.id]
+            )
+          }
+        })
+      // Add all jurisdictions tied to listings of partner accounts
+      } else if (user.is_partner) {
+        const userListings = await queryRunner.query(
+          `SELECT listings_id from listings_leasing_agents_user_accounts where user_accounts_id = '${user.user_id}'`
+        )
+        userListings.forEach(async (listing) => {
+          const matchingListing = existingListings.find(
+            (list) => list.id === listing.listings_id
+          )
+          const matchingJuris = existingJurisdictions.find((juris) => juris.name === matchingListing.county).id
+          console.log("matchingListing", matchingListing)
+          console.log("listings", listing)
+            await queryRunner.query(
+              `INSERT INTO user_accounts_jurisdictions_jurisdictions
+              (user_accounts_id, jurisdictions_id)
+              VALUES ($1, $2)
+              ON CONFLICT (user_accounts_id, jurisdictions_id) DO NOTHING
+              `,
+              [user.user_id, matchingJuris]
+            )
+        })
+      }
     })
 
     //link existing ami charts to new jurisdictions

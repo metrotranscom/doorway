@@ -76,8 +76,6 @@ export class addJurisdictions1695143897902 implements MigrationInterface {
             (list) => list.id === listing.listings_id
           )
           const matchingJuris = existingJurisdictions.find((juris) => juris.name === matchingListing.county).id
-          console.log("matchingListing", matchingListing)
-          console.log("listings", listing)
             await queryRunner.query(
               `INSERT INTO user_accounts_jurisdictions_jurisdictions
               (user_accounts_id, jurisdictions_id)

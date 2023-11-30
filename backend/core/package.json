@@ -90,7 +90,7 @@
     "passport-local": "^1.0.0",
     "pg": "^8.4.1",
     "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2",
+    "rimraf": "^4.0.0",
     "rxjs": "^7.5.4",
     "swagger-ui-express": "^4.1.4",
     "ts-node": "10.8.0",

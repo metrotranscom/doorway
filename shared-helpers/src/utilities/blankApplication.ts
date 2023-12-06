@@ -93,6 +93,7 @@ export const blankApplication = {
   householdExpectingChanges: null,
   householdStudent: null,
   incomeVouchers: null,
+  rentalAssistance: null,
   income: null,
   incomePeriod: null,
   householdMembers: [],

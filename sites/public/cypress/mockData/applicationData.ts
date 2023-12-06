@@ -546,6 +546,7 @@ export const applicationStepOrder = [
   { name: "householdStudent", route: "/applications/household/student" },
   { name: "programs", route: "/applications/programs/programs" },
   { name: "vouchersSubsidies", route: "/applications/financial/vouchers" },
+  { name: "rentalAssistance", route: "/applications/financial/rental-assistance" },
   { name: "income", route: "/applications/financial/income" },
   { name: "preferencesAll", route: "/applications/preferences/all" },
   { name: "generalPool", route: "/applications/preferences/general" },

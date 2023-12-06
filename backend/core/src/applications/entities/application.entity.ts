@@ -187,6 +187,12 @@ export class Application extends AbstractEntity {
   @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
   incomeVouchers?: boolean | null
 
+  @Column({ type: "bool", nullable: true })
+  @Expose()
+  @IsOptional({ groups: [ValidationsGroupsEnum.partners] })
+  @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
+  rentalAssistance?: boolean | null
+
   @Column({ type: "text", nullable: true })
   @Expose()
   @IsOptional({ groups: [ValidationsGroupsEnum.partners] })

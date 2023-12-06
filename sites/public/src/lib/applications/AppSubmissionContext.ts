@@ -72,6 +72,9 @@ export const retrieveApplicationConfig = (listing: Listing) => {
       name: "vouchersSubsidies",
     },
     {
+      name: "rentalAssistance",
+    },
+    {
       name: "income",
     }
   )

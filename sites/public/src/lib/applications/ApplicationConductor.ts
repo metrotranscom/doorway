@@ -97,6 +97,9 @@ export default class ApplicationConductor {
     vouchersSubsidies: {
       url: "/applications/financial/vouchers",
     },
+    rentalAssistance: {
+      url: "/applications/financial/rental-assistance",
+    },
     income: {
       url: "/applications/financial/income",
     },

@@ -1,5 +1,5 @@
 import React from "react"
-import { t, Field, Select } from "@bloom-housing/ui-components"
+import { t, Field } from "@bloom-housing/ui-components"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import { useFormContext } from "react-hook-form"
 import { IncomePeriod } from "@bloom-housing/backend-core/types"
@@ -18,7 +18,7 @@ const FormHouseholdIncome = () => {
     <>
       <hr className="spacer-section-above spacer-section" />
       <SectionWithGrid heading={t("application.details.householdIncome")}>
-        <Grid.Row columns={3}>
+        <Grid.Row>
           <FieldValue label={t("application.add.incomePeriod")}>
             <div className="flex h-12 items-center">
               <Field
@@ -56,7 +56,7 @@ const FormHouseholdIncome = () => {
           </FieldValue>
         </Grid.Row>
 
-        <Grid.Row columns={3}>
+        <Grid.Row>
           <Grid.Cell>
             <Field
               id="incomeYear"
@@ -81,18 +81,61 @@ const FormHouseholdIncome = () => {
             />
           </Grid.Cell>
 
-          <Grid.Cell>
-            <Select
-              id="application.incomeVouchers"
-              name="application.incomeVouchers"
-              placeholder={t("t.selectOne")}
-              label={t("application.details.vouchers")}
-              register={register}
-              controlClassName="control"
-              options={[YesNoAnswer.Yes, YesNoAnswer.No]}
-              keyPrefix="t"
-            />
-          </Grid.Cell>
+          <FieldValue label={t("application.details.vouchers")}>
+            <div className="flex h-12 items-center">
+              <Field
+                id="application.incomeVouchersYes"
+                name="application.incomeVouchers"
+                className="m-0"
+                type="radio"
+                label={t("t.yes")}
+                register={register}
+                inputProps={{
+                  value: YesNoAnswer.Yes,
+                }}
+              />
+
+              <Field
+                id="application.householdExpectingChangesNo"
+                name="application.incomeVouchers"
+                className="m-0"
+                type="radio"
+                label={t("t.no")}
+                register={register}
+                inputProps={{
+                  value: YesNoAnswer.No,
+                }}
+              />
+            </div>
+          </FieldValue>
+
+          <FieldValue label={t("application.details.rentalAssistance")}>
+            <div className="flex h-12 items-center">
+              <Field
+                id="application.rentalAssistanceYes"
+                name="application.rentalAssistance"
+                className="m-0"
+                type="radio"
+                label={t("t.yes")}
+                register={register}
+                inputProps={{
+                  value: YesNoAnswer.Yes,
+                }}
+              />
+
+              <Field
+                id="application.rentalAssistanceNo"
+                name="application.rentalAssistance"
+                className="m-0"
+                type="radio"
+                label={t("t.no")}
+                register={register}
+                inputProps={{
+                  value: YesNoAnswer.No,
+                }}
+              />
+            </div>
+          </FieldValue>
         </Grid.Row>
       </SectionWithGrid>
     </>

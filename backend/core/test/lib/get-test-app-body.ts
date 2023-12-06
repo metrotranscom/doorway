@@ -101,6 +101,7 @@ export const getTestAppBody: (listingId?: string) => ApplicationUpdate = (listin
       howDidYouHear: [],
     },
     incomeVouchers: true,
+    rentalAssistance: true,
     income: "100.00",
     incomePeriod: IncomePeriod.perMonth,
     householdStudent: false,

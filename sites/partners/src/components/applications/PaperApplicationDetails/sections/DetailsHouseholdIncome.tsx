@@ -43,6 +43,18 @@ const DetailsHouseholdIncome = () => {
             return t("t.no")
           })()}
         </FieldValue>
+
+        <FieldValue label={t("application.details.rentalAssistance")} testId="rentalAssistance">
+          {(() => {
+            if (application.rentalAssistance === null) return t("t.n/a")
+
+            if (application.rentalAssistance) {
+              return t("t.yes")
+            }
+
+            return t("t.no")
+          })()}
+        </FieldValue>
       </Grid.Row>
     </SectionWithGrid>
   )

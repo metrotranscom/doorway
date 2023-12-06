@@ -144,6 +144,7 @@ const getApplicationCreateDtoTemplate = (
     income: "5000.00",
     incomePeriod: IncomePeriod.perMonth,
     incomeVouchers: false,
+    rentalAssistance: false,
     householdExpectingChanges: false,
     householdStudent: false,
     language: Language.en,

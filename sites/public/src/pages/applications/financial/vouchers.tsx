@@ -70,18 +70,7 @@ const ApplicationVouchers = () => {
           heading={t("application.financial.vouchers.title")}
           subheading={
             <div>
-              <p className="field-note mb-4">
-                <strong>{t("application.financial.vouchers.housingVouchers.strong")}</strong>
-                {` ${t("application.financial.vouchers.housingVouchers.text")}`}
-              </p>
-              <p className="field-note mb-4">
-                <strong>{t("application.financial.vouchers.nonTaxableIncome.strong")}</strong>
-                {` ${t("application.financial.vouchers.nonTaxableIncome.text")}`}
-              </p>
-              <p className="field-note">
-                <strong>{t("application.financial.vouchers.rentalSubsidies.strong")}</strong>
-                {` ${t("application.financial.vouchers.rentalSubsidies.text")}`}
-              </p>
+              <p className="field-note">{t("application.financial.vouchers.description")}</p>
             </div>
           }
           progressNavProps={{
@@ -108,7 +97,7 @@ const ApplicationVouchers = () => {
 
           <CardSection divider={"flush"} className={"border-none"}>
             <fieldset>
-              <legend className="sr-only">{t("application.financial.vouchers.legend")}</legend>
+              <legend className="text__caps-spaced">{t("t.selectOne")}</legend>
               <FieldGroup
                 fieldGroupClassName="grid grid-cols-1"
                 fieldClassName="ml-0"

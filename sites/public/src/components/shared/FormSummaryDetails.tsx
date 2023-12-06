@@ -467,6 +467,15 @@ const FormSummaryDetails = ({
             {application.incomeVouchers ? t("t.yes") : t("t.no")}
           </FieldValue>
 
+          <FieldValue
+            testId={"app-summary-rental-assistance"}
+            id="rentalAssistance"
+            label={t("application.review.rentalAssistance")}
+            className={"pb-4"}
+          >
+            {application.rentalAssistance ? t("t.yes") : t("t.no")}
+          </FieldValue>
+
           {application.incomePeriod && (
             <FieldValue
               testId={"app-summary-income"}

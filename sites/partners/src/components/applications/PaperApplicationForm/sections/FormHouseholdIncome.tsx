@@ -96,7 +96,7 @@ const FormHouseholdIncome = () => {
               />
 
               <Field
-                id="application.householdExpectingChangesNo"
+                id="application.incomeVouchersNo"
                 name="application.incomeVouchers"
                 className="m-0"
                 type="radio"

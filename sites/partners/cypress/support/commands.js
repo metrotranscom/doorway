@@ -246,7 +246,10 @@ Cypress.Commands.add("fillHouseholdIncome", (application, fieldsToSkip = []) => 
     cy.getByID("incomeYear").type(application["incomeYear"])
   }
   if (!fieldsToSkip.includes("application.incomeVouchers")) {
-    cy.getByID("application.incomeVouchers").select(application["incomeVouchers"])
+    cy.getByID(`application.incomeVouchers${application["incomeVouchers"]}`).click()
+  }
+  if (!fieldsToSkip.includes("application.rentalAssistance")) {
+    cy.getByID(`application.rentalAssistance${application["rentalAssistance"]}`).click()
   }
 })
 

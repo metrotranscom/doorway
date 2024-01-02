@@ -3,21 +3,12 @@
 Question asks if anyone on the application receives rental assistance.
 */
 import React, { useContext, useEffect } from "react"
-import {
-  AppearanceStyleType,
-  AlertBox,
-  Button,
-  Form,
-  FormCard,
-  t,
-  ProgressNav,
-  FieldGroup,
-  Heading,
-} from "@bloom-housing/ui-components"
+import { Form, t, FieldGroup } from "@bloom-housing/ui-components"
 import FormsLayout from "../../../layouts/forms"
 import { useForm } from "react-hook-form"
-import FormBackLink from "../../../components/applications/FormBackLink"
 import { useFormConductor } from "../../../lib/hooks"
+import { Alert } from "@bloom-housing/ui-seeds"
+import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import {
   OnClientSide,
   PageView,
@@ -27,8 +18,10 @@ import {
 } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../../../lib/constants"
 import { ApplicationSection } from "@bloom-housing/backend-core"
+import ApplicationFormLayout from "../../../layouts/application-form"
+import styles from "../../../layouts/application-form.module.scss"
 
-const ApplicationVouchers = () => {
+const ApplicationRentalAssistance = () => {
   const { profile } = useContext(AuthContext)
   const { conductor, application, listing } = useFormConductor("rentalAssistance")
   const currentPageSection = listingSectionQuestions(listing, ApplicationSection.programs)?.length
@@ -77,42 +70,44 @@ const ApplicationVouchers = () => {
 
   return (
     <FormsLayout>
-      <FormCard header={<Heading priority={1}>{listing?.name}</Heading>}>
-        <ProgressNav
-          currentPageSection={currentPageSection}
-          completedSections={application.completedSections}
-          labels={conductor.config.sections.map((label) => t(`t.${label}`))}
-          mounted={OnClientSide()}
-        />
-      </FormCard>
-      <FormCard>
-        <FormBackLink
-          url={conductor.determinePreviousUrl()}
-          onClick={() => conductor.setNavigatedBack(true)}
-        />
+      <Form onSubmit={handleSubmit(onSubmit, onError)}>
+        <ApplicationFormLayout
+          listingName={listing?.name}
+          heading={t("application.financial.rentalAssistance.title")}
+          subheading={
+            <div>
+              <p className="field-note mb-4">
+                ${t("application.financial.rentalAssistance.description")}
+              </p>
 
-        <div className="form-card__lead border-b">
-          <h2 className="form-card__title is-borderless">
-            {t("application.financial.rentalAssistance.title")}
-          </h2>
+              <p className="field-note">
+                ${t("application.financial.rentalAssistance.description2")}
+              </p>
+            </div>
+          }
+          progressNavProps={{
+            currentPageSection: currentPageSection,
+            completedSections: application.completedSections,
+            labels: conductor.config.sections.map((label) => t(`t.${label}`)),
+            mounted: OnClientSide(),
+          }}
+          backLink={{
+            url: conductor.determinePreviousUrl(),
+          }}
+          conductor={conductor}
+        >
+          {Object.entries(errors).length > 0 && (
+            <Alert
+              className={styles["message-inside-card"]}
+              variant="alert"
+              fullwidth
+              id={"application-alert-box"}
+            >
+              {t("errors.errorsToResolve")}
+            </Alert>
+          )}
 
-          <p className="field-note mb-4 mt-5">
-            ${t("application.financial.rentalAssistance.description")}
-          </p>
-
-          <p className="field-note">${t("application.financial.rentalAssistance.description2")}</p>
-        </div>
-
-        {Object.entries(errors).length > 0 && (
-          <AlertBox type="alert" inverted closeable>
-            {t("errors.errorsToResolve")}
-          </AlertBox>
-        )}
-
-        <Form onSubmit={handleSubmit(onSubmit, onError)}>
-          <div
-            className={`form-card__group field text-xl ${errors.rentalAssistance ? "error" : ""}`}
-          >
+          <CardSection divider={"flush"} className={"border-none"}>
             <fieldset>
               <legend className="text__caps-spaced">{t("t.selectOne")}</legend>
               <FieldGroup
@@ -120,11 +115,12 @@ const ApplicationVouchers = () => {
                 fieldClassName="ml-0"
                 type="radio"
                 name="rentalAssistance"
+                groupNote={t("t.pleaseSelectOne")}
                 error={errors.rentalAssistance}
                 errorMessage={t("errors.selectAnOption")}
                 register={register}
                 fields={rentalAssistanceValues}
-                dataTestId={"app-income-vouchers"}
+                dataTestId={"app-income-rental-assistance"}
                 validation={{
                   validate: () => {
                     return !!Object.values(getValues()).filter((value) => value).length
@@ -132,23 +128,11 @@ const ApplicationVouchers = () => {
                 }}
               />
             </fieldset>
-          </div>
-
-          <div className="form-card__pager">
-            <div className="form-card__pager-row primary">
-              <Button
-                styleType={AppearanceStyleType.primary}
-                onClick={() => conductor.setNavigatedBack(false)}
-                data-testid={"app-next-step-button"}
-              >
-                {t("t.next")}
-              </Button>
-            </div>
-          </div>
-        </Form>
-      </FormCard>
+          </CardSection>
+        </ApplicationFormLayout>
+      </Form>
     </FormsLayout>
   )
 }
 
-export default ApplicationVouchers
+export default ApplicationRentalAssistance

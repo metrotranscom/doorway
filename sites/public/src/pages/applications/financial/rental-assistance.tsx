@@ -77,11 +77,11 @@ const ApplicationRentalAssistance = () => {
           subheading={
             <div>
               <p className="field-note mb-4">
-                ${t("application.financial.rentalAssistance.description")}
+                {t("application.financial.rentalAssistance.description")}
               </p>
 
               <p className="field-note">
-                ${t("application.financial.rentalAssistance.description2")}
+                {t("application.financial.rentalAssistance.description2")}
               </p>
             </div>
           }

@@ -39,8 +39,8 @@ const ApplicationView = () => {
   return (
     <FormsLayout>
       <Card spacing={"sm"} className={"my-6"}>
-        <CardSection className={"bg-primary px-8 py-4 text-white"}>
-          <Heading priority={1} className={"text-xl font-bold font-alt-sans"}>
+        <CardSection className={"bg-primary px-8 py-4"}>
+          <Heading priority={1} className={"text-xl font-bold font-alt-sans text-white"}>
             {t("account.application.confirmation")}
           </Heading>
         </CardSection>

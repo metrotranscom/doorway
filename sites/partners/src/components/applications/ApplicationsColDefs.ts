@@ -167,6 +167,21 @@ export function getColDefs(maxHouseholdSize: number, countyCode: string) {
       comparator: compareStrings,
     },
     {
+      headerName: t("applications.table.rentalAssistance"),
+      field: "rentalAssistance",
+      sortable: false,
+      unSortIcon: true,
+      filter: false,
+      width: 120,
+      minWidth: 100,
+      valueFormatter: (data) => {
+        if (!data.value) return ""
+
+        return data.value ? t("t.yes") : t("t.no")
+      },
+      comparator: compareStrings,
+    },
+    {
       headerName: t("applications.table.requestAda"),
       field: "accessibility",
       sortable: false,

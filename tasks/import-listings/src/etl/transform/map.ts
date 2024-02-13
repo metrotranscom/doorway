@@ -172,6 +172,9 @@ export const defaultMap: RecordMap = {
     return jsonOrNull(listingImageData)
   },
   multiselect_questions: (listing: any) => {
+    if (!listing.listingMultiselectQuestions) {
+      return jsonOrNull(listing.listingMultiselectQuestions)
+    }
     const listingData = listing.listingMultiselectQuestions.map((elem) => {
       if (elem.multiselectQuestion) {
         // if its a listing with typeorm data

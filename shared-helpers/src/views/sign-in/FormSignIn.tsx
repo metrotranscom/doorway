@@ -92,7 +92,7 @@ const FormSignIn = ({
           </Form>
         </CardSection>
         {showRegisterBtn && (
-          <CardFooter className="border-t py-8 mx-4 sm:mx-12">
+          <CardFooter className="border-t py-8 mx-6 sm:mx-12">
             <Heading priority={2} size="2xl" className="mb-6">
               {t("authentication.createAccount.noAccount")}
             </Heading>

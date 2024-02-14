@@ -1,9 +1,10 @@
 import React, { useContext } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
-import { MenuLink, setSiteAlertMessage, SiteHeader, t } from "@bloom-housing/ui-components"
+import { MenuLink, setSiteAlertMessage, t } from "@bloom-housing/ui-components"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import { getSiteFooter } from "../lib/helpers"
+import { SiteHeader } from "@bloom-housing/doorway-ui-components/src/headers/SiteHeader"
 
 const Layout = (props) => {
   const { profile, signOut } = useContext(AuthContext)

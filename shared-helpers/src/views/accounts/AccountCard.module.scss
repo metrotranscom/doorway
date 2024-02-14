@@ -26,7 +26,6 @@
 .account-card-heading-group {
   --heading-margin: var(--seeds-s3);
   --subheading-color: var(--seeds-text-color-light);
-  font-weight: var(--seeds-font-weight-semibold);
   @media (max-width: theme("screens.sm")) {
     --subheading-margin: var(--seeds-s3);
   }

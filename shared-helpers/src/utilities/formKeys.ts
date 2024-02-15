@@ -248,6 +248,36 @@ export const raceKeys: subCheckboxes = {
   white: prependRoot("white", whiteKeys),
 }
 
+export const howDidYouHear = [
+  {
+    id: "governmentWebsite",
+  },
+  {
+    id: "propertyWebsite",
+  },
+  {
+    id: "flyer",
+  },
+  {
+    id: "emailAlert",
+  },
+  {
+    id: "friend",
+  },
+  {
+    id: "housingCounselor",
+  },
+  {
+    id: "radioAd",
+  },
+  {
+    id: "busAd",
+  },
+  {
+    id: "other",
+  },
+]
+
 export const phoneNumberKeys = ["work", "home", "cell"]
 
 export const preferredUnit = [

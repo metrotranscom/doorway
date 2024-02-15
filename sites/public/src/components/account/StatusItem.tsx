@@ -30,7 +30,7 @@ const StatusItem = (props: StatusItemProps) => {
           <h3 className={styles["status-item__title"]}>{props.listingName}</h3>
           <p className={styles["status-item__status"]}>
             {props.strings?.status ?? t("application.status")}:{" "}
-            <Tag variant="highlight-cool">
+            <Tag variant="primary-inverse">
               {props.strings?.submittedStatus ?? t("application.statuses.submitted")}
             </Tag>
           </p>

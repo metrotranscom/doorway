@@ -7,7 +7,6 @@ import {
   spokenLanguageKeys,
   genderKeys,
   sexualOrientationKeys,
-  howDidYouHear,
 } from "@bloom-housing/shared-helpers"
 import { Demographics } from "@bloom-housing/backend-core/types"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
@@ -21,14 +20,6 @@ const FormDemographics = ({ formValues }: FormDemographicsProps) => {
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register } = formMethods
-
-  const howDidYouHearOptions = useMemo(() => {
-    return howDidYouHear?.map((item) => ({
-      id: item.id,
-      label: t(`application.review.demographics.howDidYouHearOptions.${item.id}`),
-      register,
-    }))
-  }, [register])
 
   // Does a key exist in a root field or a sub array
   const isKeyIncluded = (raceKey: string) => {
@@ -112,18 +103,6 @@ const FormDemographics = ({ formValues }: FormDemographicsProps) => {
               controlClassName="control"
               options={sexualOrientationKeys}
               keyPrefix="application.review.demographics.sexualOrientationOptions"
-            />
-          </Grid.Cell>
-        </Grid.Row>
-        <Grid.Row columns={2}>
-          <Grid.Cell>
-            <FieldGroup
-              type="checkbox"
-              name="application.demographics.howDidYouHear"
-              fields={howDidYouHearOptions}
-              register={register}
-              groupLabel={t("application.add.howDidYouHearAboutUs")}
-              fieldGroupClassName="grid grid-cols-2 mt-4"
             />
           </Grid.Cell>
         </Grid.Row>

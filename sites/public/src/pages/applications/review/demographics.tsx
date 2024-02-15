@@ -7,7 +7,6 @@ import { ApplicationSection } from "@bloom-housing/backend-core"
 import {
   raceKeys,
   spokenLanguageKeys,
-  howDidYouHear,
   fieldGroupObjectToArray,
   OnClientSide,
   PageView,
@@ -45,19 +44,9 @@ const ApplicationDemographics = () => {
         spokenLanguage: data.spokenLanguage,
         gender: data.gender,
         sexualOrientation: data.sexualOrientation,
-        howDidYouHear: data.howDidYouHear,
       },
     })
     conductor.routeToNextOrReturnUrl()
-  }
-
-  const howDidYouHearOptions = () => {
-    return howDidYouHear?.map((item) => ({
-      id: item.id,
-      label: t(`application.review.demographics.howDidYouHearOptions.${item.id}`),
-      defaultChecked: application.demographics.howDidYouHear?.includes(item.id),
-      register,
-    }))
   }
 
   useEffect(() => {
@@ -86,7 +75,7 @@ const ApplicationDemographics = () => {
           }}
           conductor={conductor}
         >
-          <CardSection divider={"inset"}>
+          <CardSection divider="flush" className="border-none">
             <fieldset>
               <legend className="text__caps-spaced">
                 {t("application.review.demographics.raceLabel")}
@@ -157,21 +146,6 @@ const ApplicationDemographics = () => {
                 dataTestId={"app-demographics-sexual-orientation"}
               />
             </div>
-          </CardSection>
-
-          <CardSection divider={"flush"} className={"border-none"}>
-            <fieldset>
-              <legend className="text__caps-spaced">
-                {t("application.review.demographics.howDidYouHearLabel")}
-              </legend>
-              <FieldGroup
-                type="checkbox"
-                name="howDidYouHear"
-                fields={howDidYouHearOptions()}
-                register={register}
-                dataTestId={"app-demographics-how-did-you-hear"}
-              />
-            </fieldset>
           </CardSection>
         </ApplicationFormLayout>
       </Form>

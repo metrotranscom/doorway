@@ -118,7 +118,6 @@ const FormDemographics = ({ formValues }: FormDemographicsProps) => {
         <Grid.Row columns={2} className="hidden">
           <Grid.Cell>
             <FieldGroup
-              id="application.demographics.howDidYouHear"
               type="checkbox"
               name="application.demographics.howDidYouHear"
               fields={howDidYouHearOptions}

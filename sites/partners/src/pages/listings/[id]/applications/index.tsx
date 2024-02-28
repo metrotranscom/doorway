@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
 import {
@@ -26,21 +26,32 @@ import {
 } from "@bloom-housing/backend-core/types"
 import { ApplicationsSideNav } from "../../../../components/applications/ApplicationsSideNav"
 import { NavigationHeader } from "../../../../components/shared/NavigationHeader"
-
+import { ExportTermsDialog } from "../../../../components/shared/ExportTermsDialog"
+import styles from "../../../../components/shared/ExportTermsDialog.module.scss"
 const ApplicationsList = () => {
   const { profile } = useContext(AuthContext)
   const router = useRouter()
   const listingId = router.query.id as string
-
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const tableOptions = useAgTable()
 
   const { onExport, csvExportLoading, csvExportError, csvExportSuccess } = useApplicationsExport(
     listingId,
     profile?.roles?.isAdmin ?? false
   )
+  const onSubmit = async () => {
+    try {
+      await onExport()
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setIsTOSOpen(false)
+    }
+  }
 
   /* Data Fetching */
   const { listingDto } = useSingleListingData(listingId)
+  const [isTOSOpen, setIsTOSOpen] = useState(false)
   const countyCode = listingDto?.countyCode
   const listingName = listingDto?.name
   const isListingOpen = listingDto?.status === "active"
@@ -189,7 +200,7 @@ const ApplicationsList = () => {
                       variant="primary-outlined"
                       size="sm"
                       className="mx-1"
-                      onClick={() => onExport()}
+                      onClick={() => setIsTOSOpen(true)}
                       loadingMessage={csvExportLoading && t("t.formSubmitted")}
                     >
                       {t("t.export")}
@@ -197,6 +208,28 @@ const ApplicationsList = () => {
                   </div>
                 }
               />
+              <ExportTermsDialog
+                dialogHeader={t("applications.export.dialogHeader")}
+                isOpen={isTOSOpen}
+                onClose={() => setIsTOSOpen(false)}
+                onSubmit={onSubmit}
+              >
+                <p>{t("applications.export.dialogSubheader")}</p>
+                <h2 className={styles["terms-of-use-text"]}>
+                  {t("applications.export.termsOfUse")}
+                </h2>
+                <span>
+                  {t("applications.export.termsBodyOne")}
+                  <a href="https://mtc.ca.gov/doorway-housing-portal-terms-use">
+                    {t("applications.export.termsOfUse")}
+                  </a>
+                  {t("applications.export.termsBodyTwo")}
+                  <a href="https://mtc.ca.gov/doorway-housing-portal-terms-use">
+                    {t("applications.export.termsOfUse")}
+                  </a>
+                  {t("applications.export.termsBodyThree")}
+                </span>
+              </ExportTermsDialog>
             </>
           )}
         </article>

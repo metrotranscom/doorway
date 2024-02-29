@@ -30,6 +30,7 @@ import { ExportTermsDialog } from "../../../../components/shared/ExportTermsDial
 import styles from "../../../../components/shared/ExportTermsDialog.module.scss"
 const ApplicationsList = () => {
   const { profile } = useContext(AuthContext)
+  const [isTermsOpen, setIsTermsOpen] = useState(false)
   const router = useRouter()
   const listingId = router.query.id as string
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -39,19 +40,9 @@ const ApplicationsList = () => {
     listingId,
     profile?.roles?.isAdmin ?? false
   )
-  const onSubmit = async () => {
-    try {
-      await onExport()
-    } catch (e) {
-      console.log(e)
-    } finally {
-      setIsTOSOpen(false)
-    }
-  }
 
   /* Data Fetching */
   const { listingDto } = useSingleListingData(listingId)
-  const [isTOSOpen, setIsTOSOpen] = useState(false)
   const countyCode = listingDto?.countyCode
   const listingName = listingDto?.name
   const isListingOpen = listingDto?.status === "active"
@@ -109,6 +100,16 @@ const ApplicationsList = () => {
 
   const gridComponents = {
     formatLinkCell,
+  }
+
+  const onSubmit = async () => {
+    try {
+      await onExport()
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setIsTermsOpen(false)
+    }
   }
 
   if (!applications || appsError) return "An error has occurred."
@@ -200,7 +201,7 @@ const ApplicationsList = () => {
                       variant="primary-outlined"
                       size="sm"
                       className="mx-1"
-                      onClick={() => setIsTOSOpen(true)}
+                      onClick={() => setIsTermsOpen(true)}
                       loadingMessage={csvExportLoading && t("t.formSubmitted")}
                     >
                       {t("t.export")}
@@ -210,8 +211,8 @@ const ApplicationsList = () => {
               />
               <ExportTermsDialog
                 dialogHeader={t("applications.export.dialogHeader")}
-                isOpen={isTOSOpen}
-                onClose={() => setIsTOSOpen(false)}
+                isOpen={isTermsOpen}
+                onClose={() => setIsTermsOpen(false)}
                 onSubmit={onSubmit}
               >
                 <p>{t("applications.export.dialogSubheader")}</p>

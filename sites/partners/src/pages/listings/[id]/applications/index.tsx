@@ -225,10 +225,13 @@ const ApplicationsList = () => {
                     {t("applications.export.termsOfUse")}
                   </a>
                   {t("applications.export.termsBodyTwo")}
-                  <a href="https://mtc.ca.gov/doorway-housing-portal-terms-use">
-                    {t("applications.export.termsOfUse")}
+                  <a href="https://docs.google.com/document/d/1W4tIMtUMwz4KqdcO5f4yZi0R5AU74P3B/edit?usp=sharing&ouid=105961542504967611474&rtpof=true&sd=true">
+                    {t("applications.export.doorwayPartnersManual")}
                   </a>
                   {t("applications.export.termsBodyThree")}
+                  <span className={styles["terms-bold-text"]}>
+                    {t("applications.export.termsBodyFour")}
+                  </span>
                 </span>
               </ExportTermsDialog>
             </>

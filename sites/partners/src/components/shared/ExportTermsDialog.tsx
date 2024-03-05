@@ -33,7 +33,7 @@ export const ExportTermsDialog = ({
           <Field
             name="agree"
             type="checkbox"
-            label={t(`authentication.terms.acceptToc`)}
+            label={t(`authentication.terms.acceptExtended`)}
             register={register}
             validation={{ required: true }}
             error={!!errors.agree}

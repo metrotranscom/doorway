@@ -1,14 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
 import Markdown from "markdown-to-jsx"
-import { t, FieldGroup, Form, AlertBox } from "@bloom-housing/ui-components"
+import { t, Field, Form, AlertBox } from "@bloom-housing/ui-components"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
-import {
-  ApplicationSection,
-  ApplicationReviewStatus,
-  ListingReviewOrder,
-} from "@bloom-housing/backend-core"
+import { ApplicationSection, ApplicationReviewStatus } from "@bloom-housing/backend-core"
 import {
   OnClientSide,
   PageView,
@@ -90,32 +86,6 @@ const ApplicationTerms = () => {
       })
   }
 
-  const agreeField = [
-    {
-      id: "agree",
-      label: t("application.review.terms.confirmCheckboxText"),
-    },
-  ]
-
-  const content = useMemo(() => {
-    switch (listing?.reviewOrderType) {
-      case ListingReviewOrder.firstComeFirstServe:
-        return {
-          text: t("application.review.terms.fcfs.text"),
-        }
-      case ListingReviewOrder.lottery:
-        return {
-          text: t("application.review.terms.lottery.text"),
-        }
-      case ListingReviewOrder.waitlist:
-        return {
-          text: t("application.review.terms.waitlist.text"),
-        }
-      default:
-        return { text: "" }
-    }
-  }, [listing, router.locale])
-
   useEffect(() => {
     pushGtmEvent<PageView>({
       event: "pageView",
@@ -162,7 +132,6 @@ const ApplicationTerms = () => {
 
               <Markdown
                 options={{
-                  disableParsingRawHTML: true,
                   overrides: {
                     li: {
                       component: ({ children, ...props }) => (
@@ -174,19 +143,19 @@ const ApplicationTerms = () => {
                   },
                 }}
               >
-                {content.text}
+                {t("application.review.terms.text")}
               </Markdown>
 
               <div className="mt-6">
-                <FieldGroup
+                <Field
+                  id="agree"
                   name="agree"
                   type="checkbox"
-                  fields={agreeField}
+                  label={t("application.review.terms.confirmCheckboxText")}
                   register={register}
                   validation={{ required: true }}
                   error={errors.agree}
                   errorMessage={t("errors.agreeError")}
-                  fieldLabelClassName={"text-primary"}
                   dataTestId={"app-terms-agree"}
                 />
               </div>

@@ -88,7 +88,7 @@ const ApplicationDemographics = () => {
           }}
           conductor={conductor}
         >
-          <CardSection divider={"flush"} className="border-none">
+          <CardSection divider={"inset"}>
             <fieldset>
               <legend className="text__caps-spaced">
                 {t("application.review.demographics.raceLabel")}
@@ -173,9 +173,9 @@ const ApplicationDemographics = () => {
             </div>
           </CardSection>
 
-          <CardSection divider={"flush"} className="hidden">
+          <CardSection divider={"flush"} className="border-none">
             <fieldset>
-              <legend className="text__caps-spaced mb-0">
+              <legend className="text__caps-spaced">
                 {t("application.review.demographics.howDidYouHearLabel")}
               </legend>
               <FieldGroup

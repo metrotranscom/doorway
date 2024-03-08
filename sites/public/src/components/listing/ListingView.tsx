@@ -378,6 +378,7 @@ export const ListingView = (props: ListingProps) => {
         preview={props.preview}
         listingName={listing.name}
         listingId={listing.id}
+        isExternal={props.isExternal}
       />
       {!(
         listing.status === ListingStatus.closed ||

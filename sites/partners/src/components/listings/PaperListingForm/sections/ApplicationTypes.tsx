@@ -37,6 +37,7 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
   const { register, setValue, watch, errors, getValues } = useFormContext()
   // watch fields
   const digitalApplicationChoice = watch("digitalApplicationChoice")
+  const commonDigitalApplicationChoice = watch("commonDigitalApplicationChoice")
   const paperApplicationChoice = watch("paperApplicationChoice")
   /*
     Set state for methods, drawer, upload progress, and more
@@ -242,12 +243,9 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
               ]}
             />
           </Grid.Cell>
-          {/*
-          When new applications can be done from Doorway, the code below should be uncommented to allow
-          the common digital application as an option and only show the custom URL section if the common
-          digital application is not used.
+
           {digitalApplicationChoice === YesNoAnswer.Yes && (
-            <GridCell>
+            <Grid.Cell>
               <p className="field-label m-4 ml-0">{t("listings.usingCommonDigitalApplication")}</p>
 
               <FieldGroup
@@ -291,18 +289,16 @@ const ApplicationTypes = ({ listing }: { listing: FormListing }) => {
                   },
                 ]}
               />
-            </GridCell>
+            </Grid.Cell>
           )}
-              */}
         </Grid.Row>
-        {/* This should be uncommented along with the block above to allow the common digital application in the future.
+
         {((commonDigitalApplicationChoice &&
           commonDigitalApplicationChoice === YesNoAnswer.No &&
           digitalApplicationChoice === YesNoAnswer.Yes) ||
           (digitalApplicationChoice === YesNoAnswer.Yes &&
             !commonDigitalApplicationChoice &&
-            listing?.commonDigitalApplication === false)) && ( */}
-        {digitalApplicationChoice === YesNoAnswer.Yes && (
+            listing?.commonDigitalApplication === false)) && (
           <Grid.Row columns={1}>
             <Grid.Cell>
               <Field

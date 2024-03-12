@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form"
 import Markdown from "markdown-to-jsx"
 import { t, Field, Form, AlertBox } from "@bloom-housing/ui-components"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
-import { ApplicationSection, ApplicationReviewStatus } from "@bloom-housing/backend-core"
 import {
   OnClientSide,
   PageView,
@@ -16,6 +15,7 @@ import FormsLayout from "../../../layouts/forms"
 import { useFormConductor } from "../../../lib/hooks"
 import { UserStatus } from "../../../lib/constants"
 import { untranslateMultiselectQuestion } from "../../../lib/helpers"
+import { ApplicationReviewStatusEnum, MultiselectQuestionsApplicationSectionEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import ApplicationFormLayout from "../../../layouts/application-form"
 import { Button } from "@bloom-housing/ui-seeds"
 
@@ -27,8 +27,11 @@ const ApplicationTerms = () => {
   const [submitting, setSubmitting] = useState(false)
 
   let currentPageSection = 4
-  if (listingSectionQuestions(listing, ApplicationSection.programs)?.length) currentPageSection += 1
-  if (listingSectionQuestions(listing, ApplicationSection.preferences)?.length)
+  if (listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.length)
+    currentPageSection += 1
+  if (
+    listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.preferences)?.length
+  )
     currentPageSection += 1
   const applicationDueDate = new Date(listing?.applicationDueDate).toDateString()
 
@@ -61,8 +64,8 @@ const ApplicationTerms = () => {
       .submit({
         body: {
           ...application,
-          reviewStatus: ApplicationReviewStatus.pending,
-          listing: {
+          reviewStatus: ApplicationReviewStatusEnum.pending,
+          listings: {
             id: listing.id,
           },
           appUrl: window.location.origin,
@@ -71,6 +74,7 @@ const ApplicationTerms = () => {
               id: profile.id,
             },
           }),
+          // TODO remove this once this call is changed to the new backend
         },
       })
       .then((result) => {

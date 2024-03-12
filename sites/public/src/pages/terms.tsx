@@ -47,7 +47,7 @@ const Terms = () => {
                 onChange={() => setChecked(!notChecked)}
               />
             </CardSection>
-            <CardFooter className={styles["form-submit"]}>
+            <CardFooter className={styles["form-submit-public"]}>
               <Button disabled={notChecked} type="submit" variant="primary" id="form-submit">
                 {t("t.finish")}
               </Button>

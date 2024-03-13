@@ -221,11 +221,14 @@ const ApplicationsList = () => {
                 </h2>
                 <span>
                   {t("applications.export.termsBodyOne")}
-                  <a href="https://mtc.ca.gov/doorway-housing-portal-terms-use">
+                  <a href="https://mtc.ca.gov/doorway-housing-portal-terms-use" target="_blank">
                     {t("applications.export.termsOfUse")}
                   </a>
                   {t("applications.export.termsBodyTwo")}
-                  <a href="https://docs.google.com/document/d/1W4tIMtUMwz4KqdcO5f4yZi0R5AU74P3B/edit?usp=sharing&ouid=105961542504967611474&rtpof=true&sd=true">
+                  <a
+                    href="https://docs.google.com/document/d/1W4tIMtUMwz4KqdcO5f4yZi0R5AU74P3B/edit?usp=sharing&ouid=105961542504967611474&rtpof=true&sd=true"
+                    target="_blank"
+                  >
                     {t("applications.export.doorwayPartnersManual")}
                   </a>
                   {t("applications.export.termsBodyThree")}

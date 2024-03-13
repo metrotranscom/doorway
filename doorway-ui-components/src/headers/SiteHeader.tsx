@@ -63,7 +63,7 @@ const SiteHeader = (props: SiteHeaderProps) => {
     const logoOffset = document.getElementById("site-header-logo")?.offsetLeft
     const linksOffset = document.getElementById("site-header-links")?.offsetLeft
     if (linksOffset === undefined || logoOffset === undefined) return
-    return linksOffset === 0
+    return linksOffset === 0 || linksOffset === logoOffset
       ? setNavbarClass("site-header__navbar-wrapped")
       : setNavbarClass("site-header__navbar-inline")
   }
@@ -73,6 +73,7 @@ const SiteHeader = (props: SiteHeaderProps) => {
   const DESKTOP_MIN_WIDTH = props.desktopMinWidth || 767 // @screen md
   // Enables toggling off navbar links when entering mobile
   useLayoutEffect(() => {
+    console.log("useLayoutEffect")
     const updateMedia = () => {
       if (window.innerWidth > DESKTOP_MIN_WIDTH) {
         setIsDesktop(true)

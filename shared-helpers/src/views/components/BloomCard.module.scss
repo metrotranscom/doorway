@@ -1,6 +1,8 @@
 .form-card {
   --card-content-padding-inline: var(--seeds-s12);
   --card-header-padding-inline: var(--seeds-s12);
+  --card-border-width: 0rem;
+  --card-divider-width: var(--seeds-border-1);
   @media (max-width: theme("screens.sm")) {
     --card-content-padding-inline: var(--seeds-s4);
     --card-header-padding-inline: var(--seeds-s4);
@@ -27,4 +29,9 @@
 
 .card-heading-group {
   --subheading-color: var(--seeds-text-color-light);
+}
+
+.card-heading {
+  font-weight: var(--seeds-font-weight-semibold);
+  margin-top: var(--seeds-s1);
 }

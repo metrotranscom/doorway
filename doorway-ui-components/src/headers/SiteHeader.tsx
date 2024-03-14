@@ -73,7 +73,6 @@ const SiteHeader = (props: SiteHeaderProps) => {
   const DESKTOP_MIN_WIDTH = props.desktopMinWidth || 767 // @screen md
   // Enables toggling off navbar links when entering mobile
   useLayoutEffect(() => {
-    console.log("useLayoutEffect")
     const updateMedia = () => {
       if (window.innerWidth > DESKTOP_MIN_WIDTH) {
         setIsDesktop(true)

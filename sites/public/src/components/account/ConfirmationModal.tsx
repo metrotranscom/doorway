@@ -110,7 +110,6 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
         )}
         <Form id="resend-confirmation" onSubmit={handleSubmit(onSubmit)}>
           <Field
-            caps={true}
             type="email"
             name="email"
             label={t("authentication.createAccount.resendAnEmailTo")}
@@ -119,6 +118,7 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
             error={errors.email}
             errorMessage={t("authentication.signIn.loginError")}
             register={register}
+            labelClassName={"text__caps-spaced"}
           />
         </Form>
         <p className="pt-4">{t("authentication.createAccount.resendEmailInfo")}</p>

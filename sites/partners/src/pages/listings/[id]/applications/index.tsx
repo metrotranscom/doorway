@@ -36,13 +36,19 @@ const ApplicationsList = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const tableOptions = useAgTable()
 
-  const { onExport, csvExportLoading, csvExportError, csvExportSuccess } = useApplicationsExport(
-    listingId,
-    profile?.userRoles?.isAdmin ?? false
-  )
-
   /* Data Fetching */
   const { listingDto } = useSingleListingData(listingId)
+
+  const listingJurisdiction = profile.jurisdictions.find(
+    (jurisdiction) => jurisdiction.id === listingDto?.jurisdictions.id
+  )
+  const includeDemographicsPartner =
+    profile?.userRoles?.isPartner && listingJurisdiction?.enablePartnerDemographics
+  const { onExport, csvExportLoading, csvExportError, csvExportSuccess } = useApplicationsExport(
+    listingId,
+    (profile?.userRoles?.isAdmin || includeDemographicsPartner) ?? false
+  )
+
   const countyCode = listingDto?.jurisdictions.name
   const listingName = listingDto?.name
   const isListingOpen = listingDto?.status === "active"

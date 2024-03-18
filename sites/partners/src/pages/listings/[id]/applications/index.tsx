@@ -232,9 +232,6 @@ const ApplicationsList = () => {
                     {t("applications.export.doorwayPartnersManual")}
                   </a>
                   {t("applications.export.termsBodyThree")}
-                  <span className={styles["terms-bold-text"]}>
-                    {t("applications.export.termsBodyFour")}
-                  </span>
                 </span>
               </ExportTermsDialog>
             </>

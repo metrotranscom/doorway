@@ -20,7 +20,7 @@ import { useRouter } from "next/router"
 import { PageView, pushGtmEvent, AuthContext, BloomCard } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import FormsLayout from "../layouts/forms"
-import accountCardStyles from "./account/account.module.scss"
+import BloomCardStyles from "./account/account.module.scss"
 import styles from "../../styles/create-account.module.scss"
 import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefits from "../components/account/SignUpBenefits"
@@ -90,7 +90,7 @@ export default () => {
           </div>
         )}
         <div className={signUpCopy && signUpBenefitsStyles["benefits-form-container"]}>
-          <BloomCard iconSymbol="profile" title={t("account.createAccount")} headingPriority={1}>
+          <BloomCard customIcon="profile" title={t("account.createAccount")} headingPriority={1}>
             <>
               {requestError && (
                 <AlertBox className="" onClose={() => setRequestError(undefined)} type="alert">
@@ -101,7 +101,7 @@ export default () => {
               <Form id="create-account" onSubmit={handleSubmit(onSubmit)}>
                 <CardSection
                   divider={"inset"}
-                  className={accountCardStyles["account-card-settings-section"]}
+                  className={BloomCardStyles["account-card-settings-section"]}
                 >
                   <label className={styles["create-account-header"]} htmlFor="firstName">
                     {t("application.name.yourName")}
@@ -157,7 +157,7 @@ export default () => {
                 </CardSection>
                 <CardSection
                   divider={"inset"}
-                  className={accountCardStyles["account-card-settings-section"]}
+                  className={BloomCardStyles["account-card-settings-section"]}
                 >
                   <DOBField
                     register={register}
@@ -175,7 +175,7 @@ export default () => {
 
                 <CardSection
                   divider={"inset"}
-                  className={accountCardStyles["account-card-settings-section"]}
+                  className={BloomCardStyles["account-card-settings-section"]}
                 >
                   <Field
                     type="email"
@@ -191,7 +191,7 @@ export default () => {
                 </CardSection>
                 <CardSection
                   divider={"inset"}
-                  className={accountCardStyles["account-card-settings-section"]}
+                  className={BloomCardStyles["account-card-settings-section"]}
                 >
                   <Field
                     labelClassName={"text__caps-spaced"}
@@ -243,7 +243,7 @@ export default () => {
                 </CardSection>
                 <CardSection
                   divider={"inset"}
-                  className={accountCardStyles["account-card-settings-section"]}
+                  className={BloomCardStyles["account-card-settings-section"]}
                 >
                   <Heading priority={2} size="2xl" className="mb-6">
                     {t("account.haveAnAccount")}

@@ -3,7 +3,7 @@ import { Field, Form, t } from "@bloom-housing/ui-components"
 import { Button, Heading } from "@bloom-housing/ui-seeds"
 import Markdown from "markdown-to-jsx"
 import { useForm } from "react-hook-form"
-import { AccountCard } from "../../../../shared-helpers/src/views/accounts/AccountCard"
+import { BloomCard } from "../../../../shared-helpers/src/views/components/BloomCard"
 import { CardSection, CardFooter } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import styles from "../../../../shared-helpers/src/views/terms/form-terms.module.scss"
 import FormsLayout from "../layouts/forms"
@@ -19,9 +19,9 @@ const Terms = () => {
   return (
     <FormsLayout>
       <Form id="terms" onSubmit={handleSubmit(onSubmit)}>
-        <AccountCard
+        <BloomCard
           customIcon="profile"
-          title={t("authentication.terms.reviewTerms")}
+          title={t("authentication.terms.reviewToc")}
           divider="inset"
           headingPriority={1}
         >
@@ -38,7 +38,7 @@ const Terms = () => {
                 id="agree"
                 name="agree"
                 type="checkbox"
-                label={t(`authentication.terms.confirmToc`)}
+                label={t(`authentication.terms.acceptExtended`)}
                 register={register}
                 validation={{ required: true }}
                 error={!!errors.agree}
@@ -53,7 +53,7 @@ const Terms = () => {
               </Button>
             </CardFooter>
           </>
-        </AccountCard>
+        </BloomCard>
       </Form>
     </FormsLayout>
   )

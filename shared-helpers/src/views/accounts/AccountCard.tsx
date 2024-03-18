@@ -1,3 +1,4 @@
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { Heading, HeadingGroup, Icon } from "@bloom-housing/ui-seeds"
 import Card from "@bloom-housing/ui-seeds/src/blocks/Card"
 import React from "react"
@@ -5,7 +6,8 @@ import styles from "./AccountCard.module.scss"
 import { CustomIconMap, CustomIconType } from "./CustomIconMap"
 
 interface AccountCardProps {
-  iconSymbol: CustomIconType
+  customIcon?: CustomIconType
+  standardIcon?: IconDefinition
   title: string
   subtitle?: string
   children: React.ReactElement
@@ -13,6 +15,7 @@ interface AccountCardProps {
   divider?: "flush" | "inset"
   headingPriority?: 1 | 2 | 3 | 4 | 5 | 6
   className?: string
+  iconClassName?: string
   thinDesktop?: boolean
   thinMobile?: boolean
 }
@@ -23,14 +26,19 @@ const AccountCard = (props: AccountCardProps) => {
   if (!props.thinDesktop) classNames.push(styles["account-card-inline-desktop"])
   if (props.thinMobile) classNames.push(styles["account-card-inline-mobile"])
 
-  const customIcon = CustomIconMap[props.iconSymbol]
+  const iconClassNames = [styles["account-card-icon"]]
+  if (props.iconClassName) iconClassNames.push(props.iconClassName)
 
   return (
     <Card spacing="lg" className={classNames.join(" ")}>
       <Card.Header divider={props?.divider}>
-        <Icon size="2xl" className={styles["account-card-icon"]}>
-          {customIcon}
-        </Icon>
+        {props?.customIcon ? (
+          <Icon size="2xl" className={iconClassNames.join(" ")}>
+            {CustomIconMap[props?.customIcon]}
+          </Icon>
+        ) : (
+          <Icon size="2xl" icon={props?.standardIcon} className={iconClassNames.join(" ")} />
+        )}
         {props.subtitle ? (
           <HeadingGroup
             size="2xl"

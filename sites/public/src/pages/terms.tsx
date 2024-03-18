@@ -20,7 +20,7 @@ const Terms = () => {
     <FormsLayout>
       <Form id="terms" onSubmit={handleSubmit(onSubmit)}>
         <AccountCard
-          iconSymbol="profile"
+          customIcon="profile"
           title={t("authentication.terms.reviewTerms")}
           divider="inset"
           headingPriority={1}

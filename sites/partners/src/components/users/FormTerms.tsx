@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { faGear } from "@fortawesome/free-solid-svg-icons"
 import { Field, Form, t } from "@bloom-housing/ui-components"
 import { Button, Heading } from "@bloom-housing/ui-seeds"
 import Markdown from "markdown-to-jsx"
@@ -24,10 +25,11 @@ const FormTerms = (props: FormTermsProps) => {
   return (
     <Form id="terms" onSubmit={handleSubmit(props.onSubmit)}>
       <AccountCard
-        iconSymbol="cog"
+        standardIcon={faGear}
         title={t("authentication.terms.reviewTerms")}
         divider="inset"
         headingPriority={1}
+        iconClassName={styles["form-icon-partners"]}
       >
         <>
           <CardSection className={styles["form-terms"]}>

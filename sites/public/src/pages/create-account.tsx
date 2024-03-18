@@ -92,7 +92,7 @@ export default () => {
         )}
         <div className={signUpCopy && signUpBenefitsStyles["benefits-form-container"]}>
           <AccountCard
-            iconSymbol="profile"
+            customIcon="profile"
             title={t("account.createAccount")}
             divider="inset"
             headingPriority={1}

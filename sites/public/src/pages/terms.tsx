@@ -22,7 +22,6 @@ const Terms = () => {
         <BloomCard
           customIcon="profile"
           title={t("authentication.terms.reviewToc")}
-          divider="inset"
           headingPriority={1}
         >
           <>

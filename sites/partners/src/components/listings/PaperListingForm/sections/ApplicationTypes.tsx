@@ -16,7 +16,7 @@ import {
   YesNoAnswer,
   pdfFileNameFromFileId,
 } from "../../../../lib/helpers"
-import { Button, Card, Grid } from "@bloom-housing/ui-seeds"
+import { Button, Grid } from "@bloom-housing/ui-seeds"
 import {
   ApplicationMethodCreate,
   ApplicationMethodsTypeEnum,

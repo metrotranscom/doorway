@@ -58,11 +58,12 @@ const BloomCard = (props: BloomCardProps) => {
     <Card spacing="lg" className={classNames.join(" ")}>
       {title && (
         <Card.Header divider={props.variant === "block" ? undefined : "inset"}>
-          {props?.customIcon ? (
+          {props?.customIcon && (
             <Icon size="2xl" className={iconClassNames.join(" ")}>
               {CustomIconMap[props?.customIcon]}
             </Icon>
-          ) : (
+          )}
+          {props?.standardIcon && (
             <Icon size="2xl" icon={props?.standardIcon} className={iconClassNames.join(" ")} />
           )}
           {props.headerLink && props.headerLink}

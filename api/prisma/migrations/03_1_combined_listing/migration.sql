@@ -1,3 +1,5 @@
+DROP VIEW IF EXISTS "combined_listings";
+
 CREATE VIEW "combined_listings" AS (
     SELECT
         l.id,
@@ -19,6 +21,7 @@ CREATE VIEW "combined_listings" AS (
         l.last_application_update_at,
         l.neighborhood,
         rct.name as "reserved_community_type_name",
+        null as "url_slug",
         jsonb_build_object('id', j.id, 'name', j.name) AS "jurisdiction",
         CASE
             WHEN rct.id IS NOT NULL THEN jsonb_build_object('name', rct.name, 'id', rct.id)
@@ -44,7 +47,8 @@ CREATE VIEW "combined_listings" AS (
             addr.longitude
         ) AS "listings_building_address",
         imgs.json AS "listing_images",
-        null as "units_summarized" -- units_summarized, intentionally null
+        null as "units_summarized",
+        false as "is_external"
     FROM
         listings l
         LEFT JOIN "address" addr ON l.building_address_id = addr.id -- Some columns representing numeric data use the "text" type
@@ -187,7 +191,7 @@ UNION
         "last_application_update_at",
         "neighborhood",
         "reserved_community_type_name",
-        -- "url_slug",
+        "url_slug",
         -- "multiselect_questions", 
         "jurisdiction",
         "reserved_community_type",
@@ -196,8 +200,9 @@ UNION
         -- "features", commenting out for now as not being used
         "images",
         -- "utilities", commenting out for now as not being used
-        "units_summarized" -- null -- leasing_agents; not available in base view and probably not useful anyway
-        -- true
+        "units_summarized",
+        -- null -- leasing_agents; not available in base view and probably not useful anyway
+        true
     FROM
         "external_listings"
 )

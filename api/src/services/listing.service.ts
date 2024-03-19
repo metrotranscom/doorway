@@ -108,6 +108,7 @@ views.full = {
   listingsApplicationPickUpAddress: true,
   listingsApplicationDropOffAddress: true,
   listingsApplicationMailingAddress: true,
+  requestedChangesUser: true,
   units: {
     include: {
       unitAmiChartOverrides: true,
@@ -1008,6 +1009,7 @@ export class ListingService implements OnModuleInit {
               },
             }
           : undefined,
+        requestedChangesUser: undefined,
       },
     });
 
@@ -1492,11 +1494,15 @@ export class ListingService implements OnModuleInit {
             dto.status === ListingsStatusEnum.closed
               ? new Date()
               : storedListing.closedAt,
-          requestedChangesUserId:
+          requestedChangesUser:
             dto.status === ListingsStatusEnum.changesRequested &&
             storedListing.status !== ListingsStatusEnum.changesRequested
-              ? requestingUser.id
-              : storedListing.requestedChangesUserId,
+              ? {
+                  connect: {
+                    id: requestingUser.id,
+                  },
+                }
+              : undefined,
           listingsResult: dto.listingsResult
             ? {
                 create: {
@@ -1613,10 +1619,14 @@ export class ListingService implements OnModuleInit {
   */
   addUnitsSummarized = async (listing: Listing) => {
     if (Array.isArray(listing.units) && listing.units.length > 0) {
+      // get all amicharts and remove any units that don't have amiCharts attached
+      const amiChartIds = listing.units
+        .map((unit) => unit.amiChart?.id)
+        .filter((amiChart) => amiChart);
       const amiChartsRaw = await this.prisma.amiChart.findMany({
         where: {
           id: {
-            in: listing.units.map((unit) => unit.amiChart?.id),
+            in: amiChartIds,
           },
         },
       });

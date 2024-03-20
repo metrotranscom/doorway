@@ -56,21 +56,17 @@ export default () => {
     })
   }, [])
 
-  const onSubmit = async () => {
-    const data = watch()
+  const onSubmit = async (data) => {
     try {
       const { dob, ...rest } = data
       const listingIdRedirect =
-        process.env.showMandatedAccounts && listingId ? listingId : undefined
-      await createUser(
-        {
-          ...rest,
-          dob: dayjs(`${dob.birthYear}-${dob.birthMonth}-${dob.birthDay}`),
-          language: language as LanguagesEnum,
-          agreedToTermsOfService: true,
-        },
-        listingIdRedirect
-      )
+        process.env.showMandatedAccounts && listingId ? listingId : UNDEFINED
+      const createUserObj = {
+        ...rest,
+        dob: dayjs(`${dob.birthYear}-${dob.birthMonth}-${dob.birthDay}`).toDate(),
+        language: language as LanguagesEnum,
+      }
+      await createUser(createUserObj, listingIdRedirect)
       setOpenTermsModal(true)
     } catch (err) {
       const { status, data } = err.response || {}
@@ -106,7 +102,7 @@ export default () => {
                 </AlertBox>
               )}
               <SiteAlert type="notice" dismissable />
-              <Form id="create-account" onSubmit={handleSubmit(() => setOpenTermsModal(true))}>
+              <Form id="create-account">
                 <CardSection
                   divider={"inset"}
                   className={BloomCardStyles["account-card-settings-section"]}
@@ -248,7 +244,12 @@ export default () => {
                     label={t("authentication.createAccount.reEnterPassword")}
                     readerOnly
                   />
-                  <Button type="submit" variant="primary">
+                  <Button
+                    onClick={() => {
+                      setOpenTermsModal(true)
+                    }}
+                    variant="primary"
+                  >
                     {t("account.createAccount")}
                   </Button>
                 </CardSection>
@@ -263,6 +264,52 @@ export default () => {
                     {t("nav.signIn")}
                   </Button>
                 </CardSection>
+                {/* Terms disclaimer modal */}
+                <Modal
+                  title=""
+                  open={openTermsModal}
+                  onClose={() => {
+                    setOpenTermsModal(false)
+                  }}
+                >
+                  <BloomCard
+                    customIcon="profile"
+                    title={t("authentication.terms.reviewToc")}
+                    headingPriority={1}
+                  >
+                    <>
+                      <CardSection className={termsStyles["form-terms"]}>
+                        <p>{t("authentication.terms.publicAccept")}</p>
+                        <Heading size="lg" priority={2}>
+                          {t("authentication.terms.termsOfUse")}
+                        </Heading>
+                        <Markdown>{t("authentication.terms.publicTerms")}</Markdown>
+                      </CardSection>
+                      <CardSection className={termsStyles["form-accept"]}>
+                        <Field
+                          id="agreedToTermsOfService"
+                          name="agreedToTermsOfService"
+                          type="checkbox"
+                          label={t(`authentication.terms.acceptExtended`)}
+                          register={register}
+                          validation={{ required: true }}
+                          error={!!errors.agree}
+                          errorMessage={t("errors.agreeError")}
+                          dataTestId="agree"
+                          onChange={() => setChecked(!notChecked)}
+                        />
+                        <Button
+                          disabled={notChecked}
+                          type="submit"
+                          variant="primary"
+                          onClick={handleSubmit(onSubmit)}
+                        >
+                          {t("t.finish")}
+                        </Button>
+                      </CardSection>
+                    </>
+                  </BloomCard>
+                </Modal>
               </Form>
             </>
           </BloomCard>
@@ -320,49 +367,6 @@ export default () => {
           <p>{t("authentication.createAccount.anEmailHasBeenSent", { email: email.current })}</p>
           <p>{t("authentication.createAccount.confirmationInstruction")}</p>
         </>
-      </Modal>
-      {/* Terms disclaimer modal */}
-      <Modal
-        title=""
-        open={openTermsModal}
-        onClose={() => {
-          setOpenTermsModal(false)
-        }}
-        actions={[
-          <Button disabled={notChecked} type="submit" variant="primary" onClick={onSubmit}>
-            {t("t.finish")}
-          </Button>,
-        ]}
-      >
-        <BloomCard
-          customIcon="profile"
-          title={t("authentication.terms.reviewToc")}
-          headingPriority={1}
-        >
-          <>
-            <CardSection className={termsStyles["form-terms"]}>
-              <p>{t("authentication.terms.publicAccept")}</p>
-              <Heading size="lg" priority={2}>
-                {t("authentication.terms.termsOfUse")}
-              </Heading>
-              <Markdown>{t("authentication.terms.publicTerms")}</Markdown>
-            </CardSection>
-            <CardSection className={termsStyles["form-accept"]}>
-              <Field
-                id="agree"
-                name="agree"
-                type="checkbox"
-                label={t(`authentication.terms.acceptExtended`)}
-                register={register}
-                validation={{ required: true }}
-                error={!!errors.agree}
-                errorMessage={t("errors.agreeError")}
-                dataTestId="agree"
-                onChange={() => setChecked(!notChecked)}
-              />
-            </CardSection>
-          </>
-        </BloomCard>
       </Modal>
     </FormsLayout>
   )

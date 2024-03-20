@@ -182,10 +182,10 @@ export default () => {
                     errorMessage={t("errors.dateOfBirthErrorAge")}
                     label={t("application.name.yourDateOfBirth")}
                   />
-                  <p className={`field-note ${styles["create-account-dob-age-helper"]}`}>
+                  <p className={`field-note ${accountStyles["create-account-dob-age-helper"]}`}>
                     {t("application.name.dobHelper2")}
                   </p>
-                  <p className={`field-note ${styles["create-account-dob-example"]}`}>
+                  <p className={`field-note ${accountStyles["create-account-dob-example"]}`}>
                     {t("application.name.dobHelper")}
                   </p>
                 </CardSection>

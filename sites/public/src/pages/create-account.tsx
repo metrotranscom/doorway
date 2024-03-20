@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useContext, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import {
   Field,
@@ -6,7 +6,9 @@ import {
   emailRegex,
   t,
   DOBField,
+  AlertBox,
   SiteAlert,
+  Modal,
   passwordRegex,
 } from "@bloom-housing/ui-components"
 import { Button, Heading } from "@bloom-housing/ui-seeds"
@@ -15,7 +17,7 @@ import dayjs from "dayjs"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 dayjs.extend(customParseFormat)
 import { useRouter } from "next/router"
-import { PageView, pushGtmEvent, BloomCard } from "@bloom-housing/shared-helpers"
+import { PageView, pushGtmEvent, AuthContext, BloomCard } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import FormsLayout from "../layouts/forms"
 import BloomCardStyles from "./account/account.module.scss"
@@ -25,11 +27,17 @@ import SignUpBenefits from "../components/account/SignUpBenefits"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
 
 export default () => {
+  const { createUser, resendConfirmation } = useContext(AuthContext)
+  const [confirmationResent, setConfirmationResent] = useState<boolean>(false)
   const signUpCopy = process.env.showMandatedAccounts
   /* Form Handler */
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, handleSubmit, errors, watch } = useForm()
+  const [requestError, setRequestError] = useState<string>()
+  const [openModal, setOpenModal] = useState<boolean>(false)
   const router = useRouter()
+  const language = router.locale
+  const listingId = router.query?.listingId as string
   const email = useRef({})
   const password = useRef({})
   email.current = watch("email", "")
@@ -43,8 +51,34 @@ export default () => {
     })
   }, [])
 
-  const onSubmit = (data) => {
-    void router.push({ pathname: "/terms", query: data })
+  const onSubmit = async (data) => {
+    try {
+      const { dob, ...rest } = data
+      const listingIdRedirect =
+        process.env.showMandatedAccounts && listingId ? listingId : undefined
+      await createUser(
+        {
+          ...rest,
+          dob: dayjs(`${dob.birthYear}-${dob.birthMonth}-${dob.birthDay}`),
+          language,
+        },
+        listingIdRedirect
+      )
+
+      setOpenModal(true)
+    } catch (err) {
+      const { status, data } = err.response || {}
+      if (status === 400) {
+        setRequestError(`${t(`authentication.createAccount.errors.${data.message}`)}`)
+      } else if (status === 409) {
+        console.error(err)
+        setRequestError(`${t("authentication.createAccount.errors.emailInUse")}`)
+      } else {
+        console.error(err)
+        setRequestError(`${t("authentication.createAccount.errors.generic")}`)
+      }
+      window.scrollTo(0, 0)
+    }
   }
 
   return (
@@ -58,6 +92,11 @@ export default () => {
         <div className={signUpCopy && signUpBenefitsStyles["benefits-form-container"]}>
           <BloomCard customIcon="profile" title={t("account.createAccount")} headingPriority={1}>
             <>
+              {requestError && (
+                <AlertBox className="" onClose={() => setRequestError(undefined)} type="alert">
+                  {requestError}
+                </AlertBox>
+              )}
               <SiteAlert type="notice" dismissable />
               <Form id="create-account" onSubmit={handleSubmit(onSubmit)}>
                 <CardSection
@@ -231,6 +270,45 @@ export default () => {
           </div>
         )}
       </div>
+      <Modal
+        open={openModal}
+        title={t("authentication.createAccount.confirmationNeeded")}
+        ariaDescription={t("authentication.createAccount.anEmailHasBeenSent", {
+          email: email.current,
+        })}
+        onClose={() => {
+          void router.push("/sign-in")
+          window.scrollTo(0, 0)
+        }}
+        actions={[
+          <Button
+            variant="primary"
+            onClick={() => {
+              void router.push("/sign-in")
+              window.scrollTo(0, 0)
+            }}
+            size="sm"
+          >
+            {t("t.ok")}
+          </Button>,
+          <Button
+            variant="primary-outlined"
+            disabled={confirmationResent}
+            onClick={() => {
+              setConfirmationResent(true)
+              void resendConfirmation(email.current.toString(), listingId)
+            }}
+            size="sm"
+          >
+            {t("authentication.createAccount.resendTheEmail")}
+          </Button>,
+        ]}
+      >
+        <>
+          <p>{t("authentication.createAccount.anEmailHasBeenSent", { email: email.current })}</p>
+          <p>{t("authentication.createAccount.confirmationInstruction")}</p>
+        </>
+      </Modal>
     </FormsLayout>
   )
 }

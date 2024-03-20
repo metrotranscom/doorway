@@ -35,7 +35,7 @@ export default () => {
   const signUpCopy = process.env.showMandatedAccounts
   /* Form Handler */
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register, handleSubmit, errors, watch } = useForm()
+  const { register, handleSubmit, errors, watch, trigger } = useForm()
   const [requestError, setRequestError] = useState<string>()
   const [openTermsModal, setOpenTermsModal] = useState<boolean>(false)
   const [openEmailModal, setOpenEmailModal] = useState<boolean>(false)
@@ -60,15 +60,17 @@ export default () => {
     try {
       const { dob, ...rest } = data
       const listingIdRedirect =
-        process.env.showMandatedAccounts && listingId ? listingId : UNDEFINED
+        process.env.showMandatedAccounts && listingId ? listingId : undefined
       const createUserObj = {
         ...rest,
         dob: dayjs(`${dob.birthYear}-${dob.birthMonth}-${dob.birthDay}`).toDate(),
         language: language as LanguagesEnum,
       }
       await createUser(createUserObj, listingIdRedirect)
-      setOpenTermsModal(true)
+      setOpenEmailModal(true)
+      setOpenTermsModal(false)
     } catch (err) {
+      setOpenTermsModal(false)
       const { status, data } = err.response || {}
       if (status === 400) {
         setRequestError(`${t(`authentication.createAccount.errors.${data.message}`)}`)
@@ -81,8 +83,6 @@ export default () => {
       }
       window.scrollTo(0, 0)
     }
-    setOpenEmailModal(true)
-    setOpenTermsModal(false)
   }
 
   return (
@@ -246,7 +246,7 @@ export default () => {
                   />
                   <Button
                     onClick={() => {
-                      setOpenTermsModal(true)
+                      void trigger().then((res) => res && setOpenTermsModal(true))
                     }}
                     variant="primary"
                   >

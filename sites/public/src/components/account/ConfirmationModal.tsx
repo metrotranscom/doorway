@@ -49,7 +49,9 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
     const listingId = router.query?.listingId as string
 
     const routerRedirectUrl =
-      process.env.showMandatedAccounts && redirectUrl && listingId ? `${redirectUrl}` : "/terms"
+      process.env.showMandatedAccounts && redirectUrl && listingId
+        ? `${redirectUrl}`
+        : "/account/dashboard"
     if (router?.query?.token && !profile) {
       confirmAccount(router.query.token.toString())
         .then(() => {

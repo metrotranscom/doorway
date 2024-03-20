@@ -57,6 +57,7 @@ export default () => {
   }, [])
 
   const onSubmit = async (data) => {
+    setChecked(true)
     try {
       const { dob, ...rest } = data
       const listingIdRedirect =

@@ -67,6 +67,18 @@ export default () => {
         language: language as LanguagesEnum,
       }
       await createUser(createUserObj, listingIdRedirect)
+      if (process.env.showPwdless) {
+        const redirectUrl = router.query?.redirectUrl as string
+        const listingId = router.query?.listingId as string
+        let queryParams: { [key: string]: string } = { email: data.email, flowType: "create" }
+        if (redirectUrl) queryParams = { ...queryParams, redirectUrl }
+        if (listingId) queryParams = { ...queryParams, listingId }
+
+        await router.push({
+          pathname: "/verify",
+          query: queryParams,
+        })
+      }
       setOpenEmailModal(true)
       setOpenTermsModal(false)
     } catch (err) {
@@ -112,7 +124,7 @@ export default () => {
                   </label>
 
                   <label className={accountStyles["create-account-field"]} htmlFor="firstName">
-                    {t("application.name.firstName")}
+                    {t("application.name.firstOrGivenName")}
                   </label>
                   <Field
                     controlClassName={accountStyles["create-account-input"]}
@@ -133,8 +145,6 @@ export default () => {
                   <Field
                     name="middleName"
                     register={register}
-                    label={t("application.name.middleNameOptional")}
-                    readerOnly
                     error={errors.middleName}
                     validation={{ maxLength: 64 }}
                     errorMessage={t("errors.maxLength")}
@@ -142,20 +152,18 @@ export default () => {
                   />
 
                   <label className={accountStyles["create-account-field"]} htmlFor="lastName">
-                    {t("application.name.lastName")}
+                    {t("application.name.lastOrFamilyName")}
                   </label>
                   <Field
                     name="lastName"
                     validation={{ required: true, maxLength: 64 }}
                     error={errors.lastName}
                     register={register}
-                    label={t("application.name.lastName")}
                     errorMessage={
                       errors.lastName?.type === "maxLength"
                         ? t("errors.maxLength")
                         : t("errors.lastNameError")
                     }
-                    readerOnly
                     controlClassName={accountStyles["create-account-input"]}
                   />
                 </CardSection>
@@ -174,7 +182,12 @@ export default () => {
                     errorMessage={t("errors.dateOfBirthErrorAge")}
                     label={t("application.name.yourDateOfBirth")}
                   />
-                  <p className={"field-sub-note"}>{t("application.name.dobHelper")}</p>
+                  <p className={`field-note ${styles["create-account-dob-age-helper"]}`}>
+                    {t("application.name.dobHelper2")}
+                  </p>
+                  <p className={`field-note ${styles["create-account-dob-example"]}`}>
+                    {t("application.name.dobHelper")}
+                  </p>
                 </CardSection>
 
                 <CardSection
@@ -191,6 +204,11 @@ export default () => {
                     register={register}
                     controlClassName={accountStyles["create-account-input"]}
                     labelClassName={"text__caps-spaced"}
+                    note={
+                      process.env.showPwdless
+                        ? t("application.name.yourEmailAddressPwdlessHelper")
+                        : null
+                    }
                   />
                 </CardSection>
                 <CardSection

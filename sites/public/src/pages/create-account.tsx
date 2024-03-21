@@ -293,7 +293,7 @@ export default () => {
                 >
                   <BloomCard
                     customIcon="profile"
-                    title={t("authentication.terms.reviewToc")}
+                    title={t("authentication.terms.reviewTou")}
                     headingPriority={1}
                   >
                     <>

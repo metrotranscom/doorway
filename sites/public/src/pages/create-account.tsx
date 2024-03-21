@@ -288,7 +288,7 @@ export default () => {
                 </CardSection>
                 {/* Terms disclaimer modal */}
                 <Dialog
-                  isOpen={true}
+                  isOpen={openTermsModal}
                   onClose={() => {
                     setOpenTermsModal(false)
                   }}

@@ -76,7 +76,6 @@
   "application.contact.city": "Lungsod",
   "application.contact.contactPreference": "Sino ang napili mong kontakin?",
   "application.contact.couldntLocateAddress": "Hindi namin mahanap ang lugar na iyong inilagay. Pakikumpirmahin kung tama ito.",
-  "application.contact.doYouWorkInDescription": "TBD",
   "application.contact.doYouWorkIn": "Nagtatrabaho ka ba sa %{county} County?",
   "application.contact.mailingAddress": "Mailing Address",
   "application.contact.noPhoneNumber": "Wala akong numero ng telepono",

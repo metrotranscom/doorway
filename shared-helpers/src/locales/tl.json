@@ -79,7 +79,6 @@
   "application.contact.couldntLocateAddress": "Hindi namin mahanap ang lugar na iyong inilagay. Pakikumpirmahin kung tama ito.",
   "application.contact.county": "County",
   "application.contact.doYouWorkIn": "Nagtatrabaho ka ba sa %{county} County?",
-  "application.contact.doYouWorkInDescription": "TBD",
   "application.contact.familyName": "Apelyido",
   "application.contact.givenName": "Ibinigay na pangalan",
   "application.contact.mailingAddress": "Mailing Address",

@@ -79,7 +79,6 @@
   "application.contact.couldntLocateAddress": "Chúng tôi không thể tìm thấy địa chỉ quý vị đã nhập.  Vui lòng xác nhận địa chỉ chính xác.",
   "application.contact.county": "Quận",
   "application.contact.doYouWorkIn": "Quý vị có làm việc tại <REGION> không?",
-  "application.contact.doYouWorkInDescription": "Chưa xác định",
   "application.contact.familyName": "Tên gia đình",
   "application.contact.givenName": "Tên",
   "application.contact.mailingAddress": "Địa chỉ Nhận thư",

@@ -23,7 +23,6 @@ import { UserStatus } from "../lib/constants"
 import FormsLayout from "../layouts/forms"
 import BloomCardStyles from "./account/account.module.scss"
 import accountStyles from "../../styles/create-account.module.scss"
-import termsStyles from "../../../../shared-helpers/src/views/terms/form-terms.module.scss"
 import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefits from "../components/account/SignUpBenefits"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
@@ -289,7 +288,7 @@ export default () => {
                 </CardSection>
                 {/* Terms disclaimer modal */}
                 <Dialog
-                  isOpen={openTermsModal}
+                  isOpen={true}
                   onClose={() => {
                     setOpenTermsModal(false)
                   }}
@@ -301,7 +300,7 @@ export default () => {
                       <Heading
                         size="lg"
                         priority={2}
-                        className={accountStyles["create-account-modal-header"]}
+                        className={accountStyles["create-account-modal-subheader"]}
                       >
                         {t("authentication.terms.termsOfUse")}
                       </Heading>
@@ -318,18 +317,21 @@ export default () => {
                         dataTestId="agree"
                         onChange={() => setChecked(!notChecked)}
                         className={accountStyles["create-account-terms-checkbox"]}
+                        labelClassName={accountStyles["create-account-terms-label"]}
                       />
-                      <Button
-                        disabled={notChecked}
-                        type="submit"
-                        variant="primary"
-                        onClick={handleSubmit(onSubmit)}
-                        loadingMessage={isTermsLoading ? t("t.loading") : undefined}
-                      >
-                        {t("t.finish")}
-                      </Button>
                     </>
                   </Dialog.Content>
+                  <Dialog.Footer>
+                    <Button
+                      disabled={notChecked}
+                      type="submit"
+                      variant="primary"
+                      onClick={handleSubmit(onSubmit)}
+                      loadingMessage={isTermsLoading ? t("t.loading") : undefined}
+                    >
+                      {t("t.finish")}
+                    </Button>
+                  </Dialog.Footer>
                 </Dialog>
               </Form>
             </>

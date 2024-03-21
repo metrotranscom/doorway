@@ -294,7 +294,7 @@ export default () => {
                     setOpenTermsModal(false)
                   }}
                 >
-                  <Dialog.Header>{t("authentication.terms.reviewToc")}</Dialog.Header>
+                  <Dialog.Header>{t("authentication.terms.reviewTou")}</Dialog.Header>
                   <Dialog.Content>
                     <>
                       <p>{t("authentication.terms.publicAccept")}</p>

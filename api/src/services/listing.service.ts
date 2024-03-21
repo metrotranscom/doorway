@@ -108,6 +108,7 @@ views.full = {
   listingsApplicationPickUpAddress: true,
   listingsApplicationDropOffAddress: true,
   listingsApplicationMailingAddress: true,
+  requestedChangesUser: true,
   units: {
     include: {
       unitAmiChartOverrides: true,
@@ -601,7 +602,7 @@ export class ListingService implements OnModuleInit {
 
     let result = mapTo(Listing, listingRaw);
 
-    if (lang !== LanguagesEnum.en) {
+    if (lang && lang !== LanguagesEnum.en) {
       result = await this.translationService.translateListing(result, lang);
     }
 
@@ -1008,6 +1009,7 @@ export class ListingService implements OnModuleInit {
               },
             }
           : undefined,
+        requestedChangesUser: undefined,
       },
     });
 
@@ -1492,11 +1494,15 @@ export class ListingService implements OnModuleInit {
             dto.status === ListingsStatusEnum.closed
               ? new Date()
               : storedListing.closedAt,
-          requestedChangesUserId:
+          requestedChangesUser:
             dto.status === ListingsStatusEnum.changesRequested &&
             storedListing.status !== ListingsStatusEnum.changesRequested
-              ? requestingUser.id
-              : storedListing.requestedChangesUserId,
+              ? {
+                  connect: {
+                    id: requestingUser.id,
+                  },
+                }
+              : undefined,
           listingsResult: dto.listingsResult
             ? {
                 create: {

@@ -31,6 +31,7 @@ import {
   UserCreate,
   UserService,
   serviceOptions,
+  SuccessDTO,
 } from "../types/backend-swagger"
 import { getListingRedirectUrl } from "../utilities/getListingRedirectUrl"
 
@@ -52,7 +53,8 @@ type ContextProps = {
     email: string,
     password: string,
     mfaCode?: string,
-    mfaType?: MfaType
+    mfaType?: MfaType,
+    forPartners?: boolean
   ) => Promise<User | undefined>
   resetPassword: (
     token: string,
@@ -73,6 +75,8 @@ type ContextProps = {
     mfaType: MfaType,
     phoneNumber?: string
   ) => Promise<RequestMfaCodeResponse | undefined>
+  requestSingleUseCode: (email: string) => Promise<SuccessDTO | undefined>
+  loginViaSingleUseCode: (email: string, singleUseCode: string) => Promise<User | undefined>
 }
 
 // Internal Provider State
@@ -222,11 +226,38 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
       email,
       password,
       mfaCode: string | undefined = undefined,
-      mfaType: MfaType | undefined = undefined
+      mfaType: MfaType | undefined = undefined,
+      forPartners: boolean | undefined = undefined
     ) => {
       dispatch(startLoading())
       try {
         const response = await authService?.login({ body: { email, password, mfaCode, mfaType } })
+        if (response) {
+          const profile = await userService?.profile()
+          if (
+            profile &&
+            (!forPartners ||
+              profile.userRoles?.isAdmin ||
+              profile.userRoles?.isJurisdictionalAdmin ||
+              profile.userRoles?.isPartner)
+          ) {
+            dispatch(saveProfile(profile))
+            return profile
+          } else {
+            throw Error("User cannot log in")
+          }
+        }
+        return undefined
+      } finally {
+        dispatch(stopLoading())
+      }
+    },
+    loginViaSingleUseCode: async (email, singleUseCode) => {
+      dispatch(startLoading())
+      try {
+        const response = await authService?.loginViaASingleUseCode({
+          body: { email, singleUseCode },
+        })
         if (response) {
           const profile = await userService?.profile()
           if (profile) {
@@ -326,6 +357,16 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
       try {
         return await authService?.requestMfaCode({
           body: { email, password, mfaType, phoneNumber },
+        })
+      } finally {
+        dispatch(stopLoading())
+      }
+    },
+    requestSingleUseCode: async (email) => {
+      dispatch(startLoading())
+      try {
+        return await userService?.requestSingleUseCode({
+          body: { email },
         })
       } finally {
         dispatch(stopLoading())

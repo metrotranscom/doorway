@@ -11,6 +11,8 @@ import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import crypto from 'crypto';
 import { verify, sign } from 'jsonwebtoken';
+import { Request } from 'express';
+
 import { PrismaService } from './prisma.service';
 import { User } from '../dtos/users/user.dto';
 import { mapTo } from '../utilities/mapTo';
@@ -35,6 +37,10 @@ import { EmailService } from './email.service';
 import { PermissionService } from './permission.service';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import { buildWhereClause } from '../utilities/build-user-where';
+import { getPublicEmailURL } from '../utilities/get-public-email-url';
+import { UserRole } from '../dtos/users/user-role.dto';
+import { RequestSingleUseCode } from '../dtos/single-use-code/request-single-use-code.dto';
+import { generateSingleUseCode } from '../utilities/generate-single-use-code';
 
 /*
   this is the service for users
@@ -197,7 +203,7 @@ export class UserService {
     // only update userRoles if something has changed
     if (dto.userRoles && storedUser.userRoles) {
       if (
-        requestingUser.userRoles.isAdmin &&
+        this.isUserRoleChangeAllowed(requestingUser, dto.userRoles) &&
         !(
           dto.userRoles.isAdmin === storedUser.userRoles.isAdmin &&
           dto.userRoles.isJurisdictionalAdmin ===
@@ -477,9 +483,11 @@ export class UserService {
     dto: UserCreate | UserInvite,
     forPartners: boolean,
     sendWelcomeEmail = false,
-    requestingUser: User,
-    jurisdictionName?: string,
+    req: Request,
   ): Promise<User> {
+    const requestingUser = mapTo(User, req['user']);
+    const jurisdictionName = (req.headers['jurisdictionname'] as string) || '';
+
     if (
       this.containsInvalidCharacters(dto.firstName) ||
       this.containsInvalidCharacters(dto.lastName)
@@ -644,16 +652,27 @@ export class UserService {
 
     // Public user that needs email
     if (!forPartners && sendWelcomeEmail) {
-      const confirmationUrl = this.getPublicConfirmationUrl(
-        dto.appUrl,
-        confirmationToken,
-      );
-      this.emailService.welcome(
-        jurisdictionName,
-        mapTo(User, newUser),
-        dto.appUrl,
-        confirmationUrl,
-      );
+      const fullJurisdiction = await this.prisma.jurisdictions.findFirst({
+        where: {
+          name: jurisdictionName as string,
+        },
+      });
+
+      if (fullJurisdiction?.allowSingleUseCodeLogin) {
+        this.requestSingleUseCode(dto, req);
+      } else {
+        const confirmationUrl = this.getPublicConfirmationUrl(
+          dto.appUrl,
+          confirmationToken,
+        );
+        this.emailService.welcome(
+          jurisdictionName,
+          mapTo(User, newUser),
+          dto.appUrl,
+          confirmationUrl,
+        );
+      }
+
       // Partner user that is given access to an additional jurisdiction
     } else if (
       forPartners &&
@@ -814,7 +833,7 @@ export class UserService {
     constructs the url to confirm a public site user
   */
   getPublicConfirmationUrl(appUrl: string, confirmationToken: string) {
-    return `${appUrl}?token=${confirmationToken}`;
+    return getPublicEmailURL(appUrl, confirmationToken);
   }
 
   /*
@@ -857,5 +876,88 @@ export class UserService {
 
   containsInvalidCharacters(value: string): boolean {
     return value.includes('.') || value.includes('http');
+  }
+
+  isUserRoleChangeAllowed(
+    requestingUser: User,
+    userRoleChange: UserRole,
+  ): boolean {
+    if (requestingUser?.userRoles?.isAdmin) {
+      return true;
+    } else if (requestingUser?.userRoles?.isJurisdictionalAdmin) {
+      if (userRoleChange?.isAdmin) {
+        return false;
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   *
+   * @param dto the incoming request with the email
+   * @returns a SuccessDTO always, and if the user exists it will send a code to the requester
+   */
+  async requestSingleUseCode(
+    dto: RequestSingleUseCode,
+    req: Request,
+  ): Promise<SuccessDTO> {
+    const user = await this.prisma.userAccounts.findFirst({
+      where: { email: dto.email },
+      include: {
+        jurisdictions: true,
+      },
+    });
+    if (!user) {
+      return { success: true };
+    }
+
+    const jurisdictionName = req?.headers?.jurisdictionname;
+    if (!jurisdictionName) {
+      throw new BadRequestException(
+        'jurisdictionname is missing from the request headers',
+      );
+    }
+
+    const juris = await this.prisma.jurisdictions.findFirst({
+      select: {
+        id: true,
+        allowSingleUseCodeLogin: true,
+      },
+      where: {
+        name: jurisdictionName as string,
+      },
+      orderBy: {
+        allowSingleUseCodeLogin: OrderByEnum.DESC,
+      },
+    });
+
+    if (!juris) {
+      throw new BadRequestException(
+        `Jurisidiction ${jurisdictionName} does not exists`,
+      );
+    }
+
+    if (!juris.allowSingleUseCodeLogin) {
+      throw new BadRequestException(
+        `Single use code login is not setup for ${jurisdictionName}`,
+      );
+    }
+
+    const singleUseCode = generateSingleUseCode();
+    await this.prisma.userAccounts.update({
+      data: {
+        singleUseCode,
+        singleUseCodeUpdatedAt: new Date(),
+      },
+      where: {
+        id: user.id,
+      },
+    });
+
+    await this.emailService.sendSingleUseCode(mapTo(User, user), singleUseCode);
+
+    return { success: true };
   }
 }

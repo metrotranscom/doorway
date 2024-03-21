@@ -1,6 +1,7 @@
 import {
   ApplicationAddressTypeEnum,
   ApplicationMethodsTypeEnum,
+  LanguagesEnum,
   ListingsStatusEnum,
   MultiselectQuestions,
   MultiselectQuestionsApplicationSectionEnum,
@@ -42,9 +43,12 @@ export const stagingSeed = async (
 ) => {
   // create main jurisdiction
   const jurisdiction = await prismaClient.jurisdictions.create({
-    data: jurisdictionFactory(jurisdictionName || 'Bay Area', [
-      UserRoleEnum.admin,
-    ]),
+    data: {
+      ...jurisdictionFactory(jurisdictionName || 'Bay Area', [
+        UserRoleEnum.admin,
+      ]),
+      allowSingleUseCodeLogin: true,
+    },
   });
   // add another jurisdiction
   const additionalJurisdiction = await prismaClient.jurisdictions.create({
@@ -122,6 +126,9 @@ export const stagingSeed = async (
   // add jurisdiction specific translations and default ones
   await prismaClient.translations.create({
     data: translationFactory(jurisdiction.id, jurisdiction.name),
+  });
+  await prismaClient.translations.create({
+    data: translationFactory(undefined, undefined, LanguagesEnum.es),
   });
   await prismaClient.translations.create({
     data: translationFactory(),
@@ -890,7 +897,7 @@ export const stagingSeed = async (
               assets: {
                 create: {
                   label: 'cloudinaryBuilding',
-                  fileId: 'dev/blake-wheeler-zBHU08hdzhY-unsplash_swqash	',
+                  fileId: 'dev/blake-wheeler-zBHU08hdzhY-unsplash_swqash',
                 },
               },
             },

@@ -29,6 +29,7 @@ export type NetworkErrorReset = () => void
 export enum NetworkErrorMessage {
   PasswordOutdated = "but password is no longer valid",
   MfaUnauthorized = "mfaUnauthorized",
+  SingleUseCodeUnauthorized = "singleUseCodeUnauthorized",
 }
 
 /**
@@ -38,7 +39,7 @@ export const useCatchNetworkError = () => {
   const [networkError, setNetworkError] = useState<NetworkStatusContent>(null)
 
   const check401Error = (message: string, error: AxiosError) => {
-    if (message.includes(NetworkErrorMessage.PasswordOutdated)) {
+    if (message?.includes(NetworkErrorMessage.PasswordOutdated)) {
       setNetworkError({
         title: t("authentication.signIn.passwordOutdated"),
         description: `${t(
@@ -49,6 +50,14 @@ export const useCatchNetworkError = () => {
     } else if (message === NetworkErrorMessage.MfaUnauthorized) {
       setNetworkError({
         title: t("authentication.signIn.enterValidEmailAndPasswordAndMFA"),
+        description: t("authentication.signIn.afterFailedAttempts", {
+          count: error?.response?.data?.failureCountRemaining || 5,
+        }),
+        error,
+      })
+    } else if (message === NetworkErrorMessage.SingleUseCodeUnauthorized) {
+      setNetworkError({
+        title: t("authentication.signIn.pwdless.error"),
         description: t("authentication.signIn.afterFailedAttempts", {
           count: error?.response?.data?.failureCountRemaining || 5,
         }),

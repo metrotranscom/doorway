@@ -4,9 +4,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CookieOptions, Request, Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import { sign, verify } from 'jsonwebtoken';
-import { randomInt } from 'crypto';
 import { Prisma } from '@prisma/client';
 import { UpdatePassword } from '../dtos/auth/update-password.dto';
 import { MfaType } from '../enums/mfa/mfa-type-enum';
@@ -19,10 +18,10 @@ import { PrismaService } from './prisma.service';
 import { UserService } from './user.service';
 import { IdDTO } from '../dtos/shared/id.dto';
 import { mapTo } from '../utilities/mapTo';
+import { generateSingleUseCode } from '../utilities/generate-single-use-code';
 import { Confirm } from '../dtos/auth/confirm.dto';
 import { SmsService } from './sms.service';
 import { EmailService } from './email.service';
-import { RequestSingleUseCode } from '../dtos/single-use-code/request-single-use-code.dto';
 
 // since our local env doesn't have an https cert we can't be secure. Hosted envs should be secure
 const secure = process.env.NODE_ENV !== 'development';
@@ -219,7 +218,7 @@ export class AuthService {
       }
     }
 
-    const singleUseCode = this.generateSingleUseCode();
+    const singleUseCode = generateSingleUseCode();
     await this.prisma.userAccounts.update({
       data: {
         singleUseCode,
@@ -243,65 +242,6 @@ export class AuthService {
           phoneNumber: user.phoneNumber,
           phoneNumberVerified: user.phoneNumberVerified,
         };
-  }
-
-  /**
-   *
-   * @param dto the incoming request with the email
-   * @returns a SuccessDTO always, and if the user exists it will send a code to the requester
-   */
-  async requestSingleUseCode(
-    dto: RequestSingleUseCode,
-    req: Request,
-  ): Promise<SuccessDTO> {
-    const user = await this.prisma.userAccounts.findFirst({
-      where: { email: dto.email },
-      include: {
-        jurisdictions: true,
-      },
-    });
-    if (!user) {
-      return { success: true };
-    }
-
-    if (!req?.headers?.jurisdictionname) {
-      throw new BadRequestException(
-        'jurisdictionname is missing from the request headers',
-      );
-    }
-
-    const jurisName = req.headers['jurisdictionname'];
-    const juris = await this.prisma.jurisdictions.findFirst({
-      where: {
-        name: {
-          in: Array.isArray(jurisName) ? jurisName : [jurisName],
-        },
-        allowSingleUseCodeLogin: true,
-      },
-    });
-    if (!juris) {
-      throw new BadRequestException(
-        'Single use code login is not setup for this jurisdiction',
-      );
-    }
-
-    const singleUseCode = this.generateSingleUseCode();
-    await this.prisma.userAccounts.update({
-      data: {
-        singleUseCode,
-        singleUseCodeUpdatedAt: new Date(),
-      },
-      where: {
-        id: user.id,
-      },
-    });
-
-    await this.emailsService.sendSingleUseCode(
-      mapTo(User, user),
-      singleUseCode,
-    );
-
-    return { success: true };
   }
 
   /*
@@ -387,14 +327,26 @@ export class AuthService {
   }
 
   /*
-    generates a numeric mfa code
+    confirms a user if using pwdless
   */
-  generateSingleUseCode() {
-    let out = '';
-    const characters = '0123456789';
-    for (let i = 0; i < Number(process.env.MFA_CODE_LENGTH); i++) {
-      out += characters.charAt(randomInt(characters.length));
+  async confirmAndSetCredentials(
+    user: User,
+    res: Response,
+  ): Promise<SuccessDTO> {
+    if (!user.confirmedAt) {
+      const data: Prisma.UserAccountsUpdateInput = {
+        confirmedAt: new Date(),
+        confirmationToken: null,
+      };
+
+      await this.prisma.userAccounts.update({
+        data,
+        where: {
+          id: user.id,
+        },
+      });
     }
-    return out;
+
+    return await this.setCredentials(res, user);
   }
 }

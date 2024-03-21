@@ -8,10 +8,10 @@ import {
   DOBField,
   AlertBox,
   SiteAlert,
-  Modal,
   passwordRegex,
+  Modal,
 } from "@bloom-housing/ui-components"
-import { Button, Heading } from "@bloom-housing/ui-seeds"
+import { Button, Heading, Dialog } from "@bloom-housing/ui-seeds"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import dayjs from "dayjs"
 import Markdown from "markdown-to-jsx"
@@ -23,7 +23,6 @@ import { UserStatus } from "../lib/constants"
 import FormsLayout from "../layouts/forms"
 import BloomCardStyles from "./account/account.module.scss"
 import accountStyles from "../../styles/create-account.module.scss"
-import termsStyles from "../../../../shared-helpers/src/views/terms/form-terms.module.scss"
 import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefits from "../components/account/SignUpBenefits"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
@@ -39,6 +38,7 @@ export default () => {
   const [requestError, setRequestError] = useState<string>()
   const [openTermsModal, setOpenTermsModal] = useState<boolean>(false)
   const [openEmailModal, setOpenEmailModal] = useState<boolean>(false)
+  const [isTermsLoading, setIsTermsLoading] = useState(false)
   const [notChecked, setChecked] = useState(true)
   const router = useRouter()
   const language = router.locale
@@ -59,6 +59,7 @@ export default () => {
   const onSubmit = async (data) => {
     setChecked(true)
     try {
+      setIsTermsLoading(true)
       const { dob, ...rest } = data
       const listingIdRedirect =
         process.env.showMandatedAccounts && listingId ? listingId : undefined
@@ -81,8 +82,10 @@ export default () => {
         })
       }
       setOpenEmailModal(true)
+      setIsTermsLoading(false)
       setOpenTermsModal(false)
     } catch (err) {
+      setIsTermsLoading(false)
       setOpenTermsModal(false)
       const { status, data } = err.response || {}
       if (status === 400) {
@@ -284,51 +287,52 @@ export default () => {
                   </Button>
                 </CardSection>
                 {/* Terms disclaimer modal */}
-                <Modal
-                  title=""
-                  open={openTermsModal}
+                <Dialog
+                  isOpen={true}
                   onClose={() => {
                     setOpenTermsModal(false)
                   }}
                 >
-                  <BloomCard
-                    customIcon="profile"
-                    title={t("authentication.terms.reviewTou")}
-                    headingPriority={1}
-                  >
+                  <Dialog.Header>{t("authentication.terms.reviewTou")}</Dialog.Header>
+                  <Dialog.Content>
                     <>
-                      <CardSection className={termsStyles["form-terms"]}>
-                        <p>{t("authentication.terms.publicAccept")}</p>
-                        <Heading size="lg" priority={2}>
-                          {t("authentication.terms.termsOfUse")}
-                        </Heading>
-                        <Markdown>{t("authentication.terms.publicTerms")}</Markdown>
-                      </CardSection>
-                      <CardSection className={termsStyles["form-accept"]}>
-                        <Field
-                          id="agreedToTermsOfService"
-                          name="agreedToTermsOfService"
-                          type="checkbox"
-                          label={t(`authentication.terms.acceptExtended`)}
-                          register={register}
-                          validation={{ required: true }}
-                          error={!!errors.agree}
-                          errorMessage={t("errors.agreeError")}
-                          dataTestId="agree"
-                          onChange={() => setChecked(!notChecked)}
-                        />
-                        <Button
-                          disabled={notChecked}
-                          type="submit"
-                          variant="primary"
-                          onClick={handleSubmit(onSubmit)}
-                        >
-                          {t("t.finish")}
-                        </Button>
-                      </CardSection>
+                      <p>{t("authentication.terms.publicAccept")}</p>
+                      <Heading
+                        size="lg"
+                        priority={2}
+                        className={accountStyles["create-account-modal-subheader"]}
+                      >
+                        {t("authentication.terms.termsOfUse")}
+                      </Heading>
+                      <Markdown>{t("authentication.terms.publicTerms")}</Markdown>
+                      <Field
+                        id="agreedToTermsOfService"
+                        name="agreedToTermsOfService"
+                        type="checkbox"
+                        label={t(`authentication.terms.acceptExtended`)}
+                        register={register}
+                        validation={{ required: true }}
+                        error={!!errors.agree}
+                        errorMessage={t("errors.agreeError")}
+                        dataTestId="agree"
+                        onChange={() => setChecked(!notChecked)}
+                        className={accountStyles["create-account-terms-checkbox"]}
+                        labelClassName={accountStyles["create-account-terms-label"]}
+                      />
                     </>
-                  </BloomCard>
-                </Modal>
+                  </Dialog.Content>
+                  <Dialog.Footer>
+                    <Button
+                      disabled={notChecked}
+                      type="submit"
+                      variant="primary"
+                      onClick={handleSubmit(onSubmit)}
+                      loadingMessage={isTermsLoading ? t("t.loading") : undefined}
+                    >
+                      {t("t.finish")}
+                    </Button>
+                  </Dialog.Footer>
+                </Dialog>
               </Form>
             </>
           </BloomCard>

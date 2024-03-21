@@ -86,7 +86,7 @@ export default () => {
       setIsTermsLoading(false)
       setOpenTermsModal(false)
     } catch (err) {
-      setIsTermsLoading(true)
+      setIsTermsLoading(false)
       setOpenTermsModal(false)
       const { status, data } = err.response || {}
       if (status === 400) {

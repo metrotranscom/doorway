@@ -227,7 +227,7 @@ const ApplicationsList = () => {
                   {t("applications.export.termsOfUse")}
                 </h2>
                 <Markdown>
-                  {t("applications.export.termsBody", { bolding: styles["terms-bold-text"] })}
+                  {t("applications.export.termsBody", { bold: styles["terms-bold-text"] })}
                 </Markdown>
               </ExportTermsDialog>
             </>

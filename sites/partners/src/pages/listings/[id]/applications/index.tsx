@@ -226,10 +226,9 @@ const ApplicationsList = () => {
                 <h2 className={styles["terms-of-use-text"]}>
                   {t("applications.export.termsOfUse")}
                 </h2>
-                <Markdown>{t("applications.export.termsBodyOne")}</Markdown>
-                <span className={styles["terms-bold-text"]}>
-                  <Markdown>{t("applications.export.termsBodyTwo")}</Markdown>
-                </span>
+                <Markdown>
+                  {t("applications.export.termsBody", { bolding: styles["terms-bold-text"] })}
+                </Markdown>
               </ExportTermsDialog>
             </>
           )}

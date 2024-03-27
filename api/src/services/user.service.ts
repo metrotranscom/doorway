@@ -914,6 +914,13 @@ export class UserService {
     }
 
     const jurisdictionName = req?.headers?.jurisdictionname as string;
+
+    if (user.mfaEnabled) {
+      throw new ForbiddenException(
+        `A user with MFA required is attempting to login to the public site`,
+      );
+    }
+
     if (!jurisdictionName) {
       throw new BadRequestException(
         'jurisdictionname is missing from the request headers',

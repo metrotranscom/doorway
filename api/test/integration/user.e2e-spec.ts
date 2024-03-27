@@ -613,7 +613,7 @@ describe('User Controller Tests', () => {
     const storedUser = await prisma.userAccounts.create({
       data: await userFactory({
         roles: { isAdmin: true },
-        mfaEnabled: true,
+        mfaEnabled: false,
         confirmedAt: new Date(),
         phoneNumber: '111-111-1111',
         phoneNumberVerified: true,
@@ -655,7 +655,7 @@ describe('User Controller Tests', () => {
     const storedUser = await prisma.userAccounts.create({
       data: await userFactory({
         roles: { isAdmin: true },
-        mfaEnabled: true,
+        mfaEnabled: false,
         confirmedAt: new Date(),
         phoneNumber: '111-111-1111',
         phoneNumberVerified: true,
@@ -681,6 +681,49 @@ describe('User Controller Tests', () => {
 
     expect(res.body.message).toEqual(
       'Single use code login is not setup for single_use_code_2',
+    );
+
+    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+
+    const user = await prisma.userAccounts.findUnique({
+      where: {
+        id: storedUser.id,
+      },
+    });
+
+    expect(user.singleUseCode).toBeNull();
+  });
+
+  it('should request single use code, but disallow for an mfa user', async () => {
+    const storedUser = await prisma.userAccounts.create({
+      data: await userFactory({
+        roles: { isAdmin: true },
+        mfaEnabled: true,
+        confirmedAt: new Date(),
+        phoneNumber: '111-111-1111',
+        phoneNumberVerified: true,
+      }),
+    });
+
+    const jurisdiction = await prisma.jurisdictions.create({
+      data: {
+        name: 'single_use_code_1',
+        allowSingleUseCodeLogin: true,
+        rentalAssistanceDefault: 'test',
+      },
+    });
+    emailService.sendSingleUseCode = jest.fn();
+
+    const res = await request(app.getHttpServer())
+      .post('/user/request-single-use-code')
+      .send({
+        email: storedUser.email,
+      } as RequestMfaCode)
+      .set({ jurisdictionname: jurisdiction.name })
+      .expect(403);
+
+    expect(res.body.message).toEqual(
+      'A user with MFA required is attempting to login to the public site',
     );
 
     expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();

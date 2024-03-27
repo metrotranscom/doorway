@@ -53,8 +53,7 @@ const ApplicationsList = () => {
   const countyCode = listingDto?.jurisdictions.name
   const listingName = listingDto?.name
   const isListingOpen = listingDto?.status === "active"
-  const isListingClosed = listingDto?.status === "closed"
-  const isListingClosedAdmin = isListingClosed && profile?.userRoles?.isAdmin
+  const allowNewApps = listingDto?.status !== "closed" || profile?.userRoles?.isAdmin
   const { data: flaggedApps } = useFlaggedApplicationsList({
     listingId,
     page: 1,
@@ -196,7 +195,7 @@ const ApplicationsList = () => {
                 }}
                 headerContent={
                   <div className="flex-row">
-                    {(!isListingClosed || isListingClosedAdmin) && (
+                    {allowNewApps && (
                       <Button
                         href={`/listings/${listingId}/applications/add`}
                         variant="primary-outlined"

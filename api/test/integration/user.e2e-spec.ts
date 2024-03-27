@@ -707,7 +707,7 @@ describe('User Controller Tests', () => {
 
     const jurisdiction = await prisma.jurisdictions.create({
       data: {
-        name: 'single_use_code_1',
+        name: 'single_use_code_3',
         allowSingleUseCodeLogin: true,
         rentalAssistanceDefault: 'test',
       },
@@ -740,7 +740,7 @@ describe('User Controller Tests', () => {
   it('should request single use code, but user does not exist', async () => {
     const jurisdiction = await prisma.jurisdictions.create({
       data: {
-        name: 'single_use_code_3',
+        name: 'single_use_code_4',
         allowSingleUseCodeLogin: true,
         rentalAssistanceDefault: 'test',
       },

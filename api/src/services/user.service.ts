@@ -913,7 +913,7 @@ export class UserService {
       return { success: true };
     }
 
-    const jurisdictionName = req?.headers?.jurisdictionname;
+    const jurisdictionName = req?.headers?.jurisdictionname as string;
     if (!jurisdictionName) {
       throw new BadRequestException(
         'jurisdictionname is missing from the request headers',
@@ -956,7 +956,11 @@ export class UserService {
       },
     });
 
-    await this.emailService.sendSingleUseCode(mapTo(User, user), singleUseCode);
+    await this.emailService.sendSingleUseCode(
+      mapTo(User, user),
+      singleUseCode,
+      jurisdictionName,
+    );
 
     return { success: true };
   }

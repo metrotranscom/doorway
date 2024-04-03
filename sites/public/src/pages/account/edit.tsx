@@ -85,7 +85,7 @@ const Edit = () => {
         body: {
           ...profile,
           dob: dayjs(
-            `${dateOfBirth.birthYear}-${dateOfBirth.birthMonth}-${dateOfBirth.birthDay}`,
+            `${dateOfBirth.birthYear}-${dateOfBirth.birthMonth}-${dateOfBirth.birthDay}`
           ).toDate(),
         },
       })

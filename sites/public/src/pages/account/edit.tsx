@@ -85,7 +85,7 @@ const Edit = () => {
         body: {
           ...profile,
           dob: dayjs(
-            `${dateOfBirth.birthYear}-${dateOfBirth.birthMonth}-${dateOfBirth.birthDay}`
+            `${dateOfBirth.birthYear}-${dateOfBirth.birthMonth}-${dateOfBirth.birthDay}`,
           ).toDate(),
         },
       })
@@ -370,7 +370,9 @@ const Edit = () => {
               </Form>
             </Card.Section>
             <Card.Section divider="inset" className={styles["account-card-settings-section"]}>
-              <p className={styles["account-settings-disclaimer"]}>{t("account.settings.dataRemovalDisclaimer")}</p>
+              <p className={styles["account-settings-disclaimer"]}>
+                {t("account.settings.dataRemovalDisclaimer")}
+              </p>
             </Card.Section>
           </>
         </BloomCard>

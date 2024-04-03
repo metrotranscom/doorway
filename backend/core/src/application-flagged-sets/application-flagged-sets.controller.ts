@@ -42,7 +42,7 @@ export class ApplicationFlaggedSetsController {
   constructor(
     private readonly applicationFlaggedSetsService: ApplicationFlaggedSetsService,
     private readonly afsProcessingService: ApplicationFlaggedSetsCronjobService
-  ) {}
+  ) { }
 
   @Get("meta")
   @ApiOperation({ summary: "Meta information for application flagged sets", operationId: "meta" })
@@ -81,7 +81,7 @@ export class ApplicationFlaggedSetsController {
     return mapTo(ApplicationFlaggedSetDto, await this.applicationFlaggedSetsService.resolve(dto))
   }
 
-  @Put(":id")
+  @Put(":afsId")
   @ApiOperation({
     summary: "Reset flagged set confirmation alert",
     operationId: "resetConfirmationAlert",

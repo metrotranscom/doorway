@@ -82,7 +82,7 @@ export class PaginationAllowsAllQueryParams {
 
   @Expose()
   @ApiPropertyOptional({
-    type: "number | 'all'",
+    type: "number",
     example: 10,
     required: false,
     default: 10,

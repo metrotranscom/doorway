@@ -66,7 +66,7 @@ export class ApplicationController {
   constructor(
     private readonly applicationService: ApplicationService,
     private readonly applicationCsvExportService: ApplicationCsvExporterService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({
@@ -190,7 +190,7 @@ export class ApplicationController {
     };
   }
 
-  @Put(`:id`)
+  @Put(`:applicationId`)
   @ApiOperation({ summary: 'Update application by id', operationId: 'update' })
   @ApiOkResponse({ type: Application })
   async update(

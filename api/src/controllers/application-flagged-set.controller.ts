@@ -46,7 +46,7 @@ import { PermissionTypeDecorator } from '../decorators/permission-type.decorator
 export class ApplicationFlaggedSetController {
   constructor(
     private readonly applicationFlaggedSetService: ApplicationFlaggedSetService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({
@@ -104,7 +104,7 @@ export class ApplicationFlaggedSetController {
     return await this.applicationFlaggedSetService.process();
   }
 
-  @Put(':id')
+  @Put(':afsId')
   @ApiOperation({
     summary: 'Reset flagged set confirmation alert',
     operationId: 'resetConfirmationAlert',

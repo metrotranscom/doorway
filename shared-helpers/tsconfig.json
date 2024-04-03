@@ -18,6 +18,7 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedLocals": false,
+    "suppressImplicitAnyIndexErrors": true,
     "declaration": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,

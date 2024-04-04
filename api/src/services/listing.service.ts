@@ -190,8 +190,10 @@ export class ListingService implements OnModuleInit {
 
     // if passed in page and limit would result in no results because there aren't that many listings
     // revert back to the first page
+
+    // TODO: lost all option
     let page = params.page;
-    if (count && params.limit && params.limit !== 'all' && params.page > 1) {
+    if (count && params.limit && params.page > 1) {
       if (Math.ceil(count / params.limit) < params.page) {
         page = 1;
       }
@@ -303,7 +305,8 @@ export class ListingService implements OnModuleInit {
     // if passed in page and limit would result in no results because there aren't that many listings
     // revert back to the first page
     let page = params.page;
-    if (count && params.limit && params.limit !== 'all' && params.page > 1) {
+    // TODO: lost all option
+    if (count && params.limit && params.page > 1) {
       if (Math.ceil(count / params.limit) < params.page) {
         page = 1;
       }

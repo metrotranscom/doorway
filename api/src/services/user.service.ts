@@ -84,8 +84,7 @@ export class UserService {
     // if passed in page and limit would result in no results because there aren't that many listings
     // revert back to the first page
     let page = params.page;
-    // TODO: lost all option
-    if (count && params.limit && params.page > 1) {
+    if (count && params.limit && params.limit !== -1 && params.page > 1) {
       if (Math.ceil(count / params.limit) < params.page) {
         page = 1;
       }

@@ -57,11 +57,7 @@ export class ListingService {
    * @param limit
    * @returns Promise<PaginatedListing>
    */
-  async searchListings(
-    qb: ListingQueryBuilder,
-    limit = "all",
-    page = 1
-  ): Promise<PaginatedListing> {
+  async searchListings(qb: ListingQueryBuilder, limit = "-1", page = 1): Promise<PaginatedListing> {
     let results = Promise.resolve({
       items: [],
       meta: {

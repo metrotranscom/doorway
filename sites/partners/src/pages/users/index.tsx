@@ -128,7 +128,7 @@ const Users = () => {
   })
 
   const { listingDtos } = useListingsData({
-    limit: "all",
+    limit: -1,
   })
 
   if (error) return <div>An error has occurred.</div>

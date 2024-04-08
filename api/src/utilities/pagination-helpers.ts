@@ -5,15 +5,15 @@ import { PaginationMeta } from '../dtos/shared/pagination.dto';
   responds true if we should account for pagination
   responds false if we don't need to take pagination into account
 */
-export const shouldPaginate = (limit: number | 'all', page: number) => {
-  return limit !== 'all' && limit > 0 && page > 0;
+export const shouldPaginate = (limit: number, page: number) => {
+  return limit !== -1 && limit > 0 && page > 0;
 };
 
 /*
   takes in the params for limit and page
   responds with how many records we should skip over (if we are on page 2 we need to skip over page 1's records)
 */
-export const calculateSkip = (limit?: number | 'all', page?: number) => {
+export const calculateSkip = (limit?: number, page?: number) => {
   if (shouldPaginate(limit, page)) {
     return (page - 1) * (limit as number);
   }
@@ -25,12 +25,12 @@ export const calculateSkip = (limit?: number | 'all', page?: number) => {
   responds with the # of records per page
   e.g. if limit is 10 that means each page should only contain 10 records
 */
-export const calculateTake = (limit?: number | 'all') => {
-  return limit !== 'all' ? limit : undefined;
+export const calculateTake = (limit?: number) => {
+  return limit !== -1 ? limit : undefined;
 };
 
 interface paginationMetaParams {
-  limit?: number | 'all';
+  limit?: number;
   page?: number;
 }
 
@@ -45,7 +45,7 @@ export const buildPaginationMetaInfo = (
 ): PaginationMeta => {
   const isPaginated = shouldPaginate(params.limit, params.page);
   const itemsPerPage =
-    isPaginated && params.limit !== 'all' ? params.limit : recordArrayLength;
+    isPaginated && params.limit !== -1 ? params.limit : recordArrayLength;
   const totalItems = isPaginated ? count : recordArrayLength;
 
   const paginationInfo = {

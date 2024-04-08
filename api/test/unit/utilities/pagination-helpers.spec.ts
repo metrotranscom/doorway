@@ -6,8 +6,8 @@ import {
 } from '../../../src/utilities/pagination-helpers';
 describe('Testing pagination helpers', () => {
   describe('Testing shouldPaginate', () => {
-    it("should return false for limit of 'all'", () => {
-      expect(shouldPaginate('all', 0)).toBeFalsy();
+    it('should return false for limit of -1', () => {
+      expect(shouldPaginate(-1, 0)).toBeFalsy();
     });
     it('should return false for limit of 0', () => {
       expect(shouldPaginate(0, 1)).toBeFalsy();
@@ -20,8 +20,8 @@ describe('Testing pagination helpers', () => {
     });
   });
   describe('Testing calculateSkip', () => {
-    it("should return 0 for limit of 'all'", () => {
-      expect(calculateSkip('all', 0)).toBe(0);
+    it('should return 0 for limit of ', () => {
+      expect(calculateSkip(-1, 0)).toBe(0);
     });
     it('should return 0 for page 1', () => {
       expect(calculateSkip(1, 1)).toBe(0);
@@ -31,8 +31,8 @@ describe('Testing pagination helpers', () => {
     });
   });
   describe('Testing calculateTake', () => {
-    it("should return undefined for limit of 'all'", () => {
-      expect(calculateTake('all')).toBe(undefined);
+    it('should return undefined for limit of -1', () => {
+      expect(calculateTake(-1)).toBe(undefined);
     });
     it('should return limit for numeric limit', () => {
       expect(calculateTake(1)).toBe(1);
@@ -58,9 +58,7 @@ describe('Testing pagination helpers', () => {
       });
     });
     it('should return all records for unpaginated', () => {
-      expect(
-        buildPaginationMetaInfo({ limit: 'all', page: 1 }, 10, 10),
-      ).toEqual({
+      expect(buildPaginationMetaInfo({ limit: -1, page: 1 }, 10, 10)).toEqual({
         currentPage: 1,
         itemCount: 10,
         itemsPerPage: 10,

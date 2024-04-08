@@ -1,7 +1,7 @@
 import { shouldPaginate } from './pagination-helpers';
 
 export const buildPaginationInfo = (
-  limit: 'all' | number,
+  limit: number,
   page: number,
   count: number,
   returnedRecordCount: number,
@@ -9,7 +9,7 @@ export const buildPaginationInfo = (
   const isPaginated = shouldPaginate(limit, page);
 
   const itemsPerPage =
-    isPaginated && limit !== 'all' ? limit : returnedRecordCount;
+    isPaginated && limit !== -1 ? limit : returnedRecordCount;
   const totalItems = isPaginated ? count : returnedRecordCount;
 
   return {

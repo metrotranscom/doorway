@@ -322,7 +322,7 @@ export const ListingView = (props: ListingProps) => {
 
   const getOnlineApplicationURL = () => {
     let onlineApplicationURL
-    let externalLink
+    let isExternal
     if (hasMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.Internal)) {
       let urlBase
       if (props.isExternal) {
@@ -332,14 +332,14 @@ export const ListingView = (props: ListingProps) => {
         urlBase = ""
       }
       onlineApplicationURL = `${urlBase}/applications/start/choose-language?listingId=${listing.id}&source=dhp`
-      externalLink = false
+      isExternal = false
     } else if (hasMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.ExternalLink)) {
       onlineApplicationURL =
         getMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.ExternalLink)
           ?.externalReference || ""
-      externalLink = true
+      isExternal = true
     }
-    return { url: onlineApplicationURL, externalLink }
+    return { url: onlineApplicationURL, isExternal }
   }
 
   const getPaperApplications = () => {
@@ -376,7 +376,7 @@ export const ListingView = (props: ListingProps) => {
     process.env.showMandatedAccounts &&
     initialStateLoaded &&
     !profile &&
-    !onlineApplicationURLInfo.externalLink
+    !onlineApplicationURLInfo.isExternal
 
   const applySidebar = () => (
     <>
@@ -401,7 +401,7 @@ export const ListingView = (props: ListingProps) => {
         preview={props.preview}
         listingName={listing.name}
         listingId={listing.id}
-        isExternal={props.isExternal ?? onlineApplicationURLInfo.externalLink}
+        isExternal={props.isExternal ?? onlineApplicationURLInfo.isExternal}
         listingStatus={listing.status}
       />
       {!(

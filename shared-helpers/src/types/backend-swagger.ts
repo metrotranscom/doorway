@@ -144,7 +144,7 @@ export class ListingsService {
       /**  */
       page?: number
       /**  */
-      limit?: number
+      limit?: number | "all"
       /**  */
       filter?: ListingFilterParams[]
       /**  */
@@ -229,7 +229,7 @@ export class ListingsService {
       /**  */
       page?: number
       /**  */
-      limit?: number
+      limit?: number | "all"
       /**  */
       filter?: ListingFilterParams[]
       /**  */
@@ -404,7 +404,7 @@ export class ApplicationFlaggedSetsService {
       /**  */
       page?: number
       /**  */
-      limit?: number
+      limit?: number | "all"
       /**  */
       listingId: string
       /**  */
@@ -436,7 +436,7 @@ export class ApplicationFlaggedSetsService {
       /**  */
       page?: number
       /**  */
-      limit?: number
+      limit?: number | "all"
       /**  */
       listingId: string
       /**  */
@@ -1325,7 +1325,7 @@ export class ApplicationsService {
       /**  */
       page?: number
       /**  */
-      limit?: number
+      limit?: number | "all"
       /**  */
       listingId?: string
       /**  */
@@ -1721,7 +1721,7 @@ export class UserService {
       /**  */
       page?: number
       /**  */
-      limit?: number
+      limit?: number | "all"
       /**  */
       filter?: UserFilterParams[]
       /**  */
@@ -2111,7 +2111,7 @@ export interface ListingsQueryParams {
   page?: number
 
   /**  */
-  limit?: number
+  limit?: number | "all"
 
   /**  */
   filter?: string[]
@@ -2180,7 +2180,7 @@ export interface PaginationAllowsAllQueryParams {
   page?: number
 
   /**  */
-  limit?: number
+  limit?: number | "all"
 }
 
 export interface IdDTO {

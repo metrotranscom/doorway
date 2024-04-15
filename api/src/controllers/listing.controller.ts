@@ -82,7 +82,6 @@ export class ListingController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: PaginatedListingDto })
   public async getPaginatedSet(@Query() queryParams: ListingsQueryParams) {
-    console.log('85:', queryParams);
     return await this.listingService.list(queryParams);
   }
 

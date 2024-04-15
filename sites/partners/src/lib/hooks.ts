@@ -22,7 +22,7 @@ dayjs.extend(tz)
 
 export interface PaginationProps {
   page?: number
-  limit: number
+  limit: number | "all"
 }
 
 export interface ColumnOrder {

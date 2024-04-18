@@ -20,7 +20,7 @@ describe('Testing pagination helpers', () => {
     });
   });
   describe('Testing calculateSkip', () => {
-    it('should return 0 for limit of ', () => {
+    it("should return 0 for limit of 'all'", () => {
       expect(calculateSkip('all', 0)).toBe(0);
     });
     it('should return 0 for page 1', () => {

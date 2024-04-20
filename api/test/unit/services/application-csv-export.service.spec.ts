@@ -534,7 +534,6 @@ describe('Testing application CSV export service', () => {
 
     service.unitTypeToReadable = jest.fn().mockReturnValue('Studio');
 
-    //BREAKS HERE
     const exportResponse = await service.exportFile(
       { user: requestingUser } as unknown as ExpressRequest,
       {} as unknown as Response,

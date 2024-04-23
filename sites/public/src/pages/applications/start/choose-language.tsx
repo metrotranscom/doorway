@@ -122,11 +122,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
         language,
         isPreview
       ).then(() => {
-        void router.push(
-          `${conductor.determineNextUrl()}${isPreview ? "?preview=true" : ""}`,
-          null,
-          { locale: language }
-        )
+        void router.push(conductor.determineNextUrl(), null, { locale: language })
       })
     },
     [conductor, isPreview, props.backendApiBase, listingId, context, router]

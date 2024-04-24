@@ -23,7 +23,6 @@ import {
 } from '@prisma/client';
 import { IdDTO } from '../dtos/shared/id.dto';
 import { Listing } from '../dtos/listings/listing.dto';
-import { SendGridService } from './sendgrid.service';
 import { ApplicationCreate } from '../dtos/applications/application-create.dto';
 import { User } from '../dtos/users/user.dto';
 import Unit from '../dtos/units/unit.dto';
@@ -32,12 +31,6 @@ import { getPublicEmailURL } from '../utilities/get-public-email-url';
 dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(advanced);
-
-type EmailAttachmentData = {
-  data: string;
-  name: string;
-  type: string;
-};
 
 type listingInfo = {
   id: string;
@@ -49,7 +42,7 @@ const sesClient = new aws.SESClient({
   region: process.env.AWS_REGION,
 });
 
-let transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   SES: { ses: sesClient, aws },
 });
 
@@ -58,7 +51,6 @@ export class EmailService {
   polyglot: Polyglot;
 
   constructor(
-    private readonly sendGrid: SendGridService,
     private readonly configService: ConfigService,
     private readonly translationService: TranslationService,
     private readonly jurisdictionService: JurisdictionService,
@@ -152,7 +144,7 @@ export class EmailService {
     );
   }
 
-  private async sendSES(mailOptions: SendMailOptions) {
+  public async sendSES(mailOptions: SendMailOptions) {
     try {
       return await transporter.sendMail({
         ...mailOptions,
@@ -279,7 +271,7 @@ export class EmailService {
     user: User,
     appUrl: string,
     confirmationUrl: string,
-    newEmail: string,
+    // newEmail: string,
   ) {
     const jurisdiction = await this.getJurisdiction(null, jurisdictionName);
     await this.loadTranslations(jurisdiction, user.language);

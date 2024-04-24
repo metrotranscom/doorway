@@ -7,7 +7,6 @@ import {
 } from '@prisma/client';
 import { MailService } from '@sendgrid/mail';
 import { EmailService } from '../../../src/services/email.service';
-import { SendGridService } from '../../../src/services/sendgrid.service';
 import { TranslationService } from '../../../src/services/translation.service';
 import { JurisdictionService } from '../../../src/services/jurisdiction.service';
 import { GoogleTranslateService } from '../../../src/services/google-translate.service';
@@ -43,14 +42,12 @@ const httpServiceMock = {
 describe('Testing email service', () => {
   let service: EmailService;
   let module: TestingModule;
-  let sendGridService: SendGridService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [ConfigModule],
       providers: [
         EmailService,
-        SendGridService,
         MailService,
         {
           provide: TranslationService,
@@ -68,10 +65,9 @@ describe('Testing email service', () => {
 
   beforeEach(async () => {
     jest.useFakeTimers();
-    sendGridService = module.get<SendGridService>(SendGridService);
     sendMock = jest.fn();
-    sendGridService.send = sendMock;
     service = await module.resolve(EmailService);
+    service.sendSES = sendMock;
   });
 
   const user = {
@@ -401,7 +397,7 @@ describe('Testing email service', () => {
       const emailArr = ['testOne@xample.com', 'testTwo@example.com'];
       const service = await module.resolve(EmailService);
       await service.changesRequested(
-        { name: 'test', id: '1234' },
+        { firstName: 'test', id: '1234' } as User,
         { name: 'listing name', id: 'listingId', juris: 'jurisId' },
         emailArr,
         'http://localhost:3001',

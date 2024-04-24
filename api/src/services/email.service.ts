@@ -271,7 +271,7 @@ export class EmailService {
     user: User,
     appUrl: string,
     confirmationUrl: string,
-    // newEmail: string,
+    newEmail: string,
   ) {
     const jurisdiction = await this.getJurisdiction(null, jurisdictionName);
     await this.loadTranslations(jurisdiction, user.language);

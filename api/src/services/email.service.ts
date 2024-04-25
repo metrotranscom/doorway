@@ -215,7 +215,7 @@ export class EmailService {
     await this.loadTranslations(jurisdiction, user.language);
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //user.email
+      to: user.email,
       subject: this.polyglot.t('register.welcome'),
       html: this.template('register-email')({
         user: user,
@@ -236,7 +236,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction, user.language));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //user.email
+      to: user.email,
       subject: this.polyglot.t('invite.hello'),
       html: this.template('invite')({
         user: user,
@@ -256,7 +256,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction, user.language));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //user.email
+      to: user.email,
       subject: this.polyglot.t('invite.portalAccountUpdate'),
       html: this.template('portal-account-update')({
         user,
@@ -277,7 +277,7 @@ export class EmailService {
     await this.loadTranslations(jurisdiction, user.language);
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //newEmail
+      to: newEmail,
       subject: 'Bloom email change request',
       html: this.template('change-email')({
         user: user,
@@ -301,7 +301,7 @@ export class EmailService {
     const baseUrl = appUrl ? new URL(appUrl).origin : undefined;
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //user.email
+      to: user.email,
       subject: this.polyglot.t('forgotPassword.subject'),
       text: 'Text version',
       html: compiledTemplate({
@@ -317,7 +317,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction, user.language));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //user.email
+      to: user.email,
       subject: 'Partners Portal account access token',
       text: 'Text version',
       html: this.template('mfa-code')({
@@ -339,7 +339,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction, user.language));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //user.email
+      to: user.email,
       subject: user.confirmedAt
         ? `Code for your ${jurisdiction?.name} sign-in`
         : `${jurisdiction?.name} verification code`,
@@ -393,7 +393,7 @@ export class EmailService {
     const nextStepsUrl = this.polyglot.t('confirmation.nextStepsUrl');
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //application.applicant.emailAddress
+      to: application.applicant.emailAddress,
       subject: this.polyglot.t('confirmation.subject'),
       html: compiledTemplate({
         subject: this.polyglot.t('confirmation.subject'),
@@ -425,7 +425,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //emails
+      to: emails,
       subject: this.polyglot.t('requestApproval.header'),
       html: this.template('request-approval')({
         appOptions: { listingName: listingInfo.name },
@@ -447,7 +447,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //emails
+      to: emails,
       subject: this.polyglot.t('changesRequested.header'),
       html: this.template('changes-requested')({
         appOptions: { listingName: listingInfo.name },
@@ -467,7 +467,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //emails
+      to: emails,
       subject: this.polyglot.t('listingApproved.header'),
       html: this.template('listing-approved')({
         appOptions: { listingName: listingInfo.name },
@@ -496,7 +496,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction, user.language));
 
     await this.sendSES({
-      to: 'emily.jablonski@exygy.com', //user.email
+      to: user.email,
       subject: exportEmailTitle,
       html: this.template('csv-export')({
         user: user,

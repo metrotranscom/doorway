@@ -5,7 +5,6 @@ import {
   ListingsStatusEnum,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
-import { MailService } from '@sendgrid/mail';
 import { EmailService } from '../../../src/services/email.service';
 import { TranslationService } from '../../../src/services/translation.service';
 import { JurisdictionService } from '../../../src/services/jurisdiction.service';
@@ -48,7 +47,6 @@ describe('Testing email service', () => {
       imports: [ConfigModule],
       providers: [
         EmailService,
-        MailService,
         {
           provide: TranslationService,
           useValue: translationServiceMock,

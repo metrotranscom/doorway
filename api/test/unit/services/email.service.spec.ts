@@ -363,7 +363,7 @@ describe('Testing email service', () => {
       expect(emailMock.to).toEqual(emailArr);
       expect(emailMock.subject).toEqual('Listing approval requested');
       expect(emailMock.html).toMatch(
-        `<img src="https://housingbayarea.mtc.ca.gov/images/doorway-logo.png" alt="Bloom Housing Portal" width="300" height="65" class="header-image" >`,
+        `<img src="https://housingbayarea.mtc.ca.gov/images/doorway-logo.png" alt="Bloom Housing Portal" width="300" height="65" class="header-image"/>`,
       );
 
       expect(emailMock.html).toMatch('Hello,');

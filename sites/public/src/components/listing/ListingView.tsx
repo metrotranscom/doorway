@@ -333,12 +333,12 @@ export const ListingView = (props: ListingProps) => {
       }
       onlineApplicationURL = `${urlBase}/applications/start/choose-language?listingId=${listing.id}&source=dhp`
       if (props.preview) onlineApplicationURL += "&preview=true"
-      isCommonApp = false
+      isCommonApp = true
     } else if (hasMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.ExternalLink)) {
       onlineApplicationURL =
         getMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.ExternalLink)
           ?.externalReference || ""
-      isCommonApp = true
+      isCommonApp = false
     }
     return { url: onlineApplicationURL, isCommonApp }
   }

@@ -24,7 +24,7 @@ const Applications = () => {
   const [error, setError] = useState()
 
   useEffect(() => {
-    if (profile && !applications) {
+    if (profile) {
       pushGtmEvent<PageView>({
         event: "pageView",
         pageTitle: "My Applications",
@@ -41,7 +41,7 @@ const Applications = () => {
           setLoading(false)
         })
     }
-  }, [profile, applicationsService, applications])
+  }, [profile, applicationsService])
 
   useEffect(() => {
     if (!applications || (applications && !listLoading)) return

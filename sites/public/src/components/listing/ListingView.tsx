@@ -25,7 +25,6 @@ import {
   StandardTable,
   ImageCard,
   Icon,
-  isExternalLink,
 } from "@bloom-housing/ui-components"
 import { Message } from "@bloom-housing/ui-seeds"
 import {

@@ -25,6 +25,7 @@ import {
   StandardTable,
   ImageCard,
   Icon,
+  isExternalLink,
 } from "@bloom-housing/ui-components"
 import { Message } from "@bloom-housing/ui-seeds"
 import {
@@ -378,6 +379,7 @@ export const ListingView = (props: ListingProps) => {
     initialStateLoaded &&
     !profile &&
     onlineApplicationURLInfo.isCommonApp &&
+    !props.isExternal &&
     !props.preview
 
   const applySidebar = () => (

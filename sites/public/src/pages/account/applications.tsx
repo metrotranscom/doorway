@@ -34,6 +34,7 @@ const Applications = () => {
         .list({ userId: profile.id })
         .then((apps) => {
           apps?.items?.length > 0 ? setApplications(apps.items) : setLoading(false)
+          setListLoading(true)
         })
         .catch((err) => {
           console.error(`Error fetching applications: ${err}`)

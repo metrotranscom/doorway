@@ -27,10 +27,8 @@ const StatusItem = (props: StatusItemProps) => {
     <Card.Section className={accountStyles["account-card-applications-section"]}>
       <article className={styles["status-item"]}>
         <header className={styles["status-item__header"]}>
-          <h3 className={styles["status-item__title"]} id="listing-name">
-            {props.listingName}
-          </h3>
-          <p className={styles["status-item__status"]} id="application-status">
+          <h3 className={styles["status-item__title"]}>{props.listingName}</h3>
+          <p className={styles["status-item__status"]}>
             {props.strings?.status ?? t("application.status")}:{" "}
             <Tag variant="primary-inverse">
               {props.strings?.submittedStatus ?? t("application.statuses.submitted")}
@@ -42,11 +40,11 @@ const StatusItem = (props: StatusItemProps) => {
           <div>
             {props.confirmationNumber && (
               <>
-                <span className={styles["status-item__confirm-text"]} id="lottery-number">
+                <span className={styles["status-item__confirm-text"]}>
                   {props.strings?.yourNumber ?? t("application.yourLotteryNumber")}:
                 </span>
                 <br />
-                <span className={styles["status-item__confirm-number"]} id="confirmation-number">
+                <span className={styles["status-item__confirm-number"]}>
                   {props.confirmationNumber}
                 </span>
               </>
@@ -57,9 +55,7 @@ const StatusItem = (props: StatusItemProps) => {
             {props.applicationDueDate && (
               <p className={styles["status-item__due"]}>
                 {props.strings?.applicationsDeadline ?? t("listings.applicationDeadline")}:{" "}
-                <span className={styles["status-item__due-date"]} id="application-due-date">
-                  {props.applicationDueDate}
-                </span>
+                <span className={styles["status-item__due-date"]}>{props.applicationDueDate}</span>
               </p>
             )}
           </div>
@@ -67,22 +63,12 @@ const StatusItem = (props: StatusItemProps) => {
 
         <footer className={styles["status-item__footer"]}>
           <div>
-            <Button
-              href={props.applicationURL}
-              variant="primary-outlined"
-              size="sm"
-              id="view-application-button"
-            >
+            <Button href={props.applicationURL} variant="primary-outlined" size="sm">
               {props.strings?.viewApplication ?? t("application.viewApplication")}
             </Button>
           </div>
           <div>
-            <Button
-              href={props.listingURL}
-              variant="primary-outlined"
-              size="sm"
-              id="see-listing-button"
-            >
+            <Button href={props.listingURL} variant="primary-outlined" size="sm">
               {props.strings?.seeListing ?? t("t.seeListing")}
             </Button>
           </div>

@@ -10,7 +10,6 @@ import {
 } from "./../mockData/applicationData"
 
 Cypress.Commands.add("signIn", () => {
-  cy.getByID("switch-sign-in-button").click()
   cy.get(`[data-testid="sign-in-email-field"]`).type("admin@example.com")
   cy.get(`[data-testid="sign-in-password-field"]`).type("abcdef")
   cy.getByID("sign-in-button").click()
@@ -49,7 +48,10 @@ Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
   cy.visit("/listings")
   cy.get(".is-card-link").contains(listingName).click()
   cy.getByID("listing-view-apply-button").eq(1).click()
-  cy.signIn()
+  cy.getByID("app-choose-language-sign-in-button").click()
+  cy.get("[data-testid=sign-in-email-field]").type("admin@example.com")
+  cy.get("[data-testid=sign-in-password-field]").type("abcdef")
+  cy.getByID("sign-in-button").click()
   cy.getByID("app-choose-language-button").eq(0).click()
   cy.getByID("app-next-step-button").click()
   cy.getByID("application-initial-page").then(() => {

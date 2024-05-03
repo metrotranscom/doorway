@@ -27,7 +27,20 @@ import { User } from '../../../src/dtos/users/user.dto';
 import { permissionActions } from '../../../src/enums/permissions/permission-actions-enum';
 import { GeocodingService } from '../../../src/services/geocoding.service';
 
-export const mockApplication = (position: number, date: Date) => {
+export const mockApplication = (
+  position: number,
+  date: Date,
+  numberOfHouseholdMembers?: number,
+) => {
+  let householdMember = undefined;
+  if (numberOfHouseholdMembers) {
+    householdMember = [];
+    for (let i = 0; i < numberOfHouseholdMembers; i++) {
+      householdMember.push({
+        id: randomUUID(),
+      });
+    }
+  }
   return {
     id: randomUUID(),
     appUrl: `appUrl ${position}`,
@@ -94,13 +107,18 @@ export const mockApplication = (position: number, date: Date) => {
     },
     createdAt: date,
     updatedAt: date,
+    householdMember: householdMember,
   };
 };
 
-export const mockApplicationSet = (numberToCreate: number, date: Date) => {
+export const mockApplicationSet = (
+  numberToCreate: number,
+  date: Date,
+  numberOfHouseholdMembers?: number,
+) => {
   const toReturn = [];
   for (let i = 0; i < numberToCreate; i++) {
-    toReturn.push(mockApplication(i, date));
+    toReturn.push(mockApplication(i, date, numberOfHouseholdMembers));
   }
   return toReturn;
 };
@@ -232,6 +250,382 @@ export const mockCreateApplicationData = (
       },
     ],
   } as ApplicationCreate;
+};
+
+const detailView = {
+  applicant: {
+    select: {
+      id: true,
+      firstName: true,
+      middleName: true,
+      lastName: true,
+      birthMonth: true,
+      birthDay: true,
+      birthYear: true,
+      emailAddress: true,
+      noEmail: true,
+      phoneNumber: true,
+      phoneNumberType: true,
+      noPhone: true,
+      workInRegion: true,
+      applicantAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+      applicantWorkAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+  },
+  accessibility: {
+    select: {
+      id: true,
+      mobility: true,
+      vision: true,
+      hearing: true,
+    },
+  },
+  applicationsMailingAddress: {
+    select: {
+      id: true,
+      placeName: true,
+      city: true,
+      county: true,
+      state: true,
+      street: true,
+      street2: true,
+      zipCode: true,
+      latitude: true,
+      longitude: true,
+    },
+  },
+  applicationsAlternateAddress: {
+    select: {
+      id: true,
+      placeName: true,
+      city: true,
+      county: true,
+      state: true,
+      street: true,
+      street2: true,
+      zipCode: true,
+      latitude: true,
+      longitude: true,
+    },
+  },
+  alternateContact: {
+    select: {
+      id: true,
+      type: true,
+      otherType: true,
+      firstName: true,
+      lastName: true,
+      agency: true,
+      phoneNumber: true,
+      emailAddress: true,
+      address: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+  },
+  demographics: {
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      ethnicity: true,
+      gender: true,
+      sexualOrientation: true,
+      howDidYouHear: true,
+      race: true,
+    },
+  },
+  preferredUnitTypes: {
+    select: {
+      id: true,
+      name: true,
+      numBedrooms: true,
+    },
+  },
+  listings: {
+    select: {
+      id: true,
+      name: true,
+      jurisdictions: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  },
+  householdMember: {
+    select: {
+      id: true,
+      orderId: true,
+      firstName: true,
+      middleName: true,
+      lastName: true,
+      birthMonth: true,
+      birthDay: true,
+      birthYear: true,
+      sameAddress: true,
+      relationship: true,
+      workInRegion: true,
+      householdMemberAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+      householdMemberWorkAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+  },
+  userAccounts: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+    },
+  },
+};
+
+const baseView = {
+  applicant: {
+    select: {
+      id: true,
+      firstName: true,
+      middleName: true,
+      lastName: true,
+      birthMonth: true,
+      birthDay: true,
+      birthYear: true,
+      emailAddress: true,
+      noEmail: true,
+      phoneNumber: true,
+      phoneNumberType: true,
+      noPhone: true,
+      workInRegion: true,
+      applicantAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+      applicantWorkAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+  },
+  accessibility: {
+    select: {
+      id: true,
+      mobility: true,
+      vision: true,
+      hearing: true,
+    },
+  },
+  applicationsMailingAddress: {
+    select: {
+      id: true,
+      placeName: true,
+      city: true,
+      county: true,
+      state: true,
+      street: true,
+      street2: true,
+      zipCode: true,
+      latitude: true,
+      longitude: true,
+    },
+  },
+  applicationsAlternateAddress: {
+    select: {
+      id: true,
+      placeName: true,
+      city: true,
+      county: true,
+      state: true,
+      street: true,
+      street2: true,
+      zipCode: true,
+      latitude: true,
+      longitude: true,
+    },
+  },
+  alternateContact: {
+    select: {
+      id: true,
+      type: true,
+      otherType: true,
+      firstName: true,
+      lastName: true,
+      agency: true,
+      phoneNumber: true,
+      emailAddress: true,
+      address: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+  },
+  demographics: {
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      ethnicity: true,
+      gender: true,
+      sexualOrientation: true,
+      howDidYouHear: true,
+      race: true,
+    },
+  },
+  preferredUnitTypes: {
+    select: {
+      id: true,
+      name: true,
+      numBedrooms: true,
+    },
+  },
+  listings: {
+    select: {
+      id: true,
+      name: true,
+      jurisdictions: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  },
+  householdMember: {
+    select: {
+      id: true,
+      orderId: true,
+      firstName: true,
+      middleName: true,
+      lastName: true,
+      birthMonth: true,
+      birthDay: true,
+      birthYear: true,
+      sameAddress: true,
+      relationship: true,
+      workInRegion: true,
+      householdMemberAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+      householdMemberWorkAddress: {
+        select: {
+          id: true,
+          placeName: true,
+          city: true,
+          county: true,
+          state: true,
+          street: true,
+          street2: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+  },
 };
 
 describe('Testing application service', () => {
@@ -383,30 +777,7 @@ describe('Testing application service', () => {
         id: 'example Id',
       },
       include: {
-        userAccounts: true,
-        applicant: {
-          include: {
-            applicantAddress: true,
-            applicantWorkAddress: true,
-          },
-        },
-        applicationsMailingAddress: true,
-        applicationsAlternateAddress: true,
-        alternateContact: {
-          include: {
-            address: true,
-          },
-        },
-        accessibility: true,
-        demographics: true,
-        householdMember: {
-          include: {
-            householdMemberAddress: true,
-            householdMemberWorkAddress: true,
-          },
-        },
-        listings: true,
-        preferredUnitTypes: true,
+        ...detailView,
       },
     });
   });
@@ -434,30 +805,7 @@ describe('Testing application service', () => {
         id: 'example Id',
       },
       include: {
-        userAccounts: true,
-        applicant: {
-          include: {
-            applicantAddress: true,
-            applicantWorkAddress: true,
-          },
-        },
-        applicationsMailingAddress: true,
-        applicationsAlternateAddress: true,
-        alternateContact: {
-          include: {
-            address: true,
-          },
-        },
-        accessibility: true,
-        demographics: true,
-        householdMember: {
-          include: {
-            householdMemberAddress: true,
-            householdMemberWorkAddress: true,
-          },
-        },
-        listings: true,
-        preferredUnitTypes: true,
+        ...detailView,
       },
     });
   });
@@ -656,29 +1004,7 @@ describe('Testing application service', () => {
         id: 'example Id',
       },
       include: {
-        applicant: {
-          include: {
-            applicantAddress: true,
-            applicantWorkAddress: true,
-          },
-        },
-        applicationsMailingAddress: true,
-        applicationsAlternateAddress: true,
-        alternateContact: {
-          include: {
-            address: true,
-          },
-        },
-        accessibility: true,
-        demographics: true,
-        householdMember: {
-          include: {
-            householdMemberAddress: true,
-            householdMemberWorkAddress: true,
-          },
-        },
-        listings: true,
-        preferredUnitTypes: true,
+        ...baseView,
       },
     });
   });
@@ -829,32 +1155,7 @@ describe('Testing application service', () => {
     });
 
     expect(prisma.applications.create).toHaveBeenCalledWith({
-      include: {
-        accessibility: true,
-        applicationsAlternateAddress: true,
-        applicationsMailingAddress: true,
-        demographics: true,
-        listings: true,
-        preferredUnitTypes: true,
-        userAccounts: true,
-        alternateContact: {
-          include: {
-            address: true,
-          },
-        },
-        applicant: {
-          include: {
-            applicantAddress: true,
-            applicantWorkAddress: true,
-          },
-        },
-        householdMember: {
-          include: {
-            householdMemberAddress: true,
-            householdMemberWorkAddress: true,
-          },
-        },
-      },
+      include: { ...detailView },
       data: {
         contactPreferences: ['example contact preference'],
         status: ApplicationStatusEnum.submitted,
@@ -882,9 +1183,9 @@ describe('Testing application service', () => {
             firstName: 'applicant first name',
             middleName: 'applicant middle name',
             lastName: 'applicant last name',
-            birthMonth: '12',
-            birthDay: '17',
-            birthYear: '1993',
+            birthMonth: 12,
+            birthDay: 17,
+            birthYear: 1993,
             emailAddress: 'example@email.com',
             noEmail: false,
             phoneNumber: '111-111-1111',
@@ -964,9 +1265,9 @@ describe('Testing application service', () => {
               firstName: 'example first name',
               middleName: 'example middle name',
               lastName: 'example last name',
-              birthMonth: '12',
-              birthDay: '17',
-              birthYear: '1993',
+              birthMonth: 12,
+              birthDay: 17,
+              birthYear: 1993,
               sameAddress: YesNoEnum.yes,
               relationship: 'example relationship',
               workInRegion: YesNoEnum.yes,
@@ -1162,30 +1463,7 @@ describe('Testing application service', () => {
 
     expect(prisma.applications.create).toHaveBeenCalledWith({
       include: {
-        accessibility: true,
-        applicationsAlternateAddress: true,
-        applicationsMailingAddress: true,
-        demographics: true,
-        listings: true,
-        preferredUnitTypes: true,
-        userAccounts: true,
-        alternateContact: {
-          include: {
-            address: true,
-          },
-        },
-        applicant: {
-          include: {
-            applicantAddress: true,
-            applicantWorkAddress: true,
-          },
-        },
-        householdMember: {
-          include: {
-            householdMemberAddress: true,
-            householdMemberWorkAddress: true,
-          },
-        },
+        ...detailView,
       },
       data: {
         contactPreferences: ['example contact preference'],
@@ -1213,9 +1491,9 @@ describe('Testing application service', () => {
             firstName: 'applicant first name',
             middleName: 'applicant middle name',
             lastName: 'applicant last name',
-            birthMonth: '12',
-            birthDay: '17',
-            birthYear: '1993',
+            birthMonth: 12,
+            birthDay: 17,
+            birthYear: 1993,
             emailAddress: 'example@email.com',
             noEmail: false,
             phoneNumber: '111-111-1111',
@@ -1295,9 +1573,9 @@ describe('Testing application service', () => {
               firstName: 'example first name',
               middleName: 'example middle name',
               lastName: 'example last name',
-              birthMonth: '12',
-              birthDay: '17',
-              birthYear: '1993',
+              birthMonth: 12,
+              birthDay: 17,
+              birthYear: 1993,
               sameAddress: YesNoEnum.yes,
               relationship: 'example relationship',
               workInRegion: YesNoEnum.yes,
@@ -1416,30 +1694,7 @@ describe('Testing application service', () => {
 
     expect(prisma.applications.update).toHaveBeenCalledWith({
       include: {
-        accessibility: true,
-        applicationsAlternateAddress: true,
-        applicationsMailingAddress: true,
-        demographics: true,
-        listings: true,
-        preferredUnitTypes: true,
-        userAccounts: true,
-        alternateContact: {
-          include: {
-            address: true,
-          },
-        },
-        applicant: {
-          include: {
-            applicantAddress: true,
-            applicantWorkAddress: true,
-          },
-        },
-        householdMember: {
-          include: {
-            householdMemberAddress: true,
-            householdMemberWorkAddress: true,
-          },
-        },
+        ...detailView,
       },
       data: {
         contactPreferences: ['example contact preference'],
@@ -1466,9 +1721,9 @@ describe('Testing application service', () => {
             firstName: 'applicant first name',
             middleName: 'applicant middle name',
             lastName: 'applicant last name',
-            birthMonth: '12',
-            birthDay: '17',
-            birthYear: '1993',
+            birthMonth: 12,
+            birthDay: 17,
+            birthYear: 1993,
             emailAddress: 'example@email.com',
             noEmail: false,
             phoneNumber: '111-111-1111',
@@ -1548,9 +1803,9 @@ describe('Testing application service', () => {
               firstName: 'example first name',
               middleName: 'example middle name',
               lastName: 'example last name',
-              birthMonth: '12',
-              birthDay: '17',
-              birthYear: '1993',
+              birthMonth: 12,
+              birthDay: 17,
+              birthYear: 1993,
               sameAddress: YesNoEnum.yes,
               relationship: 'example relationship',
               workInRegion: YesNoEnum.yes,
@@ -1709,30 +1964,195 @@ describe('Testing application service', () => {
         id: mockedValue.id,
       },
       include: {
-        userAccounts: true,
         applicant: {
-          include: {
-            applicantAddress: true,
-            applicantWorkAddress: true,
+          select: {
+            id: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+            birthMonth: true,
+            birthDay: true,
+            birthYear: true,
+            emailAddress: true,
+            noEmail: true,
+            phoneNumber: true,
+            phoneNumberType: true,
+            noPhone: true,
+            workInRegion: true,
+            applicantAddress: {
+              select: {
+                id: true,
+                placeName: true,
+                city: true,
+                county: true,
+                state: true,
+                street: true,
+                street2: true,
+                zipCode: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
+            applicantWorkAddress: {
+              select: {
+                id: true,
+                placeName: true,
+                city: true,
+                county: true,
+                state: true,
+                street: true,
+                street2: true,
+                zipCode: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
           },
         },
-        applicationsMailingAddress: true,
-        applicationsAlternateAddress: true,
+        accessibility: {
+          select: {
+            id: true,
+            mobility: true,
+            vision: true,
+            hearing: true,
+          },
+        },
+        applicationsMailingAddress: {
+          select: {
+            id: true,
+            placeName: true,
+            city: true,
+            county: true,
+            state: true,
+            street: true,
+            street2: true,
+            zipCode: true,
+            latitude: true,
+            longitude: true,
+          },
+        },
+        applicationsAlternateAddress: {
+          select: {
+            id: true,
+            placeName: true,
+            city: true,
+            county: true,
+            state: true,
+            street: true,
+            street2: true,
+            zipCode: true,
+            latitude: true,
+            longitude: true,
+          },
+        },
         alternateContact: {
-          include: {
-            address: true,
+          select: {
+            id: true,
+            type: true,
+            otherType: true,
+            firstName: true,
+            lastName: true,
+            agency: true,
+            phoneNumber: true,
+            emailAddress: true,
+            address: {
+              select: {
+                id: true,
+                placeName: true,
+                city: true,
+                county: true,
+                state: true,
+                street: true,
+                street2: true,
+                zipCode: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
           },
         },
-        accessibility: true,
-        demographics: true,
+        demographics: {
+          select: {
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+            ethnicity: true,
+            gender: true,
+            sexualOrientation: true,
+            howDidYouHear: true,
+            race: true,
+          },
+        },
+        preferredUnitTypes: {
+          select: {
+            id: true,
+            name: true,
+            numBedrooms: true,
+          },
+        },
+        listings: {
+          select: {
+            id: true,
+            name: true,
+            jurisdictions: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
         householdMember: {
-          include: {
-            householdMemberAddress: true,
-            householdMemberWorkAddress: true,
+          select: {
+            id: true,
+            orderId: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+            birthMonth: true,
+            birthDay: true,
+            birthYear: true,
+            sameAddress: true,
+            relationship: true,
+            workInRegion: true,
+            householdMemberAddress: {
+              select: {
+                id: true,
+                placeName: true,
+                city: true,
+                county: true,
+                state: true,
+                street: true,
+                street2: true,
+                zipCode: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
+            householdMemberWorkAddress: {
+              select: {
+                id: true,
+                placeName: true,
+                city: true,
+                county: true,
+                state: true,
+                street: true,
+                street2: true,
+                zipCode: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
           },
         },
-        listings: true,
-        preferredUnitTypes: true,
+        userAccounts: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
   });

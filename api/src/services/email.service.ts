@@ -13,6 +13,7 @@ import tz from 'dayjs/plugin/timezone';
 import advanced from 'dayjs/plugin/advancedFormat';
 import * as aws from '@aws-sdk/client-ses';
 import nodemailer, { SendMailOptions } from 'nodemailer';
+import Mail from 'nodemailer/lib/mailer';
 import { TranslationService } from './translation.service';
 import { JurisdictionService } from './jurisdiction.service';
 import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
@@ -38,17 +39,10 @@ type listingInfo = {
   juris: string;
 };
 
-const sesClient = new aws.SESClient({
-  region: process.env.AWS_REGION,
-});
-
-const transporter = nodemailer.createTransport({
-  SES: { ses: sesClient, aws },
-});
-
 @Injectable()
 export class EmailService {
   polyglot: Polyglot;
+  transporter: Mail;
 
   constructor(
     private readonly configService: ConfigService,
@@ -56,6 +50,14 @@ export class EmailService {
     private readonly jurisdictionService: JurisdictionService,
     private readonly httpService: HttpService,
   ) {
+    const sesClient = new aws.SESClient({
+      region: process.env.AWS_REGION,
+    });
+
+    this.transporter = nodemailer.createTransport({
+      SES: { ses: sesClient, aws },
+    });
+
     this.polyglot = new Polyglot({
       phrases: {},
     });
@@ -146,28 +148,13 @@ export class EmailService {
 
   public async sendSES(mailOptions: SendMailOptions) {
     try {
-      return await transporter.sendMail({
+      return await this.transporter.sendMail({
         ...mailOptions,
-        from: 'Doorway <no-reply@housingbayarea.org',
+        from: 'Doorway <no-reply@housingbayarea.org>',
       });
     } catch (e) {
       console.log(e);
       console.error('Failed to send email');
-      // todo: do we want this sendgrid retry behavior?
-      //   const handleError = (error) => {
-      //     if (error instanceof ResponseError) {
-      //       const { response } = error;
-      //       const { body: errBody } = response;
-      //       console.error(
-      //         `Error sending email to: ${
-      //           isMultipleRecipients ? to.toString() : to
-      //         }! Error body: ${errBody}`,
-      //       );
-      //       if (retry > 0) {
-      //         void this.send(to, from, subject, body, retry - 1);
-      //       }
-      //     }
-      //   };
       return e;
     }
   }
@@ -473,48 +460,6 @@ export class EmailService {
         appOptions: { listingName: listingInfo.name },
         listingUrl: `${publicUrl}/listing/${listingInfo.id}`,
       }),
-    });
-  }
-
-  /**
-   *
-   * @param jurisdictionIds the set of jurisdicitons for the user (sent as IdDTO[]
-   * @param user the user that should received the csv export
-   * @param csvData the data that makes up the content of the csv to be sent as an attachment
-   * @param exportEmailTitle the title of the email ('User Export' is an example)
-   * @param exportEmailFileDescription describes what is being sent. Completes the line:
-     'The attached file is %{fileDescription}. If you have any questions, please reach out to your administrator.
-   */
-  async sendCSV(
-    jurisdictionIds: IdDTO[],
-    user: User,
-    csvData: string,
-    exportEmailTitle: string,
-    exportEmailFileDescription: string,
-  ): Promise<void> {
-    const jurisdiction = await this.getJurisdiction(jurisdictionIds);
-    void (await this.loadTranslations(jurisdiction, user.language));
-
-    await this.sendSES({
-      to: user.email,
-      subject: exportEmailTitle,
-      html: this.template('csv-export')({
-        user: user,
-        appOptions: {
-          title: exportEmailTitle,
-          fileDescription: exportEmailFileDescription,
-          appUrl: process.env.PARTNERS_PORTAL_URL,
-        },
-      }),
-      attachments: [
-        {
-          filename: `users-${this.formatLocalDate(
-            new Date(),
-            'YYYY-MM-DD_HH:mm:ss',
-          )}.csv`,
-          content: csvData,
-        },
-      ],
     });
   }
 

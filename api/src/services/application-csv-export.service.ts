@@ -706,28 +706,50 @@ export class ApplicationCsvExporterService
   convertDemographicRaceToReadable(type: string): string {
     const [rootKey, customValue = ''] = type.split(':');
     const typeMap = {
-      americanIndianAlaskanNative: 'American Indian / Alaskan Native',
       asian: 'Asian',
-      'asian-asianIndian': 'Asian[Asian Indian]',
-      'asian-otherAsian': `Asian[Other Asian:${customValue}]`,
-      blackAfricanAmerican: 'Black / African American',
       'asian-chinese': 'Asian[Chinese]',
-      declineToRespond: 'Decline to Respond',
       'asian-filipino': 'Asian[Filipino]',
-      'nativeHawaiianOtherPacificIslander-guamanianOrChamorro':
-        'Native Hawaiian / Other Pacific Islander[Guamanian or Chamorro]',
       'asian-japanese': 'Asian[Japanese]',
       'asian-korean': 'Asian[Korean]',
-      'nativeHawaiianOtherPacificIslander-nativeHawaiian':
-        'Native Hawaiian / Other Pacific Islander[Native Hawaiian]',
-      nativeHawaiianOtherPacificIslander:
-        'Native Hawaiian / Other Pacific Islander',
-      otherMultiracial: `Other / Multiracial:${customValue}`,
-      'nativeHawaiianOtherPacificIslander-otherPacificIslander': `Native Hawaiian / Other Pacific Islander[Other Pacific Islander:${customValue}]`,
-      'nativeHawaiianOtherPacificIslander-samoan':
-        'Native Hawaiian / Other Pacific Islander[Samoan]',
+      'asian-mongolian': 'Asian[Mongolian]',
       'asian-vietnamese': 'Asian[Vietnamese]',
+      'asian-centralAsian': 'Asian[Central Asian]',
+      'asian-southAsian': 'Asian[South Asian]',
+      'asian-southeastAsian': 'Asian[Southeast Asian]',
+      'asian-otherAsian': `Asian[Other Asian:${customValue}]`,
+      black: 'Black',
+      'black-african': 'Black[African]',
+      'black-africanAmerican': 'Black[African American]',
+      'black-caribbeanCentralSouthAmericanMexican':
+        'Black[Caribbean, Central American, South American or Mexican]',
+      'black-otherBlack': `Black[Other Black:${customValue}]`,
+      indigenous: 'Indigenous',
+      'indigenous-alaskanNative': 'Indigenous[Alaskan Native]',
+      'indigenous-nativeAmerican':
+        'Indigenous[American Indian/Native American]',
+      'indigenous-indigenousFromMexicoCaribbeanCentralSouthAmerica':
+        'Indigenous[Indigenous from Mexico, the Caribbean, Central America, or South America]',
+      'indigenous-otherIndigenous': `Indigenous[Other Indigenous:${customValue}]`,
+      latino: 'Latino',
+      'latino-caribbean': 'Latino[Caribbean]',
+      'latino-centralAmerican': 'Latino[Central American]',
+      'latino-mexican': 'Latino[Mexican]',
+      'latino-southAmerican': 'Latino[South American]',
+      'latino-otherLatino': `Latino[Other Latino:${customValue}]`,
+      middleEasternOrAfrican: 'Middle Eastern, West African or North African',
+      'middleEasternOrAfrican-northAfrican':
+        'Middle Eastern, West African or North African[North African]',
+      'middleEasternOrAfrican-westAsian':
+        'Middle Eastern, West African or North African[West Asian]',
+      'middleEasternOrAfrican-otherMiddleEasternNorthAfrican': `Middle Eastern, West African or North African[Other Middle Eastern or North African:${customValue}]`,
+      pacificIslander: 'Pacific Islander',
+      'pacificIslander-chamorro': 'Pacific Islander[Chamorro]',
+      'pacificIslander-nativeHawaiian': 'Pacific Islander[Native Hawaiian]',
+      'pacificIslander-samoan': 'Pacific Islander[Samoan]',
+      'pacificIslander-otherPacificIslander': `Pacific Islander[Other Pacific Islander:${customValue}]`,
       white: 'White',
+      'white-european': 'White[European]',
+      'white-otherWhite': `White[Other White:${customValue}]`,
     };
     return typeMap[rootKey] ?? rootKey;
   }

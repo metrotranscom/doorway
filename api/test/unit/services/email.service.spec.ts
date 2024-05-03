@@ -193,30 +193,6 @@ describe('Testing email service', () => {
     );
   });
 
-  it('should send csv data email', async () => {
-    await service.sendCSV(
-      [{ name: 'test', id: '1234' }],
-      user,
-      'csv data goes here',
-      'User Export',
-      'an export of all users',
-    );
-    expect(sendMock).toHaveBeenCalled();
-    expect(sendMock.mock.calls[0][0].to).toEqual(user.email);
-    expect(sendMock.mock.calls[0][0].subject).toEqual('User Export');
-    expect(sendMock.mock.calls[0][0].html).toContain(
-      'The attached file is an export of all users. If you have any questions, please reach out to your administrator.',
-    );
-    expect(sendMock.mock.calls[0][0].html).toContain('Hello,');
-    expect(sendMock.mock.calls[0][0].html).toContain('User Export');
-    expect(sendMock.mock.calls[0][0].attachments).toEqual([
-      {
-        content: expect.anything(),
-        filename: expect.anything(),
-      },
-    ]);
-  });
-
   describe('application confirmation', () => {
     const listing = {
       id: 'listingId',

@@ -320,15 +320,15 @@ describe('Testing application CSV export service', () => {
 
   it('tests convertDemographicRaceToReadable with valid type', () => {
     const keys = [
-      'americanIndianAlaskanNative',
-      'declineToRespond',
-      'nativeHawaiianOtherPacificIslander-nativeHawaiian',
+      'indigenous-alaskanNative',
+      'indigenous',
+      'pacificIslander-nativeHawaiian',
     ];
 
     const values = [
-      'American Indian / Alaskan Native',
-      'Decline to Respond',
-      'Native Hawaiian / Other Pacific Islander[Native Hawaiian]',
+      'Indigenous[Alaskan Native]',
+      'Indigenous',
+      'Pacific Islander[Native Hawaiian]',
     ];
 
     for (let i = 0; i < keys.length; i++) {
@@ -339,11 +339,9 @@ describe('Testing application CSV export service', () => {
   it('tests convertDemographicRaceToReadable with valid type and custom value', () => {
     expect(
       service.convertDemographicRaceToReadable(
-        'nativeHawaiianOtherPacificIslander-otherPacificIslander:Fijian',
+        'pacificIslander-otherPacificIslander:Fijian',
       ),
-    ).toBe(
-      'Native Hawaiian / Other Pacific Islander[Other Pacific Islander:Fijian]',
-    );
+    ).toBe('Pacific Islander[Other Pacific Islander:Fijian]');
   });
 
   it('tests convertDemographicRaceToReadable with type not in typeMap', () => {

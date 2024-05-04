@@ -27,8 +27,11 @@ export type NetworkErrorDetermineError = (
 export type NetworkErrorReset = () => void
 
 export enum NetworkErrorMessage {
-  PasswordOutdated = "passwordOutdated",
+  PasswordOutdated = "but password is no longer valid",
   MfaUnauthorized = "mfaUnauthorized",
+  SingleUseCodeUnauthorized = "singleUseCodeUnauthorized",
+  MfaPublicSite = "A user with MFA required is attempting to login to the public site",
+  mfaCodeIsMissing = "mfaCodeIsMissing",
 }
 
 /**
@@ -38,7 +41,7 @@ export const useCatchNetworkError = () => {
   const [networkError, setNetworkError] = useState<NetworkStatusContent>(null)
 
   const check401Error = (message: string, error: AxiosError) => {
-    if (message === NetworkErrorMessage.PasswordOutdated) {
+    if (message?.includes(NetworkErrorMessage.PasswordOutdated)) {
       setNetworkError({
         title: t("authentication.signIn.passwordOutdated"),
         description: `${t(
@@ -54,6 +57,20 @@ export const useCatchNetworkError = () => {
         }),
         error,
       })
+    } else if (message === NetworkErrorMessage.SingleUseCodeUnauthorized) {
+      setNetworkError({
+        title: t("authentication.signIn.pwdless.error"),
+        description: t("authentication.signIn.afterFailedAttempts", {
+          count: error?.response?.data?.failureCountRemaining || 5,
+        }),
+        error,
+      })
+    } else if (NetworkErrorMessage.mfaCodeIsMissing) {
+      setNetworkError({
+        title: t("errors.somethingWentWrong"),
+        description: t("authentication.signIn.mfaError"),
+        error,
+      })
     } else {
       setNetworkError({
         title: t("authentication.signIn.enterValidEmailAndPassword"),
@@ -65,12 +82,31 @@ export const useCatchNetworkError = () => {
     }
   }
 
+  const check403Error = (message: string, error: AxiosError) => {
+    if (message === NetworkErrorMessage.MfaPublicSite) {
+      setNetworkError({
+        title: t("errors.somethingWentWrong"),
+        description: t("authentication.signIn.mfaError"),
+        error,
+      })
+    } else {
+      setNetworkError({
+        title: t("errors.somethingWentWrong"),
+        description: t("authentication.signIn.errorGenericMessage"),
+        error,
+      })
+    }
+  }
+
   const determineNetworkError: NetworkErrorDetermineError = (status, error) => {
     const responseMessage = axios.isAxiosError(error) ? error.response?.data.message : ""
 
     switch (status) {
       case 401:
         check401Error(responseMessage, error)
+        break
+      case 403:
+        check403Error(responseMessage, error)
         break
       case 429:
         setNetworkError({

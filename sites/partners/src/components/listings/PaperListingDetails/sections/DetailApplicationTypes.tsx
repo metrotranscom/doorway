@@ -1,27 +1,22 @@
 import React, { useContext } from "react"
-import {
-  t,
-  GridSection,
-  GridCell,
-  MinimalTable,
-  StandardTableData,
-} from "@bloom-housing/ui-components"
-import { FieldValue } from "@bloom-housing/ui-seeds"
-import { ApplicationMethodType } from "@bloom-housing/backend-core/types"
+import { t, MinimalTable, StandardTableData } from "@bloom-housing/ui-components"
+import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
+import { ApplicationMethodsTypeEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingContext } from "../../ListingContext"
 import { getDetailBoolean } from "./helpers"
 import { pdfFileNameFromFileId } from "../../../../lib/helpers"
+import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 const DetailApplicationTypes = () => {
   const listing = useContext(ListingContext)
 
   const digitalMethod = listing.applicationMethods.find(
     (method) =>
-      method.type === ApplicationMethodType.Internal ||
-      method.type === ApplicationMethodType.ExternalLink
+      method.type === ApplicationMethodsTypeEnum.Internal ||
+      method.type === ApplicationMethodsTypeEnum.ExternalLink
   )
   const paperMethod = listing.applicationMethods.find(
-    (method) => method.type === ApplicationMethodType.FileDownload
+    (method) => method.type === ApplicationMethodsTypeEnum.FileDownload
   )
 
   const paperApplicationsTableHeaders = {
@@ -34,33 +29,26 @@ const DetailApplicationTypes = () => {
   if (paperMethod) {
     paperMethod.paperApplications.forEach((item) => {
       paperApplicationsTableRows.push({
-        fileName: { content: pdfFileNameFromFileId(item.file.fileId) },
+        fileName: { content: pdfFileNameFromFileId(item.assets.fileId) },
         language: { content: t(`languages.${item.language}`) },
       })
     })
   }
 
   return (
-    <GridSection
-      className="bg-primary-lighter"
-      title={t("listings.sections.applicationTypesTitle")}
-      grid={false}
-      inset
-    >
-      <GridSection columns={2}>
-        <GridCell>
-          <FieldValue id="digitalApplication" label={"Online Applications"}>
-            {getDetailBoolean(listing.digitalApplication)}
-          </FieldValue>
-        </GridCell>
+    <SectionWithGrid heading={t("listings.sections.applicationTypesTitle")} inset>
+      <Grid.Row columns={2}>
+        <FieldValue id="digitalApplication" label={"Online Applications"}>
+          {getDetailBoolean(listing.digitalApplication)}
+        </FieldValue>
         {digitalMethod && (
-          <GridCell>
-            <FieldValue id="digitalMethod.type" label={"Common Digital Application"}>
-              {digitalMethod?.type === ApplicationMethodType.ExternalLink ? t("t.no") : t("t.yes")}
-            </FieldValue>
-          </GridCell>
+          <FieldValue id="digitalMethod.type" label={"Common Digital Application"}>
+            {digitalMethod?.type === ApplicationMethodsTypeEnum.ExternalLink
+              ? t("t.no")
+              : t("t.yes")}
+          </FieldValue>
         )}
-        {digitalMethod?.type === ApplicationMethodType.ExternalLink && (
+        {digitalMethod?.type === ApplicationMethodsTypeEnum.ExternalLink && (
           <FieldValue
             id="customOnlineApplicationUrl"
             label={t("listings.customOnlineApplicationUrl")}
@@ -68,27 +56,25 @@ const DetailApplicationTypes = () => {
             {digitalMethod.externalReference}
           </FieldValue>
         )}
-      </GridSection>
-      <GridSection columns={1}>
-        <GridCell>
-          <FieldValue id="paperApplication" label={"Paper Applications"}>
-            {getDetailBoolean(listing.paperApplication)}
+      </Grid.Row>
+      <Grid.Row>
+        <FieldValue id="paperApplication" label={"Paper Applications"}>
+          {getDetailBoolean(listing.paperApplication)}
+        </FieldValue>
+      </Grid.Row>
+      {paperApplicationsTableRows.length > 0 && (
+        <Grid.Row>
+          <FieldValue label={"Paper Applications"}>
+            <MinimalTable
+              id="paperApplicationTable"
+              headers={paperApplicationsTableHeaders}
+              data={paperApplicationsTableRows}
+              flushLeft={true}
+            ></MinimalTable>
           </FieldValue>
-        </GridCell>
-        {paperApplicationsTableRows.length > 0 && (
-          <GridCell>
-            <FieldValue label={"Paper Applications"}>
-              <MinimalTable
-                id="paperApplicationTable"
-                headers={paperApplicationsTableHeaders}
-                data={paperApplicationsTableRows}
-                flushLeft={true}
-              ></MinimalTable>
-            </FieldValue>
-          </GridCell>
-        )}
-      </GridSection>
-    </GridSection>
+        </Grid.Row>
+      )}
+    </SectionWithGrid>
   )
 }
 

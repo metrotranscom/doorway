@@ -1,9 +1,10 @@
 import axiosStatic from "axios"
 import type { NextApiRequest, NextApiResponse } from "next"
 import qs from "qs"
-import { getConfigs } from "@bloom-housing/backend-core/types"
 import { wrapper } from "axios-cookiejar-support"
 import { CookieJar } from "tough-cookie"
+import { getConfigs } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { maskAxiosResponse } from "@bloom-housing/shared-helpers"
 
 /*
   This file exists as per https://nextjs.org/docs/api-routes/dynamic-api-routes  
@@ -20,6 +21,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         jurisdictionName: req.headers.jurisdictionname,
         language: req.headers.language,
         appUrl: req.headers.appurl,
+        "x-forwarded-for": req.headers["x-forwarded-for"] || "",
       },
       paramsSerializer: (params) => {
         return qs.stringify(params)
@@ -41,17 +43,21 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     })
     configs.headers.cookie = cookieString
     configs.params = rest
-    configs.data = req.body
+    configs.data = req.body || {}
 
     // send request to backend
     const response = await axios.request(configs)
+
     // set up response from next api based on response from backend
     const cookies = await jar.getSetCookieStrings(process.env.BACKEND_API_BASE || "")
     res.setHeader("Set-Cookie", cookies)
     res.statusMessage = response.statusText
     res.status(response.status).json(response.data)
   } catch (e) {
-    console.error("public's backend url adapter error:", { e })
+    console.error(
+      "public backend url adapter error:",
+      e.response ? maskAxiosResponse(e.response) : e
+    )
     if (e.response) {
       res.statusMessage = e.response.statusText
       res.status(e.response.status).json(e.response.data)

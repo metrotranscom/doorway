@@ -5,7 +5,6 @@ const withTM = require("next-transpile-modules")([
   "@bloom-housing/ui-seeds",
   "@bloom-housing/shared-helpers",
   "@bloom-housing/ui-components",
-  "@bloom-housing/backend-core",
   "@bloom-housing/doorway-ui-components",
 ])
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
@@ -55,6 +54,7 @@ module.exports = withBundleAnalyzer(
       awsRegion: process.env.AWS_REGION,
       fileService: process.env.FILE_SERVICE,
       featureListingsApproval: process.env.FEATURE_LISTINGS_APPROVAL,
+      maintenanceWindow: process.env.MAINTENANCE_WINDOW,
     },
     i18n: {
       locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],
@@ -82,6 +82,20 @@ module.exports = withBundleAnalyzer(
         }
       )
       return config
+    },
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async headers() {
+      return [
+        {
+          source: "/(.*)",
+          headers: [
+            {
+              key: "Content-Security-Policy",
+              value: `frame-ancestors 'none';`,
+            },
+          ],
+        },
+      ]
     },
     // Uncomment line below before building when using symlink for UI-C
     // experimental: { esmExternals: "loose" },

@@ -77,15 +77,13 @@ const translationServiceMock = {
               applicationPeriodCloses:
                 "JURISDICTION: Once the application period closes, the property manager will begin processing applications.",
               eligibleApplicants: {
-                FCFS:
-                  "Eligible applicants will be placed in order based on <strong>first come first serve</strong> basis.",
+                FCFS: "Eligible applicants will be placed in order based on <strong>first come first serve</strong> basis.",
                 lotteryDate: "The lottery will be held on %{lotteryDate}.",
                 lottery:
                   "Eligible applicants will be placed in order <strong>based on preference and lottery rank</strong>.",
               },
               eligible: {
-                fcfs:
-                  "Eligible applicants will be contacted on a first come first serve basis until vacancies are filled.",
+                fcfs: "Eligible applicants will be contacted on a first come first serve basis until vacancies are filled.",
                 fcfsPreference:
                   "Housing preferences, if applicable, will affect first come first serve order.",
                 lottery:
@@ -188,7 +186,13 @@ const translationServiceMock = {
               minIncome: "Minimum Income",
               maxIncome: "Maximum Income",
               lottery: "Lottery Date",
-              viewButton: "View Listing & Apply",
+              viewButton: {
+                en: "View listing & apply",
+                es: "Ver anuncio y solicitar",
+                zh: "查看房源和申請",
+                vi: "Xem tin đăng & nộp đơn",
+                tl: "Tingnan ang Listahan at Mag-apply",
+              },
               studio: "Studios",
               oneBdrm: "1 Bedrooms",
               twoBdrm: "2 Bedrooms",
@@ -376,7 +380,7 @@ describe("EmailService", () => {
       const service = await module.resolve(EmailService)
       await service.requestApproval(
         user,
-        { id: listing.id, name: listing.name },
+        { id: listing.id, name: listing.name, juris: listing.jurisdiction?.id },
         emailArr,
         "http://localhost:3001"
       )
@@ -419,7 +423,7 @@ describe("EmailService", () => {
       const service = await module.resolve(EmailService)
       await service.changesRequested(
         user,
-        { id: listing.id, name: listing.name },
+        { id: listing.id, name: listing.name, juris: listing.jurisdiction?.id },
         emailArr,
         "http://localhost:3001"
       )
@@ -466,7 +470,7 @@ describe("EmailService", () => {
       const service = await module.resolve(EmailService)
       await service.listingApproved(
         user,
-        { id: listing.id, name: listing.name },
+        { id: listing.id, name: listing.name, juris: listing.jurisdiction?.id },
         emailArr,
         "http://localhost:3000"
       )
@@ -547,7 +551,11 @@ describe("EmailService", () => {
       expect(emailMock[1]).toMatch("$1,438 - $2,208 per month")
       expect(emailMock[1]).toMatch("Maximum Income")
       expect(emailMock[1]).toMatch("$2,562.5 - $3,843.75 per month")
-      expect(emailMock[1]).toMatch("View Listing & Apply")
+      expect(emailMock[1]).toMatch("View listing &amp; apply")
+      expect(emailMock[1]).toMatch("Ver listado y aplicar")
+      expect(emailMock[1]).toMatch("查看列表并申请")
+      expect(emailMock[1]).toMatch("Xem danh sách và áp dụng")
+      expect(emailMock[1]).toMatch("Tingnan ang listahan at mag-apply")
       expect(emailMock[1]).toMatch("Alameda County Housing Portal")
       expect(emailMock[1]).toMatch("Alameda County Housing Portal is a project of the")
       expect(emailMock[1]).toMatch(

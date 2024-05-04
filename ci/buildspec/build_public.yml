@@ -39,6 +39,10 @@ phases:
         --build-arg "MAPBOX_TOKEN=${MAPBOX_TOKEN}"
         --build-arg "GTM_KEY=${GTM_KEY}"
         --build-arg "SHOW_PROFESSIONAL_PARTNERS=$SHOW_PROFESSIONAL_PARTNERS"
+        --build-arg "NOTIFICATIONS_SIGN_UP_URL=$NOTIFICATIONS_SIGN_UP_URL"
+        --build-arg "SHOW_MANDATED_ACCOUNTS=$SHOW_MANDATED_ACCOUNTS"
+        --build-arg "SHOW_PWDLESS=$SHOW_PWDLESS"
+        --build-arg "MAINTENANCE_WINDOW=$MAINTENANCE_WINDOW"
         --target test
         -t sites/public:test
         .
@@ -62,11 +66,14 @@ phases:
         --build-arg "MAPBOX_TOKEN=${MAPBOX_TOKEN}"
         --build-arg "GTM_KEY=${GTM_KEY}"
         --build-arg "SHOW_PROFESSIONAL_PARTNERS=$SHOW_PROFESSIONAL_PARTNERS"
+        --build-arg "NOTIFICATIONS_SIGN_UP_URL=$NOTIFICATIONS_SIGN_UP_URL"
+        --build-arg "SHOW_MANDATED_ACCOUNTS=$SHOW_MANDATED_ACCOUNTS"
+        --build-arg "SHOW_PWDLESS=$SHOW_PWDLESS"
+        --build-arg "MAINTENANCE_WINDOW=$MAINTENANCE_WINDOW"
         --target run
         -t sites/public:run-candidate
         .
-        
-      
+
       # Tag the run image
       - docker tag sites/public:run-candidate "${ECR_REPO}/public:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 

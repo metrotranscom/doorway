@@ -1,8 +1,11 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import { useFormContext } from "react-hook-form"
-import { t, GridSection, Textarea, GridCell } from "@bloom-housing/ui-components"
+import { Grid } from "@bloom-housing/ui-seeds"
+import { t, Textarea } from "@bloom-housing/ui-components"
 import { fieldHasError, fieldMessage } from "../../../../lib/helpers"
-import { useJurisdiction } from "../../../../lib/hooks"
+import SectionWithGrid from "../../../shared/SectionWithGrid"
+import { Jurisdiction } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { AuthContext } from "@bloom-housing/shared-helpers"
 
 type AdditionalEligibilityProps = {
   defaultText?: string
@@ -10,14 +13,28 @@ type AdditionalEligibilityProps = {
 
 const AdditionalEligibility = (props: AdditionalEligibilityProps) => {
   const formMethods = useFormContext()
-
+  const [currentJurisdiction, setCurrentJurisdiction] = useState<Jurisdiction>()
+  const { jurisdictionsService } = useContext(AuthContext)
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, errors, clearErrors, watch, setValue, getValues } = formMethods
 
-  const jurisdiction: string = watch("jurisdiction.id")
+  const jurisdiction: string = watch("jurisdictions.id")
   const currentValue = getValues().rentalAssistance
 
-  const { data: currentJurisdiction = undefined } = useJurisdiction(jurisdiction)
+  useEffect(() => {
+    // Retrieve the jurisdiction data from the backend whenever the jurisdiction changes
+    async function fetchData() {
+      if (jurisdiction) {
+        const jurisdictionData = await jurisdictionsService.retrieve({
+          jurisdictionId: jurisdiction,
+        })
+        if (jurisdictionData) {
+          setCurrentJurisdiction(jurisdictionData)
+        }
+      }
+    }
+    void fetchData()
+  }, [jurisdiction, jurisdictionsService])
 
   useEffect(() => {
     if (currentJurisdiction && !currentValue) {
@@ -30,64 +47,67 @@ const AdditionalEligibility = (props: AdditionalEligibilityProps) => {
   }, [currentJurisdiction, setValue])
 
   return (
-    <div>
-      <GridSection
-        separator
-        title={t("listings.sections.additionalEligibilityTitle")}
-        description={t("listings.sections.additionalEligibilitySubtext")}
-        columns={2}
+    <>
+      <hr className="spacer-section-above spacer-section" />
+      <SectionWithGrid
+        heading={t("listings.sections.additionalEligibilityTitle")}
+        subheading={t("listings.sections.additionalEligibilitySubtext")}
       >
-        <GridCell>
-          <Textarea
-            label={t("listings.creditHistory")}
-            name={"creditHistory"}
-            id={"creditHistory"}
-            fullWidth={true}
-            register={register}
-            maxLength={2000}
-          />
-        </GridCell>
-        <GridCell>
-          <Textarea
-            label={t("listings.rentalHistory")}
-            name={"rentalHistory"}
-            id={"rentalHistory"}
-            fullWidth={true}
-            register={register}
-            maxLength={2000}
-          />
-        </GridCell>
-        <GridCell>
-          <Textarea
-            label={t("listings.criminalBackground")}
-            name={"criminalBackground"}
-            id={"criminalBackground"}
-            fullWidth={true}
-            register={register}
-            maxLength={2000}
-          />
-        </GridCell>
-        <GridCell>
-          <Textarea
-            label={t("listings.sections.rentalAssistanceTitle")}
-            name={"rentalAssistance"}
-            id={"rentalAssistance"}
-            fullWidth={true}
-            register={register}
-            defaultValue={
-              jurisdiction && currentJurisdiction
-                ? currentJurisdiction?.rentalAssistanceDefault
-                : null
-            }
-            errorMessage={fieldMessage(errors?.rentalAssistance)}
-            inputProps={{
-              onChange: () =>
-                fieldHasError(errors?.rentalAssistance) && clearErrors("rentalAssistance"),
-            }}
-          />
-        </GridCell>
-      </GridSection>
-    </div>
+        <Grid.Row columns={2}>
+          <Grid.Cell>
+            <Textarea
+              label={t("listings.creditHistory")}
+              name={"creditHistory"}
+              id={"creditHistory"}
+              fullWidth={true}
+              register={register}
+              maxLength={2000}
+            />
+          </Grid.Cell>
+          <Grid.Cell>
+            <Textarea
+              label={t("listings.rentalHistory")}
+              name={"rentalHistory"}
+              id={"rentalHistory"}
+              fullWidth={true}
+              register={register}
+              maxLength={2000}
+            />
+          </Grid.Cell>
+        </Grid.Row>
+        <Grid.Row columns={2}>
+          <Grid.Cell>
+            <Textarea
+              label={t("listings.criminalBackground")}
+              name={"criminalBackground"}
+              id={"criminalBackground"}
+              fullWidth={true}
+              register={register}
+              maxLength={2000}
+            />
+          </Grid.Cell>
+          <Grid.Cell>
+            <Textarea
+              label={t("listings.sections.rentalAssistanceTitle")}
+              name={"rentalAssistance"}
+              id={"rentalAssistance"}
+              fullWidth={true}
+              register={register}
+              defaultValue={
+                jurisdiction && currentJurisdiction
+                  ? currentJurisdiction?.rentalAssistanceDefault
+                  : null
+              }
+              errorMessage={fieldMessage(errors?.rentalAssistance)}
+              inputProps={{
+                onChange: () =>
+                  fieldHasError(errors?.rentalAssistance) && clearErrors("rentalAssistance"),
+              }}
+            />
+          </Grid.Cell>
+        </Grid.Row>
+      </SectionWithGrid>
+    </>
   )
 }
 

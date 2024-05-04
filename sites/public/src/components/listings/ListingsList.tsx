@@ -1,12 +1,11 @@
 import * as React from "react"
 import { getListings } from "../../lib/helpers"
-import { Listing, Jurisdiction } from "@bloom-housing/backend-core"
+import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { LinkButton, ZeroListingsItem } from "@bloom-housing/doorway-ui-components"
 import { Pagination } from "./Pagination"
 import { LoadingOverlay, t, InfoCard } from "@bloom-housing/ui-components"
 
 type ListingsListProps = {
-  jurisdiction: Jurisdiction
   listings: Listing[]
   currentPage: number
   lastPage: number
@@ -30,19 +29,21 @@ const ListingsList = (props: ListingsListProps) => {
   const infoCards =
     props.currentPage == props.lastPage || props.lastPage == 0 ? (
       <div>
-        <InfoCard
-          title={t("t.signUpForAlerts")}
-          subtitle={t("t.subscribeToListingAlerts")}
-          className="is-normal-primary-lighter"
-        >
-          <LinkButton
-            href={props.jurisdiction.notificationsSignUpURL}
-            newTab={true}
-            className="is-primary"
+        {process.env.notificationsSignUpUrl && (
+          <InfoCard
+            title={t("t.signUpForAlerts")}
+            subtitle={t("t.subscribeToListingAlerts")}
+            className="is-normal-primary-lighter"
           >
-            {t("t.signUp")}
-          </LinkButton>
-        </InfoCard>
+            <LinkButton
+              href={process.env.notificationsSignUpUrl}
+              newTab={true}
+              className="is-primary"
+            >
+              {t("t.signUp")}
+            </LinkButton>
+          </InfoCard>
+        )}
         <InfoCard
           title={t("t.needHelp")}
           subtitle={t("t.emergencyShelter")}

@@ -40,6 +40,7 @@ import { AmiDefaultMissingAMI } from "./seeds/ami-charts/missing-household-ami-l
 import { SeederModule } from "./seeder.module"
 import { AmiDefaultTriton } from "./seeds/ami-charts/triton-ami-chart"
 import { AmiDefaultSanMateo } from "./seeds/ami-charts/default-ami-chart-san-mateo"
+import { AmiDefaultDoorway } from "./seeds/ami-charts/default-ami-chart-doorway"
 import { makeNewApplication } from "./seeds/applications"
 import { UserRoles } from "../auth/entities/user-roles.entity"
 import { Jurisdiction } from "../jurisdictions/entities/jurisdiction.entity"
@@ -54,6 +55,7 @@ import dayjs from "dayjs"
 import { CountyCode } from "../shared/types/county-code"
 import { ApplicationFlaggedSetsCronjobService } from "../application-flagged-sets/application-flagged-sets-cronjob.service"
 import { ExternalListingSeed } from "./seeds/listings/external-listings-seed"
+import { MapLayerSeeder } from "./seeds/map-layers"
 
 const argv = yargs.scriptName("seed").options({
   test: { type: "boolean", default: false },
@@ -88,6 +90,7 @@ const amiSeeds: any[] = [
   AmiDefaultTriton,
   AmiDefaultSanJose,
   AmiDefaultSanMateo,
+  AmiDefaultDoorway,
 ]
 
 export function getSeedListingsCount() {
@@ -235,6 +238,8 @@ async function seed() {
 
   // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
   await seedExternalListings(app)
+  const mapLayerSeeder = app.get<MapLayerSeeder>(MapLayerSeeder)
+  await mapLayerSeeder.seed(jurisdictions)
 
   const user1 = await userService.createPublicUser(
     plainToClass(UserCreateDto, {

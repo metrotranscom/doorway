@@ -22,9 +22,10 @@ import { Jurisdiction } from "../jurisdictions/entities/jurisdiction.entity"
 import { Language } from "../shared/types/language-enum"
 import { JurisdictionsService } from "../jurisdictions/services/jurisdictions.service"
 import { Translation } from "../translations/entities/translation.entity"
-import { IdName, ListingEventType, Unit } from "../../types"
+import { ListingEventType, Unit } from "../../types"
 import { formatLocalDate } from "../shared/utils/format-local-date"
 import { formatCommunityType } from "../listings/helpers"
+import { getPublicEmailURL } from "../shared/utils/get-public-email-url"
 
 type EmailAttachmentData = {
   data: string
@@ -60,6 +61,12 @@ const formatUnitDetails = (
     } ${pluralLabel && maxValue === 1 ? pluralLabel : label}`
   }
   return ""
+}
+
+type listingInfo = {
+  id: string
+  name: string
+  juris: string
 }
 
 @Injectable({ scope: Scope.REQUEST })
@@ -238,8 +245,8 @@ export class EmailService {
     const jurisdiction = await this.getUserJurisdiction(user)
     void (await this.loadTranslations(jurisdiction, user.language))
     const compiledTemplate = this.template("forgot-password")
-    const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
 
+    const resetUrl = getPublicEmailURL(appUrl, user.resetToken, "/reset-password")
     if (this.configService.get<string>("NODE_ENV") == "production") {
       Logger.log(
         `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
@@ -304,10 +311,10 @@ export class EmailService {
       }
     )
     const tableRows = []
-    if (listing.reservedCommunityType) {
+    if (listing.reservedCommunityType?.name) {
       tableRows.push({
         label: this.polyglot.t("rentalOpportunity.community"),
-        value: formatCommunityType[listing.reservedCommunityType?.name],
+        value: formatCommunityType[listing.reservedCommunityType.name],
       })
     }
     if (listing.applicationDueDate) {
@@ -360,10 +367,25 @@ export class EmailService {
       }
     }
 
+    const languages = [
+      { name: this.polyglot.t("rentalOpportunity.viewButton.en"), code: Language.en },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.es"), code: Language.es },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.zh"), code: Language.zh },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.vi"), code: Language.vi },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.tl"), code: Language.tl },
+    ]
+
+    const languageUrls = languages.map((language) => {
+      return {
+        name: language.name,
+        url: `${jurisdiction.publicUrl}/${language.code}/listing/${listing.id}`,
+      }
+    })
+
     const compiled = compiledTemplate({
       listingName: listing.name,
-      listingUrl: `${jurisdiction.publicUrl}/listing/${listing.id}`,
       tableRows,
+      languageUrls,
     })
 
     await this.govSend(compiled, "New rental opportunity")
@@ -552,9 +574,20 @@ export class EmailService {
     )
   }
 
-  public async requestApproval(user: User, listingInfo: IdName, emails: string[], appUrl: string) {
+  public async requestApproval(
+    user: User,
+    listingInfo: listingInfo,
+    emails: string[],
+    appUrl: string
+  ) {
     try {
-      const jurisdiction = await this.getUserJurisdiction(user)
+      const jurisdiction = listingInfo.juris
+        ? await this.jurisdictionService.findOne({
+            where: {
+              id: listingInfo.juris,
+            },
+          })
+        : await this.getUserJurisdiction(user)
       void (await this.loadTranslations(jurisdiction, Language.en))
       await this.send(
         emails,
@@ -572,9 +605,20 @@ export class EmailService {
     }
   }
 
-  public async changesRequested(user: User, listingInfo: IdName, emails: string[], appUrl: string) {
+  public async changesRequested(
+    user: User,
+    listingInfo: listingInfo,
+    emails: string[],
+    appUrl: string
+  ) {
     try {
-      const jurisdiction = await this.getUserJurisdiction(user)
+      const jurisdiction = listingInfo.juris
+        ? await this.jurisdictionService.findOne({
+            where: {
+              id: listingInfo.juris,
+            },
+          })
+        : await this.getUserJurisdiction(user)
       void (await this.loadTranslations(jurisdiction, Language.en))
       await this.send(
         emails,
@@ -594,12 +638,18 @@ export class EmailService {
 
   public async listingApproved(
     user: User,
-    listingInfo: IdName,
+    listingInfo: listingInfo,
     emails: string[],
     publicUrl: string
   ) {
     try {
-      const jurisdiction = await this.getUserJurisdiction(user)
+      const jurisdiction = listingInfo.juris
+        ? await this.jurisdictionService.findOne({
+            where: {
+              id: listingInfo.juris,
+            },
+          })
+        : await this.getUserJurisdiction(user)
       void (await this.loadTranslations(jurisdiction, Language.en))
       await this.send(
         emails,

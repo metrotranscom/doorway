@@ -23,6 +23,7 @@ import { EmailService } from "../../../src/email/email.service"
 import { JurisdictionsService } from "../../../src/jurisdictions/services/jurisdictions.service"
 import { ListingStatus } from "../types/listing-status-enum"
 import { UserRoleEnum } from "../../../src/auth/enum/user-role-enum"
+import { ReservedCommunityType } from "../../reserved-community-type/entities/reserved-community-type.entity"
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -142,6 +143,10 @@ const mockListingsRepo = {
   save: jest.fn(),
 }
 
+const mockReservedCommunityTypeRepo = {
+  findOne: jest.fn(),
+}
+
 const mockUserRepo = {
   findOne: jest.fn(),
   save: jest.fn(),
@@ -175,6 +180,10 @@ describe("ListingsService", () => {
         {
           provide: getRepositoryToken(Listing),
           useValue: mockListingsRepo,
+        },
+        {
+          provide: getRepositoryToken(ReservedCommunityType),
+          useValue: mockReservedCommunityTypeRepo,
         },
         {
           provide: getRepositoryToken(User),
@@ -235,10 +244,10 @@ describe("ListingsService", () => {
     it("should not add a WHERE clause if no filters are applied", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
 
       const listings = await service.list({})
 
@@ -249,10 +258,10 @@ describe("ListingsService", () => {
     it("should add a WHERE clause if the neighborhood filter is applied", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
       const expectedNeighborhood = "Fox Creek"
 
       const queryParams: ListingsQueryParams = {
@@ -278,10 +287,10 @@ describe("ListingsService", () => {
     it("should support filters with comma-separated arrays", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
       const expectedNeighborhoodString = "Fox Creek, , Coliseum," // intentional extra and trailing commas for test
       // lowercased, trimmed spaces, filtered empty
       const expectedNeighborhoodArray = ["fox creek", "coliseum"]
@@ -309,7 +318,7 @@ describe("ListingsService", () => {
     it("should throw an exception if an unsupported filter is used", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
 
       const queryParams: ListingsQueryParams = {
         filter: [
@@ -331,7 +340,7 @@ describe("ListingsService", () => {
     it("should throw an exception if an unsupported comparison is used", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
 
       const queryParams: ListingsQueryParams = {
         filter: [
@@ -353,10 +362,10 @@ describe("ListingsService", () => {
     it("should not call limit() and offset() if pagination params are not specified", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
 
       // Empty params (no pagination) -> no limit/offset
       const params = {}
@@ -370,10 +379,10 @@ describe("ListingsService", () => {
     it("should not call limit() and offset() if incomplete pagination params are specified", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
 
       // Invalid pagination params (page specified, but not limit) -> no limit/offset
       const params = { page: 3 }
@@ -394,12 +403,12 @@ describe("ListingsService", () => {
     it("should not call limit() and offset() if invalid pagination params are specified", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
       // Invalid pagination params (page specified, but not limit) -> no limit/offset
-      const params = { page: ("hello" as unknown) as number } // force the type for testing
+      const params = { page: "hello" as unknown as number } // force the type for testing
       const listings = await service.list(params)
 
       expect(listings.items).toEqual(mockListings)
@@ -418,10 +427,10 @@ describe("ListingsService", () => {
       mockQueryBuilder.getMany.mockReturnValueOnce(mockFilteredListings)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
 
       // Valid pagination params -> offset and limit called appropriately
       const params = { page: 3, limit: 2 }
@@ -445,10 +454,10 @@ describe("ListingsService", () => {
     it("orders by the orderBy param (when set)", async () => {
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockInnerQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockInnerQueryBuilder as unknown as ListingsQueryBuilder)
       jest
         .spyOn(service, "createQueryBuilder")
-        .mockReturnValueOnce((mockQueryBuilder as unknown) as ListingsQueryBuilder)
+        .mockReturnValueOnce(mockQueryBuilder as unknown as ListingsQueryBuilder)
 
       await service.list({
         orderBy: [OrderByFieldsEnum.mostRecentlyUpdated],

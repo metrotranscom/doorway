@@ -1,12 +1,6 @@
 import React from "react"
-import {
-  AppearanceStyleType,
-  Button,
-  ButtonGroup,
-  ButtonGroupSpacing,
-  Icon,
-  t,
-} from "@bloom-housing/doorway-ui-components"
+import { Button, ButtonGroup, ButtonGroupSpacing } from "@bloom-housing/doorway-ui-components"
+import { AppearanceStyleType, t, Icon } from "@bloom-housing/ui-components"
 
 type PaginationProps = {
   currentPage: number

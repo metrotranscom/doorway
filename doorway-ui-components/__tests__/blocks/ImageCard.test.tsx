@@ -1,7 +1,7 @@
 import React from "react"
 import { render, cleanup, fireEvent } from "@testing-library/react"
+import { t } from "@bloom-housing/ui-components"
 import { ImageCard } from "../../src/blocks/ImageCard"
-import { t } from "../../src/helpers/translator"
 import { ApplicationStatusType } from "../../src/global/ApplicationStatusType"
 
 afterEach(cleanup)
@@ -20,44 +20,6 @@ describe("<ImageCard>", () => {
     expect(getByAltText("A picture of the building").closest("a")?.getAttribute("href")).toBe(
       "/listings"
     )
-  })
-
-  it("renders with an application status bar", () => {
-    const { getByText } = render(
-      <ImageCard
-        imageUrl={"/images/listing.jpg"}
-        statuses={[
-          { status: ApplicationStatusType.Closed, content: t("listings.applicationsClosed") },
-        ]}
-      />
-    )
-    expect(getByText("Applications Closed", { exact: false })).not.toBeNull()
-  })
-
-  it("renders with multiple applications status bars", () => {
-    const { getByText } = render(
-      <ImageCard
-        imageUrl={"/images/listing.jpg"}
-        statuses={[
-          { status: ApplicationStatusType.Closed, content: "Applications Closed" },
-          { status: ApplicationStatusType.PreLottery, content: "Lottery Results Posted Tomorrow" },
-        ]}
-      />
-    )
-    expect(getByText("Applications Closed", { exact: false })).not.toBeNull()
-    expect(getByText("Lottery Results Posted Tomorrow", { exact: false })).not.toBeNull()
-  })
-
-  it("renders with custom icon", () => {
-    const { getByText } = render(
-      <ImageCard
-        imageUrl={"/images/listing.jpg"}
-        statuses={[
-          { status: ApplicationStatusType.Matched, content: "Matched", iconType: "check" },
-        ]}
-      />
-    )
-    expect(getByText("Matched", { exact: false })).not.toBeNull()
   })
 
   it("renders with image tags", () => {

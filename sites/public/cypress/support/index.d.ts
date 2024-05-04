@@ -1,5 +1,5 @@
 declare namespace Cypress {
-  type Application = import("@bloom-housing/backend-core/types").Application
+  type Application = import("@bloom-housing/shared-helpers/src/types/backend-swagger").Application
 
   interface Chainable {
     beginApplicationRejectAutofill(listingName: string): Chainable
@@ -7,6 +7,7 @@ declare namespace Cypress {
     checkErrorAlert(command: string): Chainable
     checkErrorMessages(command: string): Chainable
     getByTestId(testId: string): Chainable<Element>
+    getByID(id: string): Chainable<Element>
     getPhoneFieldByTestId(testId: string): Chainable<Element>
     goNext(): Chainable<Element>
     isNextRouteValid(currentStep: string, skip?: number): Chainable

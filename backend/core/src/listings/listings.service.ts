@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  Scope,
-  UnauthorizedException,
-} from "@nestjs/common"
+import { Inject, Injectable, NotFoundException, Scope, UnauthorizedException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Pagination } from "nestjs-typeorm-paginate"
 import { Brackets, In, Repository } from "typeorm"
@@ -31,6 +24,7 @@ import { CombinedListingFilterParams } from "./combined/combined-listing-filter-
 import { Compare } from "../shared/dto/filter.dto"
 import { CachePurgeService } from "./cache-purge.service"
 import { CombinedListingsQueryBuilder } from "./combined/combined-listing-query-builder"
+import { ReservedCommunityType } from "../reserved-community-type/entities/reserved-community-type.entity"
 
 type JurisdictionIdToExternalResponse = { [Identifier: string]: Pagination<Listing> }
 export type ListingIncludeExternalResponse = {
@@ -47,6 +41,8 @@ export class ListingsService {
   constructor(
     @InjectRepository(Listing) private readonly listingRepository: Repository<Listing>,
     @InjectRepository(AmiChart) private readonly amiChartsRepository: Repository<AmiChart>,
+    @InjectRepository(ReservedCommunityType)
+    private readonly reservedCommunityTypeRepository: Repository<ReservedCommunityType>,
     private readonly translationService: TranslationsService,
     private readonly authzService: AuthzService,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -153,12 +149,6 @@ export class ListingsService {
       closedAt: listingDto.status === ListingStatus.closed ? new Date() : null,
     })
 
-    if (listing.commonDigitalApplication === true) {
-      throw new BadRequestException(
-        "Not currently accepting new listings using the common digital application"
-      )
-    }
-
     const saveResponse = await listing.save()
     // only listings approval state possible from creation
     if (listing.status === ListingStatus.pendingReview) {
@@ -174,6 +164,24 @@ export class ListingsService {
         approvingRoles: listingApprovalPermissions,
         jurisId: listing.jurisdiction.id,
       })
+    }
+
+    if (listing.status === ListingStatus.active) {
+      // The email send to gov delivery should not be a blocker from the normal flow so wrapping this in a try catch
+      try {
+        const jurisdiction = await this.jurisdictionsService.findOne({
+          where: { id: listing.jurisdiction.id },
+        })
+        if (jurisdiction.enableListingOpportunity) {
+          const units = await this.getUnitsForListing(saveResponse.id)
+          await this.emailService.listingOpportunity({
+            ...saveResponse,
+            units: units.units,
+          } as Listing)
+        }
+      } catch (error) {
+        console.error(`Error: unable to send to govDelivery ${error}`)
+      }
     }
     return saveResponse
   }
@@ -233,11 +241,10 @@ export class ListingsService {
     })
 
     const saveResponse = await this.listingRepository.save(listing)
-    const listingApprovalPermissions = (
-      await this.jurisdictionsService.findOne({
-        where: { id: listing.jurisdiction.id },
-      })
-    )?.listingApprovalPermissions
+    const jurisdiction = await this.jurisdictionsService.findOne({
+      where: { id: listing.jurisdiction.id },
+    })
+    const listingApprovalPermissions = jurisdiction?.listingApprovalPermissions
 
     if (listingApprovalPermissions?.length > 0)
       await this.listingApprovalNotify({
@@ -249,6 +256,30 @@ export class ListingsService {
         jurisId: listing.jurisdiction.id,
       })
     await this.cachePurgeService.cachePurgeForSingleListing(previousStatus, newStatus, saveResponse)
+
+    if (
+      listing.status === ListingStatus.active &&
+      previousStatus !== ListingStatus.active &&
+      jurisdiction.enableListingOpportunity
+    ) {
+      // The email send to gov delivery should not be a blocker from the normal flow so wrapping this in a try catch
+      try {
+        // Get the data from the needed joined tables
+        const units = await this.getUnitsForListing(saveResponse.id)
+        const communityType = saveResponse.reservedCommunityType
+          ? await this.reservedCommunityTypeRepository.findOne({
+              where: { id: saveResponse.reservedCommunityType.id },
+            })
+          : await Promise.resolve(undefined)
+        await this.emailService.listingOpportunity({
+          ...saveResponse,
+          units: units.units,
+          reservedCommunityType: communityType || undefined,
+        } as Listing)
+      } catch (error) {
+        console.error(`Error: unable to send to govDelivery ${error}`)
+      }
+    }
     return saveResponse
   }
 
@@ -371,7 +402,10 @@ export class ListingsService {
     const nonApprovingRoles = [UserRoleEnum.partner]
     if (!params.approvingRoles.includes(UserRoleEnum.jurisdictionAdmin))
       nonApprovingRoles.push(UserRoleEnum.jurisdictionAdmin)
-    if (params.status === ListingStatus.pendingReview) {
+    if (
+      params.status === ListingStatus.pendingReview &&
+      params.previousStatus !== ListingStatus.pendingReview
+    ) {
       const userInfo = await this.getUserEmailInfo(
         params.approvingRoles,
         params.listingInfo.id,
@@ -379,13 +413,16 @@ export class ListingsService {
       )
       await this.emailService.requestApproval(
         params.user,
-        { id: params.listingInfo.id, name: params.listingInfo.name },
+        { id: params.listingInfo.id, name: params.listingInfo.name, juris: params.jurisId },
         userInfo.emails,
         this.configService.get("PARTNERS_PORTAL_URL")
       )
     }
     // admin updates status to changes requested when approval requires partner changes
-    else if (params.status === ListingStatus.changesRequested) {
+    else if (
+      params.status === ListingStatus.changesRequested &&
+      params.previousStatus !== ListingStatus.changesRequested
+    ) {
       const userInfo = await this.getUserEmailInfo(
         nonApprovingRoles,
         params.listingInfo.id,
@@ -393,7 +430,7 @@ export class ListingsService {
       )
       await this.emailService.changesRequested(
         params.user,
-        { id: params.listingInfo.id, name: params.listingInfo.name },
+        { id: params.listingInfo.id, name: params.listingInfo.name, juris: params.jurisId },
         userInfo.emails,
         this.configService.get("PARTNERS_PORTAL_URL")
       )
@@ -414,7 +451,7 @@ export class ListingsService {
         )
         await this.emailService.listingApproved(
           params.user,
-          { id: params.listingInfo.id, name: params.listingInfo.name },
+          { id: params.listingInfo.id, name: params.listingInfo.name, juris: params.jurisId },
           userInfo.emails,
           userInfo.publicUrl
         )

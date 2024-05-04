@@ -1,12 +1,17 @@
 import { HttpException, Injectable, Logger, Scope } from "@nestjs/common"
 import { SendGridService } from "@anchan828/nest-sendgrid"
 import { ResponseError } from "@sendgrid/helpers/classes"
+import { MailDataRequired } from "@sendgrid/helpers/classes/mail"
+import { ConfigService } from "@nestjs/config"
+import { HttpService } from "@nestjs/axios"
+import { firstValueFrom } from "rxjs"
 import merge from "lodash/merge"
 import Handlebars from "handlebars"
 import path from "path"
 import Polyglot from "node-polyglot"
 import fs from "fs"
-import { ConfigService } from "@nestjs/config"
+import juice from "juice"
+import dayjs from "dayjs"
 import { TranslationsService } from "../translations/services/translations.service"
 import { JurisdictionResolverService } from "../jurisdictions/services/jurisdiction-resolver.service"
 import { User } from "../auth/entities/user.entity"
@@ -17,7 +22,52 @@ import { Jurisdiction } from "../jurisdictions/entities/jurisdiction.entity"
 import { Language } from "../shared/types/language-enum"
 import { JurisdictionsService } from "../jurisdictions/services/jurisdictions.service"
 import { Translation } from "../translations/entities/translation.entity"
-import { IdName } from "../../types"
+import { ListingEventType, Unit } from "../../types"
+import { formatLocalDate } from "../shared/utils/format-local-date"
+import { formatCommunityType } from "../listings/helpers"
+import { getPublicEmailURL } from "../shared/utils/get-public-email-url"
+
+type EmailAttachmentData = {
+  data: string
+  name: string
+  type: string
+}
+
+const formatPricing = (values: number[]): string => {
+  const minPrice = Math.min(...values)
+  const maxPrice = Math.max(...values)
+  return `$${minPrice.toLocaleString()}${
+    minPrice !== maxPrice ? " - $" + maxPrice.toLocaleString() : ""
+  } per month`
+}
+
+const formatUnitDetails = (
+  units: Unit[],
+  field: string,
+  label: string,
+  pluralLabel?: string
+): string => {
+  const mappedField = units.reduce((values, unit) => {
+    if (unit[field]) {
+      values.push(Number.parseFloat(unit[field]))
+    }
+    return values
+  }, [])
+  if (mappedField?.length) {
+    const minValue = Math.min(...mappedField)
+    const maxValue = Math.max(...mappedField)
+    return `, ${minValue.toLocaleString()}${
+      minValue !== maxValue ? " - " + maxValue.toLocaleString() : ""
+    } ${pluralLabel && maxValue === 1 ? pluralLabel : label}`
+  }
+  return ""
+}
+
+type listingInfo = {
+  id: string
+  name: string
+  juris: string
+}
 
 @Injectable({ scope: Scope.REQUEST })
 export class EmailService {
@@ -28,7 +78,8 @@ export class EmailService {
     private readonly configService: ConfigService,
     private readonly translationService: TranslationsService,
     private readonly jurisdictionResolverService: JurisdictionResolverService,
-    private readonly jurisdictionService: JurisdictionsService
+    private readonly jurisdictionService: JurisdictionsService,
+    private readonly httpService: HttpService
   ) {
     this.polyglot = new Polyglot({
       phrases: {},
@@ -194,8 +245,8 @@ export class EmailService {
     const jurisdiction = await this.getUserJurisdiction(user)
     void (await this.loadTranslations(jurisdiction, user.language))
     const compiledTemplate = this.template("forgot-password")
-    const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
 
+    const resetUrl = getPublicEmailURL(appUrl, user.resetToken, "/reset-password")
     if (this.configService.get<string>("NODE_ENV") == "production") {
       Logger.log(
         `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
@@ -212,6 +263,132 @@ export class EmailService {
         user: user,
       })
     )
+  }
+
+  public async listingOpportunity(listing: Listing) {
+    const jurisdiction = await this.jurisdictionService.findOne({
+      where: {
+        id: listing.jurisdiction.id,
+      },
+    })
+    void (await this.loadTranslations(jurisdiction, Language.en))
+    const compiledTemplate = this.template("listing-opportunity")
+
+    if (this.configService.get<string>("NODE_ENV") == "production") {
+      Logger.log(
+        `Preparing to send a listing opportunity email for ${listing.name} from ${jurisdiction.emailFromAddress}...`
+      )
+    }
+
+    // Gather all variables from each unit into one place
+    const units: {
+      bedrooms: { [key: number]: Unit[] }
+      rent: number[]
+      minIncome: number[]
+      maxIncome: number[]
+    } = listing.units?.reduce(
+      (summaries, unit) => {
+        if (unit.monthlyIncomeMin) {
+          summaries.minIncome.push(Number.parseFloat(unit.monthlyIncomeMin))
+        }
+        if (unit.annualIncomeMax) {
+          summaries.maxIncome.push(Number.parseFloat(unit.annualIncomeMax) / 12.0)
+        }
+        if (unit.monthlyRent) {
+          summaries.rent.push(Number.parseFloat(unit.monthlyRent))
+        }
+        const thisBedroomInfo = summaries.bedrooms[unit.unitType?.name]
+        summaries.bedrooms[unit.unitType?.name] = thisBedroomInfo
+          ? [...thisBedroomInfo, unit]
+          : [unit]
+        return summaries
+      },
+      {
+        bedrooms: {},
+        rent: [],
+        minIncome: [],
+        maxIncome: [],
+      }
+    )
+    const tableRows = []
+    if (listing.reservedCommunityType?.name) {
+      tableRows.push({
+        label: this.polyglot.t("rentalOpportunity.community"),
+        value: formatCommunityType[listing.reservedCommunityType.name],
+      })
+    }
+    if (listing.applicationDueDate) {
+      tableRows.push({
+        label: this.polyglot.t("rentalOpportunity.applicationsDue"),
+        value: dayjs(listing.applicationDueDate).format("MMMM D, YYYY"),
+      })
+    }
+    tableRows.push({
+      label: this.polyglot.t("rentalOpportunity.address"),
+      value: `${listing.buildingAddress.street}, ${listing.buildingAddress.city} ${listing.buildingAddress.state} ${listing.buildingAddress.zipCode}`,
+    })
+    Object.entries(units.bedrooms).forEach(([key, bedroom]) => {
+      const sqFtString = formatUnitDetails(bedroom, "sqFeet", "sqft")
+      const bathroomstring = formatUnitDetails(bedroom, "numBathrooms", "bath", "baths")
+      tableRows.push({
+        label: this.polyglot.t(`rentalOpportunity.${key}`),
+        value: `${bedroom.length} unit${
+          bedroom.length > 1 ? "s" : ""
+        }${bathroomstring}${sqFtString}`,
+      })
+    })
+    if (units.rent?.length) {
+      tableRows.push({
+        label: this.polyglot.t("rentalOpportunity.rent"),
+        value: formatPricing(units.rent),
+      })
+    }
+    if (units.minIncome?.length) {
+      tableRows.push({
+        label: this.polyglot.t("rentalOpportunity.minIncome"),
+        value: formatPricing(units.minIncome),
+      })
+    }
+    if (units.maxIncome?.length) {
+      tableRows.push({
+        label: this.polyglot.t("rentalOpportunity.maxIncome"),
+        value: formatPricing(units.maxIncome),
+      })
+    }
+    if (listing.events && listing.events.length > 0) {
+      const lotteryEvent = listing.events.find(
+        (event) => event.type === ListingEventType.publicLottery
+      )
+      if (lotteryEvent && lotteryEvent.startDate) {
+        tableRows.push({
+          label: this.polyglot.t("rentalOpportunity.lottery"),
+          value: dayjs(lotteryEvent.startDate).format("MMMM D, YYYY"),
+        })
+      }
+    }
+
+    const languages = [
+      { name: this.polyglot.t("rentalOpportunity.viewButton.en"), code: Language.en },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.es"), code: Language.es },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.zh"), code: Language.zh },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.vi"), code: Language.vi },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.tl"), code: Language.tl },
+    ]
+
+    const languageUrls = languages.map((language) => {
+      return {
+        name: language.name,
+        url: `${jurisdiction.publicUrl}/${language.code}/listing/${listing.id}`,
+      }
+    })
+
+    const compiled = compiledTemplate({
+      listingName: listing.name,
+      tableRows,
+      languageUrls,
+    })
+
+    await this.govSend(compiled, "New rental opportunity")
   }
 
   private async loadTranslations(jurisdiction: Jurisdiction | null, language: Language) {
@@ -288,19 +465,64 @@ export class EmailService {
     return partials
   }
 
+  async govSend(rawHtml: string, subject: string) {
+    const {
+      GOVDELIVERY_API_URL,
+      GOVDELIVERY_USERNAME,
+      GOVDELIVERY_PASSWORD,
+      GOVDELIVERY_TOPIC,
+    } = process.env
+    const isGovConfigured =
+      !!GOVDELIVERY_API_URL &&
+      !!GOVDELIVERY_USERNAME &&
+      !!GOVDELIVERY_PASSWORD &&
+      !!GOVDELIVERY_TOPIC
+    if (!isGovConfigured) {
+      console.warn("failed to configure Govdelivery, ensure that all env variables are provided")
+      return
+    }
+
+    // juice inlines css to allow for email styling
+    const inlineHtml = juice(rawHtml)
+    const govEmailXml = `<bulletin>\n <subject>${subject}</subject>\n  <body><![CDATA[\n     
+      ${inlineHtml}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>${GOVDELIVERY_TOPIC}</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`
+
+    await firstValueFrom(
+      this.httpService.post(GOVDELIVERY_API_URL, govEmailXml, {
+        headers: {
+          "Content-Type": "application/xml",
+          Authorization: `Basic ${Buffer.from(
+            `${GOVDELIVERY_USERNAME}:${GOVDELIVERY_PASSWORD}`
+          ).toString("base64")}`,
+        },
+      })
+    )
+  }
+
   private async send(
     to: string | string[],
     from: string,
     subject: string,
     body: string,
-    retry = 3
+    retry = 3,
+    attachment?: EmailAttachmentData
   ) {
     const multipleRecipients = Array.isArray(to)
-    const emailParams = {
+    const emailParams: Partial<MailDataRequired> = {
       to,
       from,
       subject,
       html: body,
+    }
+    if (attachment) {
+      emailParams.attachments = [
+        {
+          content: Buffer.from(attachment.data).toString("base64"),
+          filename: attachment.name,
+          type: attachment.type,
+          disposition: "attachment",
+        },
+      ]
     }
     const handleError = (error) => {
       if (error instanceof ResponseError) {
@@ -352,9 +574,20 @@ export class EmailService {
     )
   }
 
-  public async requestApproval(user: User, listingInfo: IdName, emails: string[], appUrl: string) {
+  public async requestApproval(
+    user: User,
+    listingInfo: listingInfo,
+    emails: string[],
+    appUrl: string
+  ) {
     try {
-      const jurisdiction = await this.getUserJurisdiction(user)
+      const jurisdiction = listingInfo.juris
+        ? await this.jurisdictionService.findOne({
+            where: {
+              id: listingInfo.juris,
+            },
+          })
+        : await this.getUserJurisdiction(user)
       void (await this.loadTranslations(jurisdiction, Language.en))
       await this.send(
         emails,
@@ -372,9 +605,20 @@ export class EmailService {
     }
   }
 
-  public async changesRequested(user: User, listingInfo: IdName, emails: string[], appUrl: string) {
+  public async changesRequested(
+    user: User,
+    listingInfo: listingInfo,
+    emails: string[],
+    appUrl: string
+  ) {
     try {
-      const jurisdiction = await this.getUserJurisdiction(user)
+      const jurisdiction = listingInfo.juris
+        ? await this.jurisdictionService.findOne({
+            where: {
+              id: listingInfo.juris,
+            },
+          })
+        : await this.getUserJurisdiction(user)
       void (await this.loadTranslations(jurisdiction, Language.en))
       await this.send(
         emails,
@@ -394,12 +638,18 @@ export class EmailService {
 
   public async listingApproved(
     user: User,
-    listingInfo: IdName,
+    listingInfo: listingInfo,
     emails: string[],
     publicUrl: string
   ) {
     try {
-      const jurisdiction = await this.getUserJurisdiction(user)
+      const jurisdiction = listingInfo.juris
+        ? await this.jurisdictionService.findOne({
+            where: {
+              id: listingInfo.juris,
+            },
+          })
+        : await this.getUserJurisdiction(user)
       void (await this.loadTranslations(jurisdiction, Language.en))
       await this.send(
         emails,
@@ -414,5 +664,28 @@ export class EmailService {
     } catch (err) {
       throw new HttpException("email failed", 500)
     }
+  }
+
+  async sendCSV(user: User, listingName: string, listingId: string, applicationData: string) {
+    void (await this.loadTranslations(
+      user.jurisdictions?.length === 1 ? user.jurisdictions[0] : null,
+      user.language || Language.en
+    ))
+    const jurisdiction = await this.getUserJurisdiction(user)
+    await this.send(
+      user.email,
+      jurisdiction.emailFromAddress,
+      `${listingName} applications export`,
+      this.template("csv-export")({
+        user: user,
+        appOptions: { listingName, appUrl: this.configService.get("PARTNERS_PORTAL_URL") },
+      }),
+      undefined,
+      {
+        data: applicationData,
+        name: `applications-${listingId}-${formatLocalDate(new Date(), "YYYY-MM-DD_HH:mm:ss")}.csv`,
+        type: "text/csv",
+      }
+    )
   }
 }

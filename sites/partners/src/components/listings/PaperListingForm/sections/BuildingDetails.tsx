@@ -2,24 +2,25 @@ import React, { useEffect, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import {
   t,
-  GridSection,
-  GridCell,
   Field,
   Select,
   FieldGroup,
   ListingMap,
   LatitudeLongitude,
   AlertNotice,
+  Icon,
 } from "@bloom-housing/ui-components"
-import { Icon, Tooltip } from "@bloom-housing/doorway-ui-components"
+import { Tooltip } from "@bloom-housing/doorway-ui-components"
 import { countyKeys, stateKeys } from "@bloom-housing/shared-helpers"
-import { FieldValue } from "@bloom-housing/ui-seeds"
+import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import { FormListing } from "../../../../lib/listings/formTypes"
 import GeocodeService, {
   GeocodeService as GeocodeServiceType,
 } from "@mapbox/mapbox-sdk/services/geocoding"
 import { fieldHasError, fieldMessage } from "../../../../lib/helpers"
 import Link from "next/link"
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons"
+import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 interface MapBoxFeature {
   center: number[] // Index 0: longitude, Index 1: latitude
@@ -65,7 +66,7 @@ const BuildingDetails = ({
 
   const buildingAddress: BuildingAddress = useWatch({
     control,
-    name: "buildingAddress",
+    name: "listingsBuildingAddress",
   })
 
   const mapPinPosition = useWatch({
@@ -144,247 +145,261 @@ const BuildingDetails = ({
   }, [mapPinPosition])
 
   const getAddressErrorMessage = (fieldKey: string, defaultMessage: string) => {
-    if (fieldKey === "buildingAddress.county" && !getValues("buildingAddress.county")) {
+    if (
+      fieldKey === "listingsBuildingAddress.county" &&
+      !getValues("listingsBuildingAddress.county")
+    ) {
       defaultMessage = t("errors.countyError")
       return t("errors.countyError")
     }
-    return errors?.buildingAddress && !getValues("buildingAddress.street")
+    return errors?.listingsBuildingAddress && !getValues(fieldKey)
       ? t("errors.partialAddress")
       : defaultMessage
   }
 
   return (
-    <GridSection
-      grid={false}
-      columns={3}
-      separator
-      title={t("listings.sections.buildingDetailsTitle")}
-      description={t("listings.sections.buildingDetailsSubtitle")}
-    >
-      <GridSection columns={3} subtitle={t("listings.sections.buildingAddress")}>
-        <GridCell span={2}>
-          <Field
-            label={t("application.contact.streetAddress")}
-            name={"buildingAddress.street"}
-            id={"buildingAddress.street"}
-            error={
-              !!getAddressErrorMessage(
-                "buildingAddress.street",
-                fieldMessage(errors?.buildingAddress?.street)
-              )
-            }
-            errorMessage={getAddressErrorMessage(
-              "buildingAddress.street",
-              fieldMessage(errors?.buildingAddress?.street)
-            )}
-            placeholder={t("application.contact.streetAddress")}
-            inputProps={{
-              onChange: () =>
-                fieldHasError(errors?.buildingAddress?.street) && clearErrors("buildingAddress"),
-            }}
-            register={register}
-          />
-        </GridCell>
-        <Field
-          label={t("t.neighborhood")}
-          name={"neighborhood"}
-          id={"neighborhood"}
-          placeholder={t("t.neighborhood")}
-          register={register}
-        />
-      </GridSection>
-      <GridSection columns={6}>
-        <GridCell span={2}>
-          <Field
-            label={t("application.contact.city")}
-            name={"buildingAddress.city"}
-            id={"buildingAddress.city"}
-            error={
-              !!getAddressErrorMessage(
-                "buildingAddress.city",
-                fieldMessage(errors?.buildingAddress?.city)
-              )
-            }
-            errorMessage={getAddressErrorMessage(
-              "buildingAddress.city",
-              fieldMessage(errors?.buildingAddress?.city)
-            )}
-            placeholder={t("application.contact.city")}
-            inputProps={{
-              onChange: () =>
-                fieldHasError(errors?.buildingAddress?.city) && clearErrors("buildingAddress"),
-            }}
-            register={register}
-          />
-        </GridCell>
-        <GridCell>
-          <FieldValue
-            label={t("application.contact.state")}
-            className={`mb-0 ${
-              getAddressErrorMessage(
-                "buildingAddress.state",
-                fieldMessage(errors?.buildingAddress?.state)
-              )
-                ? "field-value-error"
-                : ""
-            }`}
-          >
-            <Select
-              id={`buildingAddress.state`}
-              name={`buildingAddress.state`}
+    <>
+      <hr className="spacer-section-above spacer-section" />
+      <SectionWithGrid
+        heading={t("listings.sections.buildingDetailsTitle")}
+        subheading={t("listings.sections.buildingDetailsSubtitle")}
+      >
+        <SectionWithGrid.HeadingRow>
+          {t("listings.sections.buildingAddress")}
+        </SectionWithGrid.HeadingRow>
+        <Grid.Row columns={3}>
+          <Grid.Cell className="seeds-grid-span-2">
+            <Field
+              label={t("application.contact.streetAddress")}
+              name={"listingsBuildingAddress.street"}
+              id={"listingsBuildingAddress.street"}
               error={
                 !!getAddressErrorMessage(
-                  "buildingAddress.state",
-                  fieldMessage(errors?.buildingAddress?.state)
+                  "listingsBuildingAddress.street",
+                  fieldMessage(errors?.listingsBuildingAddress?.street)
                 )
               }
               errorMessage={getAddressErrorMessage(
-                "buildingAddress.state",
-                fieldMessage(errors?.buildingAddress?.state)
+                "listingsBuildingAddress.street",
+                fieldMessage(errors?.listingsBuildingAddress?.street)
               )}
+              placeholder={t("application.contact.streetAddress")}
+              inputProps={{
+                onChange: () =>
+                  fieldHasError(errors?.listingsBuildingAddress?.street) &&
+                  clearErrors("listingsBuildingAddress"),
+              }}
+              register={register}
+            />
+          </Grid.Cell>
+          <Field
+            label={t("t.neighborhood")}
+            name={"neighborhood"}
+            id={"neighborhood"}
+            placeholder={t("t.neighborhood")}
+            register={register}
+          />
+        </Grid.Row>
+        <Grid.Row columns={6}>
+          <Grid.Cell className="seeds-grid-span-2">
+            <Field
+              label={t("application.contact.city")}
+              name={"listingsBuildingAddress.city"}
+              id={"listingsBuildingAddress.city"}
+              error={
+                !!getAddressErrorMessage(
+                  "listingsBuildingAddress.city",
+                  fieldMessage(errors?.listingsBuildingAddress?.city)
+                )
+              }
+              errorMessage={getAddressErrorMessage(
+                "listingsBuildingAddress.city",
+                fieldMessage(errors?.listingsBuildingAddress?.city)
+              )}
+              placeholder={t("application.contact.city")}
+              inputProps={{
+                onChange: () =>
+                  fieldHasError(errors?.listingsBuildingAddress?.city) &&
+                  clearErrors("listingsBuildingAddress"),
+              }}
+              register={register}
+            />
+            <p className="field-sub-note">{t("listings.requiredToPublish")}</p>
+          </Grid.Cell>
+          <Grid.Cell>
+            <FieldValue
               label={t("application.contact.state")}
-              labelClassName="sr-only"
-              register={register}
-              controlClassName="control"
-              options={stateKeys}
-              keyPrefix="states"
-              inputProps={{
-                onChange: () =>
-                  fieldHasError(errors?.buildingAddress?.state) && clearErrors("buildingAddress"),
-              }}
-            />
-          </FieldValue>
-        </GridCell>
-        <GridCell>
-          <Field
-            label={t("application.contact.zip")}
-            name={"buildingAddress.zipCode"}
-            id={"buildingAddress.zipCode"}
-            placeholder={t("application.contact.zip")}
-            error={
-              !!getAddressErrorMessage(
-                "buildingAddress.zipCode",
-                fieldMessage(errors?.buildingAddress?.zipCode)
-              )
-            }
-            errorMessage={getAddressErrorMessage(
-              "buildingAddress.zipCode",
-              fieldMessage(errors?.buildingAddress?.zipCode)
-            )}
-            inputProps={{
-              onChange: () =>
-                fieldHasError(errors?.buildingAddress?.zipCode) && clearErrors("buildingAddress"),
-            }}
-            register={register}
-          />
-        </GridCell>
-        <GridCell span={2}>
-          <Field
-            label={t("listings.yearBuilt")}
-            name={"yearBuilt"}
-            id={"yearBuilt"}
-            placeholder={t("listings.yearBuilt")}
-            type={"number"}
-            register={register}
-          />
-        </GridCell>
-      </GridSection>
-      <GridSection columns={3}>
-        <GridCell>
-          <FieldValue
-            label={t("application.contact.county")}
-            className={"mb-0"}
-            // error={fieldHasError(errors?.buildingAddress?.county)}
-          >
-            <Select
-              id={`buildingAddress.county`}
-              name={`buildingAddress.county`}
+              className={`mb-0 ${
+                getAddressErrorMessage(
+                  "listingsBuildingAddress.state",
+                  fieldMessage(errors?.listingsBuildingAddress?.state)
+                )
+                  ? "field-value-error"
+                  : ""
+              }`}
+            >
+              <Select
+                id={`listingsBuildingAddress.state`}
+                name={`listingsBuildingAddress.state`}
+                error={
+                  !!getAddressErrorMessage(
+                    "listingsBuildingAddress.state",
+                    fieldMessage(errors?.listingsBuildingAddress?.state)
+                  )
+                }
+                errorMessage={getAddressErrorMessage(
+                  "listingsBuildingAddress.state",
+                  fieldMessage(errors?.listingsBuildingAddress?.state)
+                )}
+                label={t("application.contact.state")}
+                labelClassName="sr-only"
+                register={register}
+                controlClassName="control"
+                options={stateKeys}
+                keyPrefix="states"
+                inputProps={{
+                  onChange: () =>
+                    fieldHasError(errors?.listingsBuildingAddress?.state) &&
+                    clearErrors("listingsBuildingAddress"),
+                }}
+              />
+            </FieldValue>
+          </Grid.Cell>
+          <Grid.Cell>
+            <Field
+              label={t("application.contact.zip")}
+              name={"listingsBuildingAddress.zipCode"}
+              id={"listingsBuildingAddress.zipCode"}
+              placeholder={t("application.contact.zip")}
               error={
                 !!getAddressErrorMessage(
-                  "buildingAddress.county",
-                  fieldMessage(errors?.buildingAddress?.county)
+                  "listingsBuildingAddress.zipCode",
+                  fieldMessage(errors?.listingsBuildingAddress?.zipCode)
                 )
               }
               errorMessage={getAddressErrorMessage(
-                "buildingAddress.county",
-                fieldMessage(errors?.buildingAddress?.county)
+                "listingsBuildingAddress.zipCode",
+                fieldMessage(errors?.listingsBuildingAddress?.zipCode)
               )}
-              label={t("application.contact.county")}
-              labelClassName="sr-only"
-              register={register}
-              controlClassName="control"
-              options={countyKeys}
-              keyPrefix="counties"
               inputProps={{
                 onChange: () =>
-                  fieldHasError(errors?.buildingAddress?.county) && clearErrors("buildingAddress"),
+                  fieldHasError(errors?.listingsBuildingAddress?.zipCode) &&
+                  clearErrors("listingsBuildingAddress"),
               }}
+              register={register}
             />
-          </FieldValue>
-          <p className="field-sub-note">{t("listings.requiredToPublish")}</p>
-        </GridCell>
-        <GridCell span={2}>
-          <AlertNotice inverted>
-            <div className="text__small-weighted" color="bloom-color-alert-dark">
-              {t("county.goToOtherPortalsTitle")}
-              <Tooltip className="ml-0" id="county-helper" text={t("county.goToOtherPortalsHover")}>
-                <Icon size="medium" symbol="info" />
-              </Tooltip>
-            </div>
-            <li className="list-disc list-inside">
-              {t("county.goToOtherPortalsCitySanJose")}
-              <Link href="https://partners.housingbayarea.org/">
-                {" "}
-                <Icon size="small" symbol="externalLink" />{" "}
-              </Link>
-            </li>
-            <li className="list-disc list-inside">
-              {t("county.goToOtherPortalsAlamedaSanMateo")}
-              <Link href="https://partners.housingbayarea.org/">
-                {" "}
-                <Icon size="small" symbol="externalLink" />{" "}
-              </Link>
-            </li>
-            <li className="list-disc list-inside">
-              {t("county.goToOtherPortalsSanFrancisco")}
-              <Link href="https://www.partner.housing.sfgov.org/">
-                {" "}
-                <Icon size="small" symbol="externalLink" />{" "}
-              </Link>
-            </li>
-          </AlertNotice>
-        </GridCell>
-      </GridSection>
-      <GridSection columns={3}>
-        <GridCell span={2}>
-          <FieldValue label={t("listings.mapPreview")}>
-            {displayMapPreview() ? (
-              <ListingMap
-                listingName={listing?.name}
-                address={{
-                  city: buildingAddress.city,
-                  state: buildingAddress.state,
-                  street: buildingAddress.street,
-                  zipCode: buildingAddress.zipCode,
-                  latitude: latLong.latitude,
-                  longitude: latLong.longitude,
+          </Grid.Cell>
+          <Grid.Cell className="seeds-grid-span-2">
+            <Field
+              label={t("listings.yearBuilt")}
+              name={"yearBuilt"}
+              id={"yearBuilt"}
+              placeholder={t("listings.yearBuilt")}
+              type={"number"}
+              register={register}
+            />
+          </Grid.Cell>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Cell>
+            <FieldValue
+              label={t("application.contact.county")}
+              className={"mb-0"}
+              // error={fieldHasError(errors?.buildingAddress?.county)}
+            >
+              <Select
+                id={`listingsBuildingAddress.county`}
+                name={`listingsBuildingAddress.county`}
+                error={
+                  !!getAddressErrorMessage(
+                    "listingsBuildingAddress.county",
+                    fieldMessage(errors?.listingsBuildingAddress?.county)
+                  )
+                }
+                errorMessage={getAddressErrorMessage(
+                  "listingsBuildingAddress.county",
+                  fieldMessage(errors?.listingsBuildingAddress?.county)
+                )}
+                label={t("application.contact.county")}
+                labelClassName="sr-only"
+                register={register}
+                controlClassName="control"
+                options={countyKeys}
+                keyPrefix="counties"
+                inputProps={{
+                  onChange: () =>
+                    fieldHasError(errors?.listingsBuildingAddress?.county) &&
+                    clearErrors("listingsBuildingAddress"),
                 }}
-                enableCustomPinPositioning={getValues("mapPinPosition") === "custom"}
-                setCustomMapPositionChosen={setCustomMapPositionChosen}
-                setLatLong={setLatLong}
               />
-            ) : (
-              <div
-                className={"w-full bg-gray-400 p-3 flex items-center justify-center"}
-                style={{ height: "400px" }}
-              >
-                {t("listings.mapPreviewNoAddress")}
+            </FieldValue>
+            <p className="field-sub-note">{t("listings.requiredToPublish")}</p>
+          </Grid.Cell>
+          <Grid.Cell>
+            <AlertNotice inverted>
+              <div className="text__small-weighted" color="bloom-color-alert-dark">
+                {t("county.goToOtherPortalsTitle")}
+                <Tooltip
+                  className="ml-0"
+                  id="county-helper"
+                  text={t("county.goToOtherPortalsHover")}
+                >
+                  <Icon size="medium" symbol="info" />
+                </Tooltip>
               </div>
-            )}
-          </FieldValue>
-        </GridCell>
-        <GridCell>
-          <GridCell>
+              <li className="list-disc list-inside">
+                {t("county.goToOtherPortalsCitySanJose")}
+                <Link href="https://partners.housingbayarea.org/">
+                  {" "}
+                  <Icon size="small" symbol={faArrowUpRightFromSquare} />{" "}
+                </Link>
+              </li>
+              <li className="list-disc list-inside">
+                {t("county.goToOtherPortalsAlamedaSanMateo")}
+                <Link href="https://partners.housingbayarea.org/">
+                  {" "}
+                  <Icon size="small" symbol={faArrowUpRightFromSquare} />{" "}
+                </Link>
+              </li>
+              <li className="list-disc list-inside">
+                {t("county.goToOtherPortalsSanFrancisco")}
+                <Link href="https://www.partner.housing.sfgov.org/">
+                  {" "}
+                  <Icon size="small" symbol={faArrowUpRightFromSquare} />{" "}
+                </Link>
+              </li>
+            </AlertNotice>
+          </Grid.Cell>
+        </Grid.Row>
+        <Grid.Row columns={3}>
+          <Grid.Cell className="seeds-grid-span-2">
+            <FieldValue label={t("listings.mapPreview")}>
+              {displayMapPreview() ? (
+                <ListingMap
+                  listingName={listing?.name}
+                  address={{
+                    city: buildingAddress.city,
+                    state: buildingAddress.state,
+                    street: buildingAddress.street,
+                    zipCode: buildingAddress.zipCode,
+                    latitude: latLong.latitude,
+                    longitude: latLong.longitude,
+                  }}
+                  enableCustomPinPositioning={getValues("mapPinPosition") === "custom"}
+                  setCustomMapPositionChosen={setCustomMapPositionChosen}
+                  setLatLong={setLatLong}
+                />
+              ) : (
+                <div
+                  className={"w-full bg-gray-400 p-3 flex items-center justify-center"}
+                  style={{ height: "400px" }}
+                >
+                  {t("listings.mapPreviewNoAddress")}
+                </div>
+              )}
+            </FieldValue>
+          </Grid.Cell>
+          <Grid.Cell>
             <p className="field-label m-4 ml-0">{t("listings.mapPinPosition")}</p>
             <FieldGroup
               name="mapPinPosition"
@@ -409,10 +424,10 @@ const BuildingDetails = ({
                 },
               ]}
             />
-          </GridCell>
-        </GridCell>
-      </GridSection>
-    </GridSection>
+          </Grid.Cell>
+        </Grid.Row>
+      </SectionWithGrid>
+    </>
   )
 }
 

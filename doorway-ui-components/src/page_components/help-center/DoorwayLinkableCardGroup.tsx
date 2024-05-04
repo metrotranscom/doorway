@@ -1,8 +1,7 @@
 import React, { useState } from "react"
-import { Card, CardProps, Heading, generateJumplinkId } from "../../.."
+import { Card, CardProps, generateJumplinkId } from "../../.."
 import "./DoorwayLinkableCardGroup.scss"
 import Link from "next/link"
-import { RowPositionUtils } from "ag-grid-community"
 
 type DoorwayLinkableCardGroupProps = {
   cards: React.ReactElement<CardProps>[]
@@ -35,7 +34,7 @@ const DoorwayLinkableCardGroup = (props: DoorwayLinkableCardGroupProps) => {
       <div className="doorway-linkable-card-group_nav font-serif mt-4">
         <Card className="border-0 space-y-5">{getLinks()}</Card>
       </div>
-      <div className="doorway-linkable-card-group_main">
+      <div>
         {props.children}
         {props.cards}
       </div>

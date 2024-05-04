@@ -1,18 +1,20 @@
-import React, { useContext, useMemo } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
 import {
   AgTable,
   t,
-  Button,
-  LocalizedLink,
   SiteAlert,
   useAgTable,
   Breadcrumbs,
   BreadcrumbLink,
-  AppearanceSizeType,
 } from "@bloom-housing/ui-components"
+import { Button } from "@bloom-housing/ui-seeds"
 import { AuthContext } from "@bloom-housing/shared-helpers"
+import {
+  ApplicationOrderByKeys,
+  OrderByEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
   useSingleListingData,
   useFlaggedApplicationsList,
@@ -22,30 +24,39 @@ import {
 import { ListingStatusBar } from "../../../../components/listings/ListingStatusBar"
 import Layout from "../../../../layouts"
 import { getColDefs } from "../../../../components/applications/ApplicationsColDefs"
-import {
-  EnumApplicationsApiExtraModelOrder,
-  EnumApplicationsApiExtraModelOrderBy,
-} from "@bloom-housing/backend-core/types"
 import { ApplicationsSideNav } from "../../../../components/applications/ApplicationsSideNav"
 import { NavigationHeader } from "../../../../components/shared/NavigationHeader"
-
+import { ExportTermsDialog } from "../../../../components/shared/ExportTermsDialog"
+import styles from "../../../../components/shared/ExportTermsDialog.module.scss"
+import Markdown from "markdown-to-jsx"
 const ApplicationsList = () => {
   const { profile } = useContext(AuthContext)
+  const [isTermsOpen, setIsTermsOpen] = useState(false)
   const router = useRouter()
   const listingId = router.query.id as string
-
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const tableOptions = useAgTable()
-
-  const { onExport, csvExportLoading, csvExportError, csvExportSuccess } = useApplicationsExport(
-    listingId,
-    profile?.roles?.isAdmin ?? false
-  )
 
   /* Data Fetching */
   const { listingDto } = useSingleListingData(listingId)
-  const countyCode = listingDto?.countyCode
+
+  const listingJurisdiction = profile.jurisdictions.find(
+    (jurisdiction) => jurisdiction.id === listingDto?.jurisdictions.id
+  )
+  const includeDemographicsPartner =
+    profile?.userRoles?.isPartner && listingJurisdiction?.enablePartnerDemographics
+  const { onExport, csvExportLoading, csvExportError, csvExportSuccess } = useApplicationsExport(
+    listingId,
+    (profile?.userRoles?.isAdmin ||
+      profile?.userRoles?.isJurisdictionalAdmin ||
+      includeDemographicsPartner) ??
+      false
+  )
+
+  const countyCode = listingDto?.jurisdictions.name
   const listingName = listingDto?.name
   const isListingOpen = listingDto?.status === "active"
+  const allowNewApps = listingDto?.status !== "closed" || profile?.userRoles?.isAdmin
   const { data: flaggedApps } = useFlaggedApplicationsList({
     listingId,
     page: 1,
@@ -57,8 +68,8 @@ const ApplicationsList = () => {
     tableOptions.filter.filterValue,
     tableOptions.pagination.itemsPerPage,
     listingId,
-    tableOptions.sort.sortOptions?.[0]?.orderBy as EnumApplicationsApiExtraModelOrderBy,
-    tableOptions.sort.sortOptions?.[0]?.orderDir as EnumApplicationsApiExtraModelOrder
+    tableOptions.sort.sortOptions?.[0]?.orderBy as ApplicationOrderByKeys,
+    tableOptions.sort.sortOptions?.[0]?.orderDir as OrderByEnum
   )
 
   class formatLinkCell {
@@ -102,6 +113,16 @@ const ApplicationsList = () => {
     formatLinkCell,
   }
 
+  const onSubmit = async () => {
+    try {
+      await onExport()
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setIsTermsOpen(false)
+    }
+  }
+
   if (!applications || appsError) return "An error has occurred."
 
   return (
@@ -109,10 +130,9 @@ const ApplicationsList = () => {
       <Head>
         <title>{t("nav.siteTitlePartners")}</title>
       </Head>
-      {csvExportSuccess && <SiteAlert type="success" timeout={5000} dismissable sticky={true} />}
+      {csvExportSuccess && <SiteAlert type="success" dismissable sticky={true} />}
       {csvExportError && (
         <SiteAlert
-          timeout={5000}
           dismissable
           sticky={true}
           alertMessage={{ message: t("account.settings.alerts.genericError"), type: "alert" }}
@@ -178,28 +198,44 @@ const ApplicationsList = () => {
                 }}
                 headerContent={
                   <div className="flex-row">
-                    <LocalizedLink href={`/listings/${listingId}/applications/add`}>
+                    {allowNewApps && (
                       <Button
-                        size={AppearanceSizeType.small}
+                        href={`/listings/${listingId}/applications/add`}
+                        variant="primary-outlined"
+                        size="sm"
                         className="mx-1"
-                        onClick={() => false}
-                        dataTestId={"addApplicationButton"}
+                        id={"addApplicationButton"}
                       >
                         {t("applications.addApplication")}
                       </Button>
-                    </LocalizedLink>
+                    )}
 
                     <Button
-                      size={AppearanceSizeType.small}
+                      variant="primary-outlined"
+                      size="sm"
                       className="mx-1"
-                      onClick={() => onExport()}
-                      loading={csvExportLoading}
+                      onClick={() => setIsTermsOpen(true)}
+                      loadingMessage={csvExportLoading && t("t.formSubmitted")}
                     >
                       {t("t.export")}
                     </Button>
                   </div>
                 }
               />
+              <ExportTermsDialog
+                dialogHeader={t("applications.export.dialogHeader")}
+                isOpen={isTermsOpen}
+                onClose={() => setIsTermsOpen(false)}
+                onSubmit={onSubmit}
+              >
+                <p>{t("applications.export.dialogSubheader")}</p>
+                <h2 className={styles["terms-of-use-text"]}>
+                  {t("applications.export.termsOfUse")}
+                </h2>
+                <Markdown>
+                  {t("applications.export.termsBody", { bold: styles["terms-bold-text"] })}
+                </Markdown>
+              </ExportTermsDialog>
             </>
           )}
         </article>

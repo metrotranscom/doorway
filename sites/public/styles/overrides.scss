@@ -1,3 +1,5 @@
+@import "./colors.scss";
+
 :root {
   .site-header {
     --logo-content-padding: 0;
@@ -18,6 +20,133 @@
     --mobile-menu-font-size: var(--bloom-font-size-s);
     --navbar-menu-desktop-margin: inherit;
     --navbar-menu-min-width: 110px;
-    --dropdown-container-top-offset: 36px;
+  }
+
+  .doorway-message {
+    --message-font: var(--bloom-font-sans);
+  }
+
+  .application-status {
+    --seeds-color-primary-light: var(--doorway-color-secondary-background);
+    --message-max-width: initial;
+    --message-flex-gap: 0.45rem;
+    align-items: start;
+  }
+
+  .warning-message {
+    --message-max-width: initial;
+  }
+
+  .info-card {
+    --margin-sides: var(--bloom-s3);
+    --background-color: var(--bloom-color-blue-300);
+    --background-color-lighter: var(--bloom-color-gray-300);
+    --background-color-inline: inherit;
+    --title-color: var(--bloom-text-color-darker);
+    --title-secondary-color: var(--bloom-color-primary-dark);
+    --title-font-size-normal: var(--bloom-font-size-2xl);
+    --title-font-weight-normal: 100;
+    --title-font-family: var(--bloom-font-serif);
+    --title-text-transform-normal: none;
+
+    margin-left: var(--margin-sides);
+    margin-right: var(--margin-sides);
+    border-radius: 0.5rem;
+    border-width: 0px;
+
+    &.is-inline {
+      --background-color: var(--background-color-inline);
+    }
+
+    &.is-normal {
+      .info-card__title {
+        --title-font-size: var(--title-font-size-normal);
+        --title-text-transform: var(--title-text-transform-normal);
+        font-weight: var(--title-font-weight-normal);
+      }
+    }
+
+    &.is-normal-primary-lighter {
+      --background-color-lighter: var(--background-color);
+
+      .info-card__title {
+        --title-font-size-lighter: var(--title-font-size-normal);
+        font-weight: var(--title-font-weight-normal);
+      }
+    }
+
+    &.is-normal-secondary-lighter {
+      --background-color: var(--background-color-lighter);
+
+      .info-card__title {
+        --title-font-size: var(--title-font-size-normal);
+        --title-text-transform: var(--title-text-transform-normal);
+        --title-letter-spacing: var(--title-letter-spacing-normal);
+        --title-color: var(--title-secondary-color);
+        font-weight: var(--title-font-weight-normal);
+      }
+    }
+  }
+
+  .seeds-button {
+    --button-border-radius-sm: var(--seeds-rounded-full);
+    --button-border-radius-md: var(--seeds-rounded-full);
+    --button-border-radius-lg: var(--seeds-rounded-full);
+
+    --button-padding-md: calc(var(--seeds-s3) - 2px) calc(var(--seeds-s6) - 2px);
+    --button-padding-sm: calc(var(--seeds-s3) - 2px) calc(var(--seeds-s6) - 2px);
+
+    -webkit-font-smoothing: antialiased; // restore macOS styling that had been unset
+  }
+
+  .seeds-card-section.bg-primary-lighter {
+    background: var(--seeds-color-secondary-lighter) !important;
+  }
+
+  .seeds-card.application-form-card .image-card {
+    --border-radius: 0;
+  }
+
+  .progress-nav {
+    --dot-size: 0.95rem;
+    --dot-font-size: 0.825rem;
+    --dot-label-padding-top: var(--seeds-s6);
+    --active-step-color: var(--seeds-color-primary-dark);
+    --completed-step-color: var(--seeds-color-primary-dark);
+  }
+
+  /* TODO: would be nice to have CSS variables for this too */
+  .progress-nav__dot-item::after {
+    top: 0.35rem;
+    height: 3px;
+  }
+
+  --text-caps-spaced-letter-spacing: var(--bloom-letter-spacing-tight);
+  --text-caps-spaced-font-weight: 700;
+  .text__caps-spaced {
+    text-transform: none;
+    color: var(--seeds-input-text-label-color);
+  }
+
+  .form--card__sub-header {
+    border-top: none;
+  }
+
+  .label.text__caps-spaced {
+    margin-bottom: var(--seeds-s1);
+  }
+
+  --notice-background-color: var(--seeds-color-blue-300);
+
+  .seeds-message {
+    &[data-variant="primary"] {
+      background: var(--seeds-color-blue-300);
+    }
+  }
+
+  .seeds-overlay {
+    h1 {
+      font-family: var(--seeds-font-serif);
+    }
   }
 }

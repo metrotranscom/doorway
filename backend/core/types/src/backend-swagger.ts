@@ -566,7 +566,7 @@ export class ApplicationsService {
       includeDemographics?: boolean
     } = {} as any,
     options: IRequestOptions = {}
-  ): Promise<string> {
+  ): Promise<Status> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/applications/csv"
 
@@ -1207,12 +1207,18 @@ export class JurisdictionsService {
   /**
    * List jurisdictions
    */
-  list(options: IRequestOptions = {}): Promise<Jurisdiction[]> {
+  list(
+    params: {
+      /**  */
+      names?: any | null[]
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<Jurisdiction[]> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/jurisdictions"
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-
+      configs.params = { names: params["names"] }
       let data = null
 
       configs.data = data
@@ -2385,6 +2391,30 @@ export class UnitAccessibilityPriorityTypesService {
   }
 }
 
+export class MapLayersService {
+  /**
+   * List map layers
+   */
+  list(
+    params: {
+      /**  */
+      jurisdictionId?: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<MapLayer[]> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/mapLayers"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+      configs.params = { jurisdictionId: params["jurisdictionId"] }
+      let data = null
+
+      configs.data = data
+      axios(configs, resolve, reject)
+    })
+  }
+}
+
 export interface AmiChartItem {
   /**  */
   percentOfAmi: number
@@ -2623,6 +2653,9 @@ export interface Demographics {
   ethnicity?: string
 
   /**  */
+  spokenLanguage?: string
+
+  /**  */
   gender?: string
 
   /**  */
@@ -2705,6 +2738,9 @@ export interface ApplicationMultiselectQuestionOption {
 
   /**  */
   checked: boolean
+
+  /**  */
+  mapPinPosition?: string
 
   /**  */
   extraData?: AllExtraDataTypes[]
@@ -2810,7 +2846,7 @@ export interface Application {
   householdStudent?: boolean
 
   /**  */
-  incomeVouchers?: boolean
+  incomeVouchers: string[]
 
   /**  */
   income?: string
@@ -3253,6 +3289,9 @@ export interface DemographicsCreate {
   ethnicity?: string
 
   /**  */
+  spokenLanguage?: string
+
+  /**  */
   gender?: string
 
   /**  */
@@ -3377,7 +3416,7 @@ export interface ApplicationCreate {
   householdStudent?: boolean
 
   /**  */
-  incomeVouchers?: boolean
+  incomeVouchers: string[]
 
   /**  */
   income?: string
@@ -3555,6 +3594,9 @@ export interface DemographicsUpdate {
   ethnicity?: string
 
   /**  */
+  spokenLanguage?: string
+
+  /**  */
   gender?: string
 
   /**  */
@@ -3694,7 +3736,7 @@ export interface ApplicationUpdate {
   householdStudent?: boolean
 
   /**  */
-  incomeVouchers?: boolean
+  incomeVouchers: string[]
 
   /**  */
   income?: string
@@ -3871,6 +3913,12 @@ export interface Jurisdiction {
 
   /**  */
   enableUtilitiesIncluded: boolean
+
+  /**  */
+  enableListingOpportunity: boolean
+
+  /**  */
+  enableGeocodingPreferences: boolean
 }
 
 export interface User {
@@ -3958,7 +4006,7 @@ export interface UserCreate {
   passwordConfirmation: string
 
   /**  */
-  emailConfirmation: string
+  emailConfirmation?: string
 
   /**  */
   appUrl?: string
@@ -4307,6 +4355,12 @@ export interface JurisdictionCreate {
   enableUtilitiesIncluded: boolean
 
   /**  */
+  enableListingOpportunity: boolean
+
+  /**  */
+  enableGeocodingPreferences: boolean
+
+  /**  */
   multiselectQuestions: Id[]
 }
 
@@ -4346,6 +4400,12 @@ export interface JurisdictionUpdate {
 
   /**  */
   enableUtilitiesIncluded: boolean
+
+  /**  */
+  enableListingOpportunity: boolean
+
+  /**  */
+  enableGeocodingPreferences: boolean
 
   /**  */
   multiselectQuestions: Id[]
@@ -4574,6 +4634,24 @@ export interface MultiselectOption {
   collectAddress?: boolean
 
   /**  */
+  validationMethod?: ValidationMethod
+
+  /**  */
+  radiusSize?: number
+
+  /**  */
+  mapLayerId?: string
+
+  /**  */
+  collectName?: boolean
+
+  /**  */
+  collectRelationship?: boolean
+
+  /**  */
+  mapPinPosition?: string
+
+  /**  */
   exclusive?: boolean
 }
 
@@ -4641,6 +4719,12 @@ export interface JurisdictionSlim {
 
   /**  */
   publicUrl: string
+
+  /**  */
+  enableAccessibilityFeatures: boolean
+
+  /**  */
+  enableUtilitiesIncluded: boolean
 }
 
 export interface ReservedCommunityType {
@@ -5031,15 +5115,15 @@ REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   /**  */
   utilities?: ListingUtilities
 
+  /**  */
+  requestedChangesUser?: CombinedRequestedChangesUserTypes
+
   /** This is used to signal to the frontend whether the listing is internal or
 external.  This should only be anything other than `false` if it's coming
 from an external listing pulled from combined_listings.
 
 REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   isExternal?: boolean
-
-  /**  */
-  requestedChangesUser?: CombinedRequestedChangesUserTypes
 
   /**  */
   id: string
@@ -5377,6 +5461,35 @@ export interface UnitCreate {
   bmrProgramChart?: boolean
 }
 
+export interface AddressCountyRequiredCreate {
+  /**  */
+  county?: string
+
+  /**  */
+  placeName?: string
+
+  /**  */
+  city: string
+
+  /**  */
+  state: string
+
+  /**  */
+  street: string
+
+  /**  */
+  street2?: string
+
+  /**  */
+  zipCode: string
+
+  /**  */
+  latitude?: number
+
+  /**  */
+  longitude?: number
+}
+
 export interface UnitsSummaryCreate {
   /**  */
   monthlyRentMin?: number
@@ -5676,18 +5789,18 @@ export interface ListingCreate {
   /**  */
   lastApplicationUpdateAt?: Date
 
+  /**  */
+  requestedChanges?: string
+
+  /**  */
+  requestedChangesDate?: Date
+
   /** This is used to signal to the frontend whether the listing is internal or
 external.  This should only be anything other than `false` if it's coming
 from an external listing pulled from combined_listings.
 
 REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   isExternal?: boolean
-
-  /**  */
-  requestedChanges?: string
-
-  /**  */
-  requestedChangesDate?: Date
 
   /**  */
   countyCode?: string
@@ -5796,6 +5909,44 @@ export interface UnitUpdate {
 
   /**  */
   bmrProgramChart?: boolean
+}
+
+export interface AddressCountyRequiredUpdate {
+  /**  */
+  county?: string
+
+  /**  */
+  id?: string
+
+  /**  */
+  createdAt?: Date
+
+  /**  */
+  updatedAt?: Date
+
+  /**  */
+  placeName?: string
+
+  /**  */
+  city: string
+
+  /**  */
+  state: string
+
+  /**  */
+  street: string
+
+  /**  */
+  street2?: string
+
+  /**  */
+  zipCode: string
+
+  /**  */
+  latitude?: number
+
+  /**  */
+  longitude?: number
 }
 
 export interface UnitsSummaryUpdate {
@@ -6092,18 +6243,18 @@ export interface ListingUpdate {
   /**  */
   lastApplicationUpdateAt?: Date
 
+  /**  */
+  requestedChanges?: string
+
+  /**  */
+  requestedChangesDate?: Date
+
   /** This is used to signal to the frontend whether the listing is internal or
 external.  This should only be anything other than `false` if it's coming
 from an external listing pulled from combined_listings.
 
 REMOVE_WHEN_EXTERNAL_NOT_NEEDED */
   isExternal?: boolean
-
-  /**  */
-  requestedChanges?: string
-
-  /**  */
-  requestedChangesDate?: Date
 
   /**  */
   countyCode?: string
@@ -6314,6 +6465,17 @@ export interface UnitAccessibilityPriorityTypeUpdate {
   id: string
 }
 
+export interface MapLayer {
+  /**  */
+  id: string
+
+  /**  */
+  name: string
+
+  /**  */
+  jurisdictionId: string
+}
+
 export enum IncomePeriod {
   "perMonth" = "perMonth",
   "perYear" = "perYear",
@@ -6507,6 +6669,12 @@ export enum ListingEventType {
   "lotteryResults" = "lotteryResults",
 }
 
+export enum ValidationMethod {
+  "radius" = "radius",
+  "map" = "map",
+  "none" = "none",
+}
+
 export enum ApplicationSection {
   "programs" = "programs",
   "preferences" = "preferences",
@@ -6518,6 +6686,7 @@ export type CombinedApplicationMailingAddressTypes = AddressUpdate
 export type CombinedBuildingSelectionCriteriaFileTypes = AssetUpdate
 export type CombinedLeasingAgentAddressTypes = AddressUpdate
 export type CombinedResultTypes = AssetCreate
+export type CombinedRequestedChangesUserTypes = User
 export enum EnumCombinedListingFilterParamsComparison {
   "=" = "=",
   "<>" = "<>",
@@ -6528,15 +6697,16 @@ export enum EnumCombinedListingFilterParamsComparison {
 }
 export enum EnumCombinedListingFilterParamsStatus {
   "active" = "active",
-  "pending" = "pending",
+  "changesRequested" = "changesRequested",
   "closed" = "closed",
+  "pending" = "pending",
+  "pendingReview" = "pendingReview",
 }
 export enum EnumCombinedListingsQueryParamsOrderDir {
   "ASC" = "ASC",
   "DESC" = "DESC",
 }
-export type CombinedRequestedChangesUserTypes = User
-export type CombinedBuildingAddressTypes = AddressUpdate
+export type CombinedBuildingAddressTypes = AddressCountyRequiredUpdate
 export enum EnumMultiselectQuestionsFilterParamsComparison {
   "=" = "=",
   "<>" = "<>",

@@ -26,6 +26,10 @@ import { ApplicationCreateDto } from "../dto/application-create.dto"
 import { ApplicationUpdateDto } from "../dto/application-update.dto"
 import { ApplicationsCsvListQueryParams } from "../dto/applications-csv-list-query-params"
 import { Listing } from "../../listings/entities/listing.entity"
+import { ApplicationCsvExporterService } from "./application-csv-exporter.service"
+import { User } from "../../auth/entities/user.entity"
+import { StatusDto } from "../../shared/dto/status.dto"
+import { GeocodingService } from "./geocoding.service"
 
 @Injectable({ scope: Scope.REQUEST })
 export class ApplicationsService {
@@ -34,6 +38,8 @@ export class ApplicationsService {
     private readonly authzService: AuthzService,
     private readonly listingsService: ListingsService,
     private readonly emailService: EmailService,
+    private readonly applicationCsvExporter: ApplicationCsvExporterService,
+    private readonly geocodingService: GeocodingService,
     @InjectRepository(Application) private readonly repository: Repository<Application>,
     @InjectRepository(Listing) private readonly listingsRepository: Repository<Listing>
   ) {}
@@ -229,6 +235,17 @@ export class ApplicationsService {
         return await applicationsRepository.findOne({ where: { id: newApplication.id } })
       }
     )
+
+    const listing = await this.listingsService.findOne(application.listingId)
+
+    // Calculate geocoding preferences after save
+    if (listing.jurisdiction?.enableGeocodingPreferences) {
+      try {
+        void this.geocodingService.validateGeocodingPreferences(application, listing)
+      } catch (e) {
+        console.warn("error while validating geocoding preferences")
+      }
+    }
     return app
   }
 
@@ -249,6 +266,30 @@ export class ApplicationsService {
     await this.updateListingApplicationEditTimestamp(application.listingId)
 
     return await this.repository.softRemove({ id: applicationId })
+  }
+
+  sendExport(queryParams: ApplicationsCsvListQueryParams): StatusDto {
+    void this.sendExportHelper(queryParams)
+
+    return {
+      status: "Success",
+    }
+  }
+
+  async sendExportHelper(queryParams: ApplicationsCsvListQueryParams): Promise<void> {
+    const applications = await this.rawListWithFlagged(queryParams)
+    const csvString = this.applicationCsvExporter.exportFromObject(
+      applications,
+      queryParams.timeZone,
+      queryParams.includeDemographics
+    )
+    const listing = await this.listingsRepository.findOne({ where: { id: queryParams.listingId } })
+    await this.emailService.sendCSV(
+      this.req.user as unknown as User,
+      listing.name,
+      listing.id,
+      csvString
+    )
   }
 
   private _getQb(params: PaginatedApplicationListQueryParams, view = "base", withSelect = true) {
@@ -393,6 +434,15 @@ export class ApplicationsService {
     if (application.applicant.emailAddress && shouldSendConfirmation) {
       await this.emailService.confirmation(listing, application, applicationCreateDto.appUrl)
     }
+
+    // Calculate geocoding preferences after save and email sent
+    if (listing.jurisdiction?.enableGeocodingPreferences) {
+      try {
+        void this.geocodingService.validateGeocodingPreferences(application, listing)
+      } catch (e) {
+        console.warn("error while validating geocoding preferences")
+      }
+    }
     return application
   }
 
@@ -415,7 +465,9 @@ export class ApplicationsService {
 
   private async authorizeCSVExport(user, listingId) {
     /**
-     * Checking authorization for each application is very expensive. By making lisitngId required, we can check if the user has update permissions for the listing, since right now if a user has that they also can run the export for that listing
+     * Checking authorization for each application is very expensive.
+     * By making listingId required, we can check if the user has update permissions for the listing, since right now if a user has that
+     * they also can run the export for that listing
      */
     const jurisdictionId = await this.listingsService.getJurisdictionIdByListingId(listingId)
 

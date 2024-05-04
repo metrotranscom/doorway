@@ -1,24 +1,12 @@
-/*
-5.1 Demographics
-Optional demographic questions
-*/
 import React, { useContext, useEffect } from "react"
-import {
-  AppearanceStyleType,
-  Button,
-  FieldGroup,
-  Form,
-  FormCard,
-  Select,
-  ProgressNav,
-  t,
-  Heading,
-} from "@bloom-housing/ui-components"
-import FormsLayout from "../../../layouts/forms"
 import { useForm } from "react-hook-form"
+
+import { Field, FieldGroup, Form, Select, t } from "@bloom-housing/ui-components"
+import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
+import { MultiselectQuestionsApplicationSectionEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
-  ethnicityKeys,
   raceKeys,
+  spokenLanguageKeys,
   howDidYouHear,
   fieldGroupObjectToArray,
   OnClientSide,
@@ -26,49 +14,55 @@ import {
   pushGtmEvent,
   AuthContext,
   listingSectionQuestions,
+  genderKeys,
+  sexualOrientationKeys,
 } from "@bloom-housing/shared-helpers"
-import FormBackLink from "../../../components/applications/FormBackLink"
+import FormsLayout from "../../../layouts/forms"
 import { useFormConductor } from "../../../lib/hooks"
 import { UserStatus } from "../../../lib/constants"
-import { ApplicationSection } from "@bloom-housing/backend-core"
+import ApplicationFormLayout from "../../../layouts/application-form"
+
+const howDidYouHearOptions = (application) => {
+  return howDidYouHear?.map((item) => ({
+    id: item.id,
+    label: t(`application.review.demographics.howDidYouHearOptions.${item.id}`),
+    defaultChecked: application.demographics.howDidYouHear?.includes(item.id),
+  }))
+}
 
 const ApplicationDemographics = () => {
   const { profile } = useContext(AuthContext)
   const { conductor, application, listing } = useFormConductor("demographics")
   let currentPageSection = 4
-  if (listingSectionQuestions(listing, ApplicationSection.programs)?.length) currentPageSection += 1
-  if (listingSectionQuestions(listing, ApplicationSection.preferences)?.length)
+  if (listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.length)
+    currentPageSection += 1
+  if (
+    listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.preferences)?.length
+  )
     currentPageSection += 1
 
-  /* Form Handler */
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, watch } = useForm({
     defaultValues: {
-      ethnicity: application.demographics.ethnicity,
       race: application.demographics.race,
     },
   })
 
+  const spokenLanguageValue: string = watch("spokenLanguage")
+
   const onSubmit = (data) => {
     conductor.currentStep.save({
       demographics: {
-        ethnicity: data.ethnicity,
-        gender: "",
-        sexualOrientation: "",
-        howDidYouHear: data.howDidYouHear,
+        ethnicity: "",
         race: fieldGroupObjectToArray(data, "race"),
+        spokenLanguage: data.spokenLanguage,
+        spokenLanguageNotListed: data.spokenLanguageNotListed,
+        gender: data.gender,
+        sexualOrientation: data.sexualOrientation,
+        howDidYouHear: data.howDidYouHear,
       },
     })
     conductor.routeToNextOrReturnUrl()
-  }
-
-  const howDidYouHearOptions = () => {
-    return howDidYouHear?.map((item) => ({
-      id: item.id,
-      label: t(`application.review.demographics.howDidYouHearOptions.${item.id}`),
-      defaultChecked: application.demographics.howDidYouHear?.includes(item.id),
-      register,
-    }))
   }
 
   useEffect(() => {
@@ -81,29 +75,23 @@ const ApplicationDemographics = () => {
 
   return (
     <FormsLayout>
-      <FormCard header={<Heading priority={1}>{listing?.name}</Heading>}>
-        <ProgressNav
-          currentPageSection={currentPageSection}
-          completedSections={application.completedSections}
-          labels={conductor.config.sections.map((label) => t(`t.${label}`))}
-          mounted={OnClientSide()}
-        />
-      </FormCard>
-      <FormCard>
-        <FormBackLink
-          url={conductor.determinePreviousUrl()}
-          onClick={() => conductor.setNavigatedBack(true)}
-        />
-
-        <div className="form-card__lead border-b">
-          <h2 className="form-card__title is-borderless">
-            {t("application.review.demographics.title")}
-          </h2>
-          <p className="mt-4 field-note">{t("application.review.demographics.subTitle")}</p>
-        </div>
-
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          <div className="form-card__group border-b">
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <ApplicationFormLayout
+          listingName={listing?.name}
+          heading={t("application.review.demographics.title")}
+          subheading={t("application.review.demographics.subTitle")}
+          progressNavProps={{
+            currentPageSection: currentPageSection,
+            completedSections: application.completedSections,
+            labels: conductor.config.sections.map((label) => t(`t.${label}`)),
+            mounted: OnClientSide(),
+          }}
+          backLink={{
+            url: conductor.determinePreviousUrl(),
+          }}
+          conductor={conductor}
+        >
+          <CardSection divider={"inset"}>
             <fieldset>
               <legend className="text__caps-spaced">
                 {t("application.review.demographics.raceLabel")}
@@ -115,37 +103,80 @@ const ApplicationDemographics = () => {
                   label: t(`application.review.demographics.raceOptions.${rootKey}`),
                   value: rootKey,
                   additionalText: rootKey.indexOf("other") >= 0,
-                  defaultChecked: application[`race-${rootKey}`],
+                  defaultChecked: application.demographics.race?.includes(rootKey),
                   subFields: raceKeys[rootKey].map((subKey) => ({
                     id: subKey,
                     label: t(`application.review.demographics.raceOptions.${subKey}`),
                     value: subKey,
-                    defaultChecked: application[`race-${subKey}`],
+                    defaultChecked: application.demographics.race?.includes(subKey),
                     additionalText: subKey.indexOf("other") >= 0,
                   })),
                 }))}
+                strings={{
+                  description: "",
+                }}
                 type="checkbox"
                 dataTestId={"app-demographics-race"}
                 register={register}
               />
             </fieldset>
-            <div className={"pt-4"}>
+            <div className={"pt-8"}>
               <Select
-                id="ethnicity"
-                name="ethnicity"
-                label={t("application.review.demographics.ethnicityLabel")}
+                id="spokenLanguage"
+                name="spokenLanguage"
+                defaultValue={application.demographics.spokenLanguage}
+                label={t("application.review.demographics.spokenLanguageLabel")}
                 placeholder={t("t.selectOne")}
                 register={register}
-                labelClassName="text__caps-spaced mb-3"
+                labelClassName="text__caps-spaced mb-0"
                 controlClassName="control"
-                options={ethnicityKeys}
-                keyPrefix="application.review.demographics.ethnicityOptions"
-                dataTestId={"app-demographics-ethnicity"}
+                options={spokenLanguageKeys}
+                keyPrefix="application.review.demographics.spokenLanguageOptions"
+                dataTestId={"app-demographics-spoken-language"}
+              />
+              {spokenLanguageValue === "notListed" && (
+                <Field
+                  id="spokenLanguageNotListed"
+                  name="spokenLanguageNotListed"
+                  label={t("application.review.demographics.genderSpecify")}
+                  validation={{ required: true }}
+                  register={register}
+                />
+              )}
+            </div>
+            <div className={"pt-8"}>
+              <Select
+                id="gender"
+                name="gender"
+                label={t("application.review.demographics.genderLabel")}
+                defaultValue={application.demographics.gender}
+                placeholder={t("t.selectOne")}
+                register={register}
+                labelClassName="text__caps-spaced mb-0"
+                controlClassName="control"
+                options={genderKeys}
+                keyPrefix="application.review.demographics.genderOptions"
+                dataTestId={"app-demographics-spoken-language"}
               />
             </div>
-          </div>
+            <div className={"pt-8"}>
+              <Select
+                id="sexualOrientation"
+                name="sexualOrientation"
+                label={t("application.review.demographics.sexualOrientationLabel")}
+                defaultValue={application.demographics.sexualOrientation}
+                placeholder={t("t.selectOne")}
+                register={register}
+                labelClassName="text__caps-spaced mb-0"
+                controlClassName="control"
+                options={sexualOrientationKeys}
+                keyPrefix="application.review.demographics.sexualOrientationOptions"
+                dataTestId={"app-demographics-sexual-orientation"}
+              />
+            </div>
+          </CardSection>
 
-          <div className="form-card__group is-borderless">
+          <CardSection divider={"flush"} className="border-none">
             <fieldset>
               <legend className="text__caps-spaced">
                 {t("application.review.demographics.howDidYouHearLabel")}
@@ -153,22 +184,14 @@ const ApplicationDemographics = () => {
               <FieldGroup
                 type="checkbox"
                 name="howDidYouHear"
-                fields={howDidYouHearOptions()}
+                fields={howDidYouHearOptions(application)}
                 register={register}
                 dataTestId={"app-demographics-how-did-you-hear"}
               />
             </fieldset>
-          </div>
-
-          <div className="form-card__pager">
-            <div className="form-card__pager-row primary">
-              <Button styleType={AppearanceStyleType.primary} data-testid={"app-next-step-button"}>
-                {t("t.next")}
-              </Button>
-            </div>
-          </div>
-        </Form>
-      </FormCard>
+          </CardSection>
+        </ApplicationFormLayout>
+      </Form>
     </FormsLayout>
   )
 }

@@ -1,18 +1,3 @@
-import {
-  ApplicationUpdate,
-  ApplicantUpdate,
-  Language,
-  IncomePeriod,
-  ApplicationSubmissionType,
-  ApplicationStatus,
-  AddressUpdate,
-  HouseholdMember,
-  MultiselectQuestion,
-  Accessibility,
-  ApplicationSection,
-  Listing,
-} from "@bloom-housing/backend-core/types"
-
 import { TimeFieldPeriod } from "@bloom-housing/ui-components"
 import {
   fieldGroupObjectToArray,
@@ -23,12 +8,28 @@ import {
   getInputType,
 } from "@bloom-housing/shared-helpers"
 import { FormTypes, ApplicationTypes, Address } from "../../lib/applications/FormTypes"
-import { YesNoAnswer } from "../../lib/helpers"
+import { convertDataToLocal } from "../../lib/helpers"
 
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 dayjs.extend(utc)
 import customParseFormat from "dayjs/plugin/customParseFormat"
+import {
+  MultiselectOption,
+  HouseholdMember,
+  ApplicationSubmissionTypeEnum,
+  MultiselectQuestion,
+  LanguagesEnum,
+  ApplicantUpdate,
+  YesNoEnum,
+  AddressCreate,
+  IncomePeriodEnum,
+  ApplicationStatusEnum,
+  ApplicationUpdate,
+  Accessibility,
+  Listing,
+  MultiselectQuestionsApplicationSectionEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 dayjs.extend(customParseFormat)
 
 /*
@@ -36,8 +37,8 @@ dayjs.extend(customParseFormat)
   This function eliminates those fields and parse to a proper format.
 */
 
-const getAddress = (condition: boolean, addressData?: Address): AddressUpdate => {
-  const blankAddress: AddressUpdate = {
+const getAddress = (condition: boolean, addressData?: Address): AddressCreate => {
+  const blankAddress: AddressCreate = {
     street: "",
     street2: "",
     city: "",
@@ -45,22 +46,22 @@ const getAddress = (condition: boolean, addressData?: Address): AddressUpdate =>
     zipCode: "",
   }
 
-  return condition ? (addressData as AddressUpdate) : blankAddress
+  return condition ? (addressData as AddressCreate) : blankAddress
 }
 
-const getBooleanValue = (applicationField: YesNoAnswer) => {
-  return applicationField === null ? null : applicationField === YesNoAnswer.Yes ? true : false
+const getBooleanValue = (applicationField: YesNoEnum) => {
+  return applicationField === null ? null : applicationField === YesNoEnum.yes ? true : false
 }
 
 const getYesNoValue = (applicationField: boolean) => {
-  return applicationField === null ? null : applicationField ? YesNoAnswer.Yes : YesNoAnswer.No
+  return applicationField === null ? null : applicationField ? YesNoEnum.yes : YesNoEnum.no
 }
 
 const mapEmptyStringToNull = (value: string) => (value === "" ? null : value)
 
 interface FormData extends FormTypes {
   householdMembers: HouseholdMember[]
-  submissionType: ApplicationSubmissionType
+  submissionType: ApplicationSubmissionTypeEnum
 }
 
 type mapFormToApiProps = {
@@ -82,14 +83,19 @@ export const mapFormToApi = ({
   programs,
   preferences,
 }: mapFormToApiProps) => {
-  const language: Language | null = data.application?.language ? data.application?.language : null
+  const language: LanguagesEnum | null = data.application?.language
+    ? data.application?.language
+    : null
 
   const submissionDate: Date | null = (() => {
     const TIME_24H_FORMAT = "MM/DD/YYYY HH:mm:ss"
 
     // rename default (wrong property names)
-    const { day: submissionDay, month: submissionMonth, year: submissionYear } =
-      data.dateSubmitted || {}
+    const {
+      day: submissionDay,
+      month: submissionMonth,
+      year: submissionYear,
+    } = data.dateSubmitted || {}
     const { hours, minutes = 0, seconds = 0, period } = data?.timeSubmitted || {}
 
     if (!submissionDay || !submissionMonth || !submissionYear) return null
@@ -99,7 +105,7 @@ export const mapFormToApi = ({
       "MM/DD/YYYY hh:mm:ss a"
     ).format(TIME_24H_FORMAT)
 
-    const formattedDate = dayjs(dateString, TIME_24H_FORMAT).utc(true).toDate()
+    const formattedDate = dayjs(dateString, TIME_24H_FORMAT).toDate()
 
     return formattedDate
   })()
@@ -111,15 +117,15 @@ export const mapFormToApi = ({
     const phoneNumberType: string | null = applicantData.phoneNumberType || null
     const noEmail = !applicantData.emailAddress
     const noPhone = !phoneNumber
-    const workInRegion: string | null = applicantData?.workInRegion || null
+    const workInRegion: YesNoEnum | null = applicantData?.workInRegion || null
     const emailAddress: string | null = applicantData?.emailAddress || null
 
     applicantData.firstName = mapEmptyStringToNull(applicantData.firstName)
     applicantData.lastName = mapEmptyStringToNull(applicantData.lastName)
 
     const workAddress = getAddress(
-      applicantData?.workInRegion === YesNoAnswer.Yes,
-      applicantData?.workAddress
+      applicantData?.workInRegion === YesNoEnum.yes,
+      applicantData?.applicantWorkAddress
     )
 
     return {
@@ -127,7 +133,7 @@ export const mapFormToApi = ({
       ...data.dateOfBirth,
       emailAddress,
       workInRegion,
-      workAddress,
+      applicantWorkAddress: workAddress,
       phoneNumber,
       phoneNumberType,
       noEmail,
@@ -136,9 +142,9 @@ export const mapFormToApi = ({
   })()
 
   const preferencesData = preferences.map((pref: MultiselectQuestion) => {
-    const inputType = getInputType(pref.options)
+    const inputType = getInputType(pref.options as unknown as MultiselectOption[])
     if (inputType === "checkbox") {
-      return mapCheckboxesToApi(data, pref, ApplicationSection.preferences)
+      return mapCheckboxesToApi(data, pref, MultiselectQuestionsApplicationSectionEnum.preferences)
     }
     if (inputType === "radio") {
       return mapRadiosToApi(
@@ -149,9 +155,9 @@ export const mapFormToApi = ({
   })
 
   const programsData = programs.map((program: MultiselectQuestion) => {
-    const inputType = getInputType(program.options)
+    const inputType = getInputType(program.options as unknown as MultiselectOption[])
     if (inputType === "checkbox") {
-      return mapCheckboxesToApi(data, program, ApplicationSection.programs)
+      return mapCheckboxesToApi(data, program, MultiselectQuestionsApplicationSectionEnum.programs)
     }
     if (inputType === "radio") {
       return mapRadiosToApi(
@@ -165,10 +171,11 @@ export const mapFormToApi = ({
   const {
     additionalPhoneNumber: additionalPhoneNumberData,
     additionalPhoneNumberType: additionalPhoneNumberTypeData,
-    mailingAddress: mailingAddressData,
+    applicationsMailingAddress: mailingAddressData,
     additionalPhoneNumber,
     contactPreferences,
     sendMailToMailingAddress,
+    incomeVouchers,
   } = data.application
 
   const additionalPhone = !additionalPhoneNumberData
@@ -181,7 +188,16 @@ export const mapFormToApi = ({
     race: fieldGroupObjectToArray(data, "race"),
   }
 
-  const mailingAddress = getAddress(sendMailToMailingAddress, mailingAddressData)
+  if (demographics.spokenLanguage === "notListed") {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    demographics.spokenLanguage = `${demographics.spokenLanguage}:${demographics.spokenLanguageNotListed}`
+  }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  delete demographics.spokenLanguageNotListed
+
+  const applicationsMailingAddress = getAddress(sendMailToMailingAddress, mailingAddressData)
 
   const alternateContact = data.application.alternateContact
 
@@ -193,18 +209,17 @@ export const mapFormToApi = ({
 
   const { incomeMonth, incomeYear, householdMembers } = data
 
-  const incomePeriod: IncomePeriod | null = data.application?.incomePeriod || null
+  const incomePeriod: IncomePeriodEnum | null = data.application?.incomePeriod || null
 
-  const income = incomePeriod === IncomePeriod.perMonth ? incomeMonth : incomeYear || null
-  const incomeVouchers = getBooleanValue(data.application.incomeVouchers)
+  const income = incomePeriod === IncomePeriodEnum.perMonth ? incomeMonth : incomeYear || null
   const acceptedTerms = getBooleanValue(data.application.acceptedTerms)
   const householdExpectingChanges = getBooleanValue(data.application.householdExpectingChanges)
   const householdStudent = getBooleanValue(data.application.householdStudent)
 
-  const submissionType = editMode ? data.submissionType : ApplicationSubmissionType.paper
-  const status = ApplicationStatus.submitted
+  const submissionType = editMode ? data.submissionType : ApplicationSubmissionTypeEnum.paper
+  const status = ApplicationStatusEnum.submitted
 
-  const listing = {
+  const listings = {
     id: listingId,
   }
 
@@ -220,15 +235,13 @@ export const mapFormToApi = ({
     }
   }
 
-  const accessibility: Omit<
-    Accessibility,
-    "id" | "createdAt" | "updatedAt"
-  > = adaFeatureKeys.reduce((acc, feature) => {
-    acc[feature] = data.application.accessibility.includes(feature)
-    return acc
-  }, {})
+  const accessibility: Omit<Accessibility, "id" | "createdAt" | "updatedAt"> =
+    adaFeatureKeys.reduce((acc, feature) => {
+      acc[feature] = data.application.accessibility.includes(feature)
+      return acc
+    }, {})
 
-  const result: ApplicationUpdate = {
+  const result = {
     submissionDate,
     language,
     applicant,
@@ -237,7 +250,7 @@ export const mapFormToApi = ({
     additionalPhoneNumberType,
     contactPreferences,
     sendMailToMailingAddress,
-    mailingAddress,
+    applicationsMailingAddress,
     alternateContact,
     accessibility,
     householdExpectingChanges,
@@ -251,10 +264,10 @@ export const mapFormToApi = ({
     acceptedTerms,
     submissionType,
     status,
-    listing,
-    preferredUnit,
-    alternateAddress,
-    householdMembers,
+    listings,
+    preferredUnitTypes: preferredUnit,
+    applicationsAlternateAddress: alternateAddress,
+    householdMember: householdMembers,
     householdSize,
   }
 
@@ -267,7 +280,7 @@ export const mapFormToApi = ({
 
 export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listing) => {
   const submissionDate = applicationData.submissionDate
-    ? dayjs(new Date(applicationData.submissionDate)).utc()
+    ? dayjs(new Date(applicationData.submissionDate))
     : null
 
   const dateOfBirth = (() => {
@@ -320,14 +333,14 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
     mapApiToMultiselectForm(
       applicationData.preferences,
       listing?.listingMultiselectQuestions,
-      ApplicationSection.preferences
+      MultiselectQuestionsApplicationSectionEnum.preferences
     ).application.preferences ?? []
 
   const programs =
     mapApiToMultiselectForm(
       applicationData.programs,
       listing?.listingMultiselectQuestions,
-      ApplicationSection.programs
+      MultiselectQuestionsApplicationSectionEnum.programs
     ).application.programs ?? []
 
   const application: ApplicationTypes = (() => {
@@ -335,33 +348,42 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
       language,
       contactPreferences,
       sendMailToMailingAddress,
-      mailingAddress,
+      applicationsMailingAddress,
       incomePeriod,
+      incomeVouchers,
       demographics,
       additionalPhoneNumber,
       additionalPhoneNumberType,
       alternateContact,
     } = applicationData
 
-    const incomeVouchers = getYesNoValue(applicationData.incomeVouchers)
     const acceptedTerms = getYesNoValue(applicationData.acceptedTerms)
     const householdExpectingChanges = getYesNoValue(applicationData.householdExpectingChanges)
     const householdStudent = getYesNoValue(applicationData.householdStudent)
 
-    const workInRegion = applicationData.applicant.workInRegion as YesNoAnswer
+    const workInRegion = applicationData.applicant.workInRegion
 
     const applicant = {
       ...applicationData.applicant,
       workInRegion,
     }
 
-    const preferredUnit = applicationData?.preferredUnit?.map((unit) => unit.id)
+    const preferredUnit = applicationData?.preferredUnitTypes?.map((unit) => unit.id)
 
     const accessibility: string[] = adaFeatureKeys.filter(
-      (feature) => applicationData?.accessibility[feature] === true
+      (feature) =>
+        applicationData?.accessibility && applicationData?.accessibility[feature] === true
     )
 
-    const result = {
+    if (demographics.spokenLanguage.startsWith("notListed:")) {
+      const [spokenLanguage, customValue] = demographics.spokenLanguage.split(":")
+      demographics.spokenLanguage = spokenLanguage
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      demographics.spokenLanguageNotListed = customValue
+    }
+
+    const result: ApplicationTypes = {
       applicant,
       language,
       phoneNumber,
@@ -370,7 +392,7 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
       preferences,
       contactPreferences,
       sendMailToMailingAddress,
-      mailingAddress,
+      applicationsMailingAddress,
       preferredUnit,
       accessibility,
       householdExpectingChanges,

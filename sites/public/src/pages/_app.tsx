@@ -3,9 +3,9 @@ import "@bloom-housing/doorway-ui-components/src/global/app-css.scss"
 import "@bloom-housing/ui-seeds/src/global/app-css.scss"
 import React, { useEffect, useMemo, useState } from "react"
 import type { AppProps } from "next/app"
-import { addTranslation, GenericRouter, NavigationContext } from "@bloom-housing/ui-components"
 import { NavigationContext as NavigationContextDoorway } from "@bloom-housing/doorway-ui-components"
-
+import { addTranslation, GenericRouter } from "@bloom-housing/ui-components"
+import { NavigationContext } from "@bloom-housing/ui-seeds/src/global/NavigationContext"
 import {
   blankApplication,
   LoggedInUserIdleTimeout,
@@ -27,7 +27,7 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
   const { locale } = router
   //  const initialized = useState(true)
   const [application, setApplication] = useState(() => {
-    return loadApplicationFromAutosave() || { ...blankApplication }
+    return loadApplicationFromAutosave() || JSON.parse(JSON.stringify(blankApplication))
   })
   const [savedListing, setSavedListing] = useState(() => {
     return loadSavedListing()
@@ -89,7 +89,6 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
     <NavigationContext.Provider
       value={{
         LinkComponent,
-        router: router as GenericRouter,
       }}
     >
       <NavigationContextDoorway.Provider

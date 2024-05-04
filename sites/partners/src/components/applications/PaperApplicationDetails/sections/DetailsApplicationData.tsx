@@ -3,7 +3,6 @@ import { t } from "@bloom-housing/ui-components"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import { ApplicationContext } from "../../ApplicationContext"
 import { convertDataToLocal } from "../../../../lib/helpers"
-import { ApplicationSubmissionType } from "@bloom-housing/backend-core/types"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 const DetailsApplicationData = () => {
@@ -12,10 +11,7 @@ const DetailsApplicationData = () => {
   const applicationDate = useMemo(() => {
     if (!application) return null
 
-    return convertDataToLocal(
-      application?.submissionDate,
-      application?.submissionType || ApplicationSubmissionType.electronical
-    )
+    return convertDataToLocal(application?.submissionDate)
   }, [application])
 
   return (

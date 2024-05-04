@@ -9,9 +9,9 @@ dayjs.extend(tz)
 dayjs.extend(advanced)
 dayjs.extend(customParseFormat)
 
-import { ApplicationSubmissionType, IncomePeriod } from "@bloom-housing/backend-core/types"
 import { TempUnit } from "./listings/formTypes"
 import { FieldError } from "react-hook-form"
+import { IncomePeriodEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 export enum YesNoAnswer {
   "Yes" = "yes",
@@ -37,9 +37,10 @@ export interface FormOptions {
   [key: string]: FormOption[]
 }
 
-export const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+export const emailRegex =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-export const convertDataToLocal = (dateObj: Date, type: ApplicationSubmissionType) => {
+export const convertDataToLocal = (dateObj: Date) => {
   if (!dateObj) {
     return {
       date: t("t.n/a"),
@@ -47,50 +48,36 @@ export const convertDataToLocal = (dateObj: Date, type: ApplicationSubmissionTyp
     }
   }
 
-  if (type === ApplicationSubmissionType.electronical) {
-    // convert date and time to user's local timezone (electronical applications)
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const localFormat = new Intl.DateTimeFormat("en-US", {
-      timeZone: timeZone,
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      year: "numeric",
-      day: "numeric",
-      month: "numeric",
+  // convert date and time to user's local timezone
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  const localFormat = new Intl.DateTimeFormat("en-US", {
+    timeZone: timeZone,
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    year: "numeric",
+    day: "numeric",
+    month: "numeric",
+  })
+
+  const originalDate = new Date(dateObj)
+  const dateParts = localFormat.formatToParts(originalDate)
+  const timeValues = dateParts.reduce((acc, curr) => {
+    Object.assign(acc, {
+      [curr.type]: curr.value,
     })
+    return acc
+  }, {} as DateTimeLocal)
 
-    const originalDate = new Date(dateObj)
-    const dateParts = localFormat.formatToParts(originalDate)
-    const timeValues = dateParts.reduce((acc, curr) => {
-      Object.assign(acc, {
-        [curr.type]: curr.value,
-      })
-      return acc
-    }, {} as DateTimeLocal)
+  const { month, day, year, hour, minute, second, dayPeriod } = timeValues
+  const timeZoneFormatted = dayjs().tz(timeZone).format("z")
 
-    const { month, day, year, hour, minute, second, dayPeriod } = timeValues
-    const timeZoneFormatted = dayjs().tz(timeZone).format("z")
+  const date = `${month}/${day}/${year}`
+  const time = `${hour}:${minute}:${second} ${dayPeriod} ${timeZoneFormatted}`
 
-    const date = `${month}/${day}/${year}`
-    const time = `${hour}:${minute}:${second} ${dayPeriod} ${timeZoneFormatted}`
-
-    return {
-      date,
-      time,
-    }
-  }
-
-  if (type === ApplicationSubmissionType.paper) {
-    const dayjsDate = dayjs(dateObj)
-
-    const date = dayjsDate.utc().format("MM/DD/YYYY")
-    const time = dayjsDate.utc().format("hh:mm:ss A")
-
-    return {
-      date,
-      time,
-    }
+  return {
+    date,
+    time,
   }
 }
 
@@ -159,7 +146,11 @@ export const createDate = (formDate: { year: string; month: string; day: string 
   return dayjs(`${formDate.year}-${formDate.month}-${formDate.day}`, "YYYY-MM-DD").toDate()
 }
 
-export function formatIncome(value: number, currentType: IncomePeriod, returnType: IncomePeriod) {
+export function formatIncome(
+  value: number,
+  currentType: IncomePeriodEnum,
+  returnType: IncomePeriodEnum
+) {
   const usd = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

@@ -5,16 +5,16 @@ import { useSWRConfig } from "swr"
 import {
   AgTable,
   useAgTable,
-  Button,
   t,
   Drawer,
   SiteAlert,
   AlertTypes,
-  AppearanceStyleType,
   AlertBox,
+  Icon,
   UniversalIconType,
 } from "@bloom-housing/ui-components"
-import { User } from "@bloom-housing/backend-core/types"
+import { User } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Button } from "@bloom-housing/ui-seeds"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import { faFileExport } from "@fortawesome/free-solid-svg-icons"
 import Layout from "../../layouts"
@@ -23,7 +23,7 @@ import { FormUserManage } from "../../components/users/FormUserManage"
 import { NavigationHeader } from "../../components/shared/NavigationHeader"
 
 type UserDrawerValue = {
-  type: "add" | "edit"
+  type: "add" | "edit" | "view"
   user?: User
 }
 
@@ -31,11 +31,22 @@ const Users = () => {
   const { profile } = useContext(AuthContext)
   const { mutate } = useSWRConfig()
   const [userDrawer, setUserDrawer] = useState<UserDrawerValue | null>(null)
+  const [userDrawerTitle, setUserDrawerTitle] = useState(t("users.addUser"))
   const [alertMessage, setAlertMessage] = useState({
     type: "alert" as AlertTypes,
     message: undefined,
   })
   const [errorAlert, setErrorAlert] = useState(false)
+
+  useEffect(() => {
+    if (userDrawer?.type === "add") {
+      setUserDrawerTitle(t("users.addUser"))
+    } else if (userDrawer?.type === "edit") {
+      setUserDrawerTitle(t("users.editUser"))
+    } else if (userDrawer?.type === "view") {
+      setUserDrawerTitle(t("users.viewUser"))
+    }
+  }, [userDrawer])
 
   const tableOptions = useAgTable()
 
@@ -59,8 +70,13 @@ const Users = () => {
           const user = params.data
           return (
             <button
+              id={user.email}
               className="text-blue-700 underline"
-              onClick={() => setUserDrawer({ type: "edit", user })}
+              onClick={() =>
+                profile?.userRoles?.isAdmin || profile.id == user.id
+                  ? setUserDrawer({ type: "edit", user })
+                  : setUserDrawer({ type: "view", user })
+              }
             >
               {params.value}
             </button>
@@ -75,14 +91,14 @@ const Users = () => {
       },
       {
         headerName: t("t.listing"),
-        field: "leasingAgentInListings",
+        field: "listings",
         valueFormatter: ({ value }) => {
-          return value.map((item) => item.name).join(", ")
+          return value?.map((item) => item?.name).join(", ")
         },
       },
       {
         headerName: t("t.role"),
-        field: "roles",
+        field: "userRoles",
         valueFormatter: ({ value }) => {
           const { isAdmin, isPartner, isJurisdictionalAdmin } = value || {}
 
@@ -116,7 +132,12 @@ const Users = () => {
     ]
   }, [])
 
-  const { data: userList, loading, error, cacheKey } = useUserList({
+  const {
+    data: userList,
+    loading,
+    error,
+    cacheKey,
+  } = useUserList({
     page: tableOptions.pagination.currentPage,
     limit: tableOptions.pagination.itemsPerPage,
     search: tableOptions.filter.filterValue,
@@ -172,22 +193,29 @@ const Users = () => {
             }}
             headerContent={
               <div className="flex-row">
-                <Button
-                  className="mx-1"
-                  styleType={AppearanceStyleType.primary}
-                  onClick={() => setUserDrawer({ type: "add" })}
-                  disabled={!listingDtos}
-                  dataTestId={"add-user"}
-                >
-                  {t("users.addUser")}
-                </Button>
-                {(profile?.roles?.isAdmin || profile?.roles?.isJurisdictionalAdmin) && (
+                {profile?.userRoles?.isAdmin && (
                   <Button
                     className="mx-1"
-                    icon={!csvExportLoading ? (faFileExport as UniversalIconType) : null}
+                    variant="primary"
+                    onClick={() => setUserDrawer({ type: "add" })}
+                    disabled={!listingDtos}
+                    id={"add-user"}
+                  >
+                    {t("users.addUser")}
+                  </Button>
+                )}
+                {(profile?.userRoles?.isAdmin || profile?.userRoles?.isJurisdictionalAdmin) && (
+                  <Button
+                    className="mx-1"
+                    variant="primary-outlined"
+                    leadIcon={
+                      !csvExportLoading ? (
+                        <Icon symbol={faFileExport as UniversalIconType} size="base" />
+                      ) : null
+                    }
                     onClick={() => onExport()}
-                    loading={csvExportLoading}
-                    dataTestId={"export-users"}
+                    loadingMessage={csvExportLoading && t("t.formSubmitted")}
+                    id={"export-users"}
                   >
                     {t("t.exportToCSV")}
                   </Button>
@@ -200,8 +228,8 @@ const Users = () => {
 
       <Drawer
         open={!!userDrawer}
-        title={userDrawer?.type === "add" ? t("users.addUser") : t("users.editUser")}
-        ariaDescription={t("users.addUser")}
+        title={userDrawerTitle}
+        ariaDescription={userDrawerTitle}
         onClose={() => setUserDrawer(null)}
       >
         <FormUserManage

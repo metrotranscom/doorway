@@ -7,6 +7,7 @@ export default defineConfig({
   video: true,
   videoUploadOnPasses: false,
   numTestsKeptInMemory: 0,
+  scrollBehavior: "center",
 
   env: {
     codeCoverage: {
@@ -23,6 +24,7 @@ export default defineConfig({
     },
     baseUrl: "http://localhost:3000",
     specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
+    experimentalRunAllSpecs: true,
   },
 
   component: {

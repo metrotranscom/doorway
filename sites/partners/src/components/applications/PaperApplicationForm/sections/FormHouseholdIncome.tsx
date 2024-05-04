@@ -1,9 +1,9 @@
 import React from "react"
-import { t, Field, Select } from "@bloom-housing/ui-components"
+import { t, Field, FieldGroup } from "@bloom-housing/ui-components"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
+import { vouchersOrRentalAssistanceKeys } from "@bloom-housing/shared-helpers"
 import { useFormContext } from "react-hook-form"
-import { IncomePeriod } from "@bloom-housing/backend-core/types"
-import { YesNoAnswer } from "../../../../lib/helpers"
+import { IncomePeriodEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 const FormHouseholdIncome = () => {
@@ -11,6 +11,11 @@ const FormHouseholdIncome = () => {
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, setValue, watch } = formMethods
+
+  const incomeVouchersOptions = vouchersOrRentalAssistanceKeys.map((item) => ({
+    id: item,
+    label: t(`application.financial.vouchers.options.${item}`),
+  }))
 
   const incomePeriodValue: string = watch("application.incomePeriod")
 
@@ -29,7 +34,7 @@ const FormHouseholdIncome = () => {
                 label={t("t.perYear")}
                 register={register}
                 inputProps={{
-                  value: IncomePeriod.perYear,
+                  value: IncomePeriodEnum.perYear,
                   onChange: () => {
                     setValue("incomeMonth", "")
                     setValue("incomeYear", "")
@@ -45,7 +50,7 @@ const FormHouseholdIncome = () => {
                 label={t("t.perMonth")}
                 register={register}
                 inputProps={{
-                  value: IncomePeriod.perMonth,
+                  value: IncomePeriodEnum.perMonth,
                   onChange: () => {
                     setValue("incomeMonth", "")
                     setValue("incomeYear", "")
@@ -65,7 +70,7 @@ const FormHouseholdIncome = () => {
               label={t("application.details.annualIncome")}
               placeholder={t("t.enterAmount")}
               register={register}
-              disabled={incomePeriodValue !== IncomePeriod.perYear}
+              disabled={incomePeriodValue !== IncomePeriodEnum.perYear}
             />
           </Grid.Cell>
 
@@ -77,20 +82,18 @@ const FormHouseholdIncome = () => {
               label={t("application.details.monthlyIncome")}
               placeholder={t("t.enterAmount")}
               register={register}
-              disabled={incomePeriodValue !== IncomePeriod.perMonth}
+              disabled={incomePeriodValue !== IncomePeriodEnum.perMonth}
             />
           </Grid.Cell>
 
           <Grid.Cell>
-            <Select
-              id="application.incomeVouchers"
+            <FieldGroup
               name="application.incomeVouchers"
-              placeholder={t("t.selectOne")}
-              label={t("application.details.vouchers")}
+              fields={incomeVouchersOptions}
+              groupLabel={t("application.details.incomeVouchers")}
+              type="checkbox"
               register={register}
-              controlClassName="control"
-              options={[YesNoAnswer.Yes, YesNoAnswer.No]}
-              keyPrefix="t"
+              dataTestId={"app-income-vouchers"}
             />
           </Grid.Cell>
         </Grid.Row>

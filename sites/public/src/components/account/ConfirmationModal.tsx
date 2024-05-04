@@ -1,16 +1,8 @@
-import {
-  AppearanceStyleType,
-  Button,
-  Modal,
-  t,
-  Form,
-  Field,
-  AlertBox,
-  AppearanceSizeType,
-} from "@bloom-housing/ui-components"
+import { Modal, t, Form, Field, AlertBox } from "@bloom-housing/ui-components"
+import { Button } from "@bloom-housing/ui-seeds"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import { useRouter } from "next/router"
-import { useContext, useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { emailRegex } from "../../lib/helpers"
 
@@ -29,13 +21,14 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
   // This is causing a linting issue with unbound-method, see open issue as of 10/21/2020:
   // https://github.com/react-hook-form/react-hook-form/issues/2887
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register, handleSubmit, errors, watch } = useForm()
+  const { register, handleSubmit, errors, watch, getValues } = useForm()
   const email = useRef({})
   email.current = watch("email", "")
 
-  const onSubmit = async ({ email }) => {
+  const onSubmit = async (email) => {
     try {
-      await resendConfirmation(email)
+      const listingId = router.query?.listingId as string
+      await resendConfirmation(email, listingId)
 
       setSiteAlertMessage(t(`authentication.createAccount.emailSent`), "success")
       setOpenModal(false)
@@ -46,13 +39,28 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
     window.scrollTo(0, 0)
   }
 
+  const onFormSubmit = async () => {
+    const { email } = getValues()
+    await onSubmit(email)
+  }
+
   useEffect(() => {
+    const redirectUrl = "/applications/start/choose-language"
+    const listingId = router.query?.listingId as string
+
+    const routerRedirectUrl =
+      process.env.showMandatedAccounts && redirectUrl && listingId
+        ? `${redirectUrl}`
+        : "/account/dashboard"
     if (router?.query?.token && !profile) {
       confirmAccount(router.query.token.toString())
         .then(() => {
           void router.push({
-            pathname: "/account/dashboard",
-            query: { alert: `authentication.createAccount.accountConfirmed` },
+            pathname: routerRedirectUrl,
+            query:
+              process.env.showMandatedAccounts && listingId
+                ? { listingId: listingId }
+                : { alert: `authentication.createAccount.accountConfirmed` },
           })
           window.scrollTo(0, 0)
         })
@@ -81,25 +89,17 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
         window.scrollTo(0, 0)
       }}
       actions={[
-        <Button
-          styleType={AppearanceStyleType.primary}
-          onClick={() => {
-            document
-              .getElementById("resend-confirmation")
-              .dispatchEvent(new Event("submit", { cancelable: true }))
-          }}
-          size={AppearanceSizeType.small}
-        >
+        <Button type="submit" variant="primary" onClick={() => onFormSubmit()} size="sm">
           {t("authentication.createAccount.resendTheEmail")}
         </Button>,
         <Button
-          styleType={AppearanceStyleType.alert}
+          variant="alert"
           onClick={() => {
             void router.push("/")
             setOpenModal(false)
             window.scrollTo(0, 0)
           }}
-          size={AppearanceSizeType.small}
+          size="sm"
         >
           {t("t.cancel")}
         </Button>,
@@ -113,7 +113,6 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
         )}
         <Form id="resend-confirmation" onSubmit={handleSubmit(onSubmit)}>
           <Field
-            caps={true}
             type="email"
             name="email"
             label={t("authentication.createAccount.resendAnEmailTo")}
@@ -122,6 +121,7 @@ const ConfirmationModal = (props: ConfirmationModalProps) => {
             error={errors.email}
             errorMessage={t("authentication.signIn.loginError")}
             register={register}
+            labelClassName={"text__caps-spaced"}
           />
         </Form>
         <p className="pt-4">{t("authentication.createAccount.resendEmailInfo")}</p>

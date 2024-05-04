@@ -1,28 +1,16 @@
-/*
-1.3 - Contact
-Primary applicant contact information
-https://github.com/bloom-housing/bloom/issues/256
-*/
-import { FormErrorMessage } from "@bloom-housing/ui-seeds"
-import {
-  AppearanceStyleType,
-  AlertBox,
-  Button,
-  Field,
-  Form,
-  FormCard,
-  mergeDeep,
-  FieldGroup,
-  ProgressNav,
-  t,
-  Heading,
-} from "@bloom-housing/ui-components"
-import FormsLayout from "../../../layouts/forms"
-import { useContext, useEffect, useState, useMemo, useCallback } from "react"
+import React, { useContext, useEffect, useState, useMemo } from "react"
 import { useForm } from "react-hook-form"
-import { Select } from "@bloom-housing/ui-components/src/forms/Select"
-import { PhoneField } from "@bloom-housing/ui-components/src/forms/PhoneField"
-import { disableContactFormOption } from "../../../lib/helpers"
+import { Alert, FormErrorMessage } from "@bloom-housing/ui-seeds"
+import {
+  Field,
+  FieldGroup,
+  Form,
+  mergeDeep,
+  PhoneField,
+  Select,
+  t,
+} from "@bloom-housing/ui-components"
+import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import {
   contactPreferencesKeys,
   phoneNumberKeys,
@@ -33,7 +21,8 @@ import {
   pushGtmEvent,
   AuthContext,
 } from "@bloom-housing/shared-helpers"
-import FormBackLink from "../../../components/applications/FormBackLink"
+import FormsLayout from "../../../layouts/forms"
+import { disableContactFormOption } from "../../../lib/helpers"
 import { useFormConductor } from "../../../lib/hooks"
 import {
   FoundAddress,
@@ -41,6 +30,8 @@ import {
   AddressValidationSelection,
 } from "../../../components/applications/ValidateAddress"
 import { UserStatus } from "../../../lib/constants"
+import ApplicationFormLayout from "../../../layouts/application-form"
+import styles from "../../../layouts/application-form.module.scss"
 
 const ApplicationAddress = () => {
   const { profile } = useContext(AuthContext)
@@ -51,23 +42,25 @@ const ApplicationAddress = () => {
   const { conductor, application, listing } = useFormConductor("primaryApplicantAddress")
   const currentPageSection = 1
 
-  /* Form Handler */
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { control, register, handleSubmit, setValue, watch, errors } = useForm<Record<string, any>>(
-    {
-      defaultValues: {
-        "applicant.phoneNumber": application.applicant.phoneNumber,
-        "applicant.noPhone": application.applicant.noPhone,
-        additionalPhone: application.additionalPhone,
-        "applicant.phoneNumberType": application.applicant.phoneNumberType,
-        sendMailToMailingAddress: application.sendMailToMailingAddress,
-        "applicant.workInRegion": application.applicant.workInRegion,
-        "applicant.address.state": application.applicant.address.state,
-      },
-      shouldFocusError: false,
-    }
-  )
-  const onSubmit = (data) => {
+  const { control, register, handleSubmit, setValue, watch, errors, trigger } = useForm<
+    Record<string, any>
+  >({
+    defaultValues: {
+      "applicant.phoneNumber": application.applicant.phoneNumber,
+      "applicant.noPhone": application.applicant.noPhone,
+      additionalPhone: application.additionalPhone,
+      "applicant.phoneNumberType": application.applicant.phoneNumberType,
+      sendMailToMailingAddress: application.sendMailToMailingAddress,
+      "applicant.workInRegion": application.applicant.workInRegion,
+      "applicant.address.state": application.applicant.applicantAddress.state,
+    },
+    shouldFocusError: false,
+  })
+  const onSubmit = async (data) => {
+    const validation = await trigger()
+    if (!validation) return
+
     if (!verifyAddress) {
       setFoundAddress({})
       setVerifyAddress(true)
@@ -77,11 +70,13 @@ const ApplicationAddress = () => {
     }
 
     mergeDeep(application, data)
-
     if (newAddressSelected && foundAddress.newAddress) {
-      application.applicant.address.street = foundAddress.newAddress.street
-      application.applicant.address.city = foundAddress.newAddress.city
-      application.applicant.address.zipCode = foundAddress.newAddress.zipCode
+      application.applicant.applicantAddress.street = foundAddress.newAddress.street
+      application.applicant.applicantAddress.city = foundAddress.newAddress.city
+      application.applicant.applicantAddress.zipCode = foundAddress.newAddress.zipCode
+      application.applicant.applicantAddress.state = foundAddress.newAddress.state
+      application.applicant.applicantAddress.longitude = foundAddress.newAddress.longitude
+      application.applicant.applicantAddress.latitude = foundAddress.newAddress.latitude
     }
 
     if (application.applicant.noPhone) {
@@ -93,10 +88,10 @@ const ApplicationAddress = () => {
       application.additionalPhoneNumberType = ""
     }
     if (!application.sendMailToMailingAddress) {
-      application.mailingAddress = blankApplication.mailingAddress
+      application.applicationsMailingAddress = blankApplication.applicationsMailingAddress
     }
     if (!application.applicant.workInRegion) {
-      application.applicant.workAddress = blankApplication.applicant.workAddress
+      application.applicant.applicantWorkAddress = blankApplication.applicant.applicantWorkAddress
     }
     conductor.sync()
 
@@ -109,7 +104,7 @@ const ApplicationAddress = () => {
   const noPhone: boolean = watch("applicant.noPhone")
   const phoneNumber: string = watch("applicant.phoneNumber")
   const phonePresent = () => {
-    return phoneNumber.replace(/[()\-_ ]/g, "").length > 0
+    return phoneNumber && phoneNumber.replace(/[()\-_ ]/g, "").length > 0
   }
   const additionalPhone = watch("additionalPhone")
   const sendMailToMailingAddress = watch("sendMailToMailingAddress")
@@ -133,160 +128,165 @@ const ApplicationAddress = () => {
 
   const backUrl = useMemo(() => {
     return verifyAddress ? window.location.pathname : conductor.determinePreviousUrl()
-  }, [verifyAddress])
-
-  const backFunction = useCallback(() => {
-    return verifyAddress ? setVerifyAddress(false) : conductor.setNavigatedBack(true)
-  }, [verifyAddress])
+  }, [verifyAddress, conductor])
 
   return (
     <FormsLayout>
-      <FormCard header={<Heading priority={1}>{listing?.name}</Heading>}>
-        <ProgressNav
-          currentPageSection={currentPageSection}
-          completedSections={application.completedSections}
-          labels={conductor.config.sections.map((label) => t(`t.${label}`))}
-          mounted={OnClientSide()}
-        />
-      </FormCard>
-      <FormCard>
-        <FormBackLink url={backUrl} onClick={backFunction} />
-        <div className="form-card__lead border-b">
-          <h2 className="form-card__title is-borderless">
-            {verifyAddress
+      <Form id="applications-address" onSubmit={handleSubmit(onSubmit, onError)}>
+        <ApplicationFormLayout
+          listingName={listing?.name}
+          heading={
+            verifyAddress
               ? foundAddress.invalid
                 ? t("application.contact.couldntLocateAddress")
                 : t("application.contact.verifyAddressTitle")
-              : t("application.contact.title", { firstName: application.applicant.firstName })}
-          </h2>
-        </div>
-
-        {Object.entries(errors).length > 0 && (
-          <AlertBox type="alert" inverted closeable>
-            {t("errors.errorsToResolve")}
-          </AlertBox>
-        )}
-
-        <Form id="applications-address" onSubmit={handleSubmit(onSubmit, onError)}>
+              : t("application.contact.title", { firstName: application.applicant.firstName })
+          }
+          progressNavProps={{
+            currentPageSection: currentPageSection,
+            completedSections: application.completedSections,
+            labels: conductor.config.sections.map((label) => t(`t.${label}`)),
+            mounted: OnClientSide(),
+          }}
+          backLink={{
+            url: backUrl,
+            onClickFxn: verifyAddress
+              ? () => {
+                  setVerifyAddress(false)
+                }
+              : undefined,
+          }}
+          conductor={conductor}
+        >
+          {Object.entries(errors).length > 0 && (
+            <Alert
+              className={styles["message-inside-card"]}
+              variant="alert"
+              fullwidth
+              id={"application-alert-box"}
+            >
+              {t("errors.errorsToResolve")}
+            </Alert>
+          )}
           <div style={{ display: verifyAddress ? "none" : "block" }}>
-            <div className="form-card__group border-b">
-              <PhoneField
-                label={t("application.contact.yourPhoneNumber")}
-                caps={true}
-                required={true}
-                id="applicant.phoneNumber"
-                name="applicant.phoneNumber"
-                placeholder={clientLoaded && noPhone ? t("t.none") : null}
-                error={!noPhone ? errors.applicant?.phoneNumber : false}
-                errorMessage={t("errors.phoneNumberError")}
-                controlClassName="control"
-                control={control}
-                defaultValue={application.applicant.phoneNumber}
-                disabled={clientLoaded && noPhone}
-                dataTestId={"app-primary-phone-number"}
-              />
+            <CardSection divider={"inset"}>
+              <fieldset>
+                <legend className={"text__caps-spaced"}>
+                  {t("application.contact.yourPhoneNumber")}
+                </legend>
+                <PhoneField
+                  label={t("application.contact.number")}
+                  required={true}
+                  id="applicant.phoneNumber"
+                  name="applicant.phoneNumber"
+                  error={!noPhone ? errors.applicant?.phoneNumber : false}
+                  errorMessage={t("errors.phoneNumberError")}
+                  controlClassName="control"
+                  control={control}
+                  defaultValue={application.applicant.phoneNumber}
+                  disabled={clientLoaded && noPhone}
+                  dataTestId={"app-primary-phone-number"}
+                  subNote={t("application.contact.number.subNote")}
+                />
+                <Select
+                  id="applicant.phoneNumberType"
+                  name="applicant.phoneNumberType"
+                  placeholder={t("t.selectOne")}
+                  label={t("application.contact.phoneNumberTypes.prompt")}
+                  disabled={clientLoaded && noPhone}
+                  validation={{ required: !noPhone }}
+                  defaultValue={application.applicant.phoneNumberType}
+                  error={!noPhone && errors.applicant?.phoneNumberType}
+                  errorMessage={t("errors.phoneNumberTypeError")}
+                  register={register}
+                  controlClassName="control"
+                  options={phoneNumberKeys}
+                  keyPrefix="application.contact.phoneNumberTypes"
+                  dataTestId={"app-primary-phone-number-type"}
+                />
 
-              <Select
-                id="applicant.phoneNumberType"
-                name="applicant.phoneNumberType"
-                placeholder={t("application.contact.phoneNumberTypes.prompt")}
-                label={t("application.contact.phoneNumberTypes.prompt")}
-                labelClassName="sr-only"
-                disabled={clientLoaded && noPhone}
-                validation={{ required: !noPhone }}
-                defaultValue={application.applicant.phoneNumberType}
-                error={!noPhone && errors.applicant?.phoneNumberType}
-                errorMessage={t("errors.phoneNumberTypeError")}
-                register={register}
-                controlClassName="control"
-                options={phoneNumberKeys}
-                keyPrefix="application.contact.phoneNumberTypes"
-                dataTestId={"app-primary-phone-number-type"}
-              />
+                <Field
+                  type="checkbox"
+                  id="noPhone"
+                  name="applicant.noPhone"
+                  label={t("application.contact.noPhoneNumber")}
+                  primary={true}
+                  register={register}
+                  disabled={clientLoaded && phonePresent()}
+                  inputProps={{
+                    defaultChecked: application.applicant.noPhone,
+                    onChange: (e) => {
+                      if (e.target.checked) {
+                        setValue("applicant.phoneNumberType", "")
+                        setValue("additionalPhone", "")
+                        setValue("additionalPhoneNumber", "")
+                        setValue("additionalPhoneNumberType", "")
+                      }
+                    },
+                  }}
+                  dataTestId={"app-primary-no-phone"}
+                  className={"mb-2"}
+                />
 
-              <Field
-                type="checkbox"
-                id="noPhone"
-                name="applicant.noPhone"
-                label={t("application.contact.noPhoneNumber")}
-                primary={true}
-                register={register}
-                disabled={clientLoaded && phonePresent()}
-                inputProps={{
-                  defaultChecked: application.applicant.noPhone,
-                  onChange: (e) => {
-                    if (e.target.checked) {
-                      setValue("applicant.phoneNumberType", "")
-                      setValue("additionalPhone", "")
-                      setValue("additionalPhoneNumber", "")
-                      setValue("additionalPhoneNumberType", "")
-                    }
-                  },
-                }}
-                dataTestId={"app-primary-no-phone"}
-              />
+                <Field
+                  type="checkbox"
+                  id="additionalPhone"
+                  name="additionalPhone"
+                  label={t("application.contact.additionalPhoneNumber")}
+                  disabled={clientLoaded && noPhone}
+                  primary={true}
+                  register={register}
+                  inputProps={{
+                    defaultChecked: application.additionalPhone,
+                    onChange: (e) => {
+                      if (e.target.checked) {
+                        setValue("additionalPhoneNumber", "")
+                        setValue("additionalPhoneNumberType", "")
+                      }
+                    },
+                  }}
+                  dataTestId={"app-primary-additional-phone"}
+                />
 
-              <Field
-                type="checkbox"
-                id="additionalPhone"
-                name="additionalPhone"
-                label={t("application.contact.additionalPhoneNumber")}
-                disabled={clientLoaded && noPhone}
-                primary={true}
-                register={register}
-                inputProps={{
-                  defaultChecked: application.additionalPhone,
-                  onChange: (e) => {
-                    if (e.target.checked) {
-                      setValue("additionalPhoneNumber", "")
-                      setValue("additionalPhoneNumberType", "")
-                    }
-                  },
-                }}
-                dataTestId={"app-primary-additional-phone"}
-              />
-
-              {additionalPhone && (
-                <>
-                  <PhoneField
-                    id="additionalPhoneNumber"
-                    name="additionalPhoneNumber"
-                    label={t("application.contact.yourAdditionalPhoneNumber")}
-                    required={true}
-                    caps={true}
-                    error={errors.additionalPhoneNumber}
-                    errorMessage={t("errors.phoneNumberError")}
-                    control={control}
-                    defaultValue={application.additionalPhoneNumber}
-                    controlClassName="control"
-                    dataTestId={"app-primary-additional-phone-number"}
-                  />
-                  <Select
-                    id="additionalPhoneNumberType"
-                    name="additionalPhoneNumberType"
-                    defaultValue={application.additionalPhoneNumberType}
-                    validation={{ required: true }}
-                    error={errors?.additionalPhoneNumberType}
-                    errorMessage={t("errors.phoneNumberTypeError")}
-                    register={register}
-                    controlClassName="control"
-                    placeholder={t("application.contact.phoneNumberTypes.prompt")}
-                    label={t("application.contact.phoneNumberTypes.prompt")}
-                    labelClassName={"sr-only"}
-                    options={phoneNumberKeys}
-                    keyPrefix="application.contact.phoneNumberTypes"
-                    dataTestId={"app-primary-additional-phone-number-type"}
-                  />
-                </>
-              )}
-            </div>
-
-            <div className="form-card__group border-b">
+                {additionalPhone && (
+                  <>
+                    <PhoneField
+                      id="additionalPhoneNumber"
+                      name="additionalPhoneNumber"
+                      label={t("application.contact.secondNumber")}
+                      required={true}
+                      error={errors.additionalPhoneNumber}
+                      errorMessage={t("errors.phoneNumberError")}
+                      control={control}
+                      defaultValue={application.additionalPhoneNumber}
+                      controlClassName="control"
+                      dataTestId={"app-primary-additional-phone-number"}
+                      subNote={t("application.contact.number.subNote")}
+                    />
+                    <Select
+                      id="additionalPhoneNumberType"
+                      name="additionalPhoneNumberType"
+                      defaultValue={application.additionalPhoneNumberType}
+                      validation={{ required: true }}
+                      error={errors?.additionalPhoneNumberType}
+                      errorMessage={t("errors.phoneNumberTypeError")}
+                      register={register}
+                      controlClassName="control"
+                      label={t("application.contact.phoneNumberTypes.prompt")}
+                      options={phoneNumberKeys}
+                      keyPrefix="application.contact.phoneNumberTypes"
+                      dataTestId={"app-primary-additional-phone-number-type"}
+                    />
+                  </>
+                )}
+              </fieldset>
+            </CardSection>
+            <CardSection divider={"inset"}>
               <fieldset>
                 <legend
                   className={`text__caps-spaced ${errors.applicant?.address ? "text-alert" : ""}`}
                 >
-                  {t("application.contact.address")}
+                  {t("application.contact.yourAddress")}
                 </legend>
 
                 <p className="field-note mb-4">
@@ -297,8 +297,7 @@ const ApplicationAddress = () => {
                   id="addressStreet"
                   name="applicant.address.street"
                   label={t("application.contact.streetAddress")}
-                  placeholder={t("application.contact.streetAddress")}
-                  defaultValue={application.applicant.address.street}
+                  defaultValue={application.applicant.applicantAddress.street}
                   validation={{ required: true, maxLength: 64 }}
                   errorMessage={
                     errors.applicant?.address?.street?.type === "maxLength"
@@ -314,8 +313,7 @@ const ApplicationAddress = () => {
                   id="addressStreet2"
                   name="applicant.address.street2"
                   label={t("application.contact.apt")}
-                  placeholder={t("application.contact.apt")}
-                  defaultValue={application.applicant.address.street2}
+                  defaultValue={application.applicant.applicantAddress.street2}
                   register={register}
                   dataTestId={"app-primary-address-street2"}
                   error={errors.applicant?.address?.street2}
@@ -328,8 +326,7 @@ const ApplicationAddress = () => {
                     id="addressCity"
                     name="applicant.address.city"
                     label={t("application.contact.cityName")}
-                    placeholder={t("application.contact.cityName")}
-                    defaultValue={application.applicant.address.city}
+                    defaultValue={application.applicant.applicantAddress.city}
                     validation={{ required: true, maxLength: 64 }}
                     errorMessage={
                       errors.applicant?.address?.city?.type === "maxLength"
@@ -363,8 +360,7 @@ const ApplicationAddress = () => {
                   id="addressZipCode"
                   name="applicant.address.zipCode"
                   label={t("application.contact.zip")}
-                  placeholder={t("application.contact.zipCode")}
-                  defaultValue={application.applicant.address.zipCode}
+                  defaultValue={application.applicant.applicantAddress.zipCode}
                   validation={{ required: true, maxLength: 64 }}
                   errorMessage={
                     errors.applicant?.address?.zipCode?.type === "maxLength"
@@ -388,10 +384,10 @@ const ApplicationAddress = () => {
                   dataTestId={"app-primary-send-to-mailing"}
                 />
               </fieldset>
-            </div>
+            </CardSection>
 
             {clientLoaded && (sendMailToMailingAddress || application.sendMailToMailingAddress) && (
-              <div className="form-card__group border-b">
+              <CardSection divider={"inset"}>
                 <fieldset>
                   <legend className="text__caps-spaced">
                     {t("application.contact.mailingAddress")}
@@ -403,9 +399,9 @@ const ApplicationAddress = () => {
 
                   <Field
                     id="mailingAddressStreet"
-                    name="mailingAddress.street"
-                    placeholder={t("application.contact.streetAddress")}
-                    defaultValue={application.mailingAddress.street}
+                    name="applicationsMailingAddress.street"
+                    defaultValue={application.applicationsMailingAddress.street}
+                    label={t("application.contact.streetAddress")}
                     validation={{ required: true, maxLength: 64 }}
                     error={errors.mailingAddress?.street}
                     errorMessage={
@@ -419,10 +415,9 @@ const ApplicationAddress = () => {
 
                   <Field
                     id="mailingAddressStreet2"
-                    name="mailingAddress.street2"
+                    name="applicationsMailingAddress.street2"
                     label={t("application.contact.apt")}
-                    placeholder={t("application.contact.apt")}
-                    defaultValue={application.mailingAddress.street2}
+                    defaultValue={application.applicationsMailingAddress.street2}
                     register={register}
                     dataTestId={"app-primary-mailing-address-street2"}
                     validation={{ maxLength: 64 }}
@@ -433,10 +428,9 @@ const ApplicationAddress = () => {
                   <div className="flex max-w-2xl">
                     <Field
                       id="mailingAddressCity"
-                      name="mailingAddress.city"
-                      label={t("application.contact.cityName")}
-                      placeholder={t("application.contact.cityName")}
-                      defaultValue={application.mailingAddress.city}
+                      name="applicationsMailingAddress.city"
+                      label={t("application.contact.city")}
+                      defaultValue={application.applicationsMailingAddress.city}
                       validation={{ required: true, maxLength: 64 }}
                       error={errors.mailingAddress?.city}
                       errorMessage={
@@ -450,9 +444,9 @@ const ApplicationAddress = () => {
 
                     <Select
                       id="mailingAddressState"
-                      name="mailingAddress.state"
+                      name="applicationsMailingAddress.state"
                       label={t("application.contact.state")}
-                      defaultValue={application.mailingAddress.state}
+                      defaultValue={application.applicationsMailingAddress.state}
                       validation={{ required: true, maxLength: 64 }}
                       errorMessage={
                         errors.mailingAddress?.state?.type === "maxLength"
@@ -470,10 +464,9 @@ const ApplicationAddress = () => {
 
                   <Field
                     id="mailingAddressZipCode"
-                    name="mailingAddress.zipCode"
+                    name="applicationsMailingAddress.zipCode"
                     label={t("application.contact.zip")}
-                    placeholder={t("application.contact.zipCode")}
-                    defaultValue={application.mailingAddress.zipCode}
+                    defaultValue={application.applicationsMailingAddress.zipCode}
                     validation={{ required: true, maxLength: 64 }}
                     error={errors.mailingAddress?.zipCode}
                     errorMessage={
@@ -485,9 +478,10 @@ const ApplicationAddress = () => {
                     dataTestId={"app-primary-mailing-address-zip"}
                   />
                 </fieldset>
-              </div>
+              </CardSection>
             )}
-            <div className="form-card__group border-b">
+
+            <CardSection divider={"inset"}>
               <fieldset>
                 <legend
                   className={`text__caps-spaced ${errors?.contactPreferences ? "text-alert" : ""}`}
@@ -505,19 +499,20 @@ const ApplicationAddress = () => {
                   dataTestId={"app-primary-contact-preference"}
                 />
               </fieldset>
-            </div>
+            </CardSection>
 
-            <div className="form-card__group">
+            <CardSection>
               <fieldset>
                 <legend
                   className={`text__caps-spaced ${
                     errors?.applicant?.workInRegion ? "text-alert" : ""
                   }`}
                 >
-                  {t("application.contact.doYouWorkIn", { county: listing?.countyCode })}
+                  {t("application.contact.doYouWorkIn", {
+                    county:
+                      listing?.listingsBuildingAddress?.county || listing?.jurisdictions?.name,
+                  })}
                 </legend>
-
-                <p className="field-note mb-4">{t("application.contact.doYouWorkInDescription")}</p>
 
                 <Field
                   className="mb-1"
@@ -566,31 +561,28 @@ const ApplicationAddress = () => {
                     </legend>
 
                     <Field
-                      id="workAddressStreet"
-                      name="applicant.workAddress.street"
-                      placeholder={t("application.contact.streetAddress")}
-                      defaultValue={application.applicant.workAddress.street}
+                      id="applicantWorkAddressStreet"
+                      name="applicant.applicantWorkAddress.street"
+                      defaultValue={application.applicant.applicantWorkAddress.street}
                       validation={{ required: true, maxLength: 64 }}
-                      error={errors.applicant?.workAddress?.street}
+                      error={errors.applicant?.applicantWorkAddress?.street}
                       errorMessage={
-                        errors.applicant?.workAddress?.street?.type === "maxLength"
+                        errors.applicant?.applicantWorkAddress?.street?.type === "maxLength"
                           ? t("errors.maxLength")
                           : t("errors.streetError")
                       }
                       register={register}
                       dataTestId={"app-primary-work-address-street"}
                       label={t("application.contact.streetAddress")}
-                      readerOnly={true}
                     />
 
                     <Field
-                      id="workAddressStreet2"
-                      name="applicant.workAddress.street2"
+                      id="applicantWorkAddressStreet2"
+                      name="applicant.applicantWorkAddress.street2"
                       label={t("application.contact.apt")}
-                      placeholder={t("application.contact.apt")}
-                      defaultValue={application.applicant.workAddress.street2}
+                      defaultValue={application.applicant.applicantWorkAddress.street2}
                       register={register}
-                      error={errors.applicant?.workAddress?.street2}
+                      error={errors.applicant?.applicantWorkAddress?.street2}
                       validation={{ maxLength: 64 }}
                       errorMessage={"errors.maxLength"}
                       dataTestId={"app-primary-work-address-street2"}
@@ -598,15 +590,14 @@ const ApplicationAddress = () => {
 
                     <div className="flex max-w-2xl">
                       <Field
-                        id="workAddressCity"
-                        name="applicant.workAddress.city"
-                        label={t("application.contact.cityName")}
-                        placeholder={t("application.contact.cityName")}
-                        defaultValue={application.applicant.workAddress.city}
+                        id="applicantWorkAddressCity"
+                        name="applicant.applicantWorkAddress.city"
+                        label={t("application.contact.city")}
+                        defaultValue={application.applicant.applicantWorkAddress.city}
                         validation={{ required: true, maxLength: 64 }}
-                        error={errors.applicant?.workAddress?.city}
+                        error={errors.applicant?.applicantWorkAddress?.city}
                         errorMessage={
-                          errors.applicant?.workAddress?.city?.type === "maxLength"
+                          errors.applicant?.applicantWorkAddress?.city?.type === "maxLength"
                             ? t("errors.maxLength")
                             : t("errors.cityError")
                         }
@@ -615,13 +606,14 @@ const ApplicationAddress = () => {
                       />
 
                       <Select
-                        id="workAddressState"
-                        name="applicant.workAddress.state"
+                        id="applicantWorkAddressState"
+                        name="applicant.applicantWorkAddress.state"
                         label={t("application.contact.state")}
-                        defaultValue={application.applicant.workAddress.state}
+                        defaultValue={application.applicant.applicantWorkAddress.state}
                         validation={{ required: true, maxLength: 64 }}
+                        error={errors.applicant?.applicantWorkAddress?.state}
                         errorMessage={
-                          errors.applicant?.workAddress?.state?.type === "maxLength"
+                          errors.applicant?.applicantWorkAddress?.state?.type === "maxLength"
                             ? t("errors.maxLength")
                             : t("errors.stateError")
                         }
@@ -634,15 +626,14 @@ const ApplicationAddress = () => {
                     </div>
 
                     <Field
-                      id="workAddressZipCode"
-                      name="applicant.workAddress.zipCode"
+                      id="applicantWorkAddressZipCode"
+                      name="applicant.applicantWorkAddress.zipCode"
                       label={t("application.contact.zip")}
-                      placeholder={t("application.contact.zipCode")}
-                      defaultValue={application.applicant.workAddress.zipCode}
+                      defaultValue={application.applicant.applicantWorkAddress.zipCode}
                       validation={{ required: true, maxLength: 64 }}
-                      error={errors.applicant?.workAddress?.zipCode}
+                      error={errors.applicant?.applicantWorkAddress?.zipCode}
                       errorMessage={
-                        errors.applicant?.workAddress?.zipCode?.type === "maxLength"
+                        errors.applicant?.applicantWorkAddress?.zipCode?.type === "maxLength"
                           ? t("errors.maxLength")
                           : t("errors.zipCodeError")
                       }
@@ -652,46 +643,17 @@ const ApplicationAddress = () => {
                   </fieldset>
                 </div>
               )}
-            </div>
+            </CardSection>
           </div>
-
-          {verifyAddress && (
-            <AddressValidationSelection
-              {...{ foundAddress, newAddressSelected, setNewAddressSelected, setVerifyAddress }}
-            />
-          )}
-
-          <div className="form-card__pager">
-            <div className="form-card__pager-row primary">
-              <Button
-                styleType={AppearanceStyleType.primary}
-                onClick={() => {
-                  conductor.returnToReview = false
-                  conductor.setNavigatedBack(false)
-                }}
-                data-testid={"app-next-step-button"}
-              >
-                {t("t.next")}
-              </Button>
-            </div>
-
-            {conductor.canJumpForwardToReview() && (
-              <div className="form-card__pager-row">
-                <Button
-                  unstyled={true}
-                  className="mb-4"
-                  onClick={() => {
-                    conductor.returnToReview = true
-                    conductor.setNavigatedBack(false)
-                  }}
-                >
-                  {t("application.form.general.saveAndReturn")}
-                </Button>
-              </div>
+          <CardSection>
+            {verifyAddress && (
+              <AddressValidationSelection
+                {...{ foundAddress, newAddressSelected, setNewAddressSelected, setVerifyAddress }}
+              />
             )}
-          </div>
-        </Form>
-      </FormCard>
+          </CardSection>
+        </ApplicationFormLayout>
+      </Form>
     </FormsLayout>
   )
 }

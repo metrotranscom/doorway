@@ -25,6 +25,7 @@ import { Translation } from "../translations/entities/translation.entity"
 import { ListingEventType, Unit } from "../../types"
 import { formatLocalDate } from "../shared/utils/format-local-date"
 import { formatCommunityType } from "../listings/helpers"
+import { getPublicEmailURL } from "../shared/utils/get-public-email-url"
 
 type EmailAttachmentData = {
   data: string
@@ -244,8 +245,8 @@ export class EmailService {
     const jurisdiction = await this.getUserJurisdiction(user)
     void (await this.loadTranslations(jurisdiction, user.language))
     const compiledTemplate = this.template("forgot-password")
-    const resetUrl = `${appUrl}/reset-password?token=${user.resetToken}`
 
+    const resetUrl = getPublicEmailURL(appUrl, user.resetToken, "/reset-password")
     if (this.configService.get<string>("NODE_ENV") == "production") {
       Logger.log(
         `Preparing to send a forget password email to ${user.email} from ${jurisdiction.emailFromAddress}...`
@@ -366,10 +367,25 @@ export class EmailService {
       }
     }
 
+    const languages = [
+      { name: this.polyglot.t("rentalOpportunity.viewButton.en"), code: Language.en },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.es"), code: Language.es },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.zh"), code: Language.zh },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.vi"), code: Language.vi },
+      { name: this.polyglot.t("rentalOpportunity.viewButton.tl"), code: Language.tl },
+    ]
+
+    const languageUrls = languages.map((language) => {
+      return {
+        name: language.name,
+        url: `${jurisdiction.publicUrl}/${language.code}/listing/${listing.id}`,
+      }
+    })
+
     const compiled = compiledTemplate({
       listingName: listing.name,
-      listingUrl: `${jurisdiction.publicUrl}/listing/${listing.id}`,
       tableRows,
+      languageUrls,
     })
 
     await this.govSend(compiled, "New rental opportunity")

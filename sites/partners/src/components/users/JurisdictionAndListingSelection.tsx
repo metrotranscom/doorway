@@ -9,7 +9,7 @@ const JurisdictionAndListingSelection = ({ jurisdictionOptions, listingsOptions 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, errors, getValues, setValue, watch } = useFormContext()
   const { profile } = useContext(AuthContext)
-  const selectedRoles = watch("role")
+  const selectedRoles = watch("userRoles")
   const selectedJurisdictions = watch("jurisdictions")
 
   /**
@@ -108,7 +108,7 @@ const JurisdictionAndListingSelection = ({ jurisdictionOptions, listingsOptions 
     })
   }
 
-  if (profile?.roles?.isAdmin) {
+  if (profile?.userRoles?.isAdmin) {
     if (selectedRoles === RoleOption.JurisdictionalAdmin) {
       return (
         <SectionWithGrid heading={t("t.jurisdiction")}>
@@ -168,14 +168,6 @@ const JurisdictionAndListingSelection = ({ jurisdictionOptions, listingsOptions 
             </Grid>
           )}
         </>
-      )
-    }
-  } else if (profile?.roles?.isJurisdictionalAdmin) {
-    if (selectedRoles === RoleOption.Partner && selectedJurisdictions) {
-      return (
-        <SectionWithGrid heading={t("nav.listings")}>
-          <Grid.Row columns={1}>{ListingSection()}</Grid.Row>
-        </SectionWithGrid>
       )
     }
   }

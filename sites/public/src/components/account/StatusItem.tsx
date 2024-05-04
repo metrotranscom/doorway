@@ -1,6 +1,8 @@
-import React, { useContext } from "react"
-import { t, NavigationContext, LinkButton, AppearanceSizeType } from "@bloom-housing/ui-components"
+import React from "react"
+import { t } from "@bloom-housing/ui-components"
+import { Button, Card, Tag } from "@bloom-housing/ui-seeds"
 import styles from "./StatusItem.module.scss"
+import accountStyles from "../../pages/account/account.module.scss"
 
 interface StatusItemProps {
   applicationDueDate?: string
@@ -10,7 +12,7 @@ interface StatusItemProps {
   listingName: string
   listingURL: string
   strings?: {
-    applicationDeadline?: string
+    applicationsDeadline?: string
     edited?: string
     seeListing?: string
     status?: string
@@ -21,23 +23,21 @@ interface StatusItemProps {
 }
 
 const StatusItem = (props: StatusItemProps) => {
-  const { LinkComponent } = useContext(NavigationContext)
-
   return (
-    <article className={styles["status-item"]}>
-      <div className={styles["status-item__inner"]}>
+    <Card.Section className={accountStyles["account-card-applications-section"]}>
+      <article className={styles["status-item"]}>
         <header className={styles["status-item__header"]}>
           <h3 className={styles["status-item__title"]}>{props.listingName}</h3>
-          {props.applicationDueDate && (
-            <p className={styles["status-item__due"]}>
-              {props.strings?.applicationDeadline ?? t("listings.applicationDeadline")}:{" "}
-              {props.applicationDueDate}
-            </p>
-          )}
+          <p className={styles["status-item__status"]}>
+            {props.strings?.status ?? t("application.status")}:{" "}
+            <Tag variant="primary-inverse">
+              {props.strings?.submittedStatus ?? t("application.statuses.submitted")}
+            </Tag>
+          </p>
         </header>
 
         <section className={styles["status-item__content"]}>
-          <div className={styles["status-item__details"]}>
+          <div>
             {props.confirmationNumber && (
               <>
                 <span className={styles["status-item__confirm-text"]}>
@@ -52,33 +52,29 @@ const StatusItem = (props: StatusItemProps) => {
           </div>
 
           <div className={styles["status-item__action"]}>
-            <p className={styles["status-item__status"]}>
-              <span className={styles["status-item__label"]}>
-                {props.strings?.status ?? t("application.status")}:{" "}
-                {props.strings?.submittedStatus ?? t("application.statuses.submitted")}
-              </span>
-            </p>
-            <LinkButton href={props.applicationURL} size={AppearanceSizeType.small}>
-              {props.strings?.viewApplication ?? t("application.viewApplication")}
-            </LinkButton>
+            {props.applicationDueDate && (
+              <p className={styles["status-item__due"]}>
+                {props.strings?.applicationsDeadline ?? t("listings.applicationDeadline")}:{" "}
+                <span className={styles["status-item__due-date"]}>{props.applicationDueDate}</span>
+              </p>
+            )}
           </div>
         </section>
 
         <footer className={styles["status-item__footer"]}>
-          <div className={styles["status-item_links"]}>
-            <LinkComponent className={styles["status-item__link"]} href={props.listingURL}>
-              {props.strings?.seeListing ?? t("t.seeListing")}
-            </LinkComponent>
+          <div>
+            <Button href={props.applicationURL} variant="primary-outlined" size="sm">
+              {props.strings?.viewApplication ?? t("application.viewApplication")}
+            </Button>
           </div>
-
-          <div className={styles["status-item__meta"]}>
-            <p className={styles["status-item__date"]}>
-              {props.strings?.edited ?? t("application.edited")}: {props.applicationUpdatedAt}
-            </p>
+          <div>
+            <Button href={props.listingURL} variant="primary-outlined" size="sm">
+              {props.strings?.seeListing ?? t("t.seeListing")}
+            </Button>
           </div>
         </footer>
-      </div>
-    </article>
+      </article>
+    </Card.Section>
   )
 }
 

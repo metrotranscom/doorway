@@ -3,14 +3,6 @@ import Head from "next/head"
 import { useSWRConfig } from "swr"
 
 import {
-  ApplicationSection,
-  MultiselectQuestion,
-  MultiselectQuestionCreate,
-  MultiselectQuestionUpdate,
-} from "@bloom-housing/backend-core"
-import {
-  AppearanceSizeType,
-  Button,
   LoadingOverlay,
   MinimalTable,
   SiteAlert,
@@ -19,8 +11,8 @@ import {
   AlertTypes,
   useMutate,
   Modal,
-  AppearanceStyleType,
 } from "@bloom-housing/ui-components"
+import { Button } from "@bloom-housing/ui-seeds"
 import dayjs from "dayjs"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import Layout from "../../layouts"
@@ -29,6 +21,12 @@ import { useJurisdictionalMultiselectQuestionList } from "../../lib/hooks"
 import ManageIconSection from "../../components/settings/ManageIconSection"
 import { PreferenceDeleteModal } from "../../components/settings/PreferenceDeleteModal"
 import { NavigationHeader } from "../../components/shared/NavigationHeader"
+import {
+  MultiselectQuestion,
+  MultiselectQuestionCreate,
+  MultiselectQuestionUpdate,
+  MultiselectQuestionsApplicationSectionEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 export type DrawerType = "add" | "edit"
 
@@ -54,10 +52,8 @@ const Settings = () => {
   )
 
   const { data, loading, cacheKey } = useJurisdictionalMultiselectQuestionList(
-    profile?.jurisdictions?.reduce((acc, curr) => {
-      return `${acc}${","}${curr.id}`
-    }, ""),
-    ApplicationSection.preferences
+    profile?.jurisdictions?.map((jurisdiction) => jurisdiction.id).toString(),
+    MultiselectQuestionsApplicationSectionEnum.preferences
   )
 
   const tableData = useMemo(() => {
@@ -109,15 +105,15 @@ const Settings = () => {
     }
   }, [isCreateLoading])
 
-  const saveQuestion = (
-    formattedData: MultiselectQuestionCreate | MultiselectQuestionUpdate,
-    requestType: DrawerType
-  ) => {
+  const saveQuestion = (formattedData: MultiselectQuestionCreate, requestType: DrawerType) => {
     if (requestType === "edit") {
       void updateQuestion(() =>
         multiselectQuestionsService
           .update({
-            body: { ...formattedData, id: questionData.id },
+            body: {
+              ...(formattedData as unknown as MultiselectQuestionUpdate),
+              id: questionData.id,
+            },
           })
           .then((result) => {
             setUpdatedIds(
@@ -140,7 +136,7 @@ const Settings = () => {
       void createQuestion(() =>
         multiselectQuestionsService
           .create({
-            body: formattedData,
+            body: formattedData as unknown as MultiselectQuestionCreate,
           })
           .then((result) => {
             setUpdatedIds(
@@ -200,12 +196,12 @@ const Settings = () => {
                 emptyStateMessage={t("t.none")}
                 footer={
                   <Button
-                    size={AppearanceSizeType.small}
+                    size="sm"
                     onClick={() => {
                       setQuestionData(null)
                       setPreferenceDrawerOpen("add")
                     }}
-                    dataTestId={"preference-add-item"}
+                    id={"preference-add-item"}
                     disabled={loading}
                   >
                     {t("t.addItem")}
@@ -238,24 +234,25 @@ const Settings = () => {
         actions={[
           <Button
             type="button"
-            styleType={AppearanceStyleType.primary}
+            variant="primary-outlined"
             onClick={() => {
               saveQuestion({ ...copyModalOpen, text: `${copyModalOpen.text} (Copy)` }, "add")
             }}
-            dataTestId={"copy-button-confirm"}
-            loading={isCreateLoading}
-            size={AppearanceSizeType.small}
+            id={"copy-button-confirm"}
+            loadingMessage={isCreateLoading && t("t.formSubmitted")}
+            size="sm"
           >
             {t("settings.copy")}
           </Button>,
           <Button
+            variant="primary-outlined"
             type="button"
             onClick={() => {
               setCopyModalOpen(null)
             }}
             disabled={isCreateLoading}
-            dataTestId={"copy-button-cancel"}
-            size={AppearanceSizeType.small}
+            id={"copy-button-cancel"}
+            size="sm"
           >
             {t("t.cancel")}
           </Button>,

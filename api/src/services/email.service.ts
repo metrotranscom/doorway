@@ -159,7 +159,7 @@ export class EmailService {
     } catch (e) {
       console.log(e);
       console.error('Failed to send email');
-      throw new InternalServerErrorException(e);
+      return e;
     }
   }
 

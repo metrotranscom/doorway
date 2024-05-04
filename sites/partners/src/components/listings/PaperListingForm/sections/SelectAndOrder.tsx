@@ -1,17 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
+import { t, MinimalTable, Drawer, Field, StandardTableData } from "@bloom-housing/ui-components"
 import {
-  t,
-  MinimalTable,
-  Button,
-  AppearanceSizeType,
-  Drawer,
-  AppearanceStyleType,
-  Field,
-  StandardTableData,
-} from "@bloom-housing/ui-components"
-import { Card, Grid } from "@bloom-housing/ui-seeds"
+  MultiselectQuestion,
+  MultiselectQuestionsApplicationSectionEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Button, Card, Grid, Tag, Icon } from "@bloom-housing/ui-seeds"
 import { useFormContext } from "react-hook-form"
-import { ApplicationSection, MultiselectQuestion } from "@bloom-housing/backend-core/types"
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons"
 import LinkComponent from "../../../../components/core/LinkComponent"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 
@@ -28,14 +23,14 @@ type SelectAndOrderProps = {
   drawerButtonText: string
   dataFetcher: (
     jurisdiction?: string,
-    applicationSection?: ApplicationSection
+    applicationSection?: MultiselectQuestionsApplicationSectionEnum
   ) => {
     data: SelectAndOrderSection[]
     loading: boolean
     error: any
   }
   formKey: string
-  applicationSection: ApplicationSection
+  applicationSection: MultiselectQuestionsApplicationSectionEnum
   subNote?: string
 }
 
@@ -84,20 +79,31 @@ const SelectAndOrder = ({
     [draftListingData]
   )
 
+  const additionalFieldsTag = () => (
+    <Tag variant="primary">
+      <Icon icon={faInfoCircle} /> {t("listings.providesAdditionalFields")}
+    </Tag>
+  )
+
   const draggableTableData: StandardTableData = useMemo(
     () =>
       draftListingData.map((item) => ({
         name: { content: item.text },
+        additionalFields: {
+          content: (
+            <>{item?.options.some((item) => item.collectAddress) && additionalFieldsTag()}</>
+          ),
+        },
         action: {
           content: (
             <div className="flex">
               <Button
                 type="button"
-                className="front-semibold uppercase text-alert my-0"
+                className="font-semibold text-alert"
                 onClick={() => {
                   deleteItem(item, false)
                 }}
-                unstyled
+                variant="text"
               >
                 {t("t.delete")}
               </Button>
@@ -113,16 +119,21 @@ const SelectAndOrder = ({
       listingData.map((item, index) => ({
         order: { content: index + 1 },
         name: { content: item.text },
+        additionalFields: {
+          content: (
+            <>{item?.options.some((item) => item.collectAddress) && additionalFieldsTag()}</>
+          ),
+        },
         action: {
           content: (
             <div className="flex">
               <Button
                 type="button"
-                className="front-semibold uppercase text-alert my-0"
+                className="font-semibold text-alert"
                 onClick={() => {
                   deleteItem(item, true)
                 }}
-                unstyled
+                variant="text"
               >
                 {t("t.delete")}
               </Button>
@@ -147,18 +158,27 @@ const SelectAndOrder = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dragOrder])
 
-  const jurisdiction: string = watch("jurisdiction.id")
+  const jurisdiction: string = watch("jurisdictions.id")
 
-  const { data: fetchedData = [] } = dataFetcher(jurisdiction, applicationSection)
+  const { data: fetchedData = [] } = dataFetcher(
+    jurisdiction,
+    applicationSection as unknown as MultiselectQuestionsApplicationSectionEnum
+  )
 
   const formTableHeaders = {
     order: "t.order",
     name: "t.name",
+    ...(formKey === "preference" && {
+      additionalFields: "settings.preferenceAdditionalFields",
+    }),
     action: "",
   }
 
   const draggableTableHeaders = {
     name: "t.name",
+    ...(formKey === "preference" && {
+      additionalFields: "settings.preferenceAdditionalFields",
+    }),
     action: "",
   }
 
@@ -197,11 +217,23 @@ const SelectAndOrder = ({
               })}
             </div>
           )}
+          {option.collectAddress && (
+            <div
+              className={`${
+                isNotLastItem && (option.description || option.links?.length > 0) ? "-mt-4" : "mt-0"
+              }`}
+            >
+              ({t("listings.providesAdditionalFields.info")})
+            </div>
+          )}
         </div>
       )
     }
     return (
       <div className="ml-8 -mt-6 mb-4 text-sm">
+        {item.options.some((option) => option.collectAddress) && (
+          <div className="mt-6 mb-2">{additionalFieldsTag()}</div>
+        )}
         <div>
           <button
             onClick={() => {
@@ -243,7 +275,7 @@ const SelectAndOrder = ({
             <Button
               id={`add-${applicationSection}-button`}
               type="button"
-              size={AppearanceSizeType.normal}
+              variant="primary-outlined"
               onClick={() => setTableDrawer(true)}
             >
               {listingData.length ? editText : addText}
@@ -276,7 +308,7 @@ const SelectAndOrder = ({
           )}
           <Button
             type="button"
-            size={AppearanceSizeType.normal}
+            variant="primary-outlined"
             onClick={() => {
               setSelectDrawer(true)
             }}
@@ -287,8 +319,8 @@ const SelectAndOrder = ({
         <Button
           type="button"
           className={"mt-4"}
-          styleType={AppearanceStyleType.primary}
-          size={AppearanceSizeType.small}
+          variant="primary"
+          size="sm"
           onClick={() => {
             setListingData(draftListingData)
             setTableDrawer(null)
@@ -344,8 +376,7 @@ const SelectAndOrder = ({
             id="addPreferenceSaveButton"
             type="button"
             className={"mt-4"}
-            styleType={AppearanceStyleType.primary}
-            size={AppearanceSizeType.normal}
+            variant="primary"
             onClick={() => {
               const formData = getValues()
               const formItems = []

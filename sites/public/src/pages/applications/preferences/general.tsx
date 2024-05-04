@@ -1,19 +1,7 @@
-/*
-4.3 General Pool
-If all preferences are opted out the applicant is shown a screen confirming their placement in the General Pool
-*/
 import React, { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import {
-  AppearanceStyleType,
-  Button,
-  FormCard,
-  Heading,
-  t,
-  Form,
-  ProgressNav,
-} from "@bloom-housing/ui-components"
-import { ApplicationSection } from "@bloom-housing/backend-core"
+import { Button } from "@bloom-housing/ui-seeds"
+import { FormCard, Heading, t, Form, ProgressNav } from "@bloom-housing/ui-components"
 import {
   OnClientSide,
   PageView,
@@ -24,18 +12,20 @@ import {
 import FormsLayout from "../../../layouts/forms"
 import FormBackLink from "../../../components/applications/FormBackLink"
 import { useFormConductor } from "../../../lib/hooks"
-
 import { UserStatus } from "../../../lib/constants"
+import { MultiselectQuestionsApplicationSectionEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 const ApplicationPreferencesGeneral = () => {
   const { profile } = useContext(AuthContext)
   const [hideReviewButton, setHideReviewButton] = useState(false)
   const { conductor, application, listing } = useFormConductor("generalPool")
-  const currentPageSection = listingSectionQuestions(listing, ApplicationSection.programs)?.length
+  const currentPageSection = listingSectionQuestions(
+    listing,
+    MultiselectQuestionsApplicationSectionEnum.programs
+  )?.length
     ? 5
     : 4
 
-  /* Form Handler */
   const { handleSubmit } = useForm()
   const onSubmit = () => {
     if (!conductor.canJumpForwardToReview()) setHideReviewButton(true)
@@ -80,12 +70,13 @@ const ApplicationPreferencesGeneral = () => {
           <div className="form-card__pager">
             <div className="form-card__pager-row primary">
               <Button
-                styleType={AppearanceStyleType.primary}
+                type="submit"
+                variant="primary"
                 onClick={() => {
                   conductor.returnToReview = false
                   conductor.setNavigatedBack(false)
                 }}
-                data-testid={"app-next-step-button"}
+                id={"app-next-step-button"}
               >
                 {t("t.next")}
               </Button>
@@ -94,7 +85,8 @@ const ApplicationPreferencesGeneral = () => {
             {!hideReviewButton && conductor.canJumpForwardToReview() && (
               <div className="form-card__pager-row">
                 <Button
-                  unstyled={true}
+                  type="submit"
+                  variant="text"
                   className="mb-4"
                   onClick={() => {
                     conductor.returnToReview = true

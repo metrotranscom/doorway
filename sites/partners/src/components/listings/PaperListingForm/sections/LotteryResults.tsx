@@ -2,27 +2,24 @@ import React, { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import {
   t,
-  AppearanceStyleType,
-  Button,
   Drawer,
   Dropzone,
   MinimalTable,
   TableThumbnail,
   StandardTableData,
-  AppearanceSizeType,
   Icon,
 } from "@bloom-housing/ui-components"
 import {
   ListingEvent,
   ListingEventCreate,
-  ListingEventType,
-} from "@bloom-housing/backend-core/types"
-import { uploadAssetAndSetData } from "../../../../lib/assets"
+  ListingEventsTypeEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Button, Card } from "@bloom-housing/ui-seeds"
 import { getPdfUrlFromAsset } from "@bloom-housing/shared-helpers"
-import { Card } from "@bloom-housing/ui-seeds"
+import { uploadAssetAndSetData } from "../../../../lib/assets"
 
 interface LotteryResultsProps {
-  submitCallback: (data: { events: ListingEvent[] }) => void
+  submitCallback: (data: { listingEvents: ListingEvent[] }) => void
   drawerState: boolean
   showDrawer: (toggle: boolean) => void
 }
@@ -40,15 +37,15 @@ const LotteryResults = (props: LotteryResultsProps) => {
     url: "",
   })
 
-  const listingEvents = watch("events")
+  const listingEvents = watch("listingEvents")
   const uploadedPDF = listingEvents.find(
-    (event: ListingEvent) => event.type === ListingEventType.lotteryResults
+    (event: ListingEvent) => event.type === ListingEventsTypeEnum.lotteryResults
   )
 
   useEffect(() => {
     if (uploadedPDF) {
       setCloudinaryData({
-        url: uploadedPDF.file ? getPdfUrlFromAsset(uploadedPDF.file) : "",
+        url: uploadedPDF.assets ? getPdfUrlFromAsset(uploadedPDF.assets) : "",
         id: uploadedPDF.id,
       })
       // Don't allow a new one to be uploaded if one already exists so setting progress to 100%
@@ -69,7 +66,7 @@ const LotteryResults = (props: LotteryResultsProps) => {
     const updatedEvents = [...listingEvents]
 
     const lotteryIndex = updatedEvents.findIndex(
-      (event) => event.type === ListingEventType.lotteryResults
+      (event) => event.type === ListingEventsTypeEnum.lotteryResults
     )
     if (lotteryIndex > -1) {
       updatedEvents.splice(lotteryIndex, 1)
@@ -77,9 +74,9 @@ const LotteryResults = (props: LotteryResultsProps) => {
 
     if (cloudinaryData.id) {
       const newEvent: ListingEventCreate = {
-        type: ListingEventType.lotteryResults,
+        type: ListingEventsTypeEnum.lotteryResults,
         startTime: new Date(),
-        file: {
+        assets: {
           fileId: cloudinaryData.id,
           label: "cloudinaryPDF",
         },
@@ -87,7 +84,7 @@ const LotteryResults = (props: LotteryResultsProps) => {
       updatedEvents.push(newEvent as ListingEvent)
     }
 
-    submitCallback({ events: updatedEvents })
+    submitCallback({ listingEvents: updatedEvents })
   }
 
   const resultsTableHeaders = {
@@ -119,7 +116,7 @@ const LotteryResults = (props: LotteryResultsProps) => {
         content: (
           <Button
             type="button"
-            className="font-semibold uppercase text-alert my-0"
+            className="font-semibold text-alert"
             onClick={() => {
               setCloudinaryData({
                 id: "",
@@ -127,7 +124,7 @@ const LotteryResults = (props: LotteryResultsProps) => {
               })
               setProgressValue(0)
             }}
-            unstyled
+            variant="text"
           >
             {t("t.delete")}
           </Button>
@@ -156,8 +153,8 @@ const LotteryResults = (props: LotteryResultsProps) => {
             savePDF()
             resetDrawerState()
           }}
-          styleType={AppearanceStyleType.primary}
-          size={AppearanceSizeType.small}
+          variant="primary"
+          size="sm"
         >
           {progressValue === 100 ? t("t.post") : t("t.save")}
         </Button>,
@@ -166,7 +163,8 @@ const LotteryResults = (props: LotteryResultsProps) => {
           onClick={() => {
             resetDrawerState()
           }}
-          size={AppearanceSizeType.small}
+          variant="primary-outlined"
+          size="sm"
         >
           {t("t.cancel")}
         </Button>,

@@ -1,20 +1,28 @@
 import React, { useMemo } from "react"
 import { useFormContext } from "react-hook-form"
-import { t, Select, FieldGroup } from "@bloom-housing/ui-components"
+import { t, Select, Field, FieldGroup } from "@bloom-housing/ui-components"
 import { Grid } from "@bloom-housing/ui-seeds"
-import { ethnicityKeys, raceKeys, howDidYouHear } from "@bloom-housing/shared-helpers"
-import { Demographics } from "@bloom-housing/backend-core/types"
+import {
+  raceKeys,
+  spokenLanguageKeys,
+  genderKeys,
+  sexualOrientationKeys,
+  howDidYouHear,
+} from "@bloom-housing/shared-helpers"
+import { Demographic } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 type FormDemographicsProps = {
-  formValues: Demographics
+  formValues: Demographic
 }
 
 const FormDemographics = ({ formValues }: FormDemographicsProps) => {
   const formMethods = useFormContext()
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register } = formMethods
+  const { register, watch } = formMethods
+
+  const spokenLanguageValue: string = watch("application.demographics.spokenLanguage")
 
   const howDidYouHearOptions = useMemo(() => {
     return howDidYouHear?.map((item) => ({
@@ -74,17 +82,47 @@ const FormDemographics = ({ formValues }: FormDemographicsProps) => {
               groupLabel={t("application.add.race")}
             />
           </Grid.Cell>
-
           <Grid.Cell>
             <Select
-              id="application.demographics.ethnicity"
-              name="application.demographics.ethnicity"
+              id="application.demographics.spokenLanguage"
+              name="application.demographics.spokenLanguage"
               placeholder={t("t.selectOne")}
-              label={t("application.add.ethnicity")}
+              label={t("application.add.spokenLanguage")}
               register={register}
               controlClassName="control"
-              options={ethnicityKeys}
-              keyPrefix="application.review.demographics.ethnicityOptions"
+              options={spokenLanguageKeys}
+              keyPrefix="application.review.demographics.spokenLanguageOptions"
+            />
+            {spokenLanguageValue === "notListed" && (
+              <Field
+                id="application.demographics.spokenLanguageNotListed"
+                name="application.demographics.spokenLanguageNotListed"
+                label={t("application.review.demographics.genderSpecify")}
+                validation={{ required: true }}
+                register={register}
+              />
+            )}
+
+            <Select
+              id="application.demographics.gender"
+              name="application.demographics.gender"
+              placeholder={t("t.selectOne")}
+              label={t("application.add.gender")}
+              register={register}
+              controlClassName="control"
+              options={genderKeys}
+              keyPrefix="application.review.demographics.genderOptions"
+            />
+
+            <Select
+              id="application.demographics.sexualOrientation"
+              name="application.demographics.sexualOrientation"
+              placeholder={t("t.selectOne")}
+              label={t("application.add.sexualOrientation")}
+              register={register}
+              controlClassName="control"
+              options={sexualOrientationKeys}
+              keyPrefix="application.review.demographics.sexualOrientationOptions"
             />
           </Grid.Cell>
         </Grid.Row>

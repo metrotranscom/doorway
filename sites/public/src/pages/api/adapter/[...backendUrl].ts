@@ -1,9 +1,9 @@
 import axiosStatic from "axios"
 import type { NextApiRequest, NextApiResponse } from "next"
 import qs from "qs"
-import { getConfigs } from "@bloom-housing/backend-core/types"
 import { wrapper } from "axios-cookiejar-support"
 import { CookieJar } from "tough-cookie"
+import { getConfigs } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { maskAxiosResponse } from "@bloom-housing/shared-helpers"
 
 /*
@@ -21,6 +21,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         jurisdictionName: req.headers.jurisdictionname,
         language: req.headers.language,
         appUrl: req.headers.appurl,
+        "x-forwarded-for": req.headers["x-forwarded-for"] || "",
       },
       paramsSerializer: (params) => {
         return qs.stringify(params)
@@ -42,10 +43,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     })
     configs.headers.cookie = cookieString
     configs.params = rest
-    configs.data = req.body
+    configs.data = req.body || {}
 
     // send request to backend
     const response = await axios.request(configs)
+
     // set up response from next api based on response from backend
     const cookies = await jar.getSetCookieStrings(process.env.BACKEND_API_BASE || "")
     res.setHeader("Set-Cookie", cookies)

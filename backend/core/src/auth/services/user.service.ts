@@ -50,6 +50,7 @@ import { Request as ExpressRequest, Response } from "express"
 import { UserProfileUpdateDto } from "../dto/user-profile.dto"
 import { Listing } from "../../listings/entities/listing.entity"
 import { ListingsService } from "../../listings/listings.service"
+import { getPublicEmailURL } from "../../shared/utils/get-public-email-url"
 
 dayjs.extend(advancedFormat)
 
@@ -383,7 +384,17 @@ export class UserService {
     return await this.userRepository.save(newUser)
   }
 
+  containsInvalidCharacters(value: string): boolean {
+    return value.includes(".") || value.includes("http")
+  }
+
   public async createPublicUser(dto: UserCreateDto, sendWelcomeEmail = false) {
+    if (
+      this.containsInvalidCharacters(dto.firstName) ||
+      this.containsInvalidCharacters(dto.lastName)
+    ) {
+      throw new HttpException("Forbidden", HttpStatus.FORBIDDEN)
+    }
     const newUser = await this._createUser({
       ...dto,
       passwordHash: await this.passwordService.passwordToHash(dto.password),
@@ -621,7 +632,7 @@ export class UserService {
   }
 
   private static getPublicConfirmationUrl(appUrl: string, user: User) {
-    return `${appUrl}?token=${user.confirmationToken}`
+    return getPublicEmailURL(appUrl, user.confirmationToken)
   }
 
   private static getPartnersConfirmationUrl(appUrl: string, user: User) {

@@ -1,15 +1,13 @@
 import React, { createElement, FunctionComponent, useContext, useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
 import { ConfigContext } from "./ConfigContext"
+import { Button } from "@bloom-housing/ui-seeds"
 import {
   NavigationContext,
-  Button,
   Modal,
   setSiteAlertMessage,
   AlertTypes,
   t,
-  AppearanceSizeType,
-  AppearanceStyleType,
 } from "@bloom-housing/ui-components"
 
 const PROMPT_TIMEOUT = 60000
@@ -22,7 +20,7 @@ function useIdleTimeout(timeoutMs: number, onTimeout: () => void) {
       if (timer) {
         clearTimeout(timer)
       }
-      timer = (setTimeout(onTimeout, timeoutMs) as unknown) as number
+      timer = setTimeout(onTimeout, timeoutMs) as unknown as number
     }
 
     // Listen for any activity events & reset the timer when they are found
@@ -71,7 +69,7 @@ export const IdleTimeout: FunctionComponent<IdleTimeoutProps> = ({
 
     // Give the user 1 minute to respond to the prompt before the onTimeout action
     setPromptTimeout(
-      (setTimeout(() => {
+      setTimeout(() => {
         const timeoutAction = async () => {
           setPromptTimeout(undefined)
           await onTimeout()
@@ -79,18 +77,18 @@ export const IdleTimeout: FunctionComponent<IdleTimeoutProps> = ({
           void router.push(redirectPath)
         }
         void timeoutAction()
-      }, PROMPT_TIMEOUT) as unknown) as number
+      }, PROMPT_TIMEOUT) as unknown as number
     )
   })
 
   const modalActions = [
     <Button
-      styleType={AppearanceStyleType.primary}
+      variant="primary"
       onClick={() => {
         clearTimeout(promptTimeout)
         setPromptTimeout(undefined)
       }}
-      size={AppearanceSizeType.small}
+      size="sm"
     >
       {promptAction}
     </Button>,

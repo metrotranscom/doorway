@@ -6,18 +6,17 @@ import {
   Icon,
   Form,
   Field,
-  Button,
   passwordRegex,
-  AppearanceStyleType,
   setSiteAlertMessage,
   useMutate,
   AlertBox,
   Modal,
 } from "@bloom-housing/ui-components"
+import { Button } from "@bloom-housing/ui-seeds"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import { useForm } from "react-hook-form"
-import { Status } from "@bloom-housing/backend-core/types"
 import { ReRequestConfirmation } from "./ReRequestConfirmation"
+import { SuccessDTO } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 type FormUserConfirmFields = {
   password: string
@@ -31,8 +30,13 @@ const FormUserConfirm = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, errors, handleSubmit, watch } = useForm<FormUserConfirmFields>()
   const router = useRouter()
-  const { mutate, isLoading: isConfirmLoading, isError, reset: resetMutation } = useMutate<Status>()
-  const { userService, loadProfile, loading } = useContext(AuthContext)
+  const {
+    mutate,
+    isLoading: isConfirmLoading,
+    isError,
+    reset: resetMutation,
+  } = useMutate<SuccessDTO>()
+  const { userService, loadProfile, loading, authService } = useContext(AuthContext)
   const token = router.query?.token as string
 
   const password = useRef({})
@@ -68,7 +72,7 @@ const FormUserConfirm = () => {
 
     try {
       const response = await mutate(() =>
-        userService.confirm({
+        authService.confirm({
           body,
         })
       )
@@ -173,9 +177,9 @@ const FormUserConfirm = () => {
             <div className="form-card__pager-row primary">
               <Button
                 type="submit"
-                styleType={AppearanceStyleType.primary}
+                variant="primary"
                 className={"items-center"}
-                loading={isConfirmLoading || loading}
+                loadingMessage={(isConfirmLoading || loading) && t("t.formSubmitted")}
               >
                 {t("users.confirmAccount")}
               </Button>

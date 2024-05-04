@@ -3,12 +3,9 @@ import "@bloom-housing/doorway-ui-components/src/global/app-css.scss"
 import "@bloom-housing/ui-seeds/src/global/app-css.scss"
 import React, { useEffect, useMemo, useState } from "react"
 import type { AppProps } from "next/app"
-import { addTranslation, GenericRouter, NavigationContext } from "@bloom-housing/ui-components"
-import {
-  addTranslation as addTranslationDoorway,
-  NavigationContext as NavigationContextDoorway,
-} from "@bloom-housing/doorway-ui-components"
-
+import { NavigationContext as NavigationContextDoorway } from "@bloom-housing/doorway-ui-components"
+import { addTranslation, GenericRouter } from "@bloom-housing/ui-components"
+import { NavigationContext } from "@bloom-housing/ui-seeds/src/global/NavigationContext"
 import {
   blankApplication,
   LoggedInUserIdleTimeout,
@@ -30,7 +27,7 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
   const { locale } = router
   //  const initialized = useState(true)
   const [application, setApplication] = useState(() => {
-    return loadApplicationFromAutosave() || { ...blankApplication }
+    return loadApplicationFromAutosave() || JSON.parse(JSON.stringify(blankApplication))
   })
   const [savedListing, setSavedListing] = useState(() => {
     return loadSavedListing()
@@ -47,19 +44,6 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
   }, [])
 
   useMemo(() => {
-    // HACK ALERT: we need to add translations to both doorway uic and uic in
-    // order for both sets of components to properly translate.
-    // Note that I tried just adding one as a reference to another --
-    // it worked for the public site but broke Storybook.
-    addTranslationDoorway(translations.general, true)
-    if (locale && locale !== "en" && translations[locale]) {
-      addTranslationDoorway(translations[locale])
-    }
-    addTranslationDoorway(overrideTranslations.en)
-    if (overrideTranslations[locale]) {
-      addTranslationDoorway(overrideTranslations[locale])
-    }
-
     addTranslation(translations.general, true)
     if (locale && locale !== "en" && translations[locale]) {
       addTranslation(translations[locale])
@@ -105,7 +89,6 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
     <NavigationContext.Provider
       value={{
         LinkComponent,
-        router: router as GenericRouter,
       }}
     >
       <NavigationContextDoorway.Provider

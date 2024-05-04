@@ -1,57 +1,49 @@
-import React, { useContext } from "react"
-import { t, GridSection, GridCell } from "@bloom-housing/ui-components"
-import { FieldValue } from "@bloom-housing/ui-seeds"
+import React, { useContext, Fragment } from "react"
+import { t } from "@bloom-housing/ui-components"
+import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import { ApplicationContext } from "../../ApplicationContext"
-import { IncomePeriod } from "@bloom-housing/backend-core/types"
 import { formatIncome } from "../../../../lib/helpers"
+import SectionWithGrid from "../../../shared/SectionWithGrid"
+import { IncomePeriodEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 const DetailsHouseholdIncome = () => {
   const application = useContext(ApplicationContext)
 
   return (
-    <GridSection
-      className="bg-primary-lighter"
-      title={t("application.details.householdIncome")}
-      inset
-    >
-      <GridCell>
+    <SectionWithGrid heading={t("application.details.householdIncome")} inset>
+      <Grid.Row>
         <FieldValue label={t("application.details.annualIncome")} testId="annualIncome">
-          {application.incomePeriod === IncomePeriod.perYear
+          {application.incomePeriod === IncomePeriodEnum.perYear
             ? formatIncome(
                 parseFloat(application.income),
                 application.incomePeriod,
-                IncomePeriod.perYear
+                IncomePeriodEnum.perYear
               )
             : t("t.n/a")}
         </FieldValue>
-      </GridCell>
 
-      <GridCell>
         <FieldValue label={t("application.details.monthlyIncome")} testId="monthlyIncome">
-          {application.incomePeriod === IncomePeriod.perMonth
+          {application.incomePeriod === IncomePeriodEnum.perMonth
             ? formatIncome(
                 parseFloat(application.income),
                 application.incomePeriod,
-                IncomePeriod.perMonth
+                IncomePeriodEnum.perMonth
               )
             : t("t.n/a")}
         </FieldValue>
-      </GridCell>
 
-      <GridCell>
-        <FieldValue label={t("application.details.vouchers")} testId="vouchers">
-          {(() => {
-            if (application.incomeVouchers === null) return t("t.n/a")
+        <FieldValue label={t("application.details.incomeVouchers")} testId="vouchers">
+          {(!application.incomeVouchers || application.incomeVouchers.length === 0) && t("t.n/a")}
 
-            if (application.incomeVouchers) {
-              return t("t.yes")
-            }
-
-            return t("t.no")
-          })()}
+          {application.incomeVouchers?.map((item) => (
+            <Fragment key={item}>
+              {t(`application.financial.vouchers.options.${item}`)}
+              <br />
+            </Fragment>
+          ))}
         </FieldValue>
-      </GridCell>
-    </GridSection>
+      </Grid.Row>
+    </SectionWithGrid>
   )
 }
 

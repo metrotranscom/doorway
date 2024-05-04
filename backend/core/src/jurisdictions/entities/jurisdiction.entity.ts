@@ -91,4 +91,14 @@ export class Jurisdiction extends AbstractEntity {
   @Expose()
   @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
   enableUtilitiesIncluded: boolean | null
+
+  @Column({ type: "boolean", nullable: false, default: false })
+  @Expose()
+  @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
+  enableListingOpportunity: boolean | null
+
+  @Column({ type: "boolean", nullable: false, default: false })
+  @Expose()
+  @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
+  enableGeocodingPreferences: boolean | null
 }

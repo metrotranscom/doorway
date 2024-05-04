@@ -56,10 +56,12 @@ describe("Listings", () => {
     requestApproval: async () => {},
     changesRequested: async () => {},
     listingApproved: async () => {},
+    listingOpportunity: async () => {},
   }
   const mockChangesRequested = jest.spyOn(testEmailService, "changesRequested")
   const mockRequestApproval = jest.spyOn(testEmailService, "requestApproval")
   const mockListingApproved = jest.spyOn(testEmailService, "listingApproved")
+  const mockListingOpportunity = jest.spyOn(testEmailService, "listingOpportunity")
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -502,7 +504,7 @@ describe("Listings", () => {
         expect.objectContaining({
           id: adminId,
         }),
-        { id: listing.id, name: listing.name },
+        { id: listing.id, name: listing.name, juris: listing.jurisdiction.id },
         expect.arrayContaining(["admin@example.com", "mfauser@bloom.com"]),
         process.env.PARTNERS_PORTAL_URL
       )
@@ -528,12 +530,21 @@ describe("Listings", () => {
         expect.objectContaining({
           id: adminId,
         }),
-        { id: listing.id, name: listing.name },
+        { id: listing.id, name: listing.name, juris: listing.jurisdiction.id },
         expect.arrayContaining(["leasing-agent-1@example.com", "bayarea-admin@example.com"]),
         process.env.PARTNERS_PORTAL_URL
       )
     })
     it("update status to listing approved and notify appropriate users", async () => {
+      // turn on enableListingOpportunity
+      bayArea.enableListingOpportunity = true
+      bayArea.multiselectQuestions = []
+      await supertest(app.getHttpServer())
+        .put(`/jurisdictions/${bayArea.id}`)
+        .send(bayArea)
+        .set(...setAuthorization(adminAccessToken))
+        .expect(200)
+
       listing.status = ListingStatus.active
       const putApprovedResponse = await supertest(app.getHttpServer())
         .put(`/listings/${listing.id}`)
@@ -550,10 +561,23 @@ describe("Listings", () => {
         expect.objectContaining({
           id: adminId,
         }),
-        { id: listing.id, name: listing.name },
+        { id: listing.id, name: listing.name, juris: listing.jurisdiction.id },
         expect.arrayContaining(["leasing-agent-1@example.com", "bayarea-admin@example.com"]),
         bayArea.publicUrl
       )
+      expect(mockListingOpportunity).toBeCalledWith(
+        expect.objectContaining({
+          id: listing.id,
+          name: listing.name,
+        })
+      )
+      // re-disable listing opportunity
+      bayArea.enableListingOpportunity = false
+      await supertest(app.getHttpServer())
+        .put(`/jurisdictions/${bayArea.id}`)
+        .send(bayArea)
+        .set(...setAuthorization(adminAccessToken))
+        .expect(200)
     })
 
     it("should create pending review listing and notify appropriate users", async () => {
@@ -593,7 +617,11 @@ describe("Listings", () => {
         expect.objectContaining({
           id: adminId,
         }),
-        { id: listingResponse.body.id, name: listingResponse.body.name },
+        {
+          id: listingResponse.body.id,
+          name: listingResponse.body.name,
+          juris: listingResponse.body.jurisdiction.id,
+        },
         expect.arrayContaining(["admin@example.com", "mfauser@bloom.com"]),
         process.env.PARTNERS_PORTAL_URL
       )
@@ -626,7 +654,7 @@ describe("Listings", () => {
         expect.objectContaining({
           id: adminId,
         }),
-        { id: listing.id, name: listing.name },
+        { id: listing.id, name: listing.name, juris: listing.jurisdiction.id },
         expect.arrayContaining([
           "admin@example.com",
           "mfauser@bloom.com",

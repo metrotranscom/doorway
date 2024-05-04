@@ -1,11 +1,6 @@
 import React from "react"
-import { t } from "@bloom-housing/ui-components"
-import {
-  CardProps,
-  Card,
-  DoorwayCollapsibleSection,
-  Heading,
-} from "@bloom-housing/doorway-ui-components"
+import { t, Heading } from "@bloom-housing/ui-components"
+import { CardProps, Card, DoorwayCollapsibleSection } from "@bloom-housing/doorway-ui-components"
 
 // These are static, however they need to be exported as a function and
 // not a const due to a race condition around translations.
@@ -59,7 +54,7 @@ export function getStartedLinkableCards(): React.ReactElement<CardProps>[] {
             <ol className="text__medium-normal numbered-list-small ml-5">
               <li>{t("help.getStarted.seeListingsHouseholdResp1")}</li>
               <li>{t("help.getStarted.seeListingsHouseholdResp2")}</li>
-              <ul className="text__medium-normal list-disc ml-5">
+              <ul className="text__medium-normal list-disc ml-5 mb-0">
                 <li>{t("help.getStarted.seeListingsHouseholdResp2a")}</li>
                 <li>{t("help.getStarted.seeListingsHouseholdResp2b")}</li>
                 <li>{t("help.getStarted.seeListingsHouseholdResp2c")}</li>
@@ -76,11 +71,10 @@ export function getStartedLinkableCards(): React.ReactElement<CardProps>[] {
               <li>
                 {t("help.getStarted.applyLotteryWaitlistResp2")}
                 <span className="text__medium-weighted">{t("t.seeDetails")}</span>.
-                <br />
                 {t("help.getStarted.applyLotteryWaitlistResp2a")}
               </li>
               <li>{t("help.getStarted.applyLotteryWaitlistResp3")}</li>
-              <ul className="text__medium-normal list-disc ml-5">
+              <ul className="text__medium-normal list-disc ml-5 mb-0">
                 <li>{t("help.getStarted.applyLotteryWaitlistResp3a")}</li>
                 <li>{t("help.getStarted.applyLotteryWaitlistResp3b")}</li>
                 <li>{t("help.getStarted.applyLotteryWaitlistResp3c")}</li>
@@ -88,36 +82,39 @@ export function getStartedLinkableCards(): React.ReactElement<CardProps>[] {
               </ul>
               <li>{t("help.getStarted.applyLotteryWaitlistResp4")}</li>
               <li>{t("help.getStarted.applyLotteryWaitlistResp5")}</li>
-              <ul className="text__medium-normal list-disc ml-5">
-                <li>{t("help.getStarted.applyLotteryWaitlistResp5a")}</li>
-                <li>{t("help.getStarted.applyLotteryWaitlistResp5b")}</li>
-                <li>{t("help.getStarted.applyLotteryWaitlistResp5c")}</li>
-              </ul>
               <li>{t("help.getStarted.applyLotteryWaitlistResp6")}</li>
+              <ul className="text__medium-normal list-disc ml-5 mb-0">
+                <li>{t("help.getStarted.applyLotteryWaitlistResp6a")}</li>
+                <li>{t("help.getStarted.applyLotteryWaitlistResp6b")}</li>
+                <li>{t("help.getStarted.applyLotteryWaitlistResp6c")}</li>
+              </ul>
+              <li>{t("help.getStarted.applyLotteryWaitlistResp7")}</li>
             </ol>
           </span>
         </DoorwayCollapsibleSection>
         <DoorwayCollapsibleSection title={t("help.getStarted.checkApplications")}>
           <span>
             {t("help.getStarted.checkApplicationsResp")}
+            <br />
+            <br />
+            {t("help.getStarted.checkApplicationsResp1")}
             <ul className="text__medium-normal list-disc ml-5">
               <li>
                 <a href="https://housing.acgov.org" target="_blank">
-                  {t("help.getStarted.checkApplicationsResp1")}
-                </a>
-              </li>
-              <li>
-                <a href="https://housing.sanjoseca.gov" target="_blank">
                   {t("help.getStarted.checkApplicationsResp2")}
                 </a>
               </li>
               <li>
-                <a href="https://smc.housingbayarea.org" target="_blank">
+                <a href="https://housing.sanjoseca.gov" target="_blank">
                   {t("help.getStarted.checkApplicationsResp3")}
                 </a>
               </li>
+              <li>
+                <a href="https://smc.housingbayarea.org" target="_blank">
+                  {t("help.getStarted.checkApplicationsResp4")}
+                </a>
+              </li>
             </ul>
-            {t("help.getStarted.checkApplicationsResp4")}
           </span>
         </DoorwayCollapsibleSection>
       </Card.Section>

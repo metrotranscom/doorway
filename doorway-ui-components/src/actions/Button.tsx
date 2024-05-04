@@ -1,7 +1,7 @@
 import * as React from "react"
+import { Icon, IconSize, UniversalIconType } from "@bloom-housing/ui-components"
 import "./Button.scss"
 import { AppearanceProps, classNamesForAppearanceTypes } from "../global/AppearanceTypes"
-import { Icon, IconSize, UniversalIconType } from "../icons/Icon"
 
 export interface ButtonProps extends AppearanceProps {
   "data-testid"?: string
@@ -27,7 +27,6 @@ export interface ButtonProps extends AppearanceProps {
   transition?: boolean
   type?: "button" | "submit" | "reset"
   unstyled?: boolean
-
   isActive?: boolean
   index?: number
   label?: string

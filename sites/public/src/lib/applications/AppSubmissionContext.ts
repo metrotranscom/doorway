@@ -1,11 +1,15 @@
 import { createContext } from "react"
 import ApplicationConductor from "./ApplicationConductor"
 import { blankApplication, listingSectionQuestions } from "@bloom-housing/shared-helpers"
-import { ApplicationSection, Listing } from "@bloom-housing/backend-core/types"
+import {
+  Listing,
+  MultiselectQuestionsApplicationSectionEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
-export const retrieveApplicationConfig = (listing: Listing) => {
+export const retrieveApplicationConfig = (listing: Listing, isPreview?: boolean) => {
   // Note: this whole function will eventually be replaced with one that reads this from the backend.
   const config = {
+    isPreview,
     sections: ["you", "household"],
     languages: ["en", "es", "zh", "vi", "tl"],
     steps: [
@@ -58,7 +62,9 @@ export const retrieveApplicationConfig = (listing: Listing) => {
   }
 
   // conditionally add programs
-  if (listingSectionQuestions(listing, ApplicationSection.programs)?.length) {
+  if (
+    listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.length
+  ) {
     config.sections.push("programs")
     config.steps.push({
       name: "programs",
@@ -77,7 +83,9 @@ export const retrieveApplicationConfig = (listing: Listing) => {
   )
 
   // conditionally add preferences
-  if (listingSectionQuestions(listing, ApplicationSection.preferences)?.length) {
+  if (
+    listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.preferences)?.length
+  ) {
     config.sections.push("preferences")
     config.steps.push(
       {
@@ -109,7 +117,7 @@ export const retrieveApplicationConfig = (listing: Listing) => {
 
 export const AppSubmissionContext = createContext({
   conductor: {} as ApplicationConductor,
-  application: { ...blankApplication },
+  application: JSON.parse(JSON.stringify(blankApplication)),
   listing: null as Listing,
   /* eslint-disable */
   syncApplication: (data) => {},

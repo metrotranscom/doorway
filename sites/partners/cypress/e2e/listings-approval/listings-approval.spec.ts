@@ -2,10 +2,16 @@ describe("Listings approval feature", () => {
   const uniqueListingName = Date.now().toString()
   const uniqueListingNameEdited = `${uniqueListingName} edited`
   it("should allow for pending submission, requested changes, and approval", () => {
+    cy.intercept("/api/adapter/upload", {
+      body: {
+        id: "123",
+        url: "https://assets.website-files.com/5fbfdd121e108ea418ede824/5fbfdea9a7287d45a63d821b_Exygy%20Logo.svg",
+      },
+    })
     // Partner: Submit a listing for approval
     cy.login("jurisdictionalAdminUser")
     cy.visit("/")
-    cy.getByTestId("addListingButton").contains("Add Listing").click()
+    cy.getByID("addListingButton").contains("Add Listing").click()
     cy.contains("New Listing")
     cy.fixture("minimalListing").then((listing) => {
       fillOutMinimalListing(cy, listing)
@@ -14,10 +20,10 @@ describe("Listings approval feature", () => {
     cy.signOut()
 
     // Admin: Request changes
-    cy.loginAndAcceptTerms("user")
+    cy.login("user")
     searchAndOpenListing(cy, uniqueListingName)
     cy.getByID("listing-status-pending-review").should("be.visible")
-    cy.getByTestId("listingEditButton").click()
+    cy.getByID("listingEditButton").click()
     cy.getByID("requestChangesButton").click()
     cy.getByTestId("requestedChanges").type("Requested changes test summary")
     cy.getByID("requestChangesButtonConfirm").click()
@@ -29,18 +35,19 @@ describe("Listings approval feature", () => {
     searchAndOpenListing(cy, uniqueListingName)
     cy.getByID("listing-status-changes-requested").should("be.visible")
     cy.getByID("requestedChanges").contains("Requested changes test summary")
-    cy.getByTestId("listingEditButton").click()
+    cy.getByID("requestedChangesUser").contains("First Last")
+    cy.getByID("listingEditButton").click()
     cy.getByTestId("nameField").should("be.visible").click().clear().type(uniqueListingNameEdited)
     cy.getByID("submitButton").contains("Submit").click()
-    cy.getByTestId("submitForApprovalButton").contains("Submit").click()
+    cy.getByID("submitListingForApprovalButtonConfirm").contains("Submit").click()
     cy.getByTestId("page-header").should("have.text", uniqueListingNameEdited)
     cy.signOut()
 
     // Admin: Approve and publish
     cy.login("user")
     searchAndOpenListing(cy, uniqueListingNameEdited)
-    cy.getByTestId("listingEditButton").click()
-    cy.getByTestId("saveAndExitButton").should("be.visible")
+    cy.getByID("listingEditButton").click()
+    cy.getByID("saveAndExitButton").should("be.visible")
     cy.getByID("listing-status-pending-review").should("be.visible")
     cy.getByID("approveAndPublishButton").click()
     cy.getByID("listing-status-active").should("be.visible")
@@ -57,21 +64,13 @@ describe("Listings approval feature", () => {
     cy.getByID("name").type(uniqueListingName)
     cy.getByID("developer").type(listing["developer"])
     // Test photo upload
-    cy.getByTestId("add-photos-button").contains("Add Photo").click()
+    cy.getByID("add-photos-button").contains("Add Photo").click()
     cy.getByTestId("dropzone-input").attachFile(
       "cypress-automated-image-upload-071e2ab9-5a52-4f34-85f0-e41f696f4b96.jpeg",
       {
         subjectType: "drag-n-drop",
       }
     )
-
-    cy.intercept("/api/adapter/upload", {
-      body: {
-        id: "123",
-        url:
-          "https://assets.website-files.com/5fbfdd121e108ea418ede824/5fbfdea9a7287d45a63d821b_Exygy%20Logo.svg",
-      },
-    })
 
     cy.getByTestId("drawer-photos-table")
       .find("img")
@@ -80,7 +79,7 @@ describe("Listings approval feature", () => {
         "include",
         "https://assets.website-files.com/5fbfdd121e108ea418ede824/5fbfdea9a7287d45a63d821b_Exygy%20Logo.svg"
       )
-    cy.getByTestId("listing-photo-uploaded").contains("Save").click()
+    cy.getByID("listing-photo-uploaded").contains("Save").click()
     cy.getByTestId("photos-table")
       .find("img")
       .should("have.attr", "src")
@@ -89,28 +88,29 @@ describe("Listings approval feature", () => {
         "https://assets.website-files.com/5fbfdd121e108ea418ede824/5fbfdea9a7287d45a63d821b_Exygy%20Logo.svg"
       )
 
-    cy.getByID("buildingAddress.street").type(listing["buildingAddress.street"])
+    cy.getByID("listingsBuildingAddress.street").type(listing["buildingAddress.street"])
     cy.getByID("neighborhood").type(listing["neighborhood"])
-    cy.getByID("buildingAddress.city").type(listing["buildingAddress.city"])
-    cy.getByID("buildingAddress.state").select(listing["buildingAddress.state"])
-    cy.getByID("buildingAddress.zipCode").type(listing["buildingAddress.zipCode"])
-    cy.getByID("buildingAddress.county").select(listing["buildingAddress.county"])
+    cy.getByID("listingsBuildingAddress.city").type(listing["buildingAddress.city"])
+    cy.getByID("listingsBuildingAddress.state").select(listing["buildingAddress.state"])
+    cy.getByID("listingsBuildingAddress.zipCode").type(listing["buildingAddress.zipCode"])
+    cy.getByID("listingsBuildingAddress.county").type(listing["buildingAddress.county"])
 
     cy.getByID("addUnitsButton").contains("Add Unit").click()
     cy.getByID("number").type(listing["number"])
-    cy.getByID("unitType.id").select(listing["unitType.id"])
-    cy.getByTestId("unitFormSaveAndExitButton").contains("Save & Exit").click()
-    cy.get(".text-right > .button").contains("Application Process").click()
+    cy.getByID("unitTypes.id").select(listing["unitType.id"])
+    cy.getByID("unitFormSaveAndExitButton").contains("Save & Exit").click()
+    cy.get("button").contains("Application Process").click()
 
     cy.getByID("leasingAgentName").type(listing["leasingAgentName"])
     cy.getByID("leasingAgentEmail").type(listing["leasingAgentEmail"])
     cy.getByID("leasingAgentPhone").type(listing["leasingAgentPhone"])
     cy.getByID("digitalApplicationChoiceYes").check()
+    cy.getByID("commonDigitalApplicationChoiceYes").check()
     cy.getByID("paperApplicationNo").check()
 
     cy.getByID("submitButton").contains("Submit").click()
 
-    cy.getByTestId("submitForApprovalButton").contains("Submit").click()
+    cy.getByID("submitListingForApprovalButtonConfirm").contains("Submit").click()
     cy.getByTestId("page-header").should("be.visible")
     cy.getByTestId("page-header").should("have.text", uniqueListingName)
   }

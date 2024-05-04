@@ -1,21 +1,19 @@
 import React, { useMemo, useContext, useState, useEffect } from "react"
 import Head from "next/head"
+import { Button } from "@bloom-housing/ui-seeds"
 import {
   t,
-  Button,
-  LocalizedLink,
   AgTable,
   useAgTable,
-  AppearanceSizeType,
   AlertBox,
   SiteAlert,
-  AppearanceStyleType,
+  Icon,
   UniversalIconType,
 } from "@bloom-housing/ui-components"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import dayjs from "dayjs"
 import { ColDef, ColGroupDef } from "ag-grid-community"
-import { useListingsData, useListingZip } from "../lib/hooks"
+import { useListingExport, useListingsData } from "../lib/hooks"
 import Layout from "../layouts"
 import { MetaTags } from "../components/shared/MetaTags"
 import { NavigationHeader } from "../components/shared/NavigationHeader"
@@ -55,7 +53,7 @@ class ApplicationsLink extends formatLinkCell {
   init(params) {
     super.init(params)
     this.link.setAttribute("href", `/listings/${params.data.id}/applications`)
-    this.link.setAttribute("data-testid", "listing-status-cell")
+    this.link.setAttribute("data-testid", `listing-status-cell-${params.data.name}`)
   }
 }
 
@@ -71,11 +69,11 @@ export default function ListingsList() {
   const metaDescription = t("pageDescription.welcome")
   const [errorAlert, setErrorAlert] = useState(false)
   const { profile } = useContext(AuthContext)
-  const isAdmin = profile?.roles?.isAdmin || profile?.roles?.isJurisdictionalAdmin || false
-  const { onExport, zipCompleted, zipExportLoading, zipExportError } = useListingZip()
+  const isAdmin = profile?.userRoles?.isAdmin || profile?.userRoles?.isJurisdictionalAdmin || false
+  const { onExport, csvExportLoading, csvExportError, csvExportSuccess } = useListingExport()
   useEffect(() => {
-    setErrorAlert(zipExportError)
-  }, [zipExportError])
+    setErrorAlert(csvExportError)
+  }, [csvExportError])
 
   const tableOptions = useAgTable()
 
@@ -145,7 +143,7 @@ export default function ListingsList() {
     search: tableOptions.filter.filterValue,
     userId: profile?.id,
     sort: tableOptions.sort.sortOptions,
-    roles: profile?.roles,
+    roles: profile?.userRoles,
     userJurisidctionIds: profile?.jurisdictions?.map((jurisdiction) => jurisdiction.id),
   })
 
@@ -157,7 +155,7 @@ export default function ListingsList() {
       <SiteAlert type="success" timeout={5000} dismissable sticky={true} />
       <MetaTags title={t("nav.siteTitlePartners")} description={metaDescription} />
       <NavigationHeader title={t("nav.listings")}>
-        {zipCompleted && (
+        {csvExportSuccess && (
           <div className="flex absolute right-4 z-50 flex-col items-center">
             <SiteAlert dismissable timeout={5000} sticky={true} type="success" />
           </div>
@@ -205,24 +203,27 @@ export default function ListingsList() {
               <div className="flex-row">
                 {isAdmin && (
                   <div className="flex-row">
-                    <LocalizedLink href={`/listings/add`}>
-                      <Button
-                        size={AppearanceSizeType.small}
-                        className="mx-1"
-                        styleType={AppearanceStyleType.primary}
-                        onClick={() => false}
-                        dataTestId={"addListingButton"}
-                      >
-                        {t("listings.addListing")}
-                      </Button>
-                    </LocalizedLink>
+                    <Button
+                      size="sm"
+                      className="mx-1"
+                      variant="primary"
+                      href="/listings/add"
+                      id="addListingButton"
+                    >
+                      {t("listings.addListing")}
+                    </Button>
                     <Button
                       className="mx-1"
-                      dataTestId="export-listings"
+                      id="export-listings"
+                      variant="primary-outlined"
                       onClick={() => onExport()}
-                      icon={!zipExportLoading ? (faFileExport as UniversalIconType) : null}
-                      size={AppearanceSizeType.small}
-                      loading={zipExportLoading}
+                      leadIcon={
+                        !csvExportLoading ? (
+                          <Icon symbol={faFileExport as UniversalIconType} size="base" />
+                        ) : null
+                      }
+                      size="sm"
+                      loadingMessage={csvExportLoading && t("t.formSubmitted")}
                     >
                       {t("t.exportToCSV")}
                     </Button>

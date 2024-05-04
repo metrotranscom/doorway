@@ -1,11 +1,6 @@
 import React from "react"
-import { t } from "@bloom-housing/ui-components"
-import {
-  CardProps,
-  Card,
-  DoorwayCollapsibleSection,
-  Heading,
-} from "@bloom-housing/doorway-ui-components"
+import { t, Heading } from "@bloom-housing/ui-components"
+import { CardProps, Card, DoorwayCollapsibleSection } from "@bloom-housing/doorway-ui-components"
 
 // These are static, however they need to be exported as a function and
 // not a const due to a race condition around translations.
@@ -173,11 +168,12 @@ export function questionsLinkableCards(): React.ReactElement<CardProps>[] {
             <ul className="text__medium-normal list-disc ml-5">
               <li>{t("help.faq.longProcessResp3")}</li>
               <li>{t("help.faq.longProcessResp4")}</li>
+              <li>{t("help.faq.longProcessResp5")}</li>
             </ul>
-            {t("help.faq.longProcessResp5")}
-            <br />
-            <br />
             {t("help.faq.longProcessResp6")}
+            <br />
+            <br />
+            {t("help.faq.longProcessResp7")}
           </span>
         </DoorwayCollapsibleSection>
         <DoorwayCollapsibleSection title={t("help.faq.selected")}>
@@ -236,6 +232,7 @@ export function questionsLinkableCards(): React.ReactElement<CardProps>[] {
               <li>{t("help.faq.whatMakesAffordableResp6")}</li>
               <li>{t("help.faq.whatMakesAffordableResp7")}</li>
               <li>{t("help.faq.whatMakesAffordableResp8")}</li>
+              <li>{t("help.faq.whatMakesAffordableResp9")}</li>
             </ul>
           </span>
         </DoorwayCollapsibleSection>

@@ -3,21 +3,16 @@ import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 dayjs.extend(utc)
 import { useFormContext, useWatch } from "react-hook-form"
-import {
-  t,
-  GridSection,
-  Field,
-  FieldGroup,
-  GridCell,
-  Textarea,
-  DateField,
-  TimeField,
-} from "@bloom-housing/ui-components"
-
-import { YesNoAnswer } from "../../../../lib/helpers"
+import { t, Field, FieldGroup, Textarea, DateField, TimeField } from "@bloom-housing/ui-components"
+import { Grid } from "@bloom-housing/ui-seeds"
 import { FormListing } from "../../../../lib/listings/formTypes"
-import { ListingReviewOrder } from "@bloom-housing/backend-core/types"
 import { getLotteryEvent } from "@bloom-housing/shared-helpers"
+import {
+  Listing,
+  ReviewOrderTypeEnum,
+  YesNoEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 type RankingsAndResultsProps = {
   listing?: FormListing
@@ -29,15 +24,15 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, watch, control } = formMethods
 
-  const lotteryEvent = getLotteryEvent(listing)
+  const lotteryEvent = getLotteryEvent(listing as unknown as Listing)
 
   const waitlistOpen = useWatch({
     control,
     name: "waitlistOpenQuestion",
     defaultValue: listing?.isWaitlistOpen
-      ? YesNoAnswer.Yes
+      ? YesNoEnum.yes
       : listing?.isWaitlistOpen === false
-      ? YesNoAnswer.No
+      ? YesNoEnum.no
       : null,
   })
 
@@ -45,7 +40,7 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
     control,
     name: "reviewOrderQuestion",
     defaultValue:
-      listing?.reviewOrderType === ListingReviewOrder.lottery
+      listing?.reviewOrderType === ReviewOrderTypeEnum.lottery
         ? "reviewOrderLottery"
         : "reviewOrderFCFS",
   })
@@ -58,23 +53,22 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
   const yesNoRadioOptions = [
     {
       label: t("t.yes"),
-      value: YesNoAnswer.Yes,
+      value: YesNoEnum.yes,
     },
     {
       label: t("t.no"),
-      value: YesNoAnswer.No,
+      value: YesNoEnum.no,
     },
   ]
   return (
-    <div>
-      <GridSection
-        grid={false}
-        title={t("listings.sections.rankingsResultsTitle")}
-        description={t("listings.sections.rankingsResultsSubtitle")}
+    <>
+      <SectionWithGrid
+        heading={t("listings.sections.rankingsResultsTitle")}
+        subheading={t("listings.sections.rankingsResultsSubtitle")}
       >
         {availabilityQuestion !== "openWaitlist" && (
-          <GridSection columns={2} className={"flex items-center"}>
-            <GridCell>
+          <Grid.Row columns={2} className={"flex items-center"}>
+            <Grid.Cell>
               <p className="field-label m-4 ml-0">{t("listings.reviewOrderQuestion")}</p>
               <FieldGroup
                 name="reviewOrderQuestion"
@@ -86,22 +80,22 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                     value: "reviewOrderFCFS",
                     id: "reviewOrderFCFS",
                     defaultChecked:
-                      listing?.reviewOrderType === ListingReviewOrder.firstComeFirstServe,
+                      listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe,
                   },
                   {
                     label: t("listings.lotteryTitle"),
                     value: "reviewOrderLottery",
                     id: "reviewOrderLottery",
-                    defaultChecked: listing?.reviewOrderType === ListingReviewOrder.lottery,
+                    defaultChecked: listing?.reviewOrderType === ReviewOrderTypeEnum.lottery,
                   },
                 ]}
               />
-            </GridCell>
-          </GridSection>
+            </Grid.Cell>
+          </Grid.Row>
         )}
         {reviewOrder === "reviewOrderFCFS" && (
-          <GridSection columns={2} className={"flex items-center"}>
-            <GridCell>
+          <Grid.Row columns={2} className={"flex items-center"}>
+            <Grid.Cell>
               <p className="field-label m-4 ml-0">{t("listings.dueDateQuestion")}</p>
               <FieldGroup
                 name="dueDateQuestion"
@@ -120,13 +114,13 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                   },
                 ]}
               />
-            </GridCell>
-          </GridSection>
+            </Grid.Cell>
+          </Grid.Row>
         )}
         {reviewOrder === "reviewOrderLottery" && (
           <>
-            <GridSection columns={3}>
-              <GridCell>
+            <Grid.Row columns={3}>
+              <Grid.Cell>
                 <DateField
                   label={t("listings.lotteryDateQuestion")}
                   name={"lotteryDate"}
@@ -145,8 +139,8 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                       : null,
                   }}
                 />
-              </GridCell>
-              <GridCell>
+              </Grid.Cell>
+              <Grid.Cell>
                 <TimeField
                   label={t("listings.lotteryStartTime")}
                   name={"lotteryStartTime"}
@@ -166,8 +160,8 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                     period: new Date(lotteryEvent?.startTime).getHours() >= 12 ? "pm" : "am",
                   }}
                 />
-              </GridCell>
-              <GridCell>
+              </Grid.Cell>
+              <Grid.Cell>
                 <TimeField
                   label={t("listings.lotteryEndTime")}
                   name={"lotteryEndTime"}
@@ -187,10 +181,10 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                     period: new Date(lotteryEvent?.endTime).getHours() >= 12 ? "pm" : "am",
                   }}
                 />
-              </GridCell>
-            </GridSection>
-            <GridSection columns={3}>
-              <GridCell span={2}>
+              </Grid.Cell>
+            </Grid.Row>
+            <Grid.Row columns={3}>
+              <Grid.Cell className="seeds-grid-span-2">
                 <Textarea
                   label={t("listings.lotteryDateNotes")}
                   name={"lotteryDateNotes"}
@@ -201,12 +195,12 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                   register={register}
                   defaultValue={lotteryEvent ? lotteryEvent.note : null}
                 />
-              </GridCell>
-            </GridSection>
+              </Grid.Cell>
+            </Grid.Row>
           </>
         )}
-        <GridSection columns={2} className={"flex items-center"}>
-          <GridCell>
+        <Grid.Row columns={2} className={"flex items-center"}>
+          <Grid.Cell>
             <p className={`field-label m-4 ml-0`}>{t("listings.waitlist.openQuestion")}</p>
             <FieldGroup
               name="waitlistOpenQuestion"
@@ -228,10 +222,10 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                 },
               ]}
             />
-          </GridCell>
-        </GridSection>
-        {waitlistOpen === YesNoAnswer.Yes && availabilityQuestion === "openWaitlist" && (
-          <GridSection columns={3}>
+          </Grid.Cell>
+        </Grid.Row>
+        {waitlistOpen === YesNoEnum.yes && availabilityQuestion === "openWaitlist" && (
+          <Grid.Row columns={3}>
             <Field
               name="waitlistOpenSpots"
               id="waitlistOpenSpots"
@@ -240,10 +234,10 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
               placeholder={t("listings.waitlist.openSize")}
               type={"number"}
             />
-          </GridSection>
+          </Grid.Row>
         )}
-        <GridSection columns={3}>
-          <GridCell span={2}>
+        <Grid.Row columns={3}>
+          <Grid.Cell className="seeds-grid-span-2">
             <Textarea
               label={t("listings.whatToExpectLabel")}
               name={"whatToExpect"}
@@ -251,10 +245,10 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
               fullWidth={true}
               register={register}
             />
-          </GridCell>
-        </GridSection>
-      </GridSection>
-    </div>
+          </Grid.Cell>
+        </Grid.Row>
+      </SectionWithGrid>
+    </>
   )
 }
 

@@ -262,7 +262,7 @@ export class ListingService implements OnModuleInit {
           const inclusiveWhereArray = [];
           filter[ListingFilterKeys.bedrooms].forEach((bedroom) => {
             switch (bedroom) {
-              case 'Studio':
+              case '0':
                 inclusiveWhereArray.push(
                   "((combined_units->>'numBedrooms')::INTEGER =0)",
                 );
@@ -282,7 +282,7 @@ export class ListingService implements OnModuleInit {
                   "((combined_units->>'numBedrooms')::INTEGER =3)",
                 );
                 break;
-              case '4+':
+              case '4':
                 inclusiveWhereArray.push(
                   "((combined_units->>'numBedrooms')::INTEGER >=4)",
                 );
@@ -296,6 +296,47 @@ export class ListingService implements OnModuleInit {
 
           whereClauseArray.push(
             `(${bedroomsWhere}${inclusiveWhereArray.join(' OR ')})`,
+          );
+        }
+        if (filter[ListingFilterKeys.bathrooms]) {
+          const bathroomsWhere = '';
+          const inclusiveWhereArray = [];
+          filter[ListingFilterKeys.bathrooms].forEach((bathroom) => {
+            switch (bathroom) {
+              case '0':
+                inclusiveWhereArray.push(
+                  "((combined_units->>'numBathrooms')::INTEGER =0)",
+                );
+                break;
+              case '1':
+                inclusiveWhereArray.push(
+                  "((combined_units->>'numBathrooms')::INTEGER =1)",
+                );
+                break;
+              case '2':
+                inclusiveWhereArray.push(
+                  "((combined_units->>'numBathrooms')::INTEGER =2)",
+                );
+                break;
+              case '3':
+                inclusiveWhereArray.push(
+                  "((combined_units->>'numBathrooms')::INTEGER =3)",
+                );
+                break;
+              case '4':
+                inclusiveWhereArray.push(
+                  "((combined_units->>'numBathrooms')::INTEGER >=4)",
+                );
+                break;
+              default:
+                throw new BadRequestException(
+                  `Invalid input for bathrooms filter: "${bathroom}"`,
+                );
+            }
+          });
+
+          whereClauseArray.push(
+            `(${bathroomsWhere}${inclusiveWhereArray.join(' OR ')})`,
           );
         }
         if (filter[ListingFilterKeys.bathrooms]) {

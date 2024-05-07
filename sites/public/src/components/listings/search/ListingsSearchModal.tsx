@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
 import { t } from "@bloom-housing/ui-components"
-import {
-  Modal,
-  ButtonGroupSpacing,
-  Field,
-  FieldGroup,
-  FieldSingle,
-} from "@bloom-housing/doorway-ui-components"
-import { Button } from "@bloom-housing/ui-seeds"
+import { Modal, Field, FieldGroup, FieldSingle } from "@bloom-housing/doorway-ui-components"
+import { CheckboxGroup, Button } from "@bloom-housing/ui-seeds"
 import { useForm } from "react-hook-form"
 import { numericSearchFieldGenerator } from "./helpers"
-import ButtonCheckboxGroup from "./ButtonSelect"
+import { CheckboxItem } from "@bloom-housing/ui-seeds/src/forms/CheckboxGroup"
+import styles from "./ListingsSearchModal.module.scss"
 
 const inputSectionStyle: React.CSSProperties = {
   margin: "0px 15px",
@@ -137,11 +132,10 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
-  const updateValueMulti = (name: string, values: string[]) => {
+  const updateValueMulti = (name: string, values: CheckboxItem[] | string[]) => {
     const newValues = { ...formValues } as ListingSearchParams
     newValues[name] = values
     setFormValues(newValues)
-    // console.log(`${name} has been set to ${values}`) // uncomment to debug
   }
 
   const translatedBedroomOptions: FormOption[] = [
@@ -232,23 +226,29 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     >
       <div style={inputSectionStyle}>
         <div style={sectionTitle}>{t("t.bedrooms")}</div>
-        <ButtonCheckboxGroup
-          name="bedrooms"
+        <CheckboxGroup
+          id="bedrooms"
           options={bedroomOptions}
-          value={formValues.bedrooms}
-          onChange={updateValueMulti}
-          spacing={ButtonGroupSpacing.left}
+          values={formValues.bedrooms}
+          onChange={(values) => updateValueMulti("bedrooms", values)}
+          size="md"
+          variant="secondary-outlined"
+          checkedVariant="secondary"
+          className={styles["checkbox-group"]}
         />
       </div>
 
       <div style={inputSectionStyle}>
         <div style={sectionTitle}>{t("t.bathrooms")}</div>
-        <ButtonCheckboxGroup
-          name="bathrooms"
+        <CheckboxGroup
+          id="bathrooms"
           options={bathroomOptions}
-          onChange={updateValueMulti}
-          value={formValues.bathrooms}
-          spacing={ButtonGroupSpacing.left}
+          values={formValues.bathrooms}
+          onChange={(values) => updateValueMulti("bathrooms", values)}
+          size="md"
+          variant="secondary-outlined"
+          checkedVariant="secondary"
+          className={styles["checkbox-group"]}
         />
       </div>
       <div style={inputSectionStyle}>

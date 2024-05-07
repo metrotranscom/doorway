@@ -33,13 +33,14 @@ const loadListing = async (
   stateFunction,
   conductor,
   context,
-  language
+  language,
+  isPreview
 ) => {
   const response = await axios.get(`${backendApiBase}/listings/${listingId}`, {
     headers: { language },
   })
   conductor.listing = response.data
-  const applicationConfig = retrieveApplicationConfig(conductor.listing) // TODO: load from backend
+  const applicationConfig = retrieveApplicationConfig(conductor.listing, isPreview) // TODO: load from backend
   conductor.config = applicationConfig
   stateFunction(conductor.listing)
   context.syncListing(conductor.listing)
@@ -57,6 +58,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
   const { conductor } = context
 
   const listingId = router.query.listingId
+  const isPreview = router.query.preview === "true"
 
   useEffect(() => {
     pushGtmEvent<PageView>({
@@ -70,26 +72,37 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
     conductor.reset()
     if (!router.isReady && !listingId) return
     if (router.isReady) {
-      if (!listingId || (process.env.showMandatedAccounts && initialStateLoaded && !profile)) {
+      if (
+        !listingId ||
+        (process.env.showMandatedAccounts && initialStateLoaded && !profile && !isPreview)
+      ) {
         void router.push("/")
       }
     }
     if (!context.listing || context.listing.id !== listingId) {
-      void loadListing(props.backendApiBase, listingId, setListing, conductor, context, "en")
+      void loadListing(
+        props.backendApiBase,
+        listingId,
+        setListing,
+        conductor,
+        context,
+        "en",
+        isPreview
+      )
     } else {
       conductor.listing = context.listing
       setListing(context.listing)
     }
-  }, [router, conductor, context, listingId, props, initialStateLoaded, profile])
+  }, [router, conductor, context, listingId, props, initialStateLoaded, profile, isPreview])
 
   useEffect(() => {
     if (listing && router.isReady) {
-      if (listing?.status !== ListingsStatusEnum.active && router.query.preview !== "true") {
+      if (listing?.status !== ListingsStatusEnum.active && !isPreview) {
         setSiteAlertMessage(t("listings.applicationsClosedRedirect"), "alert")
         void router.push(`/${router.locale}/listing/${listing?.id}/${listing?.urlSlug}`)
       }
     }
-  }, [listing, router])
+  }, [isPreview, listing, router])
 
   const imageUrl = listing?.assets
     ? imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize))[0]
@@ -106,12 +119,13 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
         setListing,
         conductor,
         context,
-        language
+        language,
+        isPreview
       ).then(() => {
         void router.push(conductor.determineNextUrl(), null, { locale: language })
       })
     },
-    [conductor, context, listingId, router, props]
+    [conductor, isPreview, props.backendApiBase, listingId, context, router]
   )
 
   const { content: appStatusContent } = useGetApplicationStatusProps(listing)

@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
+import { of } from 'rxjs';
 import { PrismaService } from '../../../src/services/prisma.service';
 import { UserService } from '../../../src/services/user.service';
 import { randomUUID } from 'crypto';
@@ -12,11 +14,11 @@ import { EmailService } from '../../../src/services/email.service';
 import { TranslationService } from '../../../src/services/translation.service';
 import { JurisdictionService } from '../../../src/services/jurisdiction.service';
 import { GoogleTranslateService } from '../../../src/services/google-translate.service';
-import { SendGridService } from '../../../src/services/sendgrid.service';
 import { User } from '../../../src/dtos/users/user.dto';
 import { PermissionService } from '../../../src/services/permission.service';
 import { permissionActions } from '../../../src/enums/permissions/permission-actions-enum';
-import { of } from 'rxjs';
+import { OrderByEnum } from '../../../src/enums/shared/order-by-enum';
+import { UserViews } from '../../../src/enums/user/view-enum';
 
 describe('Testing user service', () => {
   let service: UserService;
@@ -63,9 +65,6 @@ describe('Testing user service', () => {
     return toReturn;
   };
 
-  const SendGridServiceMock = {
-    send: jest.fn(),
-  };
   const googleTranslateServiceMock = {
     isConfigured: () => true,
     fetch: jest.fn(),
@@ -89,16 +88,11 @@ describe('Testing user service', () => {
         PrismaService,
         EmailService,
         ConfigService,
-        SendGridService,
         TranslationService,
         JurisdictionService,
         {
           provide: HttpService,
           useValue: httpServiceMock,
-        },
-        {
-          provide: SendGridService,
-          useValue: SendGridServiceMock,
         },
         {
           provide: GoogleTranslateService,
@@ -383,7 +377,7 @@ describe('Testing user service', () => {
       prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
         id,
       });
-      const res = await service.findUserOrError({ userId: id }, true);
+      const res = await service.findUserOrError({ userId: id }, UserViews.full);
       expect(res).toEqual({ id });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
@@ -397,12 +391,33 @@ describe('Testing user service', () => {
       });
     });
 
+    it('should find user by id and include only jurisdictions joins', async () => {
+      const id = randomUUID();
+      prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
+        id,
+      });
+      const res = await service.findUserOrError({ userId: id }, UserViews.base);
+      expect(res).toEqual({ id });
+      expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
+        include: {
+          jurisdictions: true,
+          userRoles: true,
+        },
+        where: {
+          id,
+        },
+      });
+    });
+
     it('should find user by email and include joins', async () => {
       const email = 'example@email.com';
       prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
         email,
       });
-      const res = await service.findUserOrError({ email: email }, true);
+      const res = await service.findUserOrError(
+        { email: email },
+        UserViews.full,
+      );
       expect(res).toEqual({ email });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
@@ -421,7 +436,7 @@ describe('Testing user service', () => {
       prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
         id,
       });
-      const res = await service.findUserOrError({ userId: id }, false);
+      const res = await service.findUserOrError({ userId: id });
       expect(res).toEqual({ id });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         where: {
@@ -435,7 +450,7 @@ describe('Testing user service', () => {
       prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
         email,
       });
-      const res = await service.findUserOrError({ email: email }, false);
+      const res = await service.findUserOrError({ email: email });
       expect(res).toEqual({ email });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         where: {
@@ -448,7 +463,7 @@ describe('Testing user service', () => {
       const email = 'example@email.com';
       prisma.userAccounts.findUnique = jest.fn().mockResolvedValue(null);
       await expect(
-        async () => await service.findUserOrError({ email: email }, false),
+        async () => await service.findUserOrError({ email: email }),
       ).rejects.toThrowError(
         'user email: example@email.com was requested but not found',
       );
@@ -872,6 +887,10 @@ describe('Testing user service', () => {
         where: {
           id,
         },
+        include: {
+          jurisdictions: true,
+          userRoles: true,
+        },
       });
       expect(prisma.userAccounts.delete).toHaveBeenCalledWith({
         where: {
@@ -914,6 +933,10 @@ describe('Testing user service', () => {
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         where: {
           id,
+        },
+        include: {
+          jurisdictions: true,
+          userRoles: true,
         },
       });
 
@@ -1415,10 +1438,14 @@ describe('Testing user service', () => {
         },
         true,
         undefined,
+
         {
-          id: 'requestingUser id',
-          userRoles: { isAdmin: true },
-        } as unknown as User,
+          headers: { jurisdictionname: 'juris 1' },
+          user: {
+            id: 'requestingUser id',
+            userRoles: { isAdmin: true },
+          } as unknown as User,
+        } as unknown as Request,
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
@@ -1487,9 +1514,12 @@ describe('Testing user service', () => {
         true,
         undefined,
         {
-          id: 'requestingUser id',
-          userRoles: { isAdmin: true },
-        } as unknown as User,
+          headers: { jurisdictionname: 'juris 1' },
+          user: {
+            id: 'requestingUser id',
+            userRoles: { isAdmin: true },
+          } as unknown as User,
+        } as unknown as Request,
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
@@ -1567,9 +1597,12 @@ describe('Testing user service', () => {
             true,
             undefined,
             {
-              id: 'requestingUser id',
-              userRoles: { isAdmin: true },
-            } as unknown as User,
+              headers: { jurisdictionname: 'juris 1' },
+              user: {
+                id: 'requestingUser id',
+                userRoles: { isAdmin: true },
+              } as unknown as User,
+            } as unknown as Request,
           ),
       ).rejects.toThrowError('emailInUse');
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
@@ -1628,9 +1661,12 @@ describe('Testing user service', () => {
         false,
         undefined,
         {
-          id: 'requestingUser id',
-          userRoles: { isAdmin: true },
-        } as unknown as User,
+          headers: { jurisdictionname: 'juris 1' },
+          user: {
+            id: 'requestingUser id',
+            userRoles: { isAdmin: true },
+          } as unknown as User,
+        } as unknown as Request,
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
@@ -1644,13 +1680,19 @@ describe('Testing user service', () => {
       });
       expect(prisma.userAccounts.create).toHaveBeenCalledWith({
         data: {
+          dob: undefined,
           passwordHash: expect.anything(),
+          phoneNumber: undefined,
+          userRoles: undefined,
           email: 'publicUser@email.com',
           firstName: 'public User firstName',
           lastName: 'public User lastName',
+          language: undefined,
+          listings: undefined,
+          middleName: undefined,
           mfaEnabled: false,
           jurisdictions: {
-            connect: [{ id: jurisId }],
+            connect: { name: 'juris 1' },
           },
         },
       });
@@ -1703,101 +1745,248 @@ describe('Testing user service', () => {
     });
   });
 
-  describe('isUserRoleChangeAllowed', () => {
-    it('should allow admin to promote to admin', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isAdmin: true } } as unknown as User,
-        { isAdmin: true },
-      );
-      expect(res).toEqual(true);
+  it('should request single use code but user does not exist', async () => {
+    const id = randomUUID();
+    emailService.sendSingleUseCode = jest.fn();
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue(null);
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
     });
 
-    it('should allow admin to promote to jurisdictional admin', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isAdmin: true } } as unknown as User,
-        { isJurisdictionalAdmin: true },
-      );
-      expect(res).toEqual(true);
+    const res = await service.requestSingleUseCode(
+      {
+        email: 'example@exygy.com',
+      },
+      { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+    );
+
+    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      where: {
+        email: 'example@exygy.com',
+      },
+      include: {
+        jurisdictions: true,
+      },
+    });
+    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+    expect(res).toEqual({
+      success: true,
+    });
+  });
+
+  it('should request single use code but user does not exist', async () => {
+    const id = randomUUID();
+    emailService.sendSingleUseCode = jest.fn();
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue(null);
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
     });
 
-    it('should allow admin to promote to partner', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isAdmin: true } } as unknown as User,
-        { isPartner: true },
-      );
-      expect(res).toEqual(true);
+    const res = await service.requestSingleUseCode(
+      {
+        email: 'example@exygy.com',
+      },
+      { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+    );
+
+    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      where: {
+        email: 'example@exygy.com',
+      },
+      include: {
+        jurisdictions: true,
+      },
+    });
+    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+    expect(res).toEqual({
+      success: true,
+    });
+  });
+
+  it('should request single use code but jurisdiction does not exist', async () => {
+    const id = randomUUID();
+    emailService.sendSingleUseCode = jest.fn();
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+      id,
+    });
+    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue(null);
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
     });
 
-    it('should allow admin to demote', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isAdmin: true } } as unknown as User,
-        {},
-      );
-      expect(res).toEqual(true);
+    await expect(
+      async () =>
+        await service.requestSingleUseCode(
+          {
+            email: 'example@exygy.com',
+          },
+          { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+        ),
+    ).rejects.toThrowError('Jurisidiction juris 1 does not exists');
+
+    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      where: {
+        email: 'example@exygy.com',
+      },
+      include: {
+        jurisdictions: true,
+      },
+    });
+    expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
+      select: {
+        id: true,
+        allowSingleUseCodeLogin: true,
+      },
+      where: {
+        name: 'juris 1',
+      },
+      orderBy: {
+        allowSingleUseCodeLogin: OrderByEnum.DESC,
+      },
+    });
+    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+  });
+
+  it('should request single use code but jurisdiction disallows single use code login', async () => {
+    const id = randomUUID();
+    emailService.sendSingleUseCode = jest.fn();
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+      id,
+    });
+    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+      id: randomUUID(),
+      allowSingleUseCodeLogin: false,
+    });
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
     });
 
-    it('should disallow juris admin to promote to jurisdictional admin', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isJurisdictionalAdmin: true } } as unknown as User,
-        { isAdmin: true },
-      );
-      expect(res).toEqual(false);
+    await expect(
+      async () =>
+        await service.requestSingleUseCode(
+          {
+            email: 'example@exygy.com',
+          },
+          { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+        ),
+    ).rejects.toThrowError('Single use code login is not setup for juris 1');
+
+    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      where: {
+        email: 'example@exygy.com',
+      },
+      include: {
+        jurisdictions: true,
+      },
+    });
+    expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
+      select: {
+        id: true,
+        allowSingleUseCodeLogin: true,
+      },
+      where: {
+        name: 'juris 1',
+      },
+      orderBy: {
+        allowSingleUseCodeLogin: OrderByEnum.DESC,
+      },
+    });
+    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+  });
+
+  it('should request single use code but jurisdictionname was not sent', async () => {
+    const id = randomUUID();
+    emailService.sendSingleUseCode = jest.fn();
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+      id,
+    });
+    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+      id,
+    });
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
     });
 
-    it('should allow juris admin to promote to jurisdictional admin', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isJurisdictionalAdmin: true } } as unknown as User,
-        { isJurisdictionalAdmin: true },
-      );
-      expect(res).toEqual(true);
+    await expect(
+      async () =>
+        await service.requestSingleUseCode(
+          {
+            email: 'example@exygy.com',
+          },
+          {} as unknown as Request,
+        ),
+    ).rejects.toThrowError(
+      'jurisdictionname is missing from the request headers',
+    );
+
+    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      where: {
+        email: 'example@exygy.com',
+      },
+      include: {
+        jurisdictions: true,
+      },
+    });
+    expect(prisma.jurisdictions.findFirst).not.toHaveBeenCalled();
+    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+  });
+
+  it('should successfully request single use code', async () => {
+    const id = randomUUID();
+    emailService.sendSingleUseCode = jest.fn();
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+      id,
+    });
+    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+      id,
+      allowSingleUseCodeLogin: true,
+    });
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
     });
 
-    it('should allow juris admin to promote to partner', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isJurisdictionalAdmin: true } } as unknown as User,
-        { isPartner: true },
-      );
-      expect(res).toEqual(true);
-    });
+    const res = await service.requestSingleUseCode(
+      {
+        email: 'example@exygy.com',
+      },
+      { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+    );
 
-    it('should allow juris admin to demote', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isJurisdictionalAdmin: true } } as unknown as User,
-        {},
-      );
-      expect(res).toEqual(true);
+    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      where: {
+        email: 'example@exygy.com',
+      },
+      include: {
+        jurisdictions: true,
+      },
     });
-
-    it('should disallow partner to promote to jurisdictional admin', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isPartner: true } } as unknown as User,
-        { isAdmin: true },
-      );
-      expect(res).toEqual(false);
+    expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
+      select: {
+        id: true,
+        allowSingleUseCodeLogin: true,
+      },
+      where: {
+        name: 'juris 1',
+      },
+      orderBy: {
+        allowSingleUseCodeLogin: OrderByEnum.DESC,
+      },
     });
-
-    it('should disallow partner to promote to jurisdictional admin', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isPartner: true } } as unknown as User,
-        { isJurisdictionalAdmin: true },
-      );
-      expect(res).toEqual(false);
+    expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+      data: {
+        singleUseCode: expect.anything(),
+        singleUseCodeUpdatedAt: expect.anything(),
+      },
+      where: {
+        id,
+      },
     });
-
-    it('should disallow partner to promote to partner', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isPartner: true } } as unknown as User,
-        { isPartner: true },
-      );
-      expect(res).toEqual(false);
-    });
-
-    it('should disallow partner to demote', () => {
-      const res = service.isUserRoleChangeAllowed(
-        { userRoles: { isPartner: true } } as unknown as User,
-        {},
-      );
-      expect(res).toEqual(false);
-    });
+    expect(emailService.sendSingleUseCode).toHaveBeenCalled();
+    expect(res.success).toEqual(true);
   });
 });

@@ -1,6 +1,7 @@
 import {
   ApplicationAddressTypeEnum,
   ApplicationMethodsTypeEnum,
+  ApplicationSubmissionTypeEnum,
   LanguagesEnum,
   ListingsStatusEnum,
   MultiselectQuestions,
@@ -43,9 +44,12 @@ export const stagingSeed = async (
 ) => {
   // create main jurisdiction
   const jurisdiction = await prismaClient.jurisdictions.create({
-    data: jurisdictionFactory(jurisdictionName || 'Bay Area', [
-      UserRoleEnum.admin,
-    ]),
+    data: {
+      ...jurisdictionFactory(jurisdictionName || 'Bay Area', [
+        UserRoleEnum.admin,
+      ]),
+      allowSingleUseCodeLogin: true,
+    },
   });
   // add another jurisdiction
   const additionalJurisdiction = await prismaClient.jurisdictions.create({
@@ -492,6 +496,9 @@ export const stagingSeed = async (
         }),
         await applicationFactory(),
         await applicationFactory(),
+        await applicationFactory({
+          submissionType: ApplicationSubmissionTypeEnum.paper,
+        }),
       ],
     },
     {

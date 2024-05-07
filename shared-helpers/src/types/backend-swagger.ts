@@ -118,6 +118,20 @@ export class RootService {
     })
   }
   /**
+   * Tip me over and pour me out
+   */
+  teapot(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/teapot"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * Trigger the removal of CSVs job
    */
   clearTempFiles(options: IRequestOptions = {}): Promise<SuccessDTO> {
@@ -482,6 +496,28 @@ export class ApplicationFlaggedSetsService {
     })
   }
   /**
+   * Reset flagged set confirmation alert
+   */
+  resetConfirmationAlert(
+    params: {
+      /** requestBody */
+      body?: IdDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/applicationFlaggedSets/{afsId}"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * Resolve application flagged set
    */
   resolve(
@@ -513,28 +549,6 @@ export class ApplicationFlaggedSetsService {
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = null
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Reset flagged set confirmation alert
-   */
-  resetConfirmationAlert(
-    params: {
-      /** requestBody */
-      body?: IdDTO
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<SuccessDTO> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/applicationFlaggedSets/{id}"
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = params.body
 
       configs.data = data
 
@@ -1435,6 +1449,8 @@ export class ApplicationsService {
       listingId: string
       /**  */
       includeDemographics?: boolean
+      /**  */
+      timeZone?: string
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<any> {
@@ -1445,6 +1461,7 @@ export class ApplicationsService {
       configs.params = {
         listingId: params["listingId"],
         includeDemographics: params["includeDemographics"],
+        timeZone: params["timeZone"],
       }
 
       /** 适配ios13，get请求不允许带body */
@@ -1469,6 +1486,31 @@ export class ApplicationsService {
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
 
       /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Update application by id
+   */
+  update(
+    params: {
+      /**  */
+      id: string
+      /** requestBody */
+      body?: ApplicationUpdate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<Application> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/applications/{applicationId}"
+      url = url.replace("{id}", params["id"] + "")
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
 
       axios(configs, resolve, reject)
     })
@@ -1509,31 +1551,6 @@ export class ApplicationsService {
       let url = basePath + "/applications/verify"
 
       const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Update application by id
-   */
-  update(
-    params: {
-      /**  */
-      id: string
-      /** requestBody */
-      body?: ApplicationUpdate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<Application> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/applications/{id}"
-      url = url.replace("{id}", params["id"] + "")
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = params.body
 
@@ -1847,6 +1864,28 @@ export class UserService {
     })
   }
   /**
+   * Request single use code
+   */
+  requestSingleUseCode(
+    params: {
+      /** requestBody */
+      body?: RequestSingleUseCode
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/request-single-use-code"
+
+      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * Resend public confirmation
    */
   resendConfirmation(
@@ -1985,28 +2024,6 @@ export class AuthService {
   ): Promise<RequestMfaCodeResponse> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/auth/request-mfa-code"
-
-      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Request single use code
-   */
-  requestSingleUseCode(
-    params: {
-      /** requestBody */
-      body?: RequestSingleUseCode
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<SuccessDTO> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/auth/request-single-use-code"
 
       const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
 
@@ -2802,150 +2819,6 @@ export interface UnitsSummary {
 
   /**  */
   totalAvailable?: number
-}
-
-export interface UserRole {
-  /**  */
-  isAdmin?: boolean
-
-  /**  */
-  isJurisdictionalAdmin?: boolean
-
-  /**  */
-  isPartner?: boolean
-}
-
-export interface Jurisdiction {
-  /**  */
-  id: string
-
-  /**  */
-  createdAt: Date
-
-  /**  */
-  updatedAt: Date
-
-  /**  */
-  name: string
-
-  /**  */
-  notificationsSignUpUrl?: string
-
-  /**  */
-  languages: LanguagesEnum[]
-
-  /**  */
-  multiselectQuestions: IdDTO[]
-
-  /**  */
-  partnerTerms?: string
-
-  /**  */
-  publicUrl: string
-
-  /**  */
-  emailFromAddress: string
-
-  /**  */
-  rentalAssistanceDefault: string
-
-  /**  */
-  enablePartnerSettings?: boolean
-
-  /**  */
-  enableListingOpportunity?: boolean
-
-  /**  */
-  enablePartnerDemographics?: boolean
-
-  /**  */
-  enableGeocodingPreferences?: boolean
-
-  /**  */
-  enableAccessibilityFeatures: boolean
-
-  /**  */
-  enableUtilitiesIncluded: boolean
-
-  /**  */
-  allowSingleUseCodeLogin: boolean
-
-  /**  */
-  listingApprovalPermissions: EnumJurisdictionListingApprovalPermissions[]
-}
-
-export interface User {
-  /**  */
-  id: string
-
-  /**  */
-  createdAt: Date
-
-  /**  */
-  updatedAt: Date
-
-  /**  */
-  passwordUpdatedAt: Date
-
-  /**  */
-  passwordValidForDays: number
-
-  /**  */
-  confirmedAt?: Date
-
-  /**  */
-  email: string
-
-  /**  */
-  firstName: string
-
-  /**  */
-  middleName?: string
-
-  /**  */
-  lastName: string
-
-  /**  */
-  dob?: Date
-
-  /**  */
-  phoneNumber?: string
-
-  /**  */
-  listings: IdDTO[]
-
-  /**  */
-  userRoles?: UserRole
-
-  /**  */
-  language?: LanguagesEnum
-
-  /**  */
-  jurisdictions: Jurisdiction[]
-
-  /**  */
-  mfaEnabled?: boolean
-
-  /**  */
-  lastLoginAt?: Date
-
-  /**  */
-  failedLoginAttemptsCount?: number
-
-  /**  */
-  phoneNumberVerified?: boolean
-
-  /**  */
-  agreedToTermsOfService: boolean
-
-  /**  */
-  hitConfirmationURL?: Date
-
-  /**  */
-  activeAccessToken?: string
-
-  /**  */
-  activeRefreshToken?: string
 }
 
 export interface Listing {
@@ -4533,10 +4406,10 @@ export interface JurisdictionCreate {
   enablePartnerSettings?: boolean
 
   /**  */
-  enableListingOpportunity?: boolean
+  enablePartnerDemographics?: boolean
 
   /**  */
-  enablePartnerDemographics?: boolean
+  enableListingOpportunity?: boolean
 
   /**  */
   enableGeocodingPreferences?: boolean
@@ -4583,10 +4456,10 @@ export interface JurisdictionUpdate {
   enablePartnerSettings?: boolean
 
   /**  */
-  enableListingOpportunity?: boolean
+  enablePartnerDemographics?: boolean
 
   /**  */
-  enablePartnerDemographics?: boolean
+  enableListingOpportunity?: boolean
 
   /**  */
   enableGeocodingPreferences?: boolean
@@ -4602,6 +4475,65 @@ export interface JurisdictionUpdate {
 
   /**  */
   listingApprovalPermissions: EnumJurisdictionUpdateListingApprovalPermissions[]
+}
+
+export interface Jurisdiction {
+  /**  */
+  id: string
+
+  /**  */
+  createdAt: Date
+
+  /**  */
+  updatedAt: Date
+
+  /**  */
+  name: string
+
+  /**  */
+  notificationsSignUpUrl?: string
+
+  /**  */
+  languages: LanguagesEnum[]
+
+  /**  */
+  multiselectQuestions: IdDTO[]
+
+  /**  */
+  partnerTerms?: string
+
+  /**  */
+  publicUrl: string
+
+  /**  */
+  emailFromAddress: string
+
+  /**  */
+  rentalAssistanceDefault: string
+
+  /**  */
+  enablePartnerSettings?: boolean
+
+  /**  */
+  enablePartnerDemographics?: boolean
+
+  /**  */
+  enableListingOpportunity?: boolean
+
+  /**  */
+  enableGeocodingPreferences?: boolean
+
+  /**  */
+  enableAccessibilityFeatures: boolean
+
+  /**  */
+  enableUtilitiesIncluded: boolean
+
+  /**  */
+  allowSingleUseCodeLogin: boolean
+
+  /**  */
+  listingApprovalPermissions: EnumJurisdictionListingApprovalPermissions[]
 }
 
 export interface MultiselectQuestionCreate {
@@ -5070,6 +5002,91 @@ export interface EmailAndAppUrl {
   appUrl?: string
 }
 
+export interface UserRole {
+  /**  */
+  isAdmin?: boolean
+
+  /**  */
+  isJurisdictionalAdmin?: boolean
+
+  /**  */
+  isPartner?: boolean
+}
+
+export interface User {
+  /**  */
+  id: string
+
+  /**  */
+  createdAt: Date
+
+  /**  */
+  updatedAt: Date
+
+  /**  */
+  passwordUpdatedAt: Date
+
+  /**  */
+  passwordValidForDays: number
+
+  /**  */
+  confirmedAt?: Date
+
+  /**  */
+  email: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  dob?: Date
+
+  /**  */
+  phoneNumber?: string
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  userRoles?: UserRole
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  jurisdictions: Jurisdiction[]
+
+  /**  */
+  mfaEnabled?: boolean
+
+  /**  */
+  lastLoginAt?: Date
+
+  /**  */
+  failedLoginAttemptsCount?: number
+
+  /**  */
+  phoneNumberVerified?: boolean
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  hitConfirmationURL?: Date
+
+  /**  */
+  activeAccessToken?: string
+
+  /**  */
+  activeRefreshToken?: string
+}
+
 export interface UserFilterParams {
   /**  */
   isPortalUser?: boolean
@@ -5218,6 +5235,11 @@ export interface UserInvite {
   jurisdictions: IdDTO[]
 }
 
+export interface RequestSingleUseCode {
+  /**  */
+  email: string
+}
+
 export interface ConfirmationRequest {
   /**  */
   token: string
@@ -5268,11 +5290,6 @@ export interface RequestMfaCodeResponse {
 
   /**  */
   phoneNumberVerified?: boolean
-}
-
-export interface RequestSingleUseCode {
-  /**  */
-  email: string
 }
 
 export interface UpdatePassword {
@@ -5404,12 +5421,6 @@ export enum UnitRentTypeEnum {
   "fixed" = "fixed",
   "percentageOfIncome" = "percentageOfIncome",
 }
-export enum EnumJurisdictionListingApprovalPermissions {
-  "user" = "user",
-  "partner" = "partner",
-  "admin" = "admin",
-  "jurisdictionAdmin" = "jurisdictionAdmin",
-}
 
 export enum AfsView {
   "pending" = "pending",
@@ -5464,6 +5475,12 @@ export enum EnumJurisdictionCreateListingApprovalPermissions {
   "jurisdictionAdmin" = "jurisdictionAdmin",
 }
 export enum EnumJurisdictionUpdateListingApprovalPermissions {
+  "user" = "user",
+  "partner" = "partner",
+  "admin" = "admin",
+  "jurisdictionAdmin" = "jurisdictionAdmin",
+}
+export enum EnumJurisdictionListingApprovalPermissions {
   "user" = "user",
   "partner" = "partner",
   "admin" = "admin",

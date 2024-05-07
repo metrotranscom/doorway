@@ -71,7 +71,6 @@ const testEmailService = {
   changeEmail: jest.fn(),
   forgotPassword: jest.fn(),
   sendMfaCode: jest.fn(),
-  sendCSV: jest.fn(),
   applicationConfirmation: jest.fn(),
 };
 
@@ -819,20 +818,20 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the corr
         .expect(200);
     });
 
-    it('should error as forbidden for retrieve endpoint', async () => {
+    it('should succeed for retrieve endpoint', async () => {
       const userA = await prisma.userAccounts.create({
-        data: await userFactory(),
+        data: await userFactory({ jurisdictionIds: [jurisId] }),
       });
 
       await request(app.getHttpServer())
         .get(`/user/${userA.id}`)
         .set('Cookie', cookies)
-        .expect(403);
+        .expect(200);
     });
 
     it('should error as forbidden for update endpoint', async () => {
       const userA = await prisma.userAccounts.create({
-        data: await userFactory(),
+        data: await userFactory({ jurisdictionIds: [jurisId] }),
       });
 
       await request(app.getHttpServer())
@@ -841,6 +840,7 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the corr
           id: userA.id,
           firstName: 'New User First Name',
           lastName: 'New User Last Name',
+          jurisdictions: [{ id: jurisId } as IdDTO],
         } as UserUpdate)
         .set('Cookie', cookies)
         .expect(403);
@@ -848,7 +848,7 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the corr
 
     it('should error as forbidden for delete endpoint', async () => {
       const userA = await prisma.userAccounts.create({
-        data: await userFactory(),
+        data: await userFactory({ jurisdictionIds: [jurisId] }),
       });
 
       await request(app.getHttpServer())
@@ -946,11 +946,12 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the corr
     });
 
     it('should error as forbidden for partner create endpoint', async () => {
-      const juris = await generateJurisdiction(prisma, 'permission juris 22');
-
       await request(app.getHttpServer())
         .post(`/user/invite`)
-        .send(buildUserInviteMock(juris, 'partnerUser+jurisCorrect@email.com'))
+        .send(
+          // builds an invite for an admin
+          buildUserInviteMock(jurisId, 'partnerUser+jurisCorrect@email.com'),
+        )
         .set('Cookie', cookies)
         .expect(403);
     });

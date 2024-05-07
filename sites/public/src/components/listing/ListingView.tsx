@@ -322,6 +322,7 @@ export const ListingView = (props: ListingProps) => {
 
   const getOnlineApplicationURL = () => {
     let onlineApplicationURL
+    let isCommonApp
     if (hasMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.Internal)) {
       let urlBase
       if (props.isExternal) {
@@ -331,12 +332,15 @@ export const ListingView = (props: ListingProps) => {
         urlBase = ""
       }
       onlineApplicationURL = `${urlBase}/applications/start/choose-language?listingId=${listing.id}&source=dhp`
+      if (props.preview) onlineApplicationURL += "&preview=true"
+      isCommonApp = true
     } else if (hasMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.ExternalLink)) {
       onlineApplicationURL =
         getMethod(listing.applicationMethods, ApplicationMethodsTypeEnum.ExternalLink)
           ?.externalReference || ""
+      isCommonApp = false
     }
-    return onlineApplicationURL
+    return { url: onlineApplicationURL, isCommonApp }
   }
 
   const getPaperApplications = () => {
@@ -368,17 +372,22 @@ export const ListingView = (props: ListingProps) => {
   const getDateString = (date: Date, format: string) => {
     return date ? dayjs(date).format(format) : null
   }
-
-  const redirectIfSignedOut = () =>
-    process.env.showMandatedAccounts && initialStateLoaded && !profile && props.isExternal !== true
+  const onlineApplicationURLInfo = getOnlineApplicationURL()
+  const redirectIfLogInRequired = () =>
+    process.env.showMandatedAccounts &&
+    initialStateLoaded &&
+    !profile &&
+    onlineApplicationURLInfo.isCommonApp &&
+    !props.isExternal &&
+    !props.preview
 
   const applySidebar = () => (
     <>
       <GetApplication
         onlineApplicationURL={
-          redirectIfSignedOut()
+          redirectIfLogInRequired()
             ? `/sign-in?redirectUrl=/applications/start/choose-language&listingId=${listing.id}`
-            : getOnlineApplicationURL()
+            : onlineApplicationURLInfo.url
         }
         applicationsOpen={!appOpenInFuture}
         applicationsOpenDate={getDateString(listing.applicationOpenDate, "MMMM D, YYYY")}

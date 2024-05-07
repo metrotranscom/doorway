@@ -352,7 +352,9 @@ describe('Testing application CSV export service', () => {
   });
 
   it('tests multiselectQuestionFormat with undefined question passed', () => {
-    expect(service.multiselectQuestionFormat(undefined)).toBe('');
+    expect(
+      service.multiselectQuestionFormat(undefined, undefined, undefined),
+    ).toBe('');
   });
 
   it('tests multiselectQuestionFormat', () => {
@@ -442,12 +444,10 @@ describe('Testing application CSV export service', () => {
       jurisdictions: [{ id: 'juris id' }],
     } as unknown as User;
 
-    const applications = mockApplicationSet(5, new Date());
+    const applications = mockApplicationSet(5, new Date(), 1);
     prisma.applications.findMany = jest.fn().mockReturnValue(applications);
     prisma.listings.findUnique = jest.fn().mockResolvedValue({});
     permissionService.canOrThrow = jest.fn().mockResolvedValue(true);
-
-    service.maxHouseholdMembers = jest.fn().mockReturnValue(1);
 
     prisma.multiselectQuestions.findMany = jest.fn().mockReturnValue([
       {
@@ -513,7 +513,6 @@ describe('Testing application CSV export service', () => {
 
     const applications = mockApplicationSet(3, new Date());
     prisma.applications.findMany = jest.fn().mockReturnValue(applications);
-    service.maxHouseholdMembers = jest.fn().mockReturnValue(0);
     prisma.listings.findUnique = jest.fn().mockResolvedValue({});
     permissionService.canOrThrow = jest.fn().mockResolvedValue(true);
 
@@ -541,9 +540,9 @@ describe('Testing application CSV export service', () => {
     );
 
     const headerRow =
-      '"Application Id","Application Confirmation Code","Application Type","Application Submission Date","Primary Applicant First Name","Primary Applicant Middle Name","Primary Applicant Last Name","Primary Applicant Birth Day","Primary Applicant Birth Month","Primary Applicant Birth Year","Primary Applicant Email Address","Primary Applicant Phone Number","Primary Applicant Phone Type","Primary Applicant Additional Phone Number","Primary Applicant Preferred Contact Type","Primary Applicant Street","Primary Applicant Street 2","Primary Applicant City","Primary Applicant State","Primary Applicant Zip Code","Primary Applicant Mailing Street","Primary Applicant Mailing Street 2","Primary Applicant Mailing City","Primary Applicant Mailing State","Primary Applicant Mailing Zip Code","Primary Applicant Work Street","Primary Applicant Work Street 2","Primary Applicant Work City","Primary Applicant Work State","Primary Applicant Work Zip Code","Alternate Contact First Name","Alternate Contact Last Name","Alternate Contact Type","Alternate Contact Agency","Alternate Contact Other Type","Alternate Contact Email Address","Alternate Contact Phone Number","Alternate Contact Street","Alternate Contact Street 2","Alternate Contact City","Alternate Contact State","Alternate Contact Zip Code","Income","Income Period","Accessibility Mobility","Accessibility Vision","Accessibility Hearing","Expecting Household Changes","Household Includes Student or Member Nearing 18","Vouchers or Subsidies","Requested Unit Types","Preference text 0","Household Size","Marked As Duplicate","Flagged As Duplicate","Ethnicity","Race","How did you Hear?"';
+      '"Application Id","Application Confirmation Code","Application Type","Application Submission Date","Primary Applicant First Name","Primary Applicant Middle Name","Primary Applicant Last Name","Primary Applicant Birth Day","Primary Applicant Birth Month","Primary Applicant Birth Year","Primary Applicant Email Address","Primary Applicant Phone Number","Primary Applicant Phone Type","Primary Applicant Additional Phone Number","Primary Applicant Preferred Contact Type","Primary Applicant Street","Primary Applicant Street 2","Primary Applicant City","Primary Applicant State","Primary Applicant Zip Code","Primary Applicant Mailing Street","Primary Applicant Mailing Street 2","Primary Applicant Mailing City","Primary Applicant Mailing State","Primary Applicant Mailing Zip Code","Primary Applicant Work Street","Primary Applicant Work Street 2","Primary Applicant Work City","Primary Applicant Work State","Primary Applicant Work Zip Code","Alternate Contact First Name","Alternate Contact Last Name","Alternate Contact Type","Alternate Contact Agency","Alternate Contact Other Type","Alternate Contact Email Address","Alternate Contact Phone Number","Alternate Contact Street","Alternate Contact Street 2","Alternate Contact City","Alternate Contact State","Alternate Contact Zip Code","Income","Income Period","Accessibility Mobility","Accessibility Vision","Accessibility Hearing","Expecting Household Changes","Household Includes Student or Member Nearing 18","Vouchers or Subsidies","Requested Unit Types","Preference text 0","Household Size","Marked As Duplicate","Flagged As Duplicate","Race","Gender","Sexual Orientation","Spoken Language","How did you Hear?"';
     const firstApp =
-      '"application 0 firstName","application 0 middleName","application 0 lastName","application 0 birthDay","application 0 birthMonth","application 0 birthYear","application 0 emailaddress","application 0 phoneNumber","application 0 phoneNumberType","additionalPhoneNumber 0",,"application 0 applicantAddress street","application 0 applicantAddress street2","application 0 applicantAddress city","application 0 applicantAddress state","application 0 applicantAddress zipCode",,,,,,"application 0 applicantWorkAddress street","application 0 applicantWorkAddress street2","application 0 applicantWorkAddress city","application 0 applicantWorkAddress state","application 0 applicantWorkAddress zipCode",,,,,,,,,,,,,"income 0","per month",,,,"true","true","true","Studio,Studio",,,,,,"Decline to Respond"';
+      '"application 0 firstName","application 0 middleName","application 0 lastName","application 0 birthDay","application 0 birthMonth","application 0 birthYear","application 0 emailaddress","application 0 phoneNumber","application 0 phoneNumberType","additionalPhoneNumber 0",,"application 0 applicantAddress street","application 0 applicantAddress street2","application 0 applicantAddress city","application 0 applicantAddress state","application 0 applicantAddress zipCode",,,,,,"application 0 applicantWorkAddress street","application 0 applicantWorkAddress street2","application 0 applicantWorkAddress city","application 0 applicantWorkAddress state","application 0 applicantWorkAddress zipCode",,,,,,,,,,,,,"income 0","per month",,,,"true","true","true","Studio,Studio",,,,,"Decline to Respond",,,,';
 
     const mockedStream = new PassThrough();
     exportResponse.getStream().pipe(mockedStream);
@@ -558,5 +557,134 @@ describe('Testing application CSV export service', () => {
 
     expect(readable).toContain(headerRow);
     expect(readable).toContain(firstApp);
+  });
+
+  it('should build csv with submission date defaulted to PST', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2024-01-01'));
+
+    const requestingUser = {
+      firstName: 'requesting fName',
+      lastName: 'requesting lName',
+      email: 'requestingUser@email.com',
+      jurisdictions: [{ id: 'juris id' }],
+    } as unknown as User;
+
+    const applications = mockApplicationSet(5, new Date());
+    prisma.applications.findMany = jest.fn().mockReturnValue(applications);
+    prisma.listings.findUnique = jest.fn().mockResolvedValue({});
+    permissionService.canOrThrow = jest.fn().mockResolvedValue(true);
+
+    service.maxHouseholdMembers = jest.fn().mockReturnValue(1);
+
+    prisma.multiselectQuestions.findMany = jest.fn().mockReturnValue([
+      {
+        ...mockMultiselectQuestion(
+          0,
+          new Date(),
+          MultiselectQuestionsApplicationSectionEnum.preferences,
+        ),
+        options: [
+          { id: 1, text: 'text' },
+          { id: 2, text: 'text', collectAddress: true },
+        ],
+      },
+      {
+        ...mockMultiselectQuestion(
+          1,
+          new Date(),
+          MultiselectQuestionsApplicationSectionEnum.programs,
+        ),
+        options: [{ id: 1, text: 'text' }],
+      },
+    ]);
+
+    service.unitTypeToReadable = jest.fn().mockReturnValue('Studio');
+    const exportResponse = await service.exportFile(
+      { user: requestingUser } as unknown as ExpressRequest,
+      {} as unknown as Response,
+      { listingId: randomUUID() },
+    );
+
+    const mockedStream = new PassThrough();
+    exportResponse.getStream().pipe(mockedStream);
+
+    // In order to make sure the last expect statements are properly hit we need to wrap in a promise and resolve it
+    const readable = await new Promise((resolve) => {
+      mockedStream.on('data', async (d) => {
+        const value = Buffer.from(d).toString();
+        mockedStream.end();
+        mockedStream.destroy();
+        resolve(value);
+      });
+    });
+
+    expect(readable).toContain('PST');
+  });
+
+  it('should build csv with submission date in custom timezone', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2024-01-01'));
+
+    const requestingUser = {
+      firstName: 'requesting fName',
+      lastName: 'requesting lName',
+      email: 'requestingUser@email.com',
+      jurisdictions: [{ id: 'juris id' }],
+    } as unknown as User;
+
+    const applications = mockApplicationSet(5, new Date());
+    prisma.applications.findMany = jest.fn().mockReturnValue(applications);
+    prisma.listings.findUnique = jest.fn().mockResolvedValue({});
+    permissionService.canOrThrow = jest.fn().mockResolvedValue(true);
+
+    service.maxHouseholdMembers = jest.fn().mockReturnValue(1);
+
+    prisma.multiselectQuestions.findMany = jest.fn().mockReturnValue([
+      {
+        ...mockMultiselectQuestion(
+          0,
+          new Date(),
+          MultiselectQuestionsApplicationSectionEnum.preferences,
+        ),
+        options: [
+          { id: 1, text: 'text' },
+          { id: 2, text: 'text', collectAddress: true },
+        ],
+      },
+      {
+        ...mockMultiselectQuestion(
+          1,
+          new Date(),
+          MultiselectQuestionsApplicationSectionEnum.programs,
+        ),
+        options: [{ id: 1, text: 'text' }],
+      },
+    ]);
+
+    service.unitTypeToReadable = jest.fn().mockReturnValue('Studio');
+    const exportResponse = await service.exportFile(
+      { user: requestingUser } as unknown as ExpressRequest,
+      {} as unknown as Response,
+      {
+        listingId: randomUUID(),
+        timeZone: 'America/New_York',
+      },
+    );
+
+    const mockedStream = new PassThrough();
+    exportResponse.getStream().pipe(mockedStream);
+
+    // In order to make sure the last expect statements are properly hit we need to wrap in a promise and resolve it
+    const readable = await new Promise((resolve) => {
+      mockedStream.on('data', async (d) => {
+        const value = Buffer.from(d).toString();
+        mockedStream.end();
+        mockedStream.destroy();
+        resolve(value);
+      });
+    });
+
+    expect(readable).toContain('EST');
   });
 });

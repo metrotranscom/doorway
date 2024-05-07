@@ -191,6 +191,7 @@ export class ListingService implements OnModuleInit {
 
     // if passed in page and limit would result in no results because there aren't that many listings
     // revert back to the first page
+
     let page = params.page;
     if (count && params.limit && params.limit !== 'all' && params.page > 1) {
       if (Math.ceil(count / params.limit) < params.page) {
@@ -339,19 +340,12 @@ export class ListingService implements OnModuleInit {
             `(${bathroomsWhere}${inclusiveWhereArray.join(' OR ')})`,
           );
         }
-        if (filter[ListingFilterKeys.bathrooms]) {
-          whereClauseArray.push(
-            `(combined_units->>'numBathrooms') =  '${
-              filter[ListingFilterKeys.bathrooms]
-            }'`,
-          );
-        }
         if (filter[ListingFilterKeys.monthlyRent]) {
           const comparison = filter['$comparison'];
           whereClauseArray.push(
-            `(combined_units->>'monthlyRent')::INTEGER ${comparison} '${
-              filter[ListingFilterKeys.monthlyRent]
-            }'`,
+            `(combined_units->>'monthlyRent')::INTEGER ${comparison} '${Math.floor(
+              filter[ListingFilterKeys.monthlyRent],
+            )}'`,
           );
         }
       });

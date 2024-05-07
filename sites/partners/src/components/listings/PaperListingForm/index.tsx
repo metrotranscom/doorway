@@ -368,7 +368,10 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                           </div>
                         </TabPanel>
                         <TabPanel>
-                          <RankingsAndResults listing={listing} />
+                          <RankingsAndResults
+                            listing={listing}
+                            disableDueDates={editMode && !profile.userRoles.isAdmin}
+                          />
                           <LeasingAgent />
                           <ApplicationTypes listing={listing} />
                           <ApplicationAddress listing={listing} />
@@ -376,6 +379,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                             listing={listing}
                             openHouseEvents={openHouseEvents}
                             setOpenHouseEvents={setOpenHouseEvents}
+                            disableDueDate={editMode && !profile.userRoles.isAdmin}
                           />
 
                           <div className="-ml-8 -mt-8 relative" style={{ top: "7rem" }}>

@@ -89,7 +89,7 @@ export const mockApplication = (position: number, date: Date) => {
       },
     },
     demographics: {
-      race: ['declineToRespond'],
+      race: ['indigenous'],
       howDidYouHear: ['other'],
     },
     createdAt: date,

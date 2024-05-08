@@ -17,6 +17,7 @@ import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import {
   ApplicationOrderByKeys,
+  ListingsStatusEnum,
   OrderByEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
@@ -170,7 +171,9 @@ const ApplicationsList = () => {
 
       <ListingStatusBar status={listingDto?.status} />
 
-      {shouldExpireData && expiryDate <= dayjs() ? (
+      {listingDto.status === ListingsStatusEnum.closed &&
+      shouldExpireData &&
+      expiryDate <= dayjs() ? (
         <section className={pageStyles["expired"]}>
           <div className={pageStyles["parent"]}>
             <div className={pageStyles["container"]}>
@@ -202,7 +205,7 @@ const ApplicationsList = () => {
                   listingOpen={isListingOpen}
                 />
                 <div className={pageStyles["content-container"]}>
-                  {shouldExpireData && (
+                  {shouldExpireData && listingDto.status === ListingsStatusEnum.closed && (
                     <Message
                       variant={"warn"}
                       fullwidth={true}

@@ -34,10 +34,11 @@ function main() {
     return missingKeys
   }
 
+  let missingPublicSiteTranslations = []
   allTranslations.forEach((foreignKeys) => {
     console.log("--------------------")
     console.log(`Missing Public Site ${foreignKeys.language} Translations:`)
-    const missingPublicSiteTranslations = findMissingStrings(
+    missingPublicSiteTranslations = findMissingStrings(
       englishTranslations,
       foreignKeys.translationKeys
     )
@@ -45,6 +46,8 @@ function main() {
       console.log(`${missingKey}, ${JSON.stringify(englishTranslations[missingKey])}`)
     )
   })
+
+  if (missingPublicSiteTranslations.length > 0) throw Error
 }
 
 void main()

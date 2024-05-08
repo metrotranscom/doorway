@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  shared-helpers-unit:
+  shared-helpers-missing-translations:
     runs-on: ubuntu-latest
 
     steps:

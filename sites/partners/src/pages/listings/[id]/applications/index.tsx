@@ -171,7 +171,7 @@ const ApplicationsList = () => {
 
       <ListingStatusBar status={listingDto?.status} />
 
-      {listingDto.status === ListingsStatusEnum.closed &&
+      {listingDto?.status === ListingsStatusEnum.closed &&
       shouldExpireData &&
       expiryDate <= dayjs() ? (
         <section className={pageStyles["expired"]}>
@@ -205,7 +205,7 @@ const ApplicationsList = () => {
                   listingOpen={isListingOpen}
                 />
                 <div className={pageStyles["content-container"]}>
-                  {shouldExpireData && listingDto.status === ListingsStatusEnum.closed && (
+                  {shouldExpireData && listingDto?.status === ListingsStatusEnum.closed && (
                     <Message
                       variant={"warn"}
                       fullwidth={true}

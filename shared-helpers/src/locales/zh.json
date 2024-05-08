@@ -512,7 +512,7 @@
   "authentication.terms.acceptExtended": "我已閱讀、理解並同意使用條款。",
   "authentication.terms.acceptToc": "我接受服務條款",
   "authentication.terms.publicAccept": "在创建帐户之前，您必须接受使用条款。",
-  "authentication.terms.publicTerms": "我已阅读本网站的<a href='https://mtc.ca.gov/doorway-housing-portal-terms-use' target='_blank'>使用条款</a>，该术语已在使用条款中定义，并同意遵守其中所述的与我个人使用相关的所有要求。我理解，如果我三年内未使用我的帐户，我的帐户及其所有数据将被删除。",
+  "authentication.terms.publicTerms": "我已阅读本网站的<a className='lined' href='https://mtc.ca.gov/doorway-housing-portal-terms-use' target='_blank'>使用条款</a>，该术语已在使用条款中定义，并同意遵守其中所述的与我个人使用相关的所有要求。我理解，如果我三年内未使用我的帐户，我的帐户及其所有数据将被删除。",
   "authentication.terms.reviewToc": "檢閱服務條款",
   "authentication.terms.reviewTou": "查看使用条款",
   "authentication.terms.termsOfService": "服務條款",

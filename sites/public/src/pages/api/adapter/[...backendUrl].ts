@@ -14,7 +14,6 @@ import { logger } from "../../../../logger"
 */
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-
   const jar = new CookieJar()
   const axios = wrapper(
     axiosStatic.create({
@@ -35,8 +34,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     // set up request to backend from request to next api
     // eslint-disable-next-line prefer-const
     let { backendUrl, ...rest } = req.query
-    logger.info(`${req.method} - ${backendUrl}`);
-    logger.debug(req);
+    logger.info(`${req.method} - ${backendUrl}`)
+    logger.debug(req)
     if (Array.isArray(backendUrl)) {
       backendUrl = backendUrl.join("/")
     }
@@ -60,7 +59,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (response.status >= 400) {
       logger.error(`${req.method} - ${backendUrl} - ${response.status} - ${response.statusText}`)
     }
-
   } catch (e) {
     logger.error(
       "public backend url adapter error:",

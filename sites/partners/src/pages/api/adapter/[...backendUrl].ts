@@ -5,9 +5,10 @@ import { wrapper } from "axios-cookiejar-support"
 import { CookieJar } from "tough-cookie"
 import { getConfigs } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { maskAxiosResponse } from "@bloom-housing/shared-helpers"
+import { logger } from "../../../logger"
 
 /*
-  This file exists as per https://nextjs.org/docs/api-routes/dynamic-api-routes  
+  This file exists as per https://nextjs.org/docs/api-routes/dynamic-api-routes
   it serves as an adapter between the front end making api requests and those requests being sent to the backend api
   This file functionally works as a proxy to work in the new cookie paradigm
 */
@@ -36,6 +37,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     // set up request to backend from request to next api
     // eslint-disable-next-line prefer-const
     let { backendUrl, ...rest } = req.query
+    logger.info(`${req.method} - ${backendUrl}`);
+    logger.debug(req);
     if (Array.isArray(backendUrl)) {
       backendUrl = backendUrl.join("/")
     }
@@ -73,8 +76,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     }
     res.status(response.status).send(response.data)
+    if (response.status >= 400) {
+      logger.error(`${req.method} - ${backendUrl} - ${response.status} - ${response.statusText}`)
+    }
+
   } catch (e) {
-    console.error(
+    logger.error(
       "partner's backend url adapter error:",
       e.response ? maskAxiosResponse(e.response) : e
     )

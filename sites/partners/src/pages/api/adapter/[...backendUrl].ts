@@ -33,12 +33,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       jar,
     })
   )
+  let { backendUrl, ...rest } = req.query
+  logger.info(`${req.method} - ${backendUrl}`)
+  logger.debug(req)
   try {
     // set up request to backend from request to next api
     // eslint-disable-next-line prefer-const
-    let { backendUrl, ...rest } = req.query
-    logger.info(`${req.method} - ${backendUrl}`)
-    logger.debug(req)
+
     if (Array.isArray(backendUrl)) {
       backendUrl = backendUrl.join("/")
     }
@@ -78,7 +79,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(response.status).send(response.data)
   } catch (e) {
     if (e.response) {
-      let { backendUrl, ...rest } = req.query
       logger.error(
         `${req.method} - ${backendUrl} - ${e.response?.status} - ${e.response?.statusText}`
       )

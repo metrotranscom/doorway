@@ -33,16 +33,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       jar,
     })
   )
+  // set up request to backend from request to next api
+  // eslint-disable-next-line prefer-const
   let { backendUrl, ...rest } = req.query
   logger.info(`${req.method} - ${backendUrl}`)
   logger.debug(req)
-  try {
-    // set up request to backend from request to next api
-    // eslint-disable-next-line prefer-const
 
-    if (Array.isArray(backendUrl)) {
-      backendUrl = backendUrl.join("/")
-    }
+  if (Array.isArray(backendUrl)) {
+    backendUrl = backendUrl.join("/")
+  }
+  try {
     const configs = getConfigs(req.method || "", "application/json", backendUrl || "", {})
     let cookieString = ""
     Object.keys(req.cookies).forEach((cookieHeader) => {

@@ -66,6 +66,7 @@ type ListingFormProps = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ListingForm = ({ listing, editMode }: ListingFormProps) => {
   const defaultValues = editMode ? listing : formDefaults
+  const isListingOpen = listing?.status === "active"
   const formMethods = useForm<FormListing>({
     defaultValues,
     shouldUnregister: false,
@@ -370,7 +371,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                         <TabPanel>
                           <RankingsAndResults
                             listing={listing}
-                            disableDueDates={editMode && !profile.userRoles.isAdmin}
+                            disableDueDates={isListingOpen && !profile.userRoles.isAdmin}
                           />
                           <LeasingAgent />
                           <ApplicationTypes listing={listing} />
@@ -379,7 +380,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                             listing={listing}
                             openHouseEvents={openHouseEvents}
                             setOpenHouseEvents={setOpenHouseEvents}
-                            disableDueDate={editMode && !profile.userRoles.isAdmin}
+                            disableDueDate={isListingOpen && !profile.userRoles.isAdmin}
                           />
 
                           <div className="-ml-8 -mt-8 relative" style={{ top: "7rem" }}>

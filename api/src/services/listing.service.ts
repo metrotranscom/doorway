@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import {
   LanguagesEnum,
+  ListingEventsTypeEnum,
   ListingsStatusEnum,
   Prisma,
   ReviewOrderTypeEnum,
@@ -1139,6 +1140,35 @@ export class ListingService implements OnModuleInit {
   async update(dto: ListingUpdate, requestingUser: User): Promise<Listing> {
     const storedListing = await this.findOrThrow(dto.id, ListingViews.details);
 
+    // block date changes on active listing for non admins
+    if (!requestingUser.userRoles.isAdmin && dto.status === 'active') {
+      const lotteryEvent = dto.listingEvents.find(
+        (event) => event?.type === ListingEventsTypeEnum.publicLottery,
+      );
+      const storedLotteryEvent = storedListing.listingEvents.find(
+        (event) => event?.type === ListingEventsTypeEnum.publicLottery,
+      );
+      if (
+        lotteryEvent?.type !== storedLotteryEvent?.type ||
+        (lotteryEvent?.type === ListingEventsTypeEnum.publicLottery &&
+          !(
+            lotteryEvent.startDate?.toISOString() ===
+              storedLotteryEvent.startDate?.toISOString() &&
+            lotteryEvent.startTime?.toISOString() ===
+              storedLotteryEvent.startTime?.toISOString() &&
+            lotteryEvent.endTime?.toISOString() ===
+              storedLotteryEvent.endTime?.toISOString()
+          )) ||
+        dto.applicationDueDate?.toISOString() !==
+          storedListing.applicationDueDate?.toISOString()
+      ) {
+        throw new HttpException(
+          `You do not have permission to edit dates`,
+          403,
+        );
+      }
+    }
+
     await this.permissionService.canOrThrow(
       requestingUser,
       'listing',
@@ -1579,7 +1609,7 @@ export class ListingService implements OnModuleInit {
     clears the listing cache of either 1 listing or all listings
      @param storedListingStatus the status that was stored for the listing
      @param incomingListingStatus the incoming "new" status for a listing
-     @param savedResponseId the id of the listing   
+     @param savedResponseId the id of the listing
   */
   async cachePurge(
     storedListingStatus: ListingsStatusEnum | undefined,
@@ -1703,7 +1733,7 @@ export class ListingService implements OnModuleInit {
 
   /**
     marks the db record for this cronjob as begun or creates a cronjob that
-    is marked as begun if one does not already exist 
+    is marked as begun if one does not already exist
   */
   async markCronJobAsStarted(): Promise<void> {
     const job = await this.prisma.cronJob.findFirst({

@@ -80,6 +80,7 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                     label: t("listings.firstComeFirstServe"),
                     value: "reviewOrderFCFS",
                     id: "reviewOrderFCFS",
+                    disabled: disableDueDates,
                     defaultChecked:
                       listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe,
                   },
@@ -87,6 +88,7 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                     label: t("listings.lotteryTitle"),
                     value: "reviewOrderLottery",
                     id: "reviewOrderLottery",
+                    disabled: disableDueDates,
                     defaultChecked: listing?.reviewOrderType === ReviewOrderTypeEnum.lottery,
                   },
                 ]}

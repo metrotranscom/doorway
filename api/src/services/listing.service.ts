@@ -1141,11 +1141,14 @@ export class ListingService implements OnModuleInit {
     const storedListing = await this.findOrThrow(dto.id, ListingViews.details);
 
     // block date changes on active listing for non admins
-    if (!requestingUser.userRoles.isAdmin && dto.status === 'active') {
-      const lotteryEvent = dto.listingEvents.find(
+    if (
+      requestingUser?.userRoles?.isAdmin === false &&
+      dto.status === 'active'
+    ) {
+      const lotteryEvent = dto.listingEvents?.find(
         (event) => event?.type === ListingEventsTypeEnum.publicLottery,
       );
-      const storedLotteryEvent = storedListing.listingEvents.find(
+      const storedLotteryEvent = storedListing.listingEvents?.find(
         (event) => event?.type === ListingEventsTypeEnum.publicLottery,
       );
       if (

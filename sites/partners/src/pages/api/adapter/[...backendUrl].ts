@@ -76,14 +76,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     }
     res.status(response.status).send(response.data)
-    if (response.status >= 400) {
-      logger.error(`${req.method} - ${backendUrl} - ${response.status} - ${response.statusText}`)
-    }
   } catch (e) {
-    logger.error(
-      "partner's backend url adapter error:",
-      e.response ? maskAxiosResponse(e.response) : e
-    )
+    if (e.response && e.response.status >= 400) {
+      let { backendUrl, ...rest } = req.query
+      logger.error(
+        `${req.method} - ${backendUrl} - ${e.response.status} - ${e.response.statusText}`
+      )
+    } else {
+      logger.error(
+        "partner's backend url adapter error:",
+        e.response ? maskAxiosResponse(e.response) : e
+      )
+    }
     if (e.response) {
       res.statusMessage = e.response.statusText
       res.status(e.response.status).json(e.response.data)

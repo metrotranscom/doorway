@@ -990,6 +990,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
         userListingId,
         jurisId,
       );
+      val.applicationDueDate = new Date('05-16-2024 01:25:18PM GMT+2');
 
       await request(app.getHttpServer())
         .put(`/listings/${userListingId}`)
@@ -1143,7 +1144,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
 
     it('should succeed for process endpoint', async () => {
       /*
-        Because so many different iterations of the process endpoint were firing we were running into collisions. 
+        Because so many different iterations of the process endpoint were firing we were running into collisions.
         Since this is just testing the permissioning aspect I'm switching to mocking the process function
       */
       applicationFlaggedSetService.process = jest.fn();

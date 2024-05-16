@@ -1055,6 +1055,7 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the corr
       });
 
       const val = await constructFullListingData(prisma, listing.id, jurisId);
+      val.applicationDueDate = listing.applicationDueDate;
 
       await request(app.getHttpServer())
         .put(`/listings/${listing.id}`)
@@ -1230,7 +1231,7 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the corr
 
     it('should succeed for process endpoint', async () => {
       /*
-        Because so many different iterations of the process endpoint were firing we were running into collisions. 
+        Because so many different iterations of the process endpoint were firing we were running into collisions.
         Since this is just testing the permissioning aspect I'm switching to mocking the process function
       */
       applicationFlaggedSetService.process = jest.fn();

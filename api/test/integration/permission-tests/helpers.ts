@@ -339,11 +339,11 @@ export const buildApplicationCreateMock = (
       id: listingId,
     },
     demographics: {
-      ethnicity: 'example ethnicity',
       gender: 'example gender',
       sexualOrientation: 'example sexual orientation',
       howDidYouHear: ['example how did you hear'],
       race: ['example race'],
+      spokenLanguage: 'example language',
     },
     preferredUnitTypes: [
       {
@@ -436,11 +436,11 @@ export const buildApplicationUpdateMock = (
       id: listingId,
     },
     demographics: {
-      ethnicity: 'example ethnicity',
       gender: 'example gender',
       sexualOrientation: 'example sexual orientation',
       howDidYouHear: ['example how did you hear'],
       race: ['example race'],
+      spokenLanguage: 'example language',
     },
     preferredUnitTypes: [
       {

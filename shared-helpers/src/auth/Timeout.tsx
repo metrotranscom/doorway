@@ -68,9 +68,8 @@ export const IdleTimeout: FunctionComponent<IdleTimeoutProps> = ({
         const timeoutAction = async () => {
           setPromptTimeout(undefined)
           await onTimeout()
-          console.log(router.push.toString())
-          void router.push(redirectPath)
           setSiteAlertMessage(alertMessage, alertType)
+          void router.push(redirectPath)
         }
         void timeoutAction()
       }, PROMPT_TIMEOUT) as unknown as number

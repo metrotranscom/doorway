@@ -25,6 +25,7 @@ const ResetPassword = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, handleSubmit, errors, watch } = useForm()
   const [requestError, setRequestError] = useState<string>()
+  const [loading, setLoading] = useState(false)
 
   const passwordValue = useRef({})
   passwordValue.current = watch("password", "")
@@ -38,13 +39,14 @@ const ResetPassword = () => {
   }, [])
 
   const onSubmit = async (data: { password: string; passwordConfirmation: string }) => {
+    setLoading(true)
     const { password, passwordConfirmation } = data
 
     try {
       const user = await resetPassword(token.toString(), password, passwordConfirmation)
       setSiteAlertMessage(t(`authentication.signIn.success`, { name: user.firstName }), "success")
 
-      const redirectUrl = "/applications/start/choose-language"
+      const redirectUrl = router.query?.redirectUrl as string
       const listingId = router.query?.listingId as string
 
       const routerRedirectUrl =
@@ -54,6 +56,7 @@ const ResetPassword = () => {
 
       await router.push(routerRedirectUrl)
     } catch (err) {
+      setLoading(false)
       const { status, data } = err.response || {}
       if (status === 400) {
         setRequestError(`${t(`authentication.forgotPassword.errors.${data.message}`)}`)
@@ -102,7 +105,11 @@ const ResetPassword = () => {
                 labelClassName={"text__caps-spaced"}
               />
 
-              <Button type="submit" variant="primary">
+              <Button
+                type="submit"
+                variant="primary"
+                loadingMessage={loading ? t("t.loading") : undefined}
+              >
                 {t("authentication.forgotPassword.changePassword")}
               </Button>
             </Form>

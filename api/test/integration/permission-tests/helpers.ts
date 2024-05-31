@@ -339,6 +339,7 @@ export const buildApplicationCreateMock = (
       id: listingId,
     },
     demographics: {
+      ethnicity: '',
       gender: 'example gender',
       sexualOrientation: 'example sexual orientation',
       howDidYouHear: ['example how did you hear'],
@@ -436,6 +437,7 @@ export const buildApplicationUpdateMock = (
       id: listingId,
     },
     demographics: {
+      ethnicity: '',
       gender: 'example gender',
       sexualOrientation: 'example sexual orientation',
       howDidYouHear: ['example how did you hear'],

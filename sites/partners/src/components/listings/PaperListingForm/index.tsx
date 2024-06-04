@@ -66,7 +66,7 @@ type ListingFormProps = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ListingForm = ({ listing, editMode }: ListingFormProps) => {
   const defaultValues = editMode ? listing : formDefaults
-  const isListingOpen = listing?.status === "active"
+  const isListingActive = listing?.status === ListingsStatusEnum.active
   const formMethods = useForm<FormListing>({
     defaultValues,
     shouldUnregister: false,
@@ -151,7 +151,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
     newData?: Partial<FormListing>
   ) => {
     if (confirm && status === ListingsStatusEnum.active) {
-      if (listing?.status === ListingsStatusEnum.active) {
+      if (isListingActive) {
         setListingIsAlreadyLiveModal(true)
       } else {
         setPublishModal(true)
@@ -371,7 +371,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                         <TabPanel>
                           <RankingsAndResults
                             listing={listing}
-                            disableDueDates={isListingOpen && !profile.userRoles.isAdmin}
+                            disableDueDates={isListingActive && !profile.userRoles.isAdmin}
                           />
                           <LeasingAgent />
                           <ApplicationTypes listing={listing} />
@@ -380,7 +380,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                             listing={listing}
                             openHouseEvents={openHouseEvents}
                             setOpenHouseEvents={setOpenHouseEvents}
-                            disableDueDate={isListingOpen && !profile.userRoles.isAdmin}
+                            disableDueDate={isListingActive && !profile.userRoles.isAdmin}
                           />
 
                           <div className="-ml-8 -mt-8 relative" style={{ top: "7rem" }}>

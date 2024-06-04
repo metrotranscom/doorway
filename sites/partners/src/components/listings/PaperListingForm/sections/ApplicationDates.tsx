@@ -13,7 +13,7 @@ type ApplicationDatesProps = {
   openHouseEvents: TempEvent[]
   setOpenHouseEvents: (events: TempEvent[]) => void
   listing?: FormListing
-  disableDueDate: boolean
+  disableDueDate?: boolean
 }
 
 const ApplicationDates = ({

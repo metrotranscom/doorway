@@ -139,7 +139,7 @@ const ApplicationDemographics = () => {
                 name="spokenLanguage"
                 defaultValue={
                   application.demographics.spokenLanguage?.includes("notListed")
-                    ? application.demographics.spokenLanguage.split(":")[0]
+                    ? "notListed"
                     : application.demographics.spokenLanguage
                 }
                 label={t("application.review.demographics.spokenLanguageLabel")}

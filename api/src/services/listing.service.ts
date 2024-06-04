@@ -49,6 +49,7 @@ import { startCronJob } from '../utilities/cron-job-starter';
 import { PermissionService } from './permission.service';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import Unit from '../dtos/units/unit.dto';
+import { checkIfDatesChanged } from '../utilities/listings-utilities';
 
 export type getListingsArgs = {
   skip: number;
@@ -1139,34 +1140,28 @@ export class ListingService implements OnModuleInit {
   */
   async update(dto: ListingUpdate, requestingUser: User): Promise<Listing> {
     const storedListing = await this.findOrThrow(dto.id, ListingViews.details);
+    const isNonAdmin = requestingUser?.userRoles?.isAdmin === false;
+    const isActiveListing = dto.status === 'active';
 
-    // block date changes on active listing for non admins
-    if (
-      requestingUser?.userRoles?.isAdmin === false &&
-      dto.status === 'active'
-    ) {
+    //check if the user has permission to edit dates
+    if (isNonAdmin && isActiveListing) {
       const lotteryEvent = dto.listingEvents?.find(
         (event) => event?.type === ListingEventsTypeEnum.publicLottery,
       );
       const storedLotteryEvent = storedListing.listingEvents?.find(
         (event) => event?.type === ListingEventsTypeEnum.publicLottery,
       );
+
       if (
-        lotteryEvent?.type !== storedLotteryEvent?.type ||
-        (lotteryEvent?.type === ListingEventsTypeEnum.publicLottery &&
-          !(
-            lotteryEvent.startDate?.toISOString() ===
-              storedLotteryEvent.startDate?.toISOString() &&
-            lotteryEvent.startTime?.toISOString() ===
-              storedLotteryEvent.startTime?.toISOString() &&
-            lotteryEvent.endTime?.toISOString() ===
-              storedLotteryEvent.endTime?.toISOString()
-          )) ||
-        dto.applicationDueDate?.toISOString() !==
-          storedListing.applicationDueDate?.toISOString()
+        checkIfDatesChanged(
+          lotteryEvent,
+          storedLotteryEvent,
+          dto,
+          storedListing.applicationDueDate?.toISOString(),
+        )
       ) {
         throw new HttpException(
-          `You do not have permission to edit dates`,
+          'You do not have permission to edit dates',
           403,
         );
       }

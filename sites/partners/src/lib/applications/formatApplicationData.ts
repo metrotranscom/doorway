@@ -196,6 +196,7 @@ export const mapFormToApi = ({
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   delete demographics.spokenLanguageNotListed
+  const sendMailToMailingAddress = data.application.sendMailToMailingAddress
 
   const applicationsMailingAddress = getAddress(sendMailToMailingAddress, mailingAddressData)
 
@@ -203,11 +204,16 @@ export const mapFormToApi = ({
 
   // send null instead of empty string
   alternateContact.emailAddress = alternateContact.emailAddress || null
+  alternateContact.type = alternateContact.type || null
 
   // pass blank address, not used for now everywhere
   const alternateAddress = getAddress(false, null)
 
   const { incomeMonth, incomeYear, householdMembers } = data
+
+  householdMembers.forEach((member) => {
+    member.relationship = member.relationship || null
+  })
 
   const incomePeriod: IncomePeriodEnum | null = data.application?.incomePeriod || null
 

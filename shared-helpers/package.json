@@ -13,11 +13,12 @@
   "scripts": {
     "test": "jest -w 1",
     "test:coverage": "jest -w 1 --coverage --watchAll=false",
-    "prettier": "prettier --write \"**/*.ts\""
+    "prettier": "prettier --write \"**/*.ts\"",
+    "test:missing-translations": "ts-node src/scripts/missing-translations.ts"
   },
   "dependencies": {
     "@bloom-housing/doorway-ui-components": "^1.0.0",
-    "@bloom-housing/ui-components": "12.1.0",
+    "@bloom-housing/ui-components": "12.1.6",
     "@bloom-housing/ui-seeds": "1.12.3",
     "axios-cookiejar-support": "4.0.6",
     "tough-cookie": "4.1.3"

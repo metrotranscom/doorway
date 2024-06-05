@@ -49,6 +49,7 @@ import { startCronJob } from '../utilities/cron-job-starter';
 import { PermissionService } from './permission.service';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import Unit from '../dtos/units/unit.dto';
+import { buildInclusiveWhereQuery } from 'src/utilities/unit-filter-utilities';
 
 export type getListingsArgs = {
   skip: number;
@@ -259,85 +260,19 @@ export class ListingService implements OnModuleInit {
           );
         }
         if (filter[ListingFilterKeys.bedrooms]) {
-          const bedroomsWhere = '';
-          const inclusiveWhereArray = [];
-          filter[ListingFilterKeys.bedrooms].forEach((bedroom) => {
-            switch (bedroom) {
-              case '0':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBedrooms')::INTEGER =0)",
-                );
-                break;
-              case '1':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBedrooms')::INTEGER =1)",
-                );
-                break;
-              case '2':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBedrooms')::INTEGER =2)",
-                );
-                break;
-              case '3':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBedrooms')::INTEGER =3)",
-                );
-                break;
-              case '4':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBedrooms')::INTEGER >=4)",
-                );
-                break;
-              default:
-                throw new BadRequestException(
-                  `Invalid input for bedrooms filter: "${bedroom}"`,
-                );
-            }
-          });
-
           whereClauseArray.push(
-            `(${bedroomsWhere}${inclusiveWhereArray.join(' OR ')})`,
+            buildInclusiveWhereQuery(
+              ListingFilterKeys.bedrooms,
+              filter[ListingFilterKeys.bedrooms],
+            ),
           );
         }
         if (filter[ListingFilterKeys.bathrooms]) {
-          const bathroomsWhere = '';
-          const inclusiveWhereArray = [];
-          filter[ListingFilterKeys.bathrooms].forEach((bathroom) => {
-            switch (bathroom) {
-              case '0':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBathrooms')::INTEGER =0)",
-                );
-                break;
-              case '1':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBathrooms')::INTEGER =1)",
-                );
-                break;
-              case '2':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBathrooms')::INTEGER =2)",
-                );
-                break;
-              case '3':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBathrooms')::INTEGER =3)",
-                );
-                break;
-              case '4':
-                inclusiveWhereArray.push(
-                  "((combined_units->>'numBathrooms')::INTEGER >=4)",
-                );
-                break;
-              default:
-                throw new BadRequestException(
-                  `Invalid input for bathrooms filter: "${bathroom}"`,
-                );
-            }
-          });
-
           whereClauseArray.push(
-            `(${bathroomsWhere}${inclusiveWhereArray.join(' OR ')})`,
+            buildInclusiveWhereQuery(
+              ListingFilterKeys.bathrooms,
+              filter[ListingFilterKeys.bathrooms],
+            ),
           );
         }
         if (filter[ListingFilterKeys.monthlyRent]) {

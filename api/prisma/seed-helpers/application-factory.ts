@@ -105,7 +105,7 @@ export const applicationFactory = async (optionalParams?: {
           },
         }
       : undefined,
-    incomeVouchers: randomBoolean(),
+    incomeVouchers: ['issuedVouchers'],
     additionalPhoneNumber: additionalPhone ? '(456) 456-4564' : undefined,
     additionalPhone,
     additionalPhoneNumberType: additionalPhone ? 'cell' : undefined,

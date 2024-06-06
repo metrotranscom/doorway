@@ -174,7 +174,6 @@ export const mapFormToApi = ({
     applicationsMailingAddress: mailingAddressData,
     additionalPhoneNumber,
     contactPreferences,
-    sendMailToMailingAddress,
     incomeVouchers,
   } = data.application
 

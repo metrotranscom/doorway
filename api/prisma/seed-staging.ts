@@ -122,6 +122,7 @@ export const stagingSeed = async (
       confirmedAt: new Date(),
       jurisdictionIds: [jurisdiction.id],
       acceptedTerms: false,
+      password: 'abcdef',
     }),
   });
   // add jurisdiction specific translations and default ones

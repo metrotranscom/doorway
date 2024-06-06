@@ -61,6 +61,14 @@ export const devSeeding = async (
   });
   await prismaClient.userAccounts.create({
     data: await userFactory({
+      email: 'public-user@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
       roles: { isJurisdictionalAdmin: true },
       email: 'jurisdiction-admin@example.com',
       confirmedAt: new Date(),

@@ -85,8 +85,6 @@ const FormSummaryDetails = ({
         return application.alternateContact.otherType
       case "caseManager":
         return application.alternateContact.agency
-      case "":
-        return ""
       default:
         return t(`application.alternateContact.type.options.${application.alternateContact.type}`)
     }
@@ -300,67 +298,62 @@ const FormSummaryDetails = ({
         )}
       </div>
 
-      {application.alternateContact.type !== "" &&
-        application.alternateContact.type !== "noContact" && (
-          <div id="alternateContact">
-            <h3 className="form--card__sub-header border-none text-xl">
-              {t("application.alternateContact.type.label")}
-              {editMode && !validationError && (
-                <EditLink href="/applications/contact/alternate-contact-type" />
-              )}
-            </h3>
+      {application.alternateContact.type && application.alternateContact.type !== "noContact" && (
+        <div id="alternateContact">
+          <h3 className="form--card__sub-header border-none text-xl">
+            {t("application.alternateContact.type.label")}
+            {editMode && !validationError && (
+              <EditLink href="/applications/contact/alternate-contact-type" />
+            )}
+          </h3>
 
-            <div className="form-card__group mx-0">
-              <p className="field-note mb-5">
-                {t(`application.alternateContact.type.description`)}
-              </p>
+          <div className="form-card__group mx-0">
+            <p className="field-note mb-5">{t(`application.alternateContact.type.description`)}</p>
+            <FieldValue
+              testId={"app-summary-alternate-name"}
+              id="alternateName"
+              label={t("t.name")}
+              helpText={alternateContactName()}
+              className={"pb-4"}
+            >
+              {application.alternateContact.emailAddress}
+            </FieldValue>
+
+            {application.alternateContact.emailAddress && (
               <FieldValue
-                testId={"app-summary-alternate-name"}
-                id="alternateName"
-                label={t("t.name")}
-                helpText={alternateContactName()}
+                testId={"app-summary-alternate-email"}
+                id="alternateEmail"
+                label={t("t.email")}
                 className={"pb-4"}
               >
-                {application.alternateContact.firstName} {application.alternateContact.lastName}
+                {application.alternateContact.emailAddress}
               </FieldValue>
+            )}
 
-              {application.alternateContact.emailAddress && (
-                <FieldValue
-                  testId={"app-summary-alternate-email"}
-                  id="alternateEmail"
-                  label={t("t.email")}
-                  className={"pb-4"}
-                >
-                  {application.alternateContact.emailAddress}
-                </FieldValue>
-              )}
+            {application.alternateContact.phoneNumber && (
+              <FieldValue
+                testId={"app-summary-alternate-phone"}
+                id="alternatePhone"
+                label={t("t.phone")}
+                className={"pb-4"}
+              >
+                {application.alternateContact.phoneNumber}
+              </FieldValue>
+            )}
 
-              {application.alternateContact.phoneNumber && (
-                <FieldValue
-                  testId={"app-summary-alternate-phone"}
-                  id="alternatePhone"
-                  label={t("t.phone")}
-                  className={"pb-4"}
-                >
-                  {application.alternateContact.phoneNumber}
-                </FieldValue>
-              )}
-
-              {Object.values(application.alternateContact.address).some(
-                (value) => value !== ""
-              ) && (
-                <FieldValue
-                  testId={"app-summary-alternate-mailing-address"}
-                  id="alternateMailingAddress"
-                  label={t("application.contact.address")}
-                  className={"pb-4"}
-                >
-                  <MultiLineAddress address={application.alternateContact.address} />
-                </FieldValue>
-              )}
-            </div>
+            {Object.values(application.alternateContact.address).some((value) => value !== "") && (
+              <FieldValue
+                testId={"app-summary-alternate-mailing-address"}
+                id="alternateMailingAddress"
+                label={t("application.contact.address")}
+                className={"pb-4"}
+              >
+                <MultiLineAddress address={application.alternateContact.address} />
+              </FieldValue>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
       {application.householdSize > 1 && (
         <div id="householdMembers">

@@ -1,4 +1,5 @@
 import { FormOption } from "@bloom-housing/doorway-ui-components"
+import { CheckboxItem } from "@bloom-housing/ui-seeds/src/forms/CheckboxGroup"
 
 // ie. [{label : "1" value: "1"}, {label : "2+" value: "2"} if includeMore is true
 export const numericSearchFieldGenerator = (
@@ -15,4 +16,12 @@ export const numericSearchFieldGenerator = (
     })
   }
   return fieldValues
+}
+
+export const getCheckboxValues = (formValues: string[]) => {
+  return formValues.map((value) => ({ label: value, value: value }))
+}
+
+export const getFormValues = (checkboxValues: CheckboxItem[]) => {
+  return checkboxValues.map((value) => value.value)
 }

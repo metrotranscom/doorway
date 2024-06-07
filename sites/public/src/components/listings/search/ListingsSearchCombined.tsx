@@ -31,8 +31,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   // Store the current search params for pagination
   const searchParams = useRef({
-    bedrooms: null,
-    bathrooms: null,
+    bedrooms: [],
+    bathrooms: [],
     monthlyRent: null,
     counties: [],
   } as ListingSearchParams)

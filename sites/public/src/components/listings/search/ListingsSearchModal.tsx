@@ -4,8 +4,7 @@ import { t } from "@bloom-housing/ui-components"
 import { Modal, Field, FieldGroup, FieldSingle } from "@bloom-housing/doorway-ui-components"
 import { CheckboxGroup, Button } from "@bloom-housing/ui-seeds"
 import { useForm } from "react-hook-form"
-import { numericSearchFieldGenerator } from "./helpers"
-import { CheckboxItem } from "@bloom-housing/ui-seeds/src/forms/CheckboxGroup"
+import { getCheckboxValues, getFormValues, numericSearchFieldGenerator } from "./helpers"
 import styles from "./ListingsSearchModal.module.scss"
 
 const inputSectionStyle: React.CSSProperties = {
@@ -132,7 +131,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
-  const updateValueMulti = (name: string, values: CheckboxItem[] | string[]) => {
+  const updateValueMulti = (name: string, values: string[]) => {
     const newValues = { ...formValues } as ListingSearchParams
     newValues[name] = values
     setFormValues(newValues)
@@ -229,11 +228,11 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         <CheckboxGroup
           id="bedrooms"
           options={bedroomOptions}
-          values={formValues.bedrooms}
-          onChange={(values) => updateValueMulti("bedrooms", values)}
+          values={getCheckboxValues(formValues.bedrooms)}
+          onChange={(values) => updateValueMulti("bedrooms", getFormValues(values))}
           size="md"
-          variant="secondary-outlined"
-          checkedVariant="secondary"
+          variant="primary-outlined"
+          checkedVariant="primary"
           className={styles["checkbox-group"]}
         />
       </div>
@@ -243,11 +242,11 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         <CheckboxGroup
           id="bathrooms"
           options={bathroomOptions}
-          values={formValues.bathrooms}
-          onChange={(values) => updateValueMulti("bathrooms", values)}
+          values={getCheckboxValues(formValues.bathrooms)}
+          onChange={(values) => updateValueMulti("bathrooms", getFormValues(values))}
           size="md"
-          variant="secondary-outlined"
-          checkedVariant="secondary"
+          variant="primary-outlined"
+          checkedVariant="primary"
           className={styles["checkbox-group"]}
         />
       </div>

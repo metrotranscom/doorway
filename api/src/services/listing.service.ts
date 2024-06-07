@@ -5,7 +5,6 @@ import {
   NotFoundException,
   OnModuleInit,
   HttpException,
-  BadRequestException,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';

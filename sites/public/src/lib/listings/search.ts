@@ -1,9 +1,8 @@
-import { CheckboxItem } from "@bloom-housing/ui-seeds/src/forms/CheckboxGroup"
 import { ListingQueryBuilder } from "./listing-query-builder"
 
 export type ListingSearchParams = {
-  bedrooms: CheckboxItem[]
-  bathrooms: CheckboxItem[]
+  bedrooms: string[]
+  bathrooms: string[]
   minRent: string
   monthlyRent: string
   counties: string[]
@@ -103,17 +102,11 @@ export function generateSearchQuery(params: ListingSearchParams) {
 
   // Find listings that have units with greater than or equal number of bedrooms
   if (Array.isArray(params.bedrooms) && params.bedrooms.length > 0) {
-    qb.whereIn(
-      "bedrooms",
-      params.bedrooms.map((bedroom) => bedroom.value)
-    )
+    qb.whereIn("bedrooms", params.bedrooms)
   }
 
   if (Array.isArray(params.bathrooms) && params.bathrooms.length > 0) {
-    qb.whereIn(
-      "bathrooms",
-      params.bathrooms.map((bathroom) => bathroom.value)
-    )
+    qb.whereIn("bathrooms", params.bathrooms)
   }
 
   if (params.minRent && params.minRent != "") {

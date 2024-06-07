@@ -48,7 +48,7 @@ import { startCronJob } from '../utilities/cron-job-starter';
 import { PermissionService } from './permission.service';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import Unit from '../dtos/units/unit.dto';
-import { buildInclusiveWhereQuery } from 'src/utilities/unit-filter-utilities';
+import { buildInclusiveWhereQuery } from '../utilities/unit-filter-utilities';
 
 export type getListingsArgs = {
   skip: number;

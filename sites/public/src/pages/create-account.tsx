@@ -279,7 +279,6 @@ export default () => {
                     onClick={() => {
                       void trigger().then((res) => res && setOpenTermsModal(true))
                     }}
-                    type="submit"
                     variant="primary"
                     loadingMessage={loading ? t("t.loading") : undefined}
                   >

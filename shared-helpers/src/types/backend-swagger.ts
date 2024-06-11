@@ -5075,6 +5075,9 @@ export interface UserRole {
   isJurisdictionalAdmin?: boolean
 
   /**  */
+  isLimitedJurisdictionalAdmin?: boolean
+
+  /**  */
   isPartner?: boolean
 }
 

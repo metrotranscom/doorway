@@ -29,9 +29,9 @@ import { SuccessDTO } from '../dtos/shared/success.dto';
 import { MultiselectQuestionFilterParams } from '../dtos/multiselect-questions/multiselect-question-filter-params.dto';
 import { PaginationMeta } from '../dtos/shared/pagination.dto';
 import { PermissionTypeDecorator } from '../decorators/permission-type.decorator';
+import { AdminNoPIIGuard } from '../guards/admin-no-pii.guard';
 import { OptionalAuthGuard } from '../guards/optional.guard';
 import { PermissionGuard } from '../guards/permission.guard';
-import { AdminOrJurisdictionalAdminGuard } from '../guards/admin-or-jurisdiction-admin.guard';
 import { ActivityLogInterceptor } from '../interceptors/activity-log.interceptor';
 import { ApiKeyGuard } from '../guards/api-key.guard';
 
@@ -80,7 +80,7 @@ export class MultiselectQuestionController {
     operationId: 'create',
   })
   @ApiOkResponse({ type: MultiselectQuestion })
-  @UseGuards(OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
+  @UseGuards(OptionalAuthGuard, AdminNoPIIGuard)
   async create(
     @Body() multiselectQuestion: MultiselectQuestionCreate,
   ): Promise<MultiselectQuestion> {
@@ -93,7 +93,7 @@ export class MultiselectQuestionController {
     operationId: 'update',
   })
   @ApiOkResponse({ type: MultiselectQuestion })
-  @UseGuards(OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
+  @UseGuards(OptionalAuthGuard, AdminNoPIIGuard)
   async update(
     @Body() multiselectQuestion: MultiselectQuestionUpdate,
   ): Promise<MultiselectQuestion> {
@@ -106,7 +106,7 @@ export class MultiselectQuestionController {
     operationId: 'delete',
   })
   @ApiOkResponse({ type: SuccessDTO })
-  @UseGuards(OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
+  @UseGuards(OptionalAuthGuard, AdminNoPIIGuard)
   @UseInterceptors(ActivityLogInterceptor)
   async delete(@Body() dto: IdDTO): Promise<SuccessDTO> {
     return await this.multiselectQuestionService.delete(dto.id);

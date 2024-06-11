@@ -102,6 +102,11 @@ export function useListingsData({
       $comparison: EnumListingFilterParamsComparison.IN,
       jurisdiction: userJurisidctionIds[0],
     })
+  } else if (roles?.isLimitedJurisdictionalAdmin) {
+    params.filter.push({
+      $comparison: EnumListingFilterParamsComparison.IN,
+      jurisdiction: userJurisidctionIds[0],
+    })
   }
 
   if (search?.length < 3) {

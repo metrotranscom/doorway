@@ -31,6 +31,8 @@ export const userFactory = async (optionalParams?: {
           isAdmin: optionalParams?.roles?.isAdmin || false,
           isJurisdictionalAdmin:
             optionalParams?.roles?.isJurisdictionalAdmin || false,
+          isLimitedJurisdictionalAdmin:
+            optionalParams?.roles?.isLimitedJurisdictionalAdmin || false,
           isPartner: optionalParams?.roles?.isPartner || false,
         },
       }

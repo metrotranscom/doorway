@@ -3186,10 +3186,10 @@
     react-tabs "^6.0.0"
     typescript "^4.4.2"
 
-"@bloom-housing/ui-seeds@1.15.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@bloom-housing/ui-seeds/-/ui-seeds-1.15.0.tgz#033d17fe33d4fb18a3bbbb0cc9605f758d70b6fc"
-  integrity sha512-WrCObkbw2E6zoDnsf3q2OU5yxN9MrS+a8/mT6Bpb5J/jF896iyFMNkMzqZWqx24s6tERXdGe7rzKtwXzZl4nqA==
+"@bloom-housing/ui-seeds@1.16.1":
+  version "1.16.1"
+  resolved "https://registry.yarnpkg.com/@bloom-housing/ui-seeds/-/ui-seeds-1.16.1.tgz#da293bc9c38c485df0d12f2a8c81120134bb57e4"
+  integrity sha512-BsNNw954cH3eeEF/qlcd6O/NjWWtgWVoKGAEO3JRMFGMmItVxBGOVg3Ye0Eyfs7bWXTxiw0ucDv/ZoMHRJbgmQ==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^6.3.0"
     "@fortawesome/react-fontawesome" "^0.2.0"

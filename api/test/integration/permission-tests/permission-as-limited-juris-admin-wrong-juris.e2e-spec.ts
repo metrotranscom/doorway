@@ -958,7 +958,7 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the wron
       await request(app.getHttpServer())
         .post(`/user/`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send(buildUserCreateMock(juris, 'publicUser+jurisCorrect@email.com'))
+        .send(buildUserCreateMock(juris, 'publicUser+jurisIncorrect@email.com'))
         .set('Cookie', cookies)
         .expect(201);
     });
@@ -968,7 +968,7 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the wron
         .post(`/user/invite`)
         .send(
           // builds an invite for an admin
-          buildUserInviteMock(jurisId, 'partnerUser+jurisCorrect@email.com'),
+          buildUserInviteMock(jurisId, 'partnerUser+jurisIncorrect@email.com'),
         )
         .set('Cookie', cookies)
         .set({ passkey: process.env.API_PASS_KEY || '' })

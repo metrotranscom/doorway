@@ -12,6 +12,7 @@
   @apply font-semibold;
   @apply text-sm;
   min-width: auto;
+  padding-bottom: var(--seeds-s2);
 
   @media (min-width: $screen-md) {
     @apply text-xl;

@@ -9,7 +9,7 @@ export class AdminNoPIIGuard implements CanActivate {
     return (
       authUser?.userRoles?.isAdmin ||
       authUser?.userRoles?.isJurisdictionalAdmin ||
-      authUser?.userRoles.isLimitedJurisdictionalAdmin
+      authUser?.userRoles?.isLimitedJurisdictionalAdmin
     );
   }
 }

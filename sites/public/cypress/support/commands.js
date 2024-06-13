@@ -473,18 +473,7 @@ Cypress.Commands.add("step18Summary", (application, verify) => {
       id: "app-summary-applicant-address",
       fieldValue: `${application.applicant.applicantAddress.city}, ${application.applicant.applicantAddress.state} ${application.applicant.applicantAddress.zipCode}`,
     },
-    {
-      id: "app-summary-applicant-work-address",
-      fieldValue: application.applicant.applicantWorkAddress.street,
-    },
-    {
-      id: "app-summary-applicant-work-address",
-      fieldValue: application.applicant.applicantWorkAddress.street2,
-    },
-    {
-      id: "app-summary-applicant-work-address",
-      fieldValue: `${application.applicant.applicantWorkAddress.city}, ${application.applicant.applicantWorkAddress.state} ${application.applicant.applicantWorkAddress.zipCode}`,
-    },
+
     {
       id: "app-summary-contact-preference-type",
       fieldValue: application.contactPreferences[0],

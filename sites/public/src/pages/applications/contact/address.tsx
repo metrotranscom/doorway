@@ -88,13 +88,12 @@ const ApplicationAddress = () => {
       application.additionalPhoneNumber = ""
       application.additionalPhoneNumberType = ""
     }
-    if (!application.applicant.workInRegion) {
-      application.applicant.applicantWorkAddress = blankApplication.applicant.applicantWorkAddress
-    }
     if (!application.sendMailToMailingAddress) {
       application.applicationsMailingAddress = blankApplication.applicationsMailingAddress
     }
-
+    if (!application.applicant.workInRegion) {
+      application.applicant.applicantWorkAddress = blankApplication.applicant.applicantWorkAddress
+    }
     conductor.sync()
 
     conductor.routeToNextOrReturnUrl()

@@ -144,27 +144,6 @@ Cypress.Commands.add("step2PrimaryApplicantAddresses", (application) => {
     cy.getByTestId("app-primary-contact-preference").eq(contactPreferenceIndex).check()
   })
 
-  if (application.applicant.workInRegion === "yes") {
-    cy.getByTestId("app-primary-work-in-region-yes").check()
-    cy.getByTestId("app-primary-work-address-street").type(
-      application.applicant.applicantWorkAddress.street
-    )
-    cy.getByTestId("app-primary-work-address-street2").type(
-      application.applicant.applicantWorkAddress.street2
-    )
-    cy.getByTestId("app-primary-work-address-city").type(
-      application.applicant.applicantWorkAddress.city
-    )
-    cy.getByTestId("app-primary-work-address-state").select(
-      application.applicant.applicantWorkAddress.state
-    )
-    cy.getByTestId("app-primary-work-address-zip").type(
-      application.applicant.applicantWorkAddress.zipCode
-    )
-  } else {
-    cy.getByTestId("app-primary-work-in-region-no").check()
-  }
-
   cy.goNext()
   cy.checkErrorAlert("not.exist")
   cy.checkErrorMessages("not.exist")
@@ -279,27 +258,6 @@ Cypress.Commands.add("step7AddHouseholdMembers", (application) => {
       )
     } else {
       cy.getByTestId("app-household-member-same-address").eq(0).check()
-    }
-
-    if (householdMember.workInRegion === "yes") {
-      cy.getByTestId("app-household-member-work-in-region").eq(0).check()
-      cy.getByTestId("app-household-member-work-address-street").type(
-        householdMember.householdMemberWorkAddress.street
-      )
-      cy.getByTestId("app-household-member-work-address-street2").type(
-        householdMember.householdMemberWorkAddress.street2
-      )
-      cy.getByTestId("app-household-member-work-address-city").type(
-        householdMember.householdMemberWorkAddress.city
-      )
-      cy.getByTestId("app-household-member-work-address-state").select(
-        householdMember.householdMemberWorkAddress.state
-      )
-      cy.getByTestId("app-household-member-work-address-zip").type(
-        householdMember.householdMemberWorkAddress.zipCode
-      )
-    } else {
-      cy.getByTestId("app-household-member-work-in-region").eq(1).check()
     }
 
     cy.getByTestId("app-household-member-relationship").select(householdMember.relationship)

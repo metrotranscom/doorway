@@ -218,7 +218,7 @@ export const ElmVillageApplication: Application = {
   ],
   demographics: {
     ...idDefaults,
-    race: ["americanIndianAlaskanNative"],
+    race: ["asian"],
     gender: "",
     sexualOrientation: "",
     spokenLanguage: "",

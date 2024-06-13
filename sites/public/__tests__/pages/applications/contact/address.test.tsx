@@ -42,8 +42,6 @@ describe("applications pages", () => {
       expect(getByTestId("app-primary-address-zip")).toBeInTheDocument()
       expect(getByTestId("app-primary-send-to-mailing")).toBeInTheDocument()
       expect(getAllByTestId("app-primary-contact-preference")).toHaveLength(4)
-      expect(getByTestId("app-primary-work-in-region-yes")).toBeInTheDocument()
-      expect(getByTestId("app-primary-work-in-region-no")).toBeInTheDocument()
     })
 
     it("should require form input", async () => {
@@ -57,7 +55,6 @@ describe("applications pages", () => {
       expect(getByText("Please enter a phone number type")).toBeInTheDocument()
       expect(getByText("Please enter an address")).toBeInTheDocument()
       expect(getByText("Please select at least one option.")).toBeInTheDocument()
-      expect(getByText("Please select one of the options above.")).toBeInTheDocument()
     })
 
     it("should disable phone fields if user indicates they don't have a phone", async () => {

@@ -34,7 +34,6 @@ describe("applications pages", () => {
       expect(getByTestId("dob-field-day")).toBeInTheDocument()
       expect(getByTestId("dob-field-year")).toBeInTheDocument()
       expect(getAllByTestId("app-household-member-same-address")).toHaveLength(2)
-      expect(getAllByTestId("app-household-member-work-in-region")).toHaveLength(2)
       expect(getByTestId("app-household-member-relationship")).toBeInTheDocument()
     })
 
@@ -48,7 +47,7 @@ describe("applications pages", () => {
       expect(getByText("Please enter a Given Name")).toBeInTheDocument()
       expect(getByText("Please enter a Family Name")).toBeInTheDocument()
       expect(getByText("Please enter a valid Date of Birth")).toBeInTheDocument()
-      expect(getAllByText("Please select one of the options above.")).toHaveLength(3)
+      expect(getAllByText("Please select one of the options above.")).toHaveLength(2)
     })
 
     it("should show more address fields if same address is not selected", () => {
@@ -60,17 +59,6 @@ describe("applications pages", () => {
       expect(getByTestId("app-household-member-address-city")).toBeInTheDocument()
       expect(getByTestId("app-household-member-address-state")).toBeInTheDocument()
       expect(getByTestId("app-household-member-address-zip")).toBeInTheDocument()
-    })
-
-    it("should show more address fields if work in region is selected", () => {
-      const { getAllByText, getByTestId } = render(<ApplicationMember />)
-
-      fireEvent.click(getAllByText("Yes")[1])
-      expect(getByTestId("app-household-member-work-address-street")).toBeInTheDocument()
-      expect(getByTestId("app-household-member-work-address-street2")).toBeInTheDocument()
-      expect(getByTestId("app-household-member-work-address-city")).toBeInTheDocument()
-      expect(getByTestId("app-household-member-work-address-state")).toBeInTheDocument()
-      expect(getByTestId("app-household-member-work-address-zip")).toBeInTheDocument()
     })
   })
 })

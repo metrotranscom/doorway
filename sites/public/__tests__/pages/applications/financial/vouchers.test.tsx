@@ -27,9 +27,11 @@ describe("applications pages", () => {
       const { getByText, getAllByTestId } = render(<ApplicationVouchers />)
 
       expect(
-        getByText("Do you or anyone on this application receive any of the following?")
+        getByText(
+          "Do you or anyone in your household receive Section 8 or Housing Authority issued vouchers, including Veterans Affairs Supportive Housing (VASH) vouchers, or rental assistance from other sources?"
+        )
       ).toBeInTheDocument()
-      expect(getAllByTestId("app-income-vouchers")).toHaveLength(2)
+      expect(getAllByTestId("app-income-vouchers")).toHaveLength(3)
     })
 
     it("should require form input", async () => {
@@ -39,7 +41,7 @@ describe("applications pages", () => {
       expect(
         await findByText("There are errors you'll need to resolve before moving on.")
       ).toBeInTheDocument()
-      expect(getByText("Please select an option.")).toBeInTheDocument()
+      expect(getByText("Please select at least one option.")).toBeInTheDocument()
     })
   })
 })

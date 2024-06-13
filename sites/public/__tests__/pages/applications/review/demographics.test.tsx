@@ -24,76 +24,169 @@ describe("applications pages", () => {
 
   describe("demographics step", () => {
     it("should render form fields", () => {
-      const { getByText, getByTestId, getAllByTestId } = render(<ApplicationDemographics />)
+      const { getByText, getByTestId, getAllByTestId, getByLabelText } = render(
+        <ApplicationDemographics />
+      )
 
-      expect(
-        getByText("Help us ensure we are meeting our goal to serve all people.")
-      ).toBeInTheDocument()
-      expect(getByTestId("americanIndianAlaskanNative")).toBeInTheDocument()
+      expect(getByText("Help us better serve you.")).toBeInTheDocument()
       expect(getByTestId("asian")).toBeInTheDocument()
-      expect(getByTestId("blackAfricanAmerican")).toBeInTheDocument()
-      expect(getByTestId("nativeHawaiianOtherPacificIslander")).toBeInTheDocument()
+      expect(getByTestId("black")).toBeInTheDocument()
+      expect(getByTestId("indigenous")).toBeInTheDocument()
+      expect(getByTestId("latino")).toBeInTheDocument()
+      expect(getByTestId("middleEasternOrAfrican")).toBeInTheDocument()
+      expect(getByTestId("pacificIslander")).toBeInTheDocument()
       expect(getByTestId("white")).toBeInTheDocument()
-      expect(getByTestId("otherMultiracial")).toBeInTheDocument()
-      expect(getByTestId("declineToRespond")).toBeInTheDocument()
-      expect(getByTestId("app-demographics-ethnicity")).toBeInTheDocument()
+      expect(
+        getByLabelText("Which language is most commonly spoken in your home? Please select one:")
+      ).toBeInTheDocument()
+      expect(
+        getByLabelText("Which best describes your gender identity? Please select one:")
+      ).toBeInTheDocument()
+      expect(
+        getByLabelText(
+          "Which best describes your sexual orientation or sexual identity? Please select one:"
+        )
+      ).toBeInTheDocument()
       expect(getAllByTestId("app-demographics-how-did-you-hear")).toHaveLength(9)
     })
 
     it("should render sub demographics fields when parent is checked", () => {
-      const { getByText, queryByText } = render(<ApplicationDemographics />)
+      const { getByLabelText, queryByLabelText } = render(<ApplicationDemographics />)
 
-      expect(queryByText("Asian Indian")).not.toBeInTheDocument()
-      expect(queryByText("Chinese")).not.toBeInTheDocument()
-      expect(queryByText("Filipino")).not.toBeInTheDocument()
-      expect(queryByText("Japanese")).not.toBeInTheDocument()
-      expect(queryByText("Korean")).not.toBeInTheDocument()
-      expect(queryByText("Vietnamese")).not.toBeInTheDocument()
-      expect(queryByText("Other Asian")).not.toBeInTheDocument()
+      expect(queryByLabelText("Chinese")).not.toBeInTheDocument()
+      expect(queryByLabelText("Filipino")).not.toBeInTheDocument()
+      expect(queryByLabelText("Japanese")).not.toBeInTheDocument()
+      expect(queryByLabelText("Korean")).not.toBeInTheDocument()
+      expect(queryByLabelText("Mongolian")).not.toBeInTheDocument()
+      expect(queryByLabelText("Vietnamese")).not.toBeInTheDocument()
+      expect(queryByLabelText("Central Asian")).not.toBeInTheDocument()
+      expect(queryByLabelText("South Asian")).not.toBeInTheDocument()
+      expect(queryByLabelText("Southeast Asian")).not.toBeInTheDocument()
+      expect(queryByLabelText("Other Asian")).not.toBeInTheDocument()
 
-      fireEvent.click(getByText("Asian"))
+      fireEvent.click(getByLabelText("Asian"))
 
-      expect(getByText("Asian Indian")).toBeInTheDocument()
-      expect(getByText("Chinese")).toBeInTheDocument()
-      expect(getByText("Filipino")).toBeInTheDocument()
-      expect(getByText("Japanese")).toBeInTheDocument()
-      expect(getByText("Korean")).toBeInTheDocument()
-      expect(getByText("Vietnamese")).toBeInTheDocument()
-      expect(getByText("Other Asian")).toBeInTheDocument()
+      expect(queryByLabelText("Chinese")).toBeInTheDocument()
+      expect(queryByLabelText("Filipino")).toBeInTheDocument()
+      expect(queryByLabelText("Japanese")).toBeInTheDocument()
+      expect(queryByLabelText("Korean")).toBeInTheDocument()
+      expect(queryByLabelText("Mongolian")).toBeInTheDocument()
+      expect(queryByLabelText("Vietnamese")).toBeInTheDocument()
+      expect(queryByLabelText("Central Asian")).toBeInTheDocument()
+      expect(queryByLabelText("South Asian")).toBeInTheDocument()
+      expect(queryByLabelText("Southeast Asian")).toBeInTheDocument()
+      expect(queryByLabelText("Other Asian")).toBeInTheDocument()
 
-      expect(queryByText("Native Hawaiian")).not.toBeInTheDocument()
-      expect(queryByText("Guamanian or Chamorro")).not.toBeInTheDocument()
-      expect(queryByText("Samoan")).not.toBeInTheDocument()
-      expect(queryByText("Other Pacific Islander")).not.toBeInTheDocument()
+      expect(queryByLabelText("African")).not.toBeInTheDocument()
+      expect(queryByLabelText("African American")).not.toBeInTheDocument()
+      expect(
+        queryByLabelText("Caribbean, Central American, South American or Mexican")
+      ).not.toBeInTheDocument()
+      expect(queryByLabelText("Other Black")).not.toBeInTheDocument()
 
-      fireEvent.click(getByText("Native Hawaiian / Other Pacific Islander"))
+      fireEvent.click(getByLabelText("Black"))
 
-      expect(getByText("Native Hawaiian")).toBeInTheDocument()
-      expect(getByText("Guamanian or Chamorro")).toBeInTheDocument()
-      expect(getByText("Samoan")).toBeInTheDocument()
-      expect(getByText("Other Pacific Islander")).toBeInTheDocument()
+      expect(queryByLabelText("African")).toBeInTheDocument()
+      expect(queryByLabelText("African American")).toBeInTheDocument()
+      expect(
+        queryByLabelText("Caribbean, Central American, South American or Mexican")
+      ).toBeInTheDocument()
+      expect(queryByLabelText("Other Black")).toBeInTheDocument()
+
+      expect(queryByLabelText("Alaskan Native")).not.toBeInTheDocument()
+      expect(queryByLabelText("American Indian/Native American")).not.toBeInTheDocument()
+      expect(
+        queryByLabelText("Indigenous from Mexico, the Caribbean, Central America, or South America")
+      ).not.toBeInTheDocument()
+      expect(queryByLabelText("Other Indigenous")).not.toBeInTheDocument()
+
+      fireEvent.click(getByLabelText("Indigenous"))
+
+      expect(queryByLabelText("Alaskan Native")).toBeInTheDocument()
+      expect(queryByLabelText("American Indian/Native American")).toBeInTheDocument()
+      expect(
+        queryByLabelText("Indigenous from Mexico, the Caribbean, Central America, or South America")
+      ).toBeInTheDocument()
+      expect(queryByLabelText("Other Indigenous")).toBeInTheDocument()
+
+      expect(queryByLabelText("Caribbean")).not.toBeInTheDocument()
+      expect(queryByLabelText("Central American")).not.toBeInTheDocument()
+      expect(queryByLabelText("Mexican")).not.toBeInTheDocument()
+      expect(queryByLabelText("South American")).not.toBeInTheDocument()
+      expect(queryByLabelText("Other Latino")).not.toBeInTheDocument()
+
+      fireEvent.click(getByLabelText("Latino"))
+
+      expect(queryByLabelText("Caribbean")).toBeInTheDocument()
+      expect(queryByLabelText("Central American")).toBeInTheDocument()
+      expect(queryByLabelText("Mexican")).toBeInTheDocument()
+      expect(queryByLabelText("South American")).toBeInTheDocument()
+      expect(queryByLabelText("Other Latino")).toBeInTheDocument()
+
+      expect(queryByLabelText("North African")).not.toBeInTheDocument()
+      expect(queryByLabelText("West Asian")).not.toBeInTheDocument()
+      expect(queryByLabelText("Other Middle Eastern or North African")).not.toBeInTheDocument()
+
+      fireEvent.click(getByLabelText("Middle Eastern, West African or North African"))
+
+      expect(queryByLabelText("North African")).toBeInTheDocument()
+      expect(queryByLabelText("West Asian")).toBeInTheDocument()
+      expect(queryByLabelText("Other Middle Eastern or North African")).toBeInTheDocument()
+
+      expect(queryByLabelText("Chamorro")).not.toBeInTheDocument()
+      expect(queryByLabelText("Native Hawaiian")).not.toBeInTheDocument()
+      expect(queryByLabelText("Samoan")).not.toBeInTheDocument()
+      expect(queryByLabelText("Other Pacific Islander")).not.toBeInTheDocument()
+
+      fireEvent.click(getByLabelText("Pacific Islander"))
+
+      expect(queryByLabelText("Chamorro")).toBeInTheDocument()
+      expect(queryByLabelText("Native Hawaiian")).toBeInTheDocument()
+      expect(queryByLabelText("Samoan")).toBeInTheDocument()
+      expect(queryByLabelText("Other Pacific Islander")).toBeInTheDocument()
     })
 
     it("should show other text fields when other options are checked", async () => {
-      const { getByText, queryByTitle, findByTitle } = render(<ApplicationDemographics />)
+      const { getByLabelText, queryByTestId, findAllByTestId } = render(<ApplicationDemographics />)
 
-      expect(queryByTitle("asian-otherAsian")).not.toBeInTheDocument()
-      fireEvent.click(getByText("Asian"))
-      fireEvent.click(getByText("Other Asian"))
-      expect(await findByTitle("asian-otherAsian")).toBeInTheDocument()
+      fireEvent.click(getByLabelText("Asian"))
+      expect(await findAllByTestId("asian-otherAsian")).toHaveLength(1)
+      fireEvent.click(getByLabelText("Other Asian"))
+      expect(await findAllByTestId("asian-otherAsian")).toHaveLength(2)
 
+      fireEvent.click(getByLabelText("Black"))
+      expect(await findAllByTestId("black-otherBlack")).toHaveLength(1)
+      fireEvent.click(getByLabelText("Other Black"))
+      expect(await findAllByTestId("black-otherBlack")).toHaveLength(2)
+
+      fireEvent.click(getByLabelText("Indigenous"))
+      expect(await findAllByTestId("indigenous-otherIndigenous")).toHaveLength(1)
+      fireEvent.click(getByLabelText("Other Indigenous"))
+      expect(await findAllByTestId("indigenous-otherIndigenous")).toHaveLength(2)
+
+      fireEvent.click(getByLabelText("Latino"))
+      expect(await findAllByTestId("latino-otherLatino")).toHaveLength(1)
+      fireEvent.click(getByLabelText("Other Latino"))
+      expect(await findAllByTestId("latino-otherLatino")).toHaveLength(2)
+
+      fireEvent.click(getByLabelText("Middle Eastern, West African or North African"))
       expect(
-        queryByTitle("nativeHawaiianOtherPacificIslander-otherPacificIslander")
-      ).not.toBeInTheDocument()
-      fireEvent.click(getByText("Native Hawaiian / Other Pacific Islander"))
-      fireEvent.click(getByText("Other Pacific Islander"))
+        await findAllByTestId("middleEasternOrAfrican-otherMiddleEasternNorthAfrican")
+      ).toHaveLength(1)
+      fireEvent.click(getByLabelText("Other Middle Eastern or North African"))
       expect(
-        await findByTitle("nativeHawaiianOtherPacificIslander-otherPacificIslander")
-      ).toBeInTheDocument()
+        await findAllByTestId("middleEasternOrAfrican-otherMiddleEasternNorthAfrican")
+      ).toHaveLength(2)
 
-      expect(queryByTitle("otherMultiracial")).not.toBeInTheDocument()
-      fireEvent.click(getByText("Other / Multiracial"))
-      expect(await findByTitle("otherMultiracial")).toBeInTheDocument()
+      fireEvent.click(getByLabelText("Pacific Islander"))
+      expect(await findAllByTestId("pacificIslander-otherPacificIslander")).toHaveLength(1)
+      fireEvent.click(getByLabelText("Other Pacific Islander"))
+      expect(await findAllByTestId("pacificIslander-otherPacificIslander")).toHaveLength(2)
+
+      fireEvent.click(getByLabelText("White"))
+      expect(await findAllByTestId("white-otherWhite")).toHaveLength(1)
+      fireEvent.click(getByLabelText("Other White"))
+      expect(await findAllByTestId("white-otherWhite")).toHaveLength(2)
     })
   })
 })

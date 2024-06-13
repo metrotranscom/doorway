@@ -73,6 +73,7 @@ export class Member implements HouseholdMemberUpdate {
   }
   sameAddress?: YesNoEnum
   relationship?: string
+  workInRegion?: YesNoEnum
 }
 
 const ApplicationMember = () => {

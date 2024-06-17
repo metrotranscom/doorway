@@ -23,7 +23,7 @@ type LandingSearchProps = {
 // TODO: Refactor LandingSearch to utilize react-hook-form. It is currently using a custom form object and custom valueSetters
 // which is mostly functional but fails to leverage UI-C's formatting, accessibility and any other future improvements to the
 // package. To expedite development and avoid excessive workarounds (ie. line 121), a full form refactor should be completed.
-export function LandingSearch(props: LandingSearchProps) {
+export const LandingSearch = (props: LandingSearchProps) => {
   // We hold a map of county label to county FormOption
   const countyLabelMap = {}
   const countyLabels = []

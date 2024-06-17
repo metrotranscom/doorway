@@ -9,14 +9,15 @@ import {
   raceCheckboxesOrder,
 } from "./../mockData/applicationData"
 
-Cypress.Commands.add("signIn", () => {
-  cy.get(`[data-testid="sign-in-email-field"]`).type("admin@example.com")
-  cy.get(`[data-testid="sign-in-password-field"]`).type("abcdef")
+Cypress.Commands.add("signIn", (email, password) => {
+  cy.get(`[data-testid="sign-in-email-field"]`).type(email ?? "admin@example.com")
+  cy.getByID("use-password-instead").click()
+  cy.get(`[data-testid="sign-in-password-field"]`).type(password ?? "abcdef")
   cy.getByID("sign-in-button").click()
 })
 
 Cypress.Commands.add("signOut", () => {
-  cy.get(`[data-testid="My Account-2"]`).trigger("mouseover")
+  cy.get(`[data-testid="My Account-4"]`).trigger("mouseover")
   cy.get(`[data-testid="Sign Out-3"]`).trigger("click")
 })
 
@@ -48,8 +49,8 @@ Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
   cy.visit("/listings")
   cy.get(".is-card-link").contains(listingName).click()
   cy.getByID("listing-view-apply-button").eq(1).click()
-  cy.getByID("app-choose-language-sign-in-button").click()
   cy.get("[data-testid=sign-in-email-field]").type("admin@example.com")
+  cy.getByID("use-password-instead").click()
   cy.get("[data-testid=sign-in-password-field]").type("abcdef")
   cy.getByID("sign-in-button").click()
   cy.getByID("app-choose-language-button").eq(0).click()
@@ -143,27 +144,6 @@ Cypress.Commands.add("step2PrimaryApplicantAddresses", (application) => {
     const contactPreferenceIndex = contactPreferencesCheckboxesOrder.indexOf(contactPreference)
     cy.getByTestId("app-primary-contact-preference").eq(contactPreferenceIndex).check()
   })
-
-  if (application.applicant.workInRegion === "yes") {
-    cy.getByTestId("app-primary-work-in-region-yes").check()
-    cy.getByTestId("app-primary-work-address-street").type(
-      application.applicant.applicantWorkAddress.street
-    )
-    cy.getByTestId("app-primary-work-address-street2").type(
-      application.applicant.applicantWorkAddress.street2
-    )
-    cy.getByTestId("app-primary-work-address-city").type(
-      application.applicant.applicantWorkAddress.city
-    )
-    cy.getByTestId("app-primary-work-address-state").select(
-      application.applicant.applicantWorkAddress.state
-    )
-    cy.getByTestId("app-primary-work-address-zip").type(
-      application.applicant.applicantWorkAddress.zipCode
-    )
-  } else {
-    cy.getByTestId("app-primary-work-in-region-no").check()
-  }
 
   cy.goNext()
   cy.checkErrorAlert("not.exist")
@@ -279,27 +259,6 @@ Cypress.Commands.add("step7AddHouseholdMembers", (application) => {
       )
     } else {
       cy.getByTestId("app-household-member-same-address").eq(0).check()
-    }
-
-    if (householdMember.workInRegion === "yes") {
-      cy.getByTestId("app-household-member-work-in-region").eq(0).check()
-      cy.getByTestId("app-household-member-work-address-street").type(
-        householdMember.householdMemberWorkAddress.street
-      )
-      cy.getByTestId("app-household-member-work-address-street2").type(
-        householdMember.householdMemberWorkAddress.street2
-      )
-      cy.getByTestId("app-household-member-work-address-city").type(
-        householdMember.householdMemberWorkAddress.city
-      )
-      cy.getByTestId("app-household-member-work-address-state").select(
-        householdMember.householdMemberWorkAddress.state
-      )
-      cy.getByTestId("app-household-member-work-address-zip").type(
-        householdMember.householdMemberWorkAddress.zipCode
-      )
-    } else {
-      cy.getByTestId("app-household-member-work-in-region").eq(1).check()
     }
 
     cy.getByTestId("app-household-member-relationship").select(householdMember.relationship)
@@ -467,8 +426,7 @@ Cypress.Commands.add("step16GeneralPool", () => {
 Cypress.Commands.add("step17Demographics", (application) => {
   cy.location("pathname").should("include", "applications/review/demographics")
   application.demographics.race.forEach((race) => {
-    const raceIndex = raceCheckboxesOrder.indexOf(race)
-    cy.getByTestId("app-demographics-race").eq(raceIndex).check()
+    cy.getByTestId(race).check()
   })
 
   if (application.demographics.ethnicity) {
@@ -515,18 +473,7 @@ Cypress.Commands.add("step18Summary", (application, verify) => {
       id: "app-summary-applicant-address",
       fieldValue: `${application.applicant.applicantAddress.city}, ${application.applicant.applicantAddress.state} ${application.applicant.applicantAddress.zipCode}`,
     },
-    {
-      id: "app-summary-applicant-work-address",
-      fieldValue: application.applicant.applicantWorkAddress.street,
-    },
-    {
-      id: "app-summary-applicant-work-address",
-      fieldValue: application.applicant.applicantWorkAddress.street2,
-    },
-    {
-      id: "app-summary-applicant-work-address",
-      fieldValue: `${application.applicant.applicantWorkAddress.city}, ${application.applicant.applicantWorkAddress.state} ${application.applicant.applicantWorkAddress.zipCode}`,
-    },
+
     {
       id: "app-summary-contact-preference-type",
       fieldValue: application.contactPreferences[0],
@@ -578,7 +525,7 @@ Cypress.Commands.add("step18Summary", (application, verify) => {
     fields.push({ id: val, fieldValue: val })
   }
 
-  if (application.alternateContact.type !== "dontHave") {
+  if (application.alternateContact.type !== "noContact") {
     fields.push({
       id: "app-summary-alternate-name",
       fieldValue: `${application.alternateContact.firstName} ${application.alternateContact.lastName}`,
@@ -673,16 +620,12 @@ Cypress.Commands.add("step19TermsAndSubmit", () => {
   cy.getByTestId("app-confirmation-id").should("be.visible").and("not.be.empty")
 })
 
-Cypress.Commands.add("submitApplication", (listingName, application, signedIn, verify) => {
-  if (signedIn) {
-    cy.beginApplicationSignedIn(listingName)
-  } else {
-    cy.beginApplicationRejectAutofill(listingName)
-  }
+Cypress.Commands.add("submitApplication", (listingName, application, verify) => {
+  cy.beginApplicationRejectAutofill(listingName)
   cy.step1PrimaryApplicantName(application)
   cy.step2PrimaryApplicantAddresses(application)
   cy.step3AlternateContactType(application)
-  if (application.alternateContact.type !== "dontHave") {
+  if (application.alternateContact.type !== "noContact") {
     cy.step4AlternateContactName(application)
     cy.step5AlternateContactInfo(application)
   }

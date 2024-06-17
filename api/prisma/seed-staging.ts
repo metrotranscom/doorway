@@ -123,6 +123,7 @@ export const stagingSeed = async (
       confirmedAt: new Date(),
       jurisdictionIds: [jurisdiction.id],
       acceptedTerms: false,
+      password: 'abcdef',
     }),
   });
   // add jurisdiction specific translations and default ones
@@ -311,6 +312,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsBuildingAddress: {
           create: whiteHouse,
@@ -440,6 +442,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsApplicationPickUpAddress: undefined,
         listingsApplicationDropOffAddress: undefined,
@@ -587,6 +590,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsBuildingAddress: {
           create: goldenGateBridge,
@@ -704,6 +708,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: dayjs(new Date()).subtract(1, 'days').toDate(),
         publishedAt: dayjs(new Date()).subtract(3, 'days').toDate(),
         closedAt: dayjs(new Date()).subtract(1, 'days').toDate(),
         listingsApplicationPickUpAddress: undefined,
@@ -807,6 +812,7 @@ export const stagingSeed = async (
         isWaitlistOpen: true,
         waitlistOpenSpots: 6,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsApplicationPickUpAddress: undefined,
         listingsApplicationDropOffAddress: undefined,
@@ -896,6 +902,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsApplicationPickUpAddress: undefined,
         listingsApplicationDropOffAddress: undefined,

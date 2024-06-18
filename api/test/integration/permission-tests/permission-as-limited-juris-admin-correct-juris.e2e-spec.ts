@@ -250,7 +250,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
         .expect(403);
     });
 
-    it('should error as forbidden for delete endpoint & create an activity log entry', async () => {
+    it('should error as forbidden for delete endpoint', async () => {
       const unitTypeA = await unitTypeFactorySingle(
         prisma,
         UnitTypeEnum.oneBdrm,
@@ -306,7 +306,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
         .expect(201);
     });
 
-    it('should error as forbidden for partner create endpoint & create an activity log entry', async () => {
+    it('should error as forbidden for partner create endpoint', async () => {
       const unitTypeA = await unitTypeFactorySingle(
         prisma,
         UnitTypeEnum.oneBdrm,
@@ -333,7 +333,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
         .expect(403);
     });
 
-    it('should error as forbidden for update endpoint & create an activity log entry', async () => {
+    it('should error as forbidden for update endpoint', async () => {
       const unitTypeA = await unitTypeFactorySingle(
         prisma,
         UnitTypeEnum.oneBdrm,
@@ -396,7 +396,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
         .expect(201);
     });
 
-    it('should error as forbidden for csv endpoint & create an activity log entry', async () => {
+    it('should error as forbidden for csv endpoint', async () => {
       const application = await applicationFactory();
       const listing1 = await listingFactory(jurisId, prisma, {
         applications: [application],
@@ -791,7 +791,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
         .expect(200);
     });
 
-    it('should succeed for delete endpoint & create an activity log entry', async () => {
+    it('should succeed for delete endpoint', async () => {
       const multiselectQuestionA = await prisma.multiselectQuestions.create({
         data: multiselectQuestionFactory(jurisId),
       });
@@ -973,7 +973,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
         .expect(403);
     });
 
-    it('should error as forbidden for csv export endpoint & create an activity log entry', async () => {
+    it('should error as forbidden for csv export endpoint', async () => {
       await request(app.getHttpServer())
         .get('/user/csv')
         .set({ passkey: process.env.API_PASS_KEY || '' })

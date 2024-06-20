@@ -53,7 +53,7 @@ const ApplicationAddress = () => {
       "applicant.phoneNumberType": application.applicant.phoneNumberType,
       sendMailToMailingAddress: application.sendMailToMailingAddress,
       "applicant.workInRegion": application.applicant.workInRegion,
-      "applicant.address.state": application.applicant.applicantAddress.state,
+      "applicant.applicantAddress.state": application.applicant.applicantAddress.state,
     },
     shouldFocusError: false,
   })
@@ -64,7 +64,7 @@ const ApplicationAddress = () => {
     if (!verifyAddress) {
       setFoundAddress({})
       setVerifyAddress(true)
-      findValidatedAddress(data.applicant.address, setFoundAddress, setNewAddressSelected)
+      findValidatedAddress(data.applicant.applicantAddress, setFoundAddress, setNewAddressSelected)
 
       return // Skip rest of the submit process
     }
@@ -72,6 +72,7 @@ const ApplicationAddress = () => {
     mergeDeep(application, data)
     if (newAddressSelected && foundAddress.newAddress) {
       application.applicant.applicantAddress.street = foundAddress.newAddress.street
+      application.applicant.applicantAddress.street2 = foundAddress.newAddress.street2
       application.applicant.applicantAddress.city = foundAddress.newAddress.city
       application.applicant.applicantAddress.zipCode = foundAddress.newAddress.zipCode
       application.applicant.applicantAddress.state = foundAddress.newAddress.state
@@ -108,7 +109,6 @@ const ApplicationAddress = () => {
   }
   const additionalPhone = watch("additionalPhone")
   const sendMailToMailingAddress = watch("sendMailToMailingAddress")
-  const workInRegion = watch("applicant.workInRegion")
   const clientLoaded = OnClientSide()
 
   const contactPreferencesOptions = contactPreferencesKeys?.map((item) => ({
@@ -295,7 +295,7 @@ const ApplicationAddress = () => {
 
                 <Field
                   id="addressStreet"
-                  name="applicant.address.street"
+                  name="applicant.applicantAddress.street"
                   label={t("application.contact.streetAddress")}
                   defaultValue={application.applicant.applicantAddress.street}
                   validation={{ required: true, maxLength: 64 }}
@@ -304,19 +304,19 @@ const ApplicationAddress = () => {
                       ? t("errors.maxLength")
                       : t("errors.streetError")
                   }
-                  error={errors.applicant?.address?.street}
+                  error={errors.applicant?.applicantAddress?.street}
                   register={register}
                   dataTestId={"app-primary-address-street"}
                 />
 
                 <Field
                   id="addressStreet2"
-                  name="applicant.address.street2"
+                  name="applicant.applicantAddress.street2"
                   label={t("application.contact.apt")}
                   defaultValue={application.applicant.applicantAddress.street2}
                   register={register}
                   dataTestId={"app-primary-address-street2"}
-                  error={errors.applicant?.address?.street2}
+                  error={errors.applicant?.applicantAddress?.street2}
                   validation={{ maxLength: 64 }}
                   errorMessage={t("errors.maxLength")}
                 />
@@ -324,7 +324,7 @@ const ApplicationAddress = () => {
                 <div className="flex max-w-2xl">
                   <Field
                     id="addressCity"
-                    name="applicant.address.city"
+                    name="applicant.applicantAddress.city"
                     label={t("application.contact.cityName")}
                     defaultValue={application.applicant.applicantAddress.city}
                     validation={{ required: true, maxLength: 64 }}
@@ -333,19 +333,19 @@ const ApplicationAddress = () => {
                         ? t("errors.maxLength")
                         : t("errors.cityError")
                     }
-                    error={errors.applicant?.address?.city}
+                    error={errors.applicant?.applicantAddress?.city}
                     register={register}
                     dataTestId={"app-primary-address-city"}
                   />
 
                   <Select
                     id="addressState"
-                    name="applicant.address.state"
+                    name="applicant.applicantAddress.state"
                     label={t("application.contact.state")}
                     validation={{ required: true, maxLength: 64 }}
                     error={errors.applicant?.address?.state}
                     errorMessage={
-                      errors.applicant?.address?.state?.type === "maxLength"
+                      errors.applicant?.applicantAddress?.state?.type === "maxLength"
                         ? t("errors.maxLength")
                         : t("errors.stateError")
                     }
@@ -358,12 +358,12 @@ const ApplicationAddress = () => {
                 </div>
                 <Field
                   id="addressZipCode"
-                  name="applicant.address.zipCode"
+                  name="applicant.applicantAddress.zipCode"
                   label={t("application.contact.zip")}
                   defaultValue={application.applicant.applicantAddress.zipCode}
                   validation={{ required: true, maxLength: 64 }}
                   errorMessage={
-                    errors.applicant?.address?.zipCode?.type === "maxLength"
+                    errors.applicant?.applicantAddress?.zipCode?.type === "maxLength"
                       ? t("errors.maxLength")
                       : t("errors.zipCodeError")
                   }
@@ -499,150 +499,6 @@ const ApplicationAddress = () => {
                   dataTestId={"app-primary-contact-preference"}
                 />
               </fieldset>
-            </CardSection>
-
-            <CardSection>
-              <fieldset>
-                <legend
-                  className={`text__caps-spaced ${
-                    errors?.applicant?.workInRegion ? "text-alert" : ""
-                  }`}
-                >
-                  {t("application.contact.doYouWorkIn", {
-                    county:
-                      listing?.listingsBuildingAddress?.county || listing?.jurisdictions?.name,
-                  })}
-                </legend>
-
-                <Field
-                  className="mb-1"
-                  type="radio"
-                  id="workInRegionYes"
-                  name="applicant.workInRegion"
-                  label={t("t.yes")}
-                  register={register}
-                  validation={{ required: true }}
-                  error={errors?.applicant?.workInRegion}
-                  inputProps={{
-                    value: "yes",
-                    defaultChecked: application.applicant.workInRegion == "yes",
-                  }}
-                  dataTestId={"app-primary-work-in-region-yes"}
-                />
-
-                <Field
-                  className="mb-1"
-                  type="radio"
-                  id="workInRegionNo"
-                  name="applicant.workInRegion"
-                  label={t("t.no")}
-                  register={register}
-                  validation={{ required: true }}
-                  error={errors?.applicant?.workInRegion}
-                  inputProps={{
-                    value: "no",
-                    defaultChecked: application.applicant.workInRegion == "no",
-                  }}
-                  dataTestId={"app-primary-work-in-region-no"}
-                />
-                {errors?.applicant?.workInRegion && (
-                  <FormErrorMessage id="applicant.workInRegion-error">
-                    {t("errors.selectOption")}
-                  </FormErrorMessage>
-                )}
-              </fieldset>
-
-              {(workInRegion == "yes" ||
-                (!workInRegion && application.applicant.workInRegion == "yes")) && (
-                <div className="form-card__group mx-0 px-0 mt-2">
-                  <fieldset>
-                    <legend className="text__caps-spaced">
-                      {t("application.contact.workAddress")}
-                    </legend>
-
-                    <Field
-                      id="applicantWorkAddressStreet"
-                      name="applicant.applicantWorkAddress.street"
-                      defaultValue={application.applicant.applicantWorkAddress.street}
-                      validation={{ required: true, maxLength: 64 }}
-                      error={errors.applicant?.applicantWorkAddress?.street}
-                      errorMessage={
-                        errors.applicant?.applicantWorkAddress?.street?.type === "maxLength"
-                          ? t("errors.maxLength")
-                          : t("errors.streetError")
-                      }
-                      register={register}
-                      dataTestId={"app-primary-work-address-street"}
-                      label={t("application.contact.streetAddress")}
-                    />
-
-                    <Field
-                      id="applicantWorkAddressStreet2"
-                      name="applicant.applicantWorkAddress.street2"
-                      label={t("application.contact.apt")}
-                      defaultValue={application.applicant.applicantWorkAddress.street2}
-                      register={register}
-                      error={errors.applicant?.applicantWorkAddress?.street2}
-                      validation={{ maxLength: 64 }}
-                      errorMessage={"errors.maxLength"}
-                      dataTestId={"app-primary-work-address-street2"}
-                    />
-
-                    <div className="flex max-w-2xl">
-                      <Field
-                        id="applicantWorkAddressCity"
-                        name="applicant.applicantWorkAddress.city"
-                        label={t("application.contact.city")}
-                        defaultValue={application.applicant.applicantWorkAddress.city}
-                        validation={{ required: true, maxLength: 64 }}
-                        error={errors.applicant?.applicantWorkAddress?.city}
-                        errorMessage={
-                          errors.applicant?.applicantWorkAddress?.city?.type === "maxLength"
-                            ? t("errors.maxLength")
-                            : t("errors.cityError")
-                        }
-                        register={register}
-                        dataTestId={"app-primary-work-address-city"}
-                      />
-
-                      <Select
-                        id="applicantWorkAddressState"
-                        name="applicant.applicantWorkAddress.state"
-                        label={t("application.contact.state")}
-                        defaultValue={application.applicant.applicantWorkAddress.state}
-                        validation={{ required: true, maxLength: 64 }}
-                        error={errors.applicant?.applicantWorkAddress?.state}
-                        errorMessage={
-                          errors.applicant?.applicantWorkAddress?.state?.type === "maxLength"
-                            ? t("errors.maxLength")
-                            : t("errors.stateError")
-                        }
-                        register={register}
-                        controlClassName="control"
-                        options={stateKeys}
-                        keyPrefix="states"
-                        dataTestId={"app-primary-work-address-state"}
-                      />
-                    </div>
-
-                    <Field
-                      id="applicantWorkAddressZipCode"
-                      name="applicant.applicantWorkAddress.zipCode"
-                      label={t("application.contact.zip")}
-                      defaultValue={application.applicant.applicantWorkAddress.zipCode}
-                      validation={{ required: true, maxLength: 64 }}
-                      error={errors.applicant?.applicantWorkAddress?.zipCode}
-                      errorMessage={
-                        errors.applicant?.applicantWorkAddress?.zipCode?.type === "maxLength"
-                          ? t("errors.maxLength")
-                          : t("errors.zipCodeError")
-                      }
-                      register={register}
-                      dataTestId={"app-primary-work-address-zip"}
-                    />
-                  </fieldset>
-                </div>
-              )}
             </CardSection>
           </div>
           <CardSection>

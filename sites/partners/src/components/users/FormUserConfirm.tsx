@@ -1,22 +1,12 @@
 import React, { useRef, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/router"
-import {
-  t,
-  FormCard,
-  Icon,
-  Form,
-  Field,
-  passwordRegex,
-  setSiteAlertMessage,
-  useMutate,
-  AlertBox,
-  Modal,
-} from "@bloom-housing/ui-components"
-import { Button } from "@bloom-housing/ui-seeds"
-import { AuthContext } from "@bloom-housing/shared-helpers"
+import { t, FormCard, Form, Field, useMutate, AlertBox, Modal } from "@bloom-housing/ui-components"
+import { Button, Icon } from "@bloom-housing/ui-seeds"
+import { AuthContext, MessageContext, passwordRegex } from "@bloom-housing/shared-helpers"
 import { useForm } from "react-hook-form"
 import { ReRequestConfirmation } from "./ReRequestConfirmation"
 import { SuccessDTO } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import Cog8ToothIcon from "@heroicons/react/24/solid/Cog8ToothIcon"
 
 type FormUserConfirmFields = {
   password: string
@@ -24,7 +14,7 @@ type FormUserConfirmFields = {
   agree: boolean
 }
 
-const MIN_PASSWORD_LENGTH = 8
+const MIN_PASSWORD_LENGTH = 12
 
 const FormUserConfirm = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -37,6 +27,7 @@ const FormUserConfirm = () => {
     reset: resetMutation,
   } = useMutate<SuccessDTO>()
   const { userService, loadProfile, loading, authService } = useContext(AuthContext)
+  const { addToast } = useContext(MessageContext)
   const token = router.query?.token as string
 
   const password = useRef({})
@@ -79,7 +70,7 @@ const FormUserConfirm = () => {
 
       if (response) {
         loadProfile("/")
-        setSiteAlertMessage(t(`users.accountConfirmed`), "success")
+        addToast(t(`users.accountConfirmed`), { variant: "success" })
       }
     } catch (err) {
       setSubmitting(false)
@@ -102,7 +93,9 @@ const FormUserConfirm = () => {
     <>
       <FormCard>
         <div className="form-card__lead text-center border-b mx-0 px-5">
-          <Icon size="2xl" symbol="settings" />
+          <Icon size="2xl">
+            <Cog8ToothIcon />
+          </Icon>
           <h2 className="form-card__title">{t("users.addPassword")}</h2>
           <p className="mt-4 field-note">{t("users.needUniquePassword")}</p>
 
@@ -133,7 +126,6 @@ const FormUserConfirm = () => {
                   name="password"
                   label={t("account.settings.newPassword")}
                   note={t("authentication.createAccount.passwordInfo")}
-                  placeholder={t("authentication.createAccount.mustBe8Chars")}
                   validation={{
                     required: true,
                     minLength: MIN_PASSWORD_LENGTH,
@@ -154,7 +146,6 @@ const FormUserConfirm = () => {
                   type="password"
                   name="passwordConfirmation"
                   label={t("account.settings.confirmNewPassword")}
-                  placeholder={t("authentication.createAccount.mustBe8Chars")}
                   validation={{
                     required: true,
                     validate: (value) =>
@@ -179,7 +170,9 @@ const FormUserConfirm = () => {
                 type="submit"
                 variant="primary"
                 className={"items-center"}
-                loadingMessage={(isConfirmLoading || loading) && t("t.formSubmitted")}
+                loadingMessage={
+                  (isConfirmLoading || loading || isSubmitting) && t("t.formSubmitted")
+                }
               >
                 {t("users.confirmAccount")}
               </Button>

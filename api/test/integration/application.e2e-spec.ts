@@ -39,6 +39,8 @@ import { Login } from '../../src/dtos/auth/login.dto';
 import { multiselectQuestionFactory } from '../../prisma/seed-helpers/multiselect-question-factory';
 import { reservedCommunityTypeFactoryAll } from '../../prisma/seed-helpers/reserved-community-type-factory';
 import { ValidationMethod } from '../../src/enums/multiselect-questions/validation-method-enum';
+import { AlternateContactRelationship } from '../../src/enums/applications/alternate-contact-relationship-enum';
+import { HouseholdMemberRelationship } from '../../src/enums/applications/household-member-relationship-enum';
 
 describe('Application Controller Tests', () => {
   let app: INestApplication;
@@ -102,9 +104,10 @@ describe('Application Controller Tests', () => {
     });
     const resLogIn = await request(app.getHttpServer())
       .post('/auth/login')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
       } as Login)
       .expect(201);
 
@@ -129,6 +132,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .get(`/applications?${query}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
       expect(res.body.items.length).toBe(0);
@@ -138,6 +142,7 @@ describe('Application Controller Tests', () => {
     it.skip('should get no applications when no params are sent, and no applications are stored', async () => {
       const res = await request(app.getHttpServer())
         .get(`/applications`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .expect(200);
 
       expect(res.body.items.length).toBe(0);
@@ -175,6 +180,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .get(`/applications?${query}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
 
@@ -213,6 +219,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .get(`/applications`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
 
@@ -245,6 +252,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .get(`/applications/${applicationA.id}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
 
@@ -258,6 +266,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .get(`/applications/${id}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(404);
 
@@ -293,6 +302,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .delete(`/applications/`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           id: applicationA.id,
         })
@@ -317,6 +327,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .delete(`/applications/`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           id,
         })
@@ -402,7 +413,7 @@ describe('Application Controller Tests', () => {
           hearing: false,
         },
         alternateContact: {
-          type: 'example type',
+          type: AlternateContactRelationship.friend,
           otherType: 'example other type',
           firstName: 'example first name',
           lastName: 'example last name',
@@ -417,11 +428,12 @@ describe('Application Controller Tests', () => {
           id: listing1Created.id,
         },
         demographics: {
-          ethnicity: 'example ethnicity',
+          ethnicity: '',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example language',
         },
         preferredUnitTypes: [
           {
@@ -438,7 +450,7 @@ describe('Application Controller Tests', () => {
             birthDay: '17',
             birthYear: '1993',
             sameAddress: YesNoEnum.yes,
-            relationship: 'example relationship',
+            relationship: HouseholdMemberRelationship.friend,
             workInRegion: YesNoEnum.yes,
             householdMemberWorkAddress: exampleAddress,
             householdMemberAddress: exampleAddress,
@@ -483,6 +495,7 @@ describe('Application Controller Tests', () => {
       };
       const res = await request(app.getHttpServer())
         .post(`/applications/submit`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(dto)
         .set('Cookie', cookies)
         .expect(201);
@@ -580,7 +593,7 @@ describe('Application Controller Tests', () => {
           hearing: false,
         },
         alternateContact: {
-          type: 'example type',
+          type: AlternateContactRelationship.friend,
           otherType: 'example other type',
           firstName: 'example first name',
           lastName: 'example last name',
@@ -595,11 +608,12 @@ describe('Application Controller Tests', () => {
           id: listing1Created.id,
         },
         demographics: {
-          ethnicity: 'example ethnicity',
+          ethnicity: '',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example language',
         },
         preferredUnitTypes: [
           {
@@ -616,7 +630,7 @@ describe('Application Controller Tests', () => {
             birthDay: '17',
             birthYear: '1993',
             sameAddress: YesNoEnum.yes,
-            relationship: 'example relationship',
+            relationship: HouseholdMemberRelationship.friend,
             workInRegion: YesNoEnum.yes,
             householdMemberWorkAddress: exampleAddress,
             householdMemberAddress: exampleAddress,
@@ -642,6 +656,7 @@ describe('Application Controller Tests', () => {
       };
       const res = await request(app.getHttpServer())
         .post(`/applications/submit`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(dto)
         .expect(201);
 
@@ -749,7 +764,7 @@ describe('Application Controller Tests', () => {
           hearing: false,
         },
         alternateContact: {
-          type: 'example type',
+          type: AlternateContactRelationship.friend,
           otherType: 'example other type',
           firstName: 'example first name',
           lastName: 'example last name',
@@ -764,11 +779,12 @@ describe('Application Controller Tests', () => {
           id: listing1Created.id,
         },
         demographics: {
-          ethnicity: 'example ethnicity',
+          ethnicity: '',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example language',
         },
         preferredUnitTypes: [
           {
@@ -785,7 +801,7 @@ describe('Application Controller Tests', () => {
             birthDay: '17',
             birthYear: '1993',
             sameAddress: YesNoEnum.yes,
-            relationship: 'example relationship',
+            relationship: HouseholdMemberRelationship.friend,
             workInRegion: YesNoEnum.yes,
             householdMemberWorkAddress: exampleAddress,
             householdMemberAddress: exampleAddress,
@@ -830,6 +846,7 @@ describe('Application Controller Tests', () => {
       };
       const res = await request(app.getHttpServer())
         .post(`/applications/`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(dto)
         .set('Cookie', cookies)
         .expect(201);
@@ -925,7 +942,7 @@ describe('Application Controller Tests', () => {
           hearing: false,
         },
         alternateContact: {
-          type: 'example type',
+          type: AlternateContactRelationship.friend,
           otherType: 'example other type',
           firstName: 'example first name',
           lastName: 'example last name',
@@ -940,11 +957,12 @@ describe('Application Controller Tests', () => {
           id: listing1Created.id,
         },
         demographics: {
-          ethnicity: 'example ethnicity',
+          ethnicity: '',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example language',
         },
         preferredUnitTypes: [
           {
@@ -961,7 +979,7 @@ describe('Application Controller Tests', () => {
             birthDay: '17',
             birthYear: '1993',
             sameAddress: YesNoEnum.yes,
-            relationship: 'example relationship',
+            relationship: HouseholdMemberRelationship.friend,
             workInRegion: YesNoEnum.yes,
             householdMemberWorkAddress: exampleAddress,
             householdMemberAddress: exampleAddress,
@@ -1007,6 +1025,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .put(`/applications/${applicationA.id}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(dto)
         .set('Cookie', cookies)
         .expect(200);
@@ -1090,7 +1109,7 @@ describe('Application Controller Tests', () => {
           hearing: false,
         },
         alternateContact: {
-          type: 'example type',
+          type: AlternateContactRelationship.friend,
           otherType: 'example other type',
           firstName: 'example first name',
           lastName: 'example last name',
@@ -1105,11 +1124,12 @@ describe('Application Controller Tests', () => {
           id: listing1Created.id,
         },
         demographics: {
-          ethnicity: 'example ethnicity',
+          ethnicity: '',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example language',
         },
         preferredUnitTypes: [
           {
@@ -1126,7 +1146,7 @@ describe('Application Controller Tests', () => {
             birthDay: '17',
             birthYear: '1993',
             sameAddress: YesNoEnum.yes,
-            relationship: 'example relationship',
+            relationship: HouseholdMemberRelationship.friend,
             workInRegion: YesNoEnum.yes,
             householdMemberWorkAddress: exampleAddress,
             householdMemberAddress: exampleAddress,
@@ -1172,6 +1192,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .put(`/applications/${id}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(dto)
         .expect(404);
 
@@ -1255,7 +1276,7 @@ describe('Application Controller Tests', () => {
           hearing: false,
         },
         alternateContact: {
-          type: 'example type',
+          type: AlternateContactRelationship.friend,
           otherType: 'example other type',
           firstName: 'example first name',
           lastName: 'example last name',
@@ -1270,11 +1291,12 @@ describe('Application Controller Tests', () => {
           id: listing1Created.id,
         },
         demographics: {
-          ethnicity: 'example ethnicity',
+          ethnicity: '',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example language',
         },
         preferredUnitTypes: [
           {
@@ -1291,7 +1313,7 @@ describe('Application Controller Tests', () => {
             birthDay: '17',
             birthYear: '1993',
             sameAddress: YesNoEnum.yes,
-            relationship: 'example relationship',
+            relationship: HouseholdMemberRelationship.friend,
             workInRegion: YesNoEnum.yes,
             householdMemberWorkAddress: exampleAddress,
             householdMemberAddress: exampleAddress,
@@ -1337,6 +1359,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .post(`/applications/verify`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(dto)
         .expect(201);
 
@@ -1348,6 +1371,7 @@ describe('Application Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .post(`/applications/verify`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(dto)
         .expect(400);
 

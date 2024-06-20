@@ -13,9 +13,9 @@ import {
   useAgTable,
   Modal,
   Field,
-  Icon,
 } from "@bloom-housing/ui-components"
-import { Button, Tag } from "@bloom-housing/ui-seeds"
+import { Button, Icon, Tag } from "@bloom-housing/ui-seeds"
+import ChevronLeftIcon from "@heroicons/react/20/solid/ChevronLeftIcon"
 import {
   AfsResolve,
   ApplicationFlaggedSet,
@@ -115,7 +115,11 @@ const Flag = () => {
         <StatusBar
           backButton={
             <Button
-              leadIcon={<Icon symbol="arrowBack" size="small" />}
+              leadIcon={
+                <Icon size="sm">
+                  <ChevronLeftIcon />
+                </Icon>
+              }
               variant="text"
               size="sm"
               className="font-semibold no-underline"
@@ -199,13 +203,14 @@ const Flag = () => {
               <section className={"w-full"}>
                 <Button
                   variant="primary"
+                  className="w-full"
                   onClick={() => setSaveModalOpen(true)}
                   id={"save-set-button"}
                 >
                   {t("t.save")}
                 </Button>
                 {data?.updatedAt && (
-                  <div className="border-t text-xs flex items-center justify-center md:mt-0 mt-4 pt-4">
+                  <div className="border-t text-xs flex items-center justify-center mt-4 pt-4">
                     {t("t.lastUpdated")}: {dayjs(data?.updatedAt).format("MMMM DD, YYYY")}
                   </div>
                 )}

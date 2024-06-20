@@ -48,6 +48,8 @@ import { UserCreate } from '../../../src/dtos/users/user-create.dto';
 import { UserInvite } from '../../../src/dtos/users/user-invite.dto';
 import { ListingPublishedCreate } from '../../../src/dtos/listings/listing-published-create.dto';
 import { ListingPublishedUpdate } from '../../../src/dtos/listings/listing-published-update.dto';
+import { AlternateContactRelationship } from '../../../src/enums/applications/alternate-contact-relationship-enum';
+import { HouseholdMemberRelationship } from '../../../src/enums/applications/household-member-relationship-enum';
 
 export const generateJurisdiction = async (
   prisma: PrismaService,
@@ -165,11 +167,11 @@ export const buildMultiselectQuestionCreateMock = (
     links: [
       {
         title: 'title 1',
-        url: 'title 1',
+        url: 'https://title-1.com',
       },
       {
         title: 'title 2',
-        url: 'title 2',
+        url: 'https://title-2.com',
       },
     ],
     jurisdictions: [{ id: jurisId }],
@@ -181,7 +183,7 @@ export const buildMultiselectQuestionCreateMock = (
         links: [
           {
             title: 'title 3',
-            url: 'title 3',
+            url: 'https://title-3.com',
           },
         ],
         collectAddress: true,
@@ -194,7 +196,7 @@ export const buildMultiselectQuestionCreateMock = (
         links: [
           {
             title: 'title 4',
-            url: 'title 4',
+            url: 'https://title-4.com',
           },
         ],
         collectAddress: true,
@@ -219,11 +221,11 @@ export const buildMultiselectQuestionUpdateMock = (
     links: [
       {
         title: 'title 1',
-        url: 'title 1',
+        url: 'https://title-1.com',
       },
       {
         title: 'title 2',
-        url: 'title 2',
+        url: 'https://title-2.com',
       },
     ],
     jurisdictions: [{ id: jurisId }],
@@ -235,7 +237,7 @@ export const buildMultiselectQuestionUpdateMock = (
         links: [
           {
             title: 'title 3',
-            url: 'title 3',
+            url: 'https://title-3.com',
           },
         ],
         collectAddress: true,
@@ -248,7 +250,7 @@ export const buildMultiselectQuestionUpdateMock = (
         links: [
           {
             title: 'title 4',
-            url: 'title 4',
+            url: 'https://title-4.com',
           },
         ],
         collectAddress: true,
@@ -268,7 +270,7 @@ export const buildUserCreateMock = (
   return {
     firstName: 'Public User firstName',
     lastName: 'Public User lastName',
-    password: 'example password 1',
+    password: 'Abcdef12345!',
     email,
     jurisdictions: [{ id: jurisId }],
   } as unknown as UserCreate;
@@ -281,7 +283,7 @@ export const buildUserInviteMock = (
   return {
     firstName: 'Partner User firstName',
     lastName: 'Partner User lastName',
-    password: 'example password 1',
+    password: 'Abcdef12345!',
     email,
     jurisdictions: [{ id: jurisId }],
     agreedToTermsOfService: true,
@@ -324,7 +326,7 @@ export const buildApplicationCreateMock = (
       hearing: false,
     },
     alternateContact: {
-      type: 'example type',
+      type: AlternateContactRelationship.friend,
       otherType: 'example other type',
       firstName: 'example first name',
       lastName: 'example last name',
@@ -339,11 +341,12 @@ export const buildApplicationCreateMock = (
       id: listingId,
     },
     demographics: {
-      ethnicity: 'example ethnicity',
+      ethnicity: '',
       gender: 'example gender',
       sexualOrientation: 'example sexual orientation',
       howDidYouHear: ['example how did you hear'],
       race: ['example race'],
+      spokenLanguage: 'example language',
     },
     preferredUnitTypes: [
       {
@@ -360,7 +363,7 @@ export const buildApplicationCreateMock = (
         birthDay: '17',
         birthYear: '1993',
         sameAddress: YesNoEnum.yes,
-        relationship: 'example relationship',
+        relationship: HouseholdMemberRelationship.friend,
         workInRegion: YesNoEnum.yes,
         householdMemberWorkAddress: exampleAddress,
         householdMemberAddress: exampleAddress,
@@ -421,7 +424,7 @@ export const buildApplicationUpdateMock = (
       hearing: false,
     },
     alternateContact: {
-      type: 'example type',
+      type: AlternateContactRelationship.friend,
       otherType: 'example other type',
       firstName: 'example first name',
       lastName: 'example last name',
@@ -436,11 +439,12 @@ export const buildApplicationUpdateMock = (
       id: listingId,
     },
     demographics: {
-      ethnicity: 'example ethnicity',
+      ethnicity: '',
       gender: 'example gender',
       sexualOrientation: 'example sexual orientation',
       howDidYouHear: ['example how did you hear'],
       race: ['example race'],
+      spokenLanguage: 'example language',
     },
     preferredUnitTypes: [
       {
@@ -457,7 +461,7 @@ export const buildApplicationUpdateMock = (
         birthDay: '17',
         birthYear: '1993',
         sameAddress: YesNoEnum.yes,
-        relationship: 'example relationship',
+        relationship: HouseholdMemberRelationship.friend,
         workInRegion: YesNoEnum.yes,
         householdMemberWorkAddress: exampleAddress,
         householdMemberAddress: exampleAddress,
@@ -662,7 +666,7 @@ export const constructFullListingData = async (
     applicationDropOffAddressOfficeHours: 'drop off office hours string',
     applicationDropOffAddressType: ApplicationAddressTypeEnum.leasingAgent,
     applicationMailingAddressType: ApplicationAddressTypeEnum.leasingAgent,
-    buildingSelectionCriteria: 'selection criteria',
+    buildingSelectionCriteria: 'https://selection-criteria.com',
     costsNotIncluded: 'all costs included',
     creditHistory: 'credit history',
     criminalBackground: 'criminal background',

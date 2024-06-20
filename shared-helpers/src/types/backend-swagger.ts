@@ -423,6 +423,8 @@ export class ApplicationFlaggedSetsService {
       listingId: string
       /**  */
       view?: AfsView
+      /**  */
+      search?: string
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<PaginatedAfs> {
@@ -435,6 +437,7 @@ export class ApplicationFlaggedSetsService {
         limit: params["limit"],
         listingId: params["listingId"],
         view: params["view"],
+        search: params["search"],
       }
 
       /** 适配ios13，get请求不允许带body */
@@ -455,6 +458,8 @@ export class ApplicationFlaggedSetsService {
       listingId: string
       /**  */
       view?: AfsView
+      /**  */
+      search?: string
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<AfsMeta> {
@@ -467,6 +472,7 @@ export class ApplicationFlaggedSetsService {
         limit: params["limit"],
         listingId: params["listingId"],
         view: params["view"],
+        search: params["search"],
       }
 
       /** 适配ios13，get请求不允许带body */
@@ -2118,6 +2124,47 @@ export class MapLayersService {
   }
 }
 
+export class ScriptRunnerService {
+  /**
+   * An example of how the script runner can work
+   */
+  exampleScript(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/exampleScript"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that pulls data from one source into the current db
+   */
+  dataTransfer(
+    params: {
+      /** requestBody */
+      body?: DataTransferDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/dataTransfer"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+}
+
 export interface SuccessDTO {
   /**  */
   success: boolean
@@ -3015,6 +3062,9 @@ export interface Listing {
   customMapPin?: boolean
 
   /**  */
+  contentUpdatedAt?: Date
+
+  /**  */
   publishedAt?: Date
 
   /**  */
@@ -3522,6 +3572,9 @@ export interface ListingCreate {
   customMapPin?: boolean
 
   /**  */
+  contentUpdatedAt?: Date
+
+  /**  */
   lastApplicationUpdateAt?: Date
 
   /**  */
@@ -3773,6 +3826,9 @@ export interface ListingUpdate {
   customMapPin?: boolean
 
   /**  */
+  contentUpdatedAt?: Date
+
+  /**  */
   lastApplicationUpdateAt?: Date
 
   /**  */
@@ -3882,10 +3938,10 @@ export interface Demographic {
   sexualOrientation?: string
 
   /**  */
-  howDidYouHear: string[]
+  howDidYouHear?: string[]
 
   /**  */
-  race: string[]
+  race?: string[]
 
   /**  */
   spokenLanguage?: string
@@ -3955,7 +4011,7 @@ export interface AlternateContact {
   updatedAt: Date
 
   /**  */
-  type?: string
+  type?: AlternateContactRelationship
 
   /**  */
   otherType?: string
@@ -4014,7 +4070,7 @@ export interface HouseholdMember {
   sameAddress?: YesNoEnum
 
   /**  */
-  relationship?: string
+  relationship?: HouseholdMemberRelationship
 
   /**  */
   workInRegion?: YesNoEnum
@@ -4415,6 +4471,9 @@ export interface JurisdictionCreate {
   enableGeocodingPreferences?: boolean
 
   /**  */
+  enableGeocodingRadiusMethod?: boolean
+
+  /**  */
   enableAccessibilityFeatures: boolean
 
   /**  */
@@ -4463,6 +4522,9 @@ export interface JurisdictionUpdate {
 
   /**  */
   enableGeocodingPreferences?: boolean
+
+  /**  */
+  enableGeocodingRadiusMethod?: boolean
 
   /**  */
   enableAccessibilityFeatures: boolean
@@ -4522,6 +4584,9 @@ export interface Jurisdiction {
 
   /**  */
   enableGeocodingPreferences?: boolean
+
+  /**  */
+  enableGeocodingRadiusMethod?: boolean
 
   /**  */
   enableAccessibilityFeatures: boolean
@@ -4706,7 +4771,7 @@ export interface ApplicantUpdate {
 
 export interface AlternateContactUpdate {
   /**  */
-  type?: string
+  type?: AlternateContactRelationship
 
   /**  */
   otherType?: string
@@ -4752,10 +4817,10 @@ export interface DemographicUpdate {
   sexualOrientation?: string
 
   /**  */
-  howDidYouHear: string[]
+  howDidYouHear?: string[]
 
   /**  */
-  race: string[]
+  race?: string[]
 
   /**  */
   spokenLanguage?: string
@@ -4787,7 +4852,7 @@ export interface HouseholdMemberUpdate {
   sameAddress?: YesNoEnum
 
   /**  */
-  relationship?: string
+  relationship?: HouseholdMemberRelationship
 
   /**  */
   workInRegion?: YesNoEnum
@@ -5322,6 +5387,11 @@ export interface MapLayer {
   jurisdictionId: string
 }
 
+export interface DataTransferDTO {
+  /**  */
+  connectionString: string
+}
+
 export enum ListingViews {
   "fundamentals" = "fundamentals",
   "base" = "base",
@@ -5466,6 +5536,32 @@ export enum ApplicationReviewStatusEnum {
 export enum YesNoEnum {
   "yes" = "yes",
   "no" = "no",
+}
+
+export enum AlternateContactRelationship {
+  "familyMember" = "familyMember",
+  "friend" = "friend",
+  "caseManager" = "caseManager",
+  "other" = "other",
+  "noContact" = "noContact",
+}
+
+export enum HouseholdMemberRelationship {
+  "spouse" = "spouse",
+  "registeredDomesticPartner" = "registeredDomesticPartner",
+  "parent" = "parent",
+  "child" = "child",
+  "sibling" = "sibling",
+  "cousin" = "cousin",
+  "aunt" = "aunt",
+  "uncle" = "uncle",
+  "nephew" = "nephew",
+  "niece" = "niece",
+  "grandparent" = "grandparent",
+  "greatGrandparent" = "greatGrandparent",
+  "inLaw" = "inLaw",
+  "friend" = "friend",
+  "other" = "other",
 }
 export type AllExtraDataTypes = BooleanInput | TextInput | AddressInput
 export enum EnumJurisdictionCreateListingApprovalPermissions {

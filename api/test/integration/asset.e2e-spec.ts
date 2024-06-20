@@ -32,9 +32,10 @@ describe('Asset Controller Tests', () => {
     });
     const resLogIn = await request(app.getHttpServer())
       .post('/auth/login')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
       } as Login)
       .expect(201);
 
@@ -52,6 +53,7 @@ describe('Asset Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post('/asset/presigned-upload-metadata/')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({ parametersToSign: { publicId, eager } })
       .set('Cookie', cookies)
       .expect(201);

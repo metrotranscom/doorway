@@ -14,7 +14,6 @@ import {
   TOKEN_COOKIE_NAME,
 } from '../../src/services/auth.service';
 import { SmsService } from '../../src/services/sms.service';
-import { EmailService } from '../../src/services/email.service';
 import { RequestMfaCode } from '../../src/dtos/mfa/request-mfa-code.dto';
 import { UpdatePassword } from '../../src/dtos/auth/update-password.dto';
 import { Confirm } from '../../src/dtos/auth/confirm.dto';
@@ -24,7 +23,6 @@ describe('Auth Controller Tests', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let smsService: SmsService;
-  let emailService: EmailService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -35,7 +33,6 @@ describe('Auth Controller Tests', () => {
     app.use(cookieParser());
     prisma = moduleFixture.get<PrismaService>(PrismaService);
     smsService = moduleFixture.get<SmsService>(SmsService);
-    emailService = moduleFixture.get<EmailService>(EmailService);
     await app.init();
   });
 
@@ -55,9 +52,10 @@ describe('Auth Controller Tests', () => {
     });
     const res = await request(app.getHttpServer())
       .post('/auth/login')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
         mfaCode: storedUser.singleUseCode,
         mfaType: MfaType.email,
       } as Login)
@@ -97,9 +95,10 @@ describe('Auth Controller Tests', () => {
     });
     const res = await request(app.getHttpServer())
       .post('/auth/login')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
       } as Login)
       .expect(201);
 
@@ -137,14 +136,16 @@ describe('Auth Controller Tests', () => {
     });
     const resLogIn = await request(app.getHttpServer())
       .post('/auth/login')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
       } as Login)
       .expect(201);
 
     const resLogOut = await request(app.getHttpServer())
       .get('/auth/logout')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .set('Cookie', resLogIn.headers['set-cookie'])
       .expect(200);
 
@@ -188,9 +189,10 @@ describe('Auth Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post('/auth/request-mfa-code')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
         mfaType: MfaType.sms,
       } as RequestMfaCode)
       .expect(201);
@@ -244,10 +246,11 @@ describe('Auth Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .put('/auth/update-password')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef123',
-        passwordConfirmation: 'abcdef123',
+        password: 'Abcdef12345!',
+        passwordConfirmation: 'Abcdef12345!',
         token,
       } as UpdatePassword)
       .expect(200);
@@ -294,6 +297,7 @@ describe('Auth Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .put('/auth/confirm')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         token,
       } as Confirm)
@@ -324,6 +328,7 @@ describe('Auth Controller Tests', () => {
   it('should fail request new token when cookie not sent', async () => {
     const res = await request(app.getHttpServer())
       .get('/auth/requestNewToken')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .expect(400);
     expect(res.body.message).toBe('No refresh token sent with request');
   });
@@ -338,13 +343,15 @@ describe('Auth Controller Tests', () => {
     });
     const resLogIn = await request(app.getHttpServer())
       .post('/auth/login')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
       } as Login)
       .expect(201);
     await request(app.getHttpServer())
       .get('/auth/requestNewToken')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .set('Cookie', resLogIn.headers['set-cookie'])
       .expect(200);
   });
@@ -369,6 +376,7 @@ describe('Auth Controller Tests', () => {
     });
     const res = await request(app.getHttpServer())
       .post('/auth/loginViaSingleUseCode')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
         singleUseCode: storedUser.singleUseCode,

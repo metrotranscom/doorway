@@ -2,14 +2,10 @@ import React, { createElement, FunctionComponent, useContext, useEffect, useStat
 import { AuthContext } from "./AuthContext"
 import { ConfigContext } from "./ConfigContext"
 import { Button } from "@bloom-housing/ui-seeds"
-import {
-  NavigationContext,
-  Modal,
-  setSiteAlertMessage,
-  AlertTypes,
-  t,
-} from "@bloom-housing/ui-components"
-
+import { Modal, t } from "@bloom-housing/ui-components"
+import { NavigationContext } from "@bloom-housing/doorway-ui-components"
+import { MessageContext } from "../utilities/MessageContext"
+        
 const PROMPT_TIMEOUT = 60000
 const events = ["mousemove", "keypress", "scroll"]
 
@@ -44,7 +40,6 @@ type IdleTimeoutProps = {
   promptAction: string
   redirectPath: string
   alertMessage: string
-  alertType?: AlertTypes
   onTimeout: () => unknown
 }
 
@@ -54,10 +49,10 @@ export const IdleTimeout: FunctionComponent<IdleTimeoutProps> = ({
   promptText,
   redirectPath,
   alertMessage,
-  alertType = "alert",
   onTimeout,
 }) => {
   const { idleTimeout } = useContext(ConfigContext)
+  const { addToast } = useContext(MessageContext)
   const [promptTimeout, setPromptTimeout] = useState<number | undefined>()
   const { router } = useContext(NavigationContext)
 
@@ -73,8 +68,8 @@ export const IdleTimeout: FunctionComponent<IdleTimeoutProps> = ({
         const timeoutAction = async () => {
           setPromptTimeout(undefined)
           await onTimeout()
-          setSiteAlertMessage(alertMessage, alertType)
           void router.push(redirectPath)
+          addToast(alertMessage, { variant: "primary", hideTimeout: PROMPT_TIMEOUT })
         }
         void timeoutAction()
       }, PROMPT_TIMEOUT) as unknown as number
@@ -124,7 +119,6 @@ export const LoggedInUserIdleTimeout = ({ onTimeout }: { onTimeout?: () => unkno
         promptAction: t("authentication.timeout.action"),
         redirectPath: `/sign-in`,
         alertMessage: t("authentication.timeout.signOutMessage"),
-        alertType: "notice",
         onTimeout: timeoutFxn,
       })
     : null

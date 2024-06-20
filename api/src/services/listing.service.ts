@@ -1013,6 +1013,7 @@ export class ListingService implements OnModuleInit {
             }
           : undefined,
         requestedChangesUser: undefined,
+        contentUpdatedAt: new Date(),
       },
     });
 
@@ -1119,6 +1120,19 @@ export class ListingService implements OnModuleInit {
           },
         });
       } else {
+        // in order to delete the old address we first need to disconnect it from the listing
+        await this.prisma.listings.update({
+          data: {
+            [field]: {
+              disconnect: {
+                id: existingListing[field].id,
+              },
+            },
+          },
+          where: {
+            id: existingListing.id,
+          },
+        });
         await this.prisma.address.delete({
           where: {
             id: existingListing[field].id,
@@ -1514,6 +1528,7 @@ export class ListingService implements OnModuleInit {
                 })),
               }
             : undefined,
+          contentUpdatedAt: new Date(),
           publishedAt:
             storedListing.status !== ListingsStatusEnum.active &&
             dto.status === ListingsStatusEnum.active

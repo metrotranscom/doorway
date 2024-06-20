@@ -31,7 +31,6 @@ import { mapTo } from '../utilities/mapTo';
 import { User } from '../dtos/users/user.dto';
 import { LoginViaSingleUseCode } from '../dtos/auth/login-single-use-code.dto';
 import { SingleUseCodeAuthGuard } from '../guards/single-use-code.guard';
-import { ThrottleGuard } from '../guards/throttler.guard';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -43,7 +42,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login', operationId: 'login' })
   @ApiOkResponse({ type: SuccessDTO })
   @ApiBody({ type: Login })
-  @UseGuards(ThrottleGuard, MfaAuthGuard)
+  @UseGuards(MfaAuthGuard)
   async login(
     @Request() req: ExpressRequest,
     @Response({ passthrough: true }) res: ExpressResponse,

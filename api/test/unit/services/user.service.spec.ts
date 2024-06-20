@@ -670,16 +670,20 @@ describe('Testing user service', () => {
   });
 
   describe('forgotPassword', () => {
-    it('should set resetToken', async () => {
+    it('should set resetToken when public user on public site', async () => {
       const id = randomUUID();
       const email = 'email@example.com';
 
       prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
         id,
+        jurisdictions: [{ publicUrl: 'http://localhost:3000' }],
       });
       prisma.userAccounts.update = jest.fn().mockResolvedValue({
         id,
         resetToken: 'example reset token',
+      });
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+        id,
       });
       emailService.forgotPassword = jest.fn();
 
@@ -703,6 +707,110 @@ describe('Testing user service', () => {
           id,
         },
       });
+    });
+
+    it('should not set resetToken when public user on partner site', async () => {
+      const id = randomUUID();
+      const email = 'email@example.com';
+
+      prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
+        id,
+        jurisdictions: [{ publicUrl: 'http://localhost:3000' }],
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        id,
+        resetToken: 'example reset token',
+      });
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue(null);
+      emailService.forgotPassword = jest.fn();
+
+      await service.forgotPassword({
+        email,
+        appUrl: process.env.PARTNERS_PORTAL_URL,
+      });
+      expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
+        include: {
+          jurisdictions: true,
+          listings: true,
+          userRoles: true,
+        },
+        where: {
+          email,
+          id: undefined,
+        },
+      });
+      expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+    });
+
+    it('should set resetToken when partner user on partner site', async () => {
+      const id = randomUUID();
+      const email = 'email@example.com';
+
+      prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
+        id,
+        userRoles: { isAdmin: true },
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        id,
+        resetToken: 'example reset token',
+      });
+      emailService.forgotPassword = jest.fn();
+
+      await service.forgotPassword({
+        email,
+        appUrl: process.env.PARTNERS_PORTAL_URL,
+      });
+      expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
+        include: {
+          jurisdictions: true,
+          listings: true,
+          userRoles: true,
+        },
+        where: {
+          email,
+          id: undefined,
+        },
+      });
+      expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+        data: {
+          resetToken: expect.anything(),
+        },
+        where: {
+          id,
+        },
+      });
+    });
+
+    it('should not set resetToken when partner user on public site', async () => {
+      const id = randomUUID();
+      const email = 'email@example.com';
+
+      prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
+        id,
+        userRoles: { isAdmin: true },
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        id,
+        resetToken: 'example reset token',
+      });
+      emailService.forgotPassword = jest.fn();
+
+      await service.forgotPassword({
+        email,
+        appUrl: 'http://localhost:3000',
+      });
+      expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
+        include: {
+          jurisdictions: true,
+          listings: true,
+          userRoles: true,
+        },
+        where: {
+          email,
+          id: undefined,
+        },
+      });
+      expect(prisma.userAccounts.update).not.toHaveBeenCalled();
     });
 
     it('should error when trying to set resetToken on nonexistent user', async () => {
@@ -1429,7 +1537,7 @@ describe('Testing user service', () => {
         {
           firstName: 'Partner User firstName',
           lastName: 'Partner User lastName',
-          password: 'example password 1',
+          password: 'Abcdef12345!',
           email: 'partnerUser@email.com',
           jurisdictions: [{ id: jurisId }],
           userRoles: {
@@ -1503,7 +1611,7 @@ describe('Testing user service', () => {
         {
           firstName: 'Partner User firstName',
           lastName: 'Partner User lastName',
-          password: 'example password 1',
+          password: 'Abcdef12345!',
           email: 'partnerUser@email.com',
           jurisdictions: [{ id: jurisId }],
           userRoles: {
@@ -1586,7 +1694,7 @@ describe('Testing user service', () => {
             {
               firstName: 'Partner User firstName',
               lastName: 'Partner User lastName',
-              password: 'example password 1',
+              password: 'Abcdef12345!',
               email: 'partnerUser@email.com',
               jurisdictions: [{ id: jurisId }],
               userRoles: {
@@ -1654,7 +1762,7 @@ describe('Testing user service', () => {
         {
           firstName: 'public User firstName',
           lastName: 'public User lastName',
-          password: 'example password 1',
+          password: 'Abcdef12345!',
           email: 'publicUser@email.com',
           jurisdictions: [{ id: jurisId }],
         },

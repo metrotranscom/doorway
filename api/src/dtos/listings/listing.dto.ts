@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsNumber,
   IsString,
+  IsUrl,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
@@ -192,6 +193,10 @@ class Listing extends AbstractDTO {
   @Expose()
   @IsString({ groups: [ValidationsGroupsEnum.default] })
   @ApiPropertyOptional()
+  @IsUrl(
+    { require_protocol: true },
+    { groups: [ValidationsGroupsEnum.default] },
+  )
   buildingSelectionCriteria?: string;
 
   @Expose()
@@ -374,6 +379,14 @@ class Listing extends AbstractDTO {
   @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
   @ApiPropertyOptional()
   customMapPin?: boolean;
+
+  //Used to refresh translations and communicate recent changes to admin users
+  //should be revisited after translations refactoring to see if its still useful
+  @Expose()
+  @IsDate({ groups: [ValidationsGroupsEnum.default] })
+  @Type(() => Date)
+  @ApiPropertyOptional()
+  contentUpdatedAt?: Date;
 
   @Expose()
   @IsDate({ groups: [ValidationsGroupsEnum.default] })

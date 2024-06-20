@@ -21,12 +21,10 @@ import {
   EventType,
   StandardTableData,
   ExpandableSection,
-  SiteAlert,
   StandardTable,
   ImageCard,
-  Icon,
 } from "@bloom-housing/ui-components"
-import { Message } from "@bloom-housing/ui-seeds"
+import { Icon, Message } from "@bloom-housing/ui-seeds"
 import {
   getOccupancyDescription,
   imageUrlFromListing,
@@ -40,6 +38,7 @@ import {
   IMAGE_FALLBACK_URL,
   pdfUrlFromListingEvents,
   AuthContext,
+  CustomIconMap,
 } from "@bloom-housing/shared-helpers"
 import dayjs from "dayjs"
 import { ErrorPage } from "../../pages/_error"
@@ -50,7 +49,7 @@ import { SubmitApplication } from "./SubmitApplication"
 import { ListingGoogleMap } from "./ListingGoogleMap"
 import getConfig from "next/config"
 import Link from "next/link"
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons"
+import ArrowTopRightOnSquareIcon from "@heroicons/react/20/solid/ArrowTopRightOnSquareIcon"
 import {
   ApplicationAddressTypeEnum,
   ApplicationMethod,
@@ -381,6 +380,12 @@ export const ListingView = (props: ListingProps) => {
     !props.isExternal &&
     !props.preview
 
+  const submissionAddressExists =
+    listing.listingsApplicationMailingAddress ||
+    listing.applicationMailingAddressType === ApplicationAddressTypeEnum.leasingAgent ||
+    listing.listingsApplicationDropOffAddress ||
+    listing.applicationDropOffAddressType === ApplicationAddressTypeEnum.leasingAgent
+
   const applySidebar = () => (
     <>
       <GetApplication
@@ -407,10 +412,7 @@ export const ListingView = (props: ListingProps) => {
         isExternal={props.isExternal}
         listingStatus={listing.status}
       />
-      {!(
-        listing.status === ListingsStatusEnum.closed ||
-        !(listing.listingsApplicationMailingAddress || listing.listingsApplicationDropOffAddress)
-      ) && (
+      {listing.status !== ListingsStatusEnum.closed && submissionAddressExists && (
         <SubmitApplication
           applicationMailingAddress={getAddress(listing.applicationMailingAddressType, "mailIn")}
           applicationDropOffAddress={getAddress(listing.applicationDropOffAddressType, "dropOff")}
@@ -555,7 +557,11 @@ export const ListingView = (props: ListingProps) => {
         <Message
           className="doorway-message application-status"
           fullwidth
-          customIcon={<Icon size="medium" symbol="clock" />}
+          customIcon={
+            <Icon size="md" outlined>
+              {CustomIconMap.clock}
+            </Icon>
+          }
         >
           {appStatusContent}
           {appStatusSubContent && (
@@ -573,7 +579,6 @@ export const ListingView = (props: ListingProps) => {
   return (
     <article className="flex flex-wrap relative max-w-5xl m-auto md:mt-8">
       <header className="image-card--leader">
-        <SiteAlert type="alert" dismissable />
         <ImageCard
           images={imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize)).map(
             (imageUrl: string) => {
@@ -620,7 +625,10 @@ export const ListingView = (props: ListingProps) => {
               aria-label="Opens in new window"
               className="lighter-uppercase"
             >
-              {t("t.viewOnMap")} <Icon size="small" symbol={faArrowUpRightFromSquare} />
+              {t("t.viewOnMap")}{" "}
+              <Icon>
+                <ArrowTopRightOnSquareIcon />
+              </Icon>
             </Link>
           </p>
         </div>

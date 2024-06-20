@@ -46,6 +46,7 @@ const ApplicationDates = ({
             <div className="flex gap-3">
               <Button
                 type="button"
+                size="sm"
                 className="font-semibold"
                 onClick={() => setDrawerOpenHouse(event)}
                 variant="text"
@@ -54,6 +55,7 @@ const ApplicationDates = ({
               </Button>
               <Button
                 type="button"
+                size="sm"
                 className="font-semibold text-alert"
                 onClick={() => setModalDeleteOpenHouse(event)}
                 variant="text"

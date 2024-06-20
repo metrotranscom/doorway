@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import Head from "next/head"
 import axios from "axios"
-import { t, AlertBox, SiteAlert, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
+import { t, AlertBox, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
 import {
   Listing,
   ListingsStatusEnum,
@@ -43,7 +43,7 @@ interface ListingProps {
 
 export default function ListingDetail(props: ListingProps) {
   const { listing } = props
-  const [errorAlert, setErrorAlert] = useState(false)
+  const [errorAlert, setErrorAlert] = useState<string>(null)
   const [unitDrawer, setUnitDrawer] = useState<UnitDrawer>(null)
 
   if (!listing) return null
@@ -56,8 +56,6 @@ export default function ListingDetail(props: ListingProps) {
             <Head>
               <title>{t("nav.siteTitlePartners")}</title>
             </Head>
-            <SiteAlert type="success" timeout={5000} dismissable sticky={true} />
-            <SiteAlert type="warn" dismissable sticky={true} />
             <NavigationHeader
               title={listing.name}
               listingId={listing.id}
@@ -83,11 +81,11 @@ export default function ListingDetail(props: ListingProps) {
                 {errorAlert && (
                   <AlertBox
                     className="mb-5"
-                    onClose={() => setErrorAlert(false)}
+                    onClose={() => setErrorAlert(null)}
                     closeable
                     type="alert"
                   >
-                    {t("authentication.signIn.errorGenericMessage")}
+                    {errorAlert || t("authentication.signIn.errorGenericMessage")}
                   </AlertBox>
                 )}
 
@@ -114,7 +112,10 @@ export default function ListingDetail(props: ListingProps) {
                   </div>
 
                   <div className="w-full md:w-3/12 md:pl-6">
-                    <ListingFormActions type={ListingFormActionsType.details} />
+                    <ListingFormActions
+                      type={ListingFormActionsType.details}
+                      setErrorAlert={setErrorAlert}
+                    />
                   </div>
                 </div>
               </div>
@@ -128,13 +129,24 @@ export default function ListingDetail(props: ListingProps) {
   )
 }
 
-export async function getServerSideProps(context: { params: Record<string, string> }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getServerSideProps(context: { params: Record<string, string>; req: any }) {
   let response
   const backendUrl = `/listings/${context.params.id}`
 
   try {
     logger.info(`GET - ${backendUrl}`)
-    response = await axios.get(`${process.env.backendApiBase}${backendUrl}`)
+    const headers: Record<string, string> = {
+      "x-forwarded-for": context.req.headers["x-forwarded-for"] ?? context.req.socket.remoteAddress,
+    }
+
+    if (process.env.API_PASS_KEY) {
+      headers.passkey = process.env.API_PASS_KEY
+    }
+
+    response = await axios.get(`${process.env.backendApiBase}${backendUrl}`, {
+      headers,
+    })
   } catch (e) {
     if (e.response) {
       logger.error(`GET - ${backendUrl} - ${e.response?.status} - ${e.response?.statusText}`)

@@ -67,9 +67,10 @@ describe('User Controller Tests', () => {
     });
     const resLogIn = await request(app.getHttpServer())
       .post('/auth/login')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
-        password: 'abcdef',
+        password: 'Abcdef12345!',
       } as Login)
       .expect(201);
 
@@ -85,6 +86,7 @@ describe('User Controller Tests', () => {
   it.skip('should get no users from list() when no params and no data', async () => {
     const res = await request(app.getHttpServer())
       .get(`/user/list?`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .expect(200);
     expect(res.body.items.length).toEqual(0);
   });
@@ -99,6 +101,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .get(`/user/list?`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .set('Cookie', cookies)
       .expect(200);
     expect(res.body.items.length).toBeGreaterThanOrEqual(2);
@@ -132,6 +135,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .get(`/user/list?${query}`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .set('Cookie', cookies)
       .expect(200);
     expect(res.body.items.length).toBeGreaterThanOrEqual(2);
@@ -144,6 +148,7 @@ describe('User Controller Tests', () => {
     const id = randomUUID();
     const res = await request(app.getHttpServer())
       .get(`/user/${id}`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .set('Cookie', cookies)
       .expect(404);
     expect(res.body.message).toEqual(
@@ -158,6 +163,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .get(`/user/${userA.id}`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .set('Cookie', cookies)
       .expect(200);
 
@@ -171,6 +177,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .put(`/user/${userA.id}`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         id: userA.id,
         firstName: 'New User First Name',
@@ -191,6 +198,7 @@ describe('User Controller Tests', () => {
     const randomId = randomUUID();
     const res = await request(app.getHttpServer())
       .put(`/user/${randomId}`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         id: randomId,
         firstName: 'New User First Name',
@@ -211,6 +219,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .delete(`/user/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         id: userA.id,
       } as IdDTO)
@@ -224,6 +233,7 @@ describe('User Controller Tests', () => {
     const randomId = randomUUID();
     const res = await request(app.getHttpServer())
       .delete(`/user/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         id: randomId,
       } as IdDTO)
@@ -242,6 +252,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post(`/user/resend-confirmation/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: userA.email,
         appUrl: 'https://www.google.com',
@@ -273,6 +284,7 @@ describe('User Controller Tests', () => {
     const mockWelcome = jest.spyOn(testEmailService, 'welcome');
     const res = await request(app.getHttpServer())
       .post(`/user/resend-confirmation/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: userA.email,
         appUrl: 'https://www.google.com',
@@ -298,6 +310,7 @@ describe('User Controller Tests', () => {
     const mockWelcome = jest.spyOn(testEmailService, 'welcome');
     const res = await request(app.getHttpServer())
       .post(`/user/resend-confirmation/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: email,
         appUrl: 'https://www.google.com',
@@ -321,6 +334,7 @@ describe('User Controller Tests', () => {
     );
     const res = await request(app.getHttpServer())
       .post(`/user/resend-partner-confirmation/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: userA.email,
         appUrl: 'https://www.google.com',
@@ -355,6 +369,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post(`/user/resend-partner-confirmation/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: userA.email,
         appUrl: 'https://www.google.com',
@@ -379,6 +394,7 @@ describe('User Controller Tests', () => {
     const email = 'test@nonexistent.com';
     const res = await request(app.getHttpServer())
       .post(`/user/resend-partner-confirmation/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: email,
         appUrl: 'https://www.google.com',
@@ -411,6 +427,7 @@ describe('User Controller Tests', () => {
     });
     const res = await request(app.getHttpServer())
       .post(`/user/is-confirmation-token-valid/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         token: confToken,
       } as ConfirmationRequest)
@@ -454,6 +471,7 @@ describe('User Controller Tests', () => {
     );
     const res = await request(app.getHttpServer())
       .post(`/user/is-confirmation-token-valid/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         token: fakeConfToken,
       } as ConfirmationRequest)
@@ -496,6 +514,7 @@ describe('User Controller Tests', () => {
     );
     const res = await request(app.getHttpServer())
       .post(`/user/is-confirmation-token-valid/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         token: fakeConfToken,
       } as ConfirmationRequest)
@@ -513,16 +532,22 @@ describe('User Controller Tests', () => {
     expect(userPostResend.hitConfirmationUrl).toBeNull();
   });
 
-  it('should set resetToken when forgot-password is called', async () => {
+  it('should set resetToken when forgot-password is called by public user on the public site', async () => {
+    const juris = await prisma.jurisdictions.create({
+      data: jurisdictionFactory(),
+    });
+
     const userA = await prisma.userAccounts.create({
-      data: await userFactory(),
+      data: await userFactory({ jurisdictionIds: [juris.id] }),
     });
 
     const mockforgotPassword = jest.spyOn(testEmailService, 'forgotPassword');
     const res = await request(app.getHttpServer())
       .put(`/user/forgot-password/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: userA.email,
+        appUrl: juris.publicUrl,
       } as EmailAndAppUrl)
       .expect(200);
 
@@ -538,6 +563,105 @@ describe('User Controller Tests', () => {
     expect(mockforgotPassword.mock.calls.length).toBe(1);
   });
 
+  it('should not set resetToken when forgot-password is called by public user on the partners site', async () => {
+    const juris = await prisma.jurisdictions.create({
+      data: jurisdictionFactory(),
+    });
+
+    const userA = await prisma.userAccounts.create({
+      data: await userFactory({ jurisdictionIds: [juris.id] }),
+    });
+
+    const mockforgotPassword = jest.spyOn(testEmailService, 'forgotPassword');
+    const res = await request(app.getHttpServer())
+      .put(`/user/forgot-password/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
+      .send({
+        email: userA.email,
+        appUrl: process.env.PARTNERS_PORTAL_URL,
+      } as EmailAndAppUrl)
+      .expect(200);
+
+    expect(res.body.success).toBe(true);
+
+    const userPostResend = await prisma.userAccounts.findUnique({
+      where: {
+        id: userA.id,
+      },
+    });
+
+    expect(userPostResend.resetToken).toBeNull();
+    expect(mockforgotPassword.mock.calls.length).toBe(0);
+  });
+
+  it('should set resetToken when forgot-password is called by partner user on the partners site', async () => {
+    const juris = await prisma.jurisdictions.create({
+      data: jurisdictionFactory(),
+    });
+
+    const userA = await prisma.userAccounts.create({
+      data: await userFactory({
+        roles: { isAdmin: true },
+        jurisdictionIds: [juris.id],
+      }),
+    });
+
+    const mockforgotPassword = jest.spyOn(testEmailService, 'forgotPassword');
+    const res = await request(app.getHttpServer())
+      .put(`/user/forgot-password/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
+      .send({
+        email: userA.email,
+        appUrl: process.env.PARTNERS_PORTAL_URL,
+      } as EmailAndAppUrl)
+      .expect(200);
+
+    expect(res.body.success).toBe(true);
+
+    const userPostResend = await prisma.userAccounts.findUnique({
+      where: {
+        id: userA.id,
+      },
+    });
+
+    expect(userPostResend.resetToken).not.toBeNull();
+    expect(mockforgotPassword.mock.calls.length).toBe(1);
+  });
+
+  it('should not set resetToken when forgot-password is called by partner user on the public site', async () => {
+    const juris = await prisma.jurisdictions.create({
+      data: jurisdictionFactory(),
+    });
+
+    const userA = await prisma.userAccounts.create({
+      data: await userFactory({
+        roles: { isAdmin: true },
+        jurisdictionIds: [juris.id],
+      }),
+    });
+
+    const mockforgotPassword = jest.spyOn(testEmailService, 'forgotPassword');
+    const res = await request(app.getHttpServer())
+      .put(`/user/forgot-password/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
+      .send({
+        email: userA.email,
+        appUrl: juris.publicUrl,
+      } as EmailAndAppUrl)
+      .expect(200);
+
+    expect(res.body.success).toBe(true);
+
+    const userPostResend = await prisma.userAccounts.findUnique({
+      where: {
+        id: userA.id,
+      },
+    });
+
+    expect(userPostResend.resetToken).toBeNull();
+    expect(mockforgotPassword.mock.calls.length).toBe(0);
+  });
+
   it('should create public user', async () => {
     const juris = await prisma.jurisdictions.create({
       data: jurisdictionFactory(),
@@ -551,10 +675,11 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post(`/user/`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         firstName: 'Public User firstName',
         lastName: 'Public User lastName',
-        password: 'example password 1',
+        password: 'Abcdef12345!',
         email: 'publicUser@email.com',
         jurisdictions: [{ id: juris.id }],
       } as UserCreate)
@@ -580,17 +705,18 @@ describe('User Controller Tests', () => {
     );
   });
 
-  it('should create parter user', async () => {
+  it('should create partner user', async () => {
     const juris = await prisma.jurisdictions.create({
       data: jurisdictionFactory(),
     });
 
     const res = await request(app.getHttpServer())
       .post(`/user/invite`)
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         firstName: 'Partner User firstName',
         lastName: 'Partner User lastName',
-        password: 'example password 1',
+        password: 'Abcdef12345!',
         email: 'partnerUser@email.com',
         jurisdictions: [{ id: juris.id }],
         agreedToTermsOfService: true,
@@ -630,6 +756,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post('/user/request-single-use-code')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
       } as RequestMfaCode)
@@ -672,6 +799,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post('/user/request-single-use-code')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
       } as RequestMfaCode)
@@ -715,6 +843,7 @@ describe('User Controller Tests', () => {
 
     const res = await request(app.getHttpServer())
       .post('/user/request-single-use-code')
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .send({
         email: storedUser.email,
       } as RequestMfaCode)
@@ -752,6 +881,7 @@ describe('User Controller Tests', () => {
         email: 'thisEmailDoesNotExist@exygy.com',
       } as RequestMfaCode)
       .set({ jurisdictionname: jurisdiction.name })
+      .set({ passkey: process.env.API_PASS_KEY || '' })
       .expect(201);
     expect(res.body.success).toEqual(true);
 

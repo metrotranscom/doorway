@@ -84,6 +84,7 @@ export const stagingSeed = async (
       confirmedAt: new Date(),
       jurisdictionIds: [jurisdiction.id, additionalJurisdiction.id],
       acceptedTerms: true,
+      password: 'abcdef',
     }),
   });
   // create a jurisdictional admin
@@ -122,6 +123,7 @@ export const stagingSeed = async (
       confirmedAt: new Date(),
       jurisdictionIds: [jurisdiction.id],
       acceptedTerms: false,
+      password: 'abcdef',
     }),
   });
   // add jurisdiction specific translations and default ones
@@ -186,6 +188,21 @@ export const stagingSeed = async (
             collectName: false,
             collectRelationship: false,
           },
+        ],
+      },
+    }),
+  });
+  const multiselectQuestion3 = await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(jurisdiction.id, {
+      multiselectQuestion: {
+        text: 'Veteran',
+        description:
+          'Have you or anyone in your household served in the US military?',
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        optOutText: 'Prefer not to say',
+        options: [
+          { text: 'Yes', exclusive: true, ordinal: 1 },
+          { text: 'No', exclusive: true, ordinal: 2 },
         ],
       },
     }),
@@ -295,6 +312,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsBuildingAddress: {
           create: whiteHouse,
@@ -424,6 +442,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsApplicationPickUpAddress: undefined,
         listingsApplicationDropOffAddress: undefined,
@@ -571,6 +590,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsBuildingAddress: {
           create: goldenGateBridge,
@@ -688,6 +708,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: dayjs(new Date()).subtract(1, 'days').toDate(),
         publishedAt: dayjs(new Date()).subtract(3, 'days').toDate(),
         closedAt: dayjs(new Date()).subtract(1, 'days').toDate(),
         listingsApplicationPickUpAddress: undefined,
@@ -791,6 +812,7 @@ export const stagingSeed = async (
         isWaitlistOpen: true,
         waitlistOpenSpots: 6,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsApplicationPickUpAddress: undefined,
         listingsApplicationDropOffAddress: undefined,
@@ -880,6 +902,7 @@ export const stagingSeed = async (
         isWaitlistOpen: false,
         waitlistOpenSpots: null,
         customMapPin: false,
+        contentUpdatedAt: new Date(),
         publishedAt: new Date(),
         listingsApplicationPickUpAddress: undefined,
         listingsApplicationDropOffAddress: undefined,
@@ -908,7 +931,121 @@ export const stagingSeed = async (
           ],
         },
       },
-      multiselectQuestions: [multiselectQuestion2, multiselectQuestion1],
+      multiselectQuestions: [
+        multiselectQuestion2,
+        multiselectQuestion1,
+        multiselectQuestion3,
+      ],
+      units: [
+        {
+          amiPercentage: '30',
+          monthlyIncomeMin: '2000',
+          floor: 1,
+          maxOccupancy: 3,
+          minOccupancy: 1,
+          monthlyRent: '1200',
+          numBathrooms: 1,
+          numBedrooms: 1,
+          number: '101',
+          sqFeet: '750.00',
+          amiChart: { connect: { id: amiChart.id } },
+          unitTypes: {
+            connect: {
+              id: unitTypes[0].id,
+            },
+          },
+        },
+        {
+          amiPercentage: '30',
+          monthlyIncomeMin: '2000',
+          floor: 1,
+          maxOccupancy: 3,
+          minOccupancy: 1,
+          monthlyRent: '1200',
+          numBathrooms: 1,
+          numBedrooms: 1,
+          number: '101',
+          sqFeet: '750.00',
+          amiChart: { connect: { id: amiChart.id } },
+          unitTypes: {
+            connect: {
+              id: unitTypes[1].id,
+            },
+          },
+        },
+        {
+          amiPercentage: '30',
+          monthlyIncomeMin: '2000',
+          floor: 1,
+          maxOccupancy: 3,
+          minOccupancy: 1,
+          monthlyRent: '1200',
+          numBathrooms: 1,
+          numBedrooms: 1,
+          number: '101',
+          sqFeet: '750.00',
+          amiChart: { connect: { id: amiChart.id } },
+          unitTypes: {
+            connect: {
+              id: unitTypes[2].id,
+            },
+          },
+        },
+        {
+          amiPercentage: '30',
+          monthlyIncomeMin: '2000',
+          floor: 1,
+          maxOccupancy: 3,
+          minOccupancy: 1,
+          monthlyRent: '1200',
+          numBathrooms: 1,
+          numBedrooms: 1,
+          number: '101',
+          sqFeet: '750.00',
+          amiChart: { connect: { id: amiChart.id } },
+          unitTypes: {
+            connect: {
+              id: unitTypes[3].id,
+            },
+          },
+        },
+        {
+          amiPercentage: '30',
+          monthlyIncomeMin: '2000',
+          floor: 1,
+          maxOccupancy: 3,
+          minOccupancy: 1,
+          monthlyRent: '1200',
+          numBathrooms: 1,
+          numBedrooms: 1,
+          number: '101',
+          sqFeet: '750.00',
+          amiChart: { connect: { id: amiChart.id } },
+          unitTypes: {
+            connect: {
+              id: unitTypes[4].id,
+            },
+          },
+        },
+        {
+          amiPercentage: '30',
+          monthlyIncomeMin: '2000',
+          floor: 1,
+          maxOccupancy: 3,
+          minOccupancy: 1,
+          monthlyRent: '1200',
+          numBathrooms: 1,
+          numBedrooms: 1,
+          number: '101',
+          sqFeet: '750.00',
+          amiChart: { connect: { id: amiChart.id } },
+          unitTypes: {
+            connect: {
+              id: unitTypes[5].id,
+            },
+          },
+        },
+      ],
     },
   ].map(
     async (

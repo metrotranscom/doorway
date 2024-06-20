@@ -1140,8 +1140,8 @@ export class ListingService implements OnModuleInit {
   */
   async update(dto: ListingUpdate, requestingUser: User): Promise<Listing> {
     const storedListing = await this.findOrThrow(dto.id, ListingViews.details);
-    const isNonAdmin = requestingUser?.userRoles?.isAdmin === false;
-    const isActiveListing = dto.status === 'active';
+    const isNonAdmin = !requestingUser?.userRoles?.isAdmin;
+    const isActiveListing = dto.status === ListingsStatusEnum.active;
 
     //check if the user has permission to edit dates
     if (isNonAdmin && isActiveListing) {
@@ -1158,6 +1158,7 @@ export class ListingService implements OnModuleInit {
           storedLotteryEvent,
           dto,
           storedListing.applicationDueDate?.toISOString(),
+          storedListing.reviewOrderType,
         )
       ) {
         throw new HttpException(

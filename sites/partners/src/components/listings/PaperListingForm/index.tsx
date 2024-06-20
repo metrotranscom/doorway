@@ -317,6 +317,9 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                             units={units}
                             setUnits={setUnits}
                             disableUnitsAccordion={listing?.disableUnitsAccordion}
+                            disablelistingAvailability={
+                              isListingActive && !profile.userRoles.isAdmin
+                            }
                           />
                           <SelectAndOrder
                             addText={t("listings.addPreference")}

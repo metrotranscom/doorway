@@ -8,6 +8,7 @@ export const checkIfDatesChanged = (
   storedLotteryEvent: ListingEvent,
   dto: ListingUpdate,
   storedApplicationDueDate: string,
+  storedReviewOrderType: string,
 ) => {
   const isPublicLotteryEvent =
     lotteryEvent?.type === ListingEventsTypeEnum.publicLottery;
@@ -22,7 +23,8 @@ export const checkIfDatesChanged = (
     lotteryEvent?.endTime?.toISOString() ===
     storedLotteryEvent?.endTime?.toISOString();
 
-  const isDifferentEventType = lotteryEvent?.type !== storedLotteryEvent?.type;
+  const isDifferentReviewOrderType =
+    storedReviewOrderType !== dto?.reviewOrderType;
   const isDifferentApplicationDueDate =
     dto.applicationDueDate?.toISOString() !== storedApplicationDueDate;
   const isDifferentLotteryEventTimes =
@@ -30,7 +32,7 @@ export const checkIfDatesChanged = (
     !(isSameStartDate && isSameStartTime && isSameEndTime);
 
   return (
-    isDifferentEventType ||
+    isDifferentReviewOrderType ||
     isDifferentLotteryEventTimes ||
     isDifferentApplicationDueDate
   );

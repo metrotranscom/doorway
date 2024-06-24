@@ -6,6 +6,7 @@ import { SuccessDTO } from '../dtos/shared/success.dto';
 import { User } from '../dtos/users/user.dto';
 import { mapTo } from '../utilities/mapTo';
 import { DataTransferDTO } from '../dtos/script-runner/data-transfer.dto';
+import { IdDTO } from '../dtos/shared/id.dto';
 
 /**
   this is the service for running scripts
@@ -50,6 +51,46 @@ export class ScriptRunnerService {
 
     // script runner standard spin down
     await this.markScriptAsComplete('data transfer', requestingUser);
+    return { success: true };
+  }
+
+  /**
+   *
+   * @param req incoming request object
+   * @param jurisdictionIdDTO id containing the jurisdiction id we are creating the new community type for
+   * @returns successDTO
+   * @description creates a new reserved community type. Reserved community types also need translations added
+   */
+  async createNewReservedCommunityType(
+    req: ExpressRequest,
+    jurisdictionIdDTO: IdDTO,
+  ): Promise<SuccessDTO> {
+    // script runner standard start up
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      'Senior Veterans Community Type',
+      requestingUser,
+    );
+
+    // create new veteran community type
+    await this.prisma.reservedCommunityTypes.create({
+      data: {
+        name: 'seniorVeterans',
+        description:
+          'Reserved for seniors 62+ years old who have served in the US military and who were honorably discharged.',
+        jurisdictions: {
+          connect: {
+            id: jurisdictionIdDTO.id,
+          },
+        },
+      },
+    });
+
+    // script runner standard spin down
+    await this.markScriptAsComplete(
+      'Senior Veterans Community Type',
+      requestingUser,
+    );
     return { success: true };
   }
 

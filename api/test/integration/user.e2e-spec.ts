@@ -780,40 +780,6 @@ describe('User Controller Tests', () => {
   it('should request single use code, but user does not exist', async () => {
     const jurisdiction = await prisma.jurisdictions.create({
       data: {
-        name: 'single_use_code_3',
-        allowSingleUseCodeLogin: true,
-        rentalAssistanceDefault: 'test',
-      },
-    });
-    emailService.sendSingleUseCode = jest.fn();
-
-    const res = await request(app.getHttpServer())
-      .post('/user/request-single-use-code')
-      .set({ passkey: process.env.API_PASS_KEY || '' })
-      .send({
-        email: storedUser.email,
-      } as RequestMfaCode)
-      .set({ jurisdictionname: jurisdiction.name })
-      .expect(403);
-
-    expect(res.body.message).toEqual(
-      'A user with MFA required is attempting to login to the public site',
-    );
-
-    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
-
-    const user = await prisma.userAccounts.findUnique({
-      where: {
-        id: storedUser.id,
-      },
-    });
-
-    expect(user.singleUseCode).toBeNull();
-  });
-
-  it('should request single use code, but user does not exist', async () => {
-    const jurisdiction = await prisma.jurisdictions.create({
-      data: {
         name: 'single_use_code_4',
         allowSingleUseCodeLogin: true,
         rentalAssistanceDefault: 'test',

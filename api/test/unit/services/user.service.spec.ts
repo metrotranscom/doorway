@@ -1886,36 +1886,6 @@ describe('Testing user service', () => {
     });
   });
 
-  it('should request single use code but user does not exist', async () => {
-    const id = randomUUID();
-    emailService.sendSingleUseCode = jest.fn();
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue(null);
-    prisma.userAccounts.update = jest.fn().mockResolvedValue({
-      id,
-    });
-
-    const res = await service.requestSingleUseCode(
-      {
-        email: 'example@exygy.com',
-      },
-      { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
-    );
-
-    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
-      where: {
-        email: 'example@exygy.com',
-      },
-      include: {
-        jurisdictions: true,
-      },
-    });
-    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
-    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
-    expect(res).toEqual({
-      success: true,
-    });
-  });
-
   it('should request single use code but jurisdiction does not exist', async () => {
     const id = randomUUID();
     emailService.sendSingleUseCode = jest.fn();

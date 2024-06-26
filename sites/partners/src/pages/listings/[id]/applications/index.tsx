@@ -43,7 +43,7 @@ const ApplicationsList = () => {
   /* Data Fetching */
   const { listingDto } = useSingleListingData(listingId)
 
-  const listingJurisdiction = profile?.jurisdictions.find(
+  const listingJurisdiction = profile?.jurisdictions?.find(
     (jurisdiction) => jurisdiction.id === listingDto?.jurisdictions.id
   )
   const includeDemographicsPartner =
@@ -56,7 +56,7 @@ const ApplicationsList = () => {
       false
   )
 
-  const shouldExpireData = !profile?.userRoles.isAdmin
+  const shouldExpireData = !profile?.userRoles?.isAdmin
 
   const countyCode = listingDto?.jurisdictions?.name
   const listingName = listingDto?.name

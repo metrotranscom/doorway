@@ -57,10 +57,10 @@ describe("applications", () => {
         return res(ctx.json({ totalCount: 1 }))
       })
     )
-    const { findByText, getByText, getAllByText } = render(<ApplicationsList />)
+    const { getByText, getAllByText, findAllByText } = render(<ApplicationsList />)
 
-    const header = await findByText("Partners Portal")
-    expect(header).toBeInTheDocument()
+    const header = await findAllByText("Applications")
+    expect(header.length).toBeGreaterThan(0)
 
     expect(getAllByText("Archer Studios").length).toBeGreaterThan(0)
     expect(getByText("Add Application")).toBeInTheDocument()
@@ -163,17 +163,17 @@ describe("applications", () => {
         return res(ctx.json({ totalCount: 1 }))
       })
     )
-    const { findByText, getByText } = render(<ApplicationsList />)
+    const { findAllByText, getByText } = render(<ApplicationsList />)
 
-    const header = await findByText("Partners Portal")
-    expect(header).toBeInTheDocument()
+    const header = await findAllByText("Applications")
+    expect(header.length).toBeGreaterThan(0)
 
     fireEvent.click(getByText("Add Application"))
     expect(pushMock).toHaveBeenCalledWith("/listings/Uvbk5qurpB2WI9V6WnNdH/applications/add")
   })
 
-  it("should open confirmation modal when application add is clicked while listing is closed", async () => {
-    const { pushMock } = mockNextRouter({ id: "Uvbk5qurpB2WI9V6WnNdH" })
+  it("should not allow new applications when a listing is closed and the user is not an admin", async () => {
+    mockNextRouter({ id: "Uvbk5qurpB2WI9V6WnNdH" })
 
     const closedListing: Listing = { ...listing, status: ListingsStatusEnum.closed }
     server.use(
@@ -188,12 +188,51 @@ describe("applications", () => {
       }),
       rest.get("http://localhost/api/adapter/applicationFlaggedSets/meta", (_req, res, ctx) => {
         return res(ctx.json({ totalCount: 1 }))
+      }),
+      rest.get("http://localhost/api/adapter/user", (_req, res, ctx) => {
+        return res(ctx.json({ id: "user1", userRoles: { isAdmin: false } }))
+      }),
+      rest.post("http://localhost:3100/auth/token", (_req, res, ctx) => {
+        return res(ctx.json(""))
       })
     )
-    const { findByText, getByText } = render(<ApplicationsList />)
+    const { findAllByText, queryByText } = render(<ApplicationsList />)
 
-    const header = await findByText("Partners Portal")
-    expect(header).toBeInTheDocument()
+    const header = await findAllByText("Applications")
+    expect(header.length).toBeGreaterThan(0)
+
+    expect(queryByText("Add Application")).not.toBeInTheDocument()
+  })
+
+  it("should open confirmation modal when application add is clicked while listing is closed and user is an admin", async () => {
+    const { pushMock } = mockNextRouter({ id: "Uvbk5qurpB2WI9V6WnNdH" })
+
+    const closedListing: Listing = { ...listing, status: ListingsStatusEnum.closed }
+    document.cookie = "access-token-available=True"
+    server.use(
+      rest.get("http://localhost/api/adapter/listings/Uvbk5qurpB2WI9V6WnNdH", (_req, res, ctx) => {
+        return res(ctx.json(closedListing))
+      }),
+      rest.get("http://localhost/api/adapter/applications", (_req, res, ctx) => {
+        return res(ctx.json({ items: [application], meta: { totalItems: 1, totalPages: 1 } }))
+      }),
+      rest.get("http://localhost/api/adapter/applicationFlaggedSets", (_req, res, ctx) => {
+        return res(ctx.json({ items: [], meta: { totalItems: 0, totalPages: 0 } }))
+      }),
+      rest.get("http://localhost/api/adapter/applicationFlaggedSets/meta", (_req, res, ctx) => {
+        return res(ctx.json({ totalCount: 1 }))
+      }),
+      rest.get("http://localhost/api/adapter/user", (_req, res, ctx) => {
+        return res(ctx.json({ id: "user1", userRoles: { isAdmin: true } }))
+      }),
+      rest.post("http://localhost:3100/auth/token", (_req, res, ctx) => {
+        return res(ctx.json(""))
+      })
+    )
+    const { findByText, getByText, findAllByText } = render(<ApplicationsList />)
+
+    const header = await findAllByText("Applications")
+    expect(header.length).toBeGreaterThan(0)
 
     fireEvent.click(getByText("Add Application"))
     const modalHeader = await findByText("Confirmation needed")

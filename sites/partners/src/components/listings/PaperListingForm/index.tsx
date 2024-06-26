@@ -315,7 +315,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                             units={units}
                             setUnits={setUnits}
                             disableUnitsAccordion={listing?.disableUnitsAccordion}
-                            disablelistingAvailability={
+                            disableListingAvailability={
                               isListingActive && !profile.userRoles.isAdmin
                             }
                           />

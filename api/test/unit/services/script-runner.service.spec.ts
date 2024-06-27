@@ -35,7 +35,7 @@ describe('Testing script runner service', () => {
     const id = randomUUID();
     const scriptName = 'data transfer';
 
-    const res = await service.dataTransfer(
+    const res = await service.transferJurisdictionData(
       {
         user: {
           id,

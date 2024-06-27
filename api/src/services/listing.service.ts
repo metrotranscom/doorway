@@ -1157,6 +1157,16 @@ export class ListingService implements OnModuleInit {
     const isNonAdmin = !requestingUser?.userRoles?.isAdmin;
     const isActiveListing = dto.status === ListingsStatusEnum.active;
 
+    await this.permissionService.canOrThrow(
+      requestingUser,
+      'listing',
+      permissionActions.update,
+      {
+        id: storedListing.id,
+        jurisdictionId: storedListing.jurisdictionId,
+      },
+    );
+
     //check if the user has permission to edit dates
     if (isNonAdmin && isActiveListing) {
       const lotteryEvent = dto.listingEvents?.find(
@@ -1181,16 +1191,6 @@ export class ListingService implements OnModuleInit {
         );
       }
     }
-
-    await this.permissionService.canOrThrow(
-      requestingUser,
-      'listing',
-      permissionActions.update,
-      {
-        id: storedListing.id,
-        jurisdictionId: storedListing.jurisdictionId,
-      },
-    );
 
     dto.unitsAvailable =
       dto.reviewOrderType !== ReviewOrderTypeEnum.waitlist && dto.units

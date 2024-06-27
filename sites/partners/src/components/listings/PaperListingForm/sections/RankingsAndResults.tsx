@@ -80,7 +80,8 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                     label: t("listings.firstComeFirstServe"),
                     value: "reviewOrderFCFS",
                     id: "reviewOrderFCFS",
-                    disabled: disableDueDates,
+                    disabled:
+                      disableDueDates && listing?.reviewOrderType === ReviewOrderTypeEnum.lottery,
                     defaultChecked:
                       listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe,
                   },
@@ -88,7 +89,9 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                     label: t("listings.lotteryTitle"),
                     value: "reviewOrderLottery",
                     id: "reviewOrderLottery",
-                    disabled: disableDueDates,
+                    disabled:
+                      disableDueDates &&
+                      listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe,
                     defaultChecked: listing?.reviewOrderType === ReviewOrderTypeEnum.lottery,
                   },
                 ]}
@@ -108,13 +111,13 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                   {
                     ...yesNoRadioOptions[0],
                     id: "dueDateQuestionYes",
-                    disabled: disableDueDates,
+                    disabled: disableDueDates && !listing?.applicationDueDate,
                     defaultChecked: listing && listing.applicationDueDate !== null,
                   },
                   {
                     ...yesNoRadioOptions[1],
                     id: "dueDateQuestionNo",
-                    disabled: disableDueDates,
+                    disabled: disableDueDates && listing?.applicationDueDate !== null,
                     defaultChecked: listing && !listing.applicationDueDate,
                   },
                 ]}

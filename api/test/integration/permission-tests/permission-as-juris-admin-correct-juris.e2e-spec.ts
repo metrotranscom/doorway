@@ -1115,10 +1115,7 @@ describe('Testing Permissioning of endpoints as Jurisdictional Admin in the corr
         data: listingData,
       });
 
-      console.log('Jabuszko', listing);
-
       const val = await constructFullListingData(prisma, listing.id, jurisId);
-      console.log('Jabuszko', val);
       val.applicationDueDate = listing.applicationDueDate;
       val.reviewOrderType = listing.reviewOrderType;
 

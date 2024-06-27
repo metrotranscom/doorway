@@ -191,7 +191,9 @@ const FormUnits = ({
                   id: "availableUnits",
                   dataTestId: "listingAvailability.availableUnits",
                   defaultChecked: listing?.reviewOrderType !== ReviewOrderTypeEnum.waitlist,
-                  disabled: disableListingAvailability,
+                  disabled:
+                    disableListingAvailability &&
+                    listing?.reviewOrderType === ReviewOrderTypeEnum.waitlist,
                 },
                 {
                   label: t("listings.waitlist.open"),
@@ -199,7 +201,9 @@ const FormUnits = ({
                   id: "openWaitlist",
                   dataTestId: "listingAvailability.openWaitlist",
                   defaultChecked: listing?.reviewOrderType === ReviewOrderTypeEnum.waitlist,
-                  disabled: disableListingAvailability,
+                  disabled:
+                    disableListingAvailability &&
+                    listing?.reviewOrderType !== ReviewOrderTypeEnum.waitlist,
                 },
               ]}
             />

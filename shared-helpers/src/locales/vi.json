@@ -122,7 +122,6 @@
   "application.contact.title": "Cảm ơn bạn %{firstName}. Giờ đây, chúng tôi cần biết cách để liên hệ với bạn về hồ sơ đăng ký.",
   "application.contact.verifyAddressTitle": "Chúng tôi đã định vị được địa chỉ sau đây. Vui lòng xác nhận rằng địa chỉ này chính xác.",
   "application.contact.verifyMultipleAddresses": "Vì có nhiều tùy chọn cho tùy chọn này nên bạn sẽ cần xác minh nhiều địa chỉ.",
-  "application.contact.workAddress": "Địa chỉ Sở Làm",
   "application.contact.youEntered": "Bạn đã nhập:",
   "application.contact.yourAdditionalPhoneNumber": "Số điện thoại thứ hai của bạn",
   "application.contact.yourAddress": "Địa chỉ của bạn",

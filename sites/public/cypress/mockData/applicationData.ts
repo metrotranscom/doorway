@@ -67,7 +67,6 @@ export const ElmVillageApplication: Application = {
     phoneNumber: "(444) 444-4444",
     noPhone: false,
     phoneNumberType: "work",
-    workInRegion: YesNoEnum.yes,
     applicantAddress: {
       ...idDefaults,
       street: "600 Montgomery St",
@@ -177,7 +176,6 @@ export const ElmVillageApplication: Application = {
       },
       sameAddress: YesNoEnum.no,
       relationship: HouseholdMemberRelationship.spouse,
-      workInRegion: YesNoEnum.yes,
     },
   ],
   preferredUnitTypes: [
@@ -308,7 +306,6 @@ export const minimalDataApplication: Application = {
     phoneNumber: null,
     noPhone: true,
     phoneNumberType: null,
-    workInRegion: YesNoEnum.no,
     applicantAddress: {
       ...idDefaults,
       street: "600 Montgomery St",

@@ -198,7 +198,6 @@
   "application.household.member.updateHouseholdMember": "Actualizar al miembro del hogar",
   "application.household.member.whatIsTheirRelationship": "¿Cuál es su relación con usted?",
   "application.household.member.whatReletionship": "¿Cuál es su parentesco o relación con usted?",
-  "application.household.member.workInRegion": "¿Trabaja él o ella en %{county}?",
   "application.household.membersInfo.title": "Antes de añadir a otras personas, asegúrese de que no figuran en ninguna otra solicitud de este anuncio.",
   "application.household.preferredUnit.legend": "Tipo de unidad preferida",
   "application.household.preferredUnit.options.fiveBdrm": "5 dormitorios",

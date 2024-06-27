@@ -53,7 +53,7 @@ const DetailsPrimaryApplicant = () => {
         </FieldValue>
       </Grid.Row>
 
-      <Grid.Row>
+      <Grid.Row columns={3}>
         <FieldValue
           label={t("t.secondPhone")}
           helpText={
@@ -77,14 +77,6 @@ const DetailsPrimaryApplicant = () => {
             ))
           })()}
         </FieldValue>
-
-        <FieldValue label={t("application.details.workInRegion")} testId="workInRegion">
-          {(() => {
-            if (!application.applicant.workInRegion) return t("t.n/a")
-
-            return application.applicant.workInRegion === YesNoEnum.yes ? t("t.yes") : t("t.no")
-          })()}
-        </FieldValue>
       </Grid.Row>
 
       <SectionWithGrid.HeadingRow>
@@ -106,17 +98,6 @@ const DetailsPrimaryApplicant = () => {
           type={AddressColsType.mailing}
           application={application}
           dataTestId="mailingAddress"
-        />
-      </Grid.Row>
-
-      <SectionWithGrid.HeadingRow>
-        {t("application.contact.workAddress")}
-      </SectionWithGrid.HeadingRow>
-      <Grid.Row columns={3}>
-        <DetailsAddressColumns
-          type={AddressColsType.work}
-          application={application}
-          dataTestId="workAddress"
         />
       </Grid.Row>
     </SectionWithGrid>

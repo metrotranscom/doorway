@@ -162,7 +162,6 @@
   "application.household.member.updateHouseholdMember": "Actualizar al miembro del hogar",
   "application.household.member.whatIsTheirRelationship": "¿Cuál es su parentesco o relación con usted?",
   "application.household.member.whatReletionship": "¿Cuál es su parentesco o relación con usted?",
-  "application.household.member.workInRegion": "¿Trabaja él o ella en <REGION>?",
   "application.household.membersInfo.title": "Antes de añadir a otras personas, asegúrese de que no hayan sido nombradas en ninguna otra solicitud de este listado.",
   "application.household.preferredUnit.legend": "Tipo de unidad preferida",
   "application.household.preferredUnit.options.SRO": "Organización con Potestad Reglamentaria",

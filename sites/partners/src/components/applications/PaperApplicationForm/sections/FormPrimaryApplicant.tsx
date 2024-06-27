@@ -27,7 +27,6 @@ const FormPrimaryApplicant = () => {
   }))
 
   const mailingAddressValue: boolean = watch("application.sendMailToMailingAddress")
-  const workInRegionValue: YesNoEnum = watch("application.applicant.workInRegion")
   const phoneValue: string = watch("phoneNumber")
   const additionalPhoneValue: string = watch("application.additionalPhoneNumber")
 
@@ -172,34 +171,6 @@ const FormPrimaryApplicant = () => {
               groupLabel={t("application.contact.preferredContactType")}
             />
           </Grid.Cell>
-
-          <FieldValue label={t("application.add.workInRegion")}>
-            <div className="flex items-center">
-              <Field
-                id="application.applicant.workInRegionYes"
-                name="application.applicant.workInRegion"
-                className="m-0"
-                type="radio"
-                label={t("t.yes")}
-                register={register}
-                inputProps={{
-                  value: YesNoEnum.yes,
-                }}
-              />
-
-              <Field
-                id="application.applicant.workInRegionNo"
-                name="application.applicant.workInRegion"
-                className="m-0"
-                type="radio"
-                label={t("t.no")}
-                register={register}
-                inputProps={{
-                  value: YesNoEnum.no,
-                }}
-              />
-            </div>
-          </FieldValue>
         </Grid.Row>
 
         <FormAddress
@@ -214,15 +185,6 @@ const FormPrimaryApplicant = () => {
           <FormAddress
             subtitle={t("application.contact.mailingAddress")}
             dataKey="application.applicationsMailingAddress"
-            register={register}
-            stateKeys={stateKeys}
-          />
-        )}
-
-        {workInRegionValue === YesNoEnum.yes && (
-          <FormAddress
-            subtitle={t("application.contact.workAddress")}
-            dataKey="application.applicant.applicantWorkAddress"
             register={register}
             stateKeys={stateKeys}
           />

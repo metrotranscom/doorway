@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react"
 import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
 import {
   Modal,
-  ButtonGroup,
   FieldGroup,
   FieldSingle,
   Card,
   Button,
-  ButtonGroupSpacing,
   Field,
   AppearanceSizeType,
 } from "@bloom-housing/doorway-ui-components"
@@ -15,7 +13,8 @@ import { useForm } from "react-hook-form"
 import { LinkButton, t } from "@bloom-housing/ui-components"
 import styles from "./LandingSearch.module.scss"
 import { FormOption } from "./ListingsSearchModal"
-import { numericSearchFieldGenerator } from "./helpers"
+import { getCheckboxValues, getFormValues, numericSearchFieldGenerator } from "./helpers"
+import { CheckboxGroup } from "@bloom-housing/ui-seeds"
 
 type LandingSearchProps = {
   bedrooms: FormOption[]
@@ -24,7 +23,7 @@ type LandingSearchProps = {
 // TODO: Refactor LandingSearch to utilize react-hook-form. It is currently using a custom form object and custom valueSetters
 // which is mostly functional but fails to leverage UI-C's formatting, accessibility and any other future improvements to the
 // package. To expedite development and avoid excessive workarounds (ie. line 121), a full form refactor should be completed.
-export function LandingSearch(props: LandingSearchProps) {
+export const LandingSearch = (props: LandingSearchProps) => {
   // We hold a map of county label to county FormOption
   const countyLabelMap = {}
   const countyLabels = []
@@ -34,8 +33,8 @@ export function LandingSearch(props: LandingSearchProps) {
   })
 
   const nullState: ListingSearchParams = {
-    bedrooms: null,
-    bathrooms: null,
+    bedrooms: [],
+    bathrooms: [],
     minRent: "",
     monthlyRent: "",
     counties: countyLabels,
@@ -58,18 +57,13 @@ export function LandingSearch(props: LandingSearchProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
-  const updateValueMulti = (name: string, labels: string[]) => {
+  const updateValueMulti = (name: string, values: string[]) => {
     const newValues = { ...formValues } as ListingSearchParams
-    newValues[name] = labels
+    newValues[name] = values
     setFormValues(newValues)
-    // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
   const translatedBedroomOptions: FormOption[] = [
-    {
-      label: t("listings.unitTypes.any"),
-      value: null,
-    },
     {
       label: t("listings.unitTypes.studio"),
       value: "0",
@@ -77,7 +71,7 @@ export function LandingSearch(props: LandingSearchProps) {
   ]
   const bedroomOptions: FormOption[] = [
     ...translatedBedroomOptions,
-    ...numericSearchFieldGenerator(1, 3),
+    ...numericSearchFieldGenerator(1, 4),
   ]
 
   const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
@@ -132,13 +126,14 @@ export function LandingSearch(props: LandingSearchProps) {
     <Card className="bg-accent-cool-light">
       <div className={styles["input-section"]}>
         <div className={styles["input-section_title"]}>{t("t.bedrooms")}</div>
-        <ButtonGroup
-          name="bedrooms"
+        <CheckboxGroup
+          id="bedrooms"
           options={bedroomOptions}
-          onChange={updateValue}
-          value={formValues.bedrooms}
-          className="bg-accent-cool-light pt-2 md:py-0 md:px-0 landing-search-button-group"
-          spacing={ButtonGroupSpacing.left}
+          onChange={(values) => updateValueMulti("bedrooms", getFormValues(values))}
+          values={getCheckboxValues(formValues.bedrooms)}
+          size="md"
+          variant="primary-outlined"
+          checkedVariant="primary"
         />
       </div>
 

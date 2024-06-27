@@ -2229,10 +2229,10 @@ export interface ListingFilterParams {
   neighborhood?: string
 
   /**  */
-  bedrooms?: number
+  bedrooms?: string[]
 
   /**  */
-  bathrooms?: number
+  bathrooms?: string[]
 
   /**  */
   zipcode?: string

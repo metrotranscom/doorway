@@ -5,7 +5,7 @@ import { Button } from "@bloom-housing/ui-seeds"
 import { Modal, t } from "@bloom-housing/ui-components"
 import { NavigationContext } from "@bloom-housing/doorway-ui-components"
 import { MessageContext } from "../utilities/MessageContext"
-        
+
 const PROMPT_TIMEOUT = 60000
 const events = ["mousemove", "keypress", "scroll"]
 

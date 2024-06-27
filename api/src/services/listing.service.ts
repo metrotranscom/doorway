@@ -48,6 +48,7 @@ import { startCronJob } from '../utilities/cron-job-starter';
 import { PermissionService } from './permission.service';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import Unit from '../dtos/units/unit.dto';
+import { buildInclusiveWhereQuery } from '../utilities/unit-filter-utilities';
 
 export type getListingsArgs = {
   skip: number;
@@ -259,16 +260,18 @@ export class ListingService implements OnModuleInit {
         }
         if (filter[ListingFilterKeys.bedrooms]) {
           whereClauseArray.push(
-            `(combined_units->>'numBedrooms') =  '${Math.floor(
+            buildInclusiveWhereQuery(
+              ListingFilterKeys.bedrooms,
               filter[ListingFilterKeys.bedrooms],
-            )}'`,
+            ),
           );
         }
         if (filter[ListingFilterKeys.bathrooms]) {
           whereClauseArray.push(
-            `(combined_units->>'numBathrooms') =  '${Math.floor(
+            buildInclusiveWhereQuery(
+              ListingFilterKeys.bathrooms,
               filter[ListingFilterKeys.bathrooms],
-            )}'`,
+            ),
           );
         }
         if (filter[ListingFilterKeys.monthlyRent]) {

@@ -35,9 +35,9 @@ describe("parse search string", () => {
 describe("build search string", () => {
   it("should build expected string", () => {
     const example: ListingSearchParams = {
-      bedrooms: "2",
+      bedrooms: ["2"],
       counties: ["county1", "county2"],
-      bathrooms: null,
+      bathrooms: [],
       minRent: null,
       monthlyRent: null,
     }

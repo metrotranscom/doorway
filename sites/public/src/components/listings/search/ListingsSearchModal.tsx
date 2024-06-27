@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react"
 import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
 import { t } from "@bloom-housing/ui-components"
-import {
-  Modal,
-  ButtonGroup,
-  ButtonGroupSpacing,
-  Button,
-  Field,
-  FieldGroup,
-  FieldSingle,
-} from "@bloom-housing/doorway-ui-components"
+import { Modal, Field, FieldGroup, FieldSingle } from "@bloom-housing/doorway-ui-components"
+import { CheckboxGroup, Button } from "@bloom-housing/ui-seeds"
 import { useForm } from "react-hook-form"
-import { numericSearchFieldGenerator } from "./helpers"
+import { getCheckboxValues, getFormValues, numericSearchFieldGenerator } from "./helpers"
+import styles from "./ListingsSearchModal.module.scss"
 
 const inputSectionStyle: React.CSSProperties = {
   margin: "0px 15px",
@@ -81,8 +75,8 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   })
 
   const nullState: ListingSearchParams = {
-    bedrooms: null,
-    bathrooms: null,
+    bedrooms: [],
+    bathrooms: [],
     minRent: "",
     monthlyRent: "",
     counties: countyLabels,
@@ -137,28 +131,16 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
-  const updateValueMulti = (name: string, labels: string[]) => {
+  const updateValueMulti = (name: string, values: string[]) => {
     const newValues = { ...formValues } as ListingSearchParams
-    newValues[name] = labels
+    newValues[name] = values
     setFormValues(newValues)
-    // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
   const translatedBedroomOptions: FormOption[] = [
     {
-      label: t("listings.unitTypes.any"),
-      value: null,
-    },
-    {
       label: t("listings.unitTypes.studio"),
       value: "0",
-    },
-  ]
-
-  const translatedBathroomOptions: FormOption[] = [
-    {
-      label: t("listings.unitTypes.any"),
-      value: null,
     },
   ]
 
@@ -166,10 +148,8 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     ...translatedBedroomOptions,
     ...numericSearchFieldGenerator(1, 4),
   ]
-  const bathroomOptions: FormOption[] = [
-    ...translatedBathroomOptions,
-    ...numericSearchFieldGenerator(1, 4),
-  ]
+
+  const bathroomOptions: FormOption[] = [...numericSearchFieldGenerator(1, 4)]
   const mkCountyFields = (counties: FormOption[]): FieldSingle[] => {
     const countyFields: FieldSingle[] = [] as FieldSingle[]
 
@@ -245,23 +225,29 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     >
       <div style={inputSectionStyle}>
         <div style={sectionTitle}>{t("t.bedrooms")}</div>
-        <ButtonGroup
-          name="bedrooms"
+        <CheckboxGroup
+          id="bedrooms"
           options={bedroomOptions}
-          onChange={updateValue}
-          value={formValues.bedrooms}
-          spacing={ButtonGroupSpacing.left}
+          values={getCheckboxValues(formValues.bedrooms)}
+          onChange={(values) => updateValueMulti("bedrooms", getFormValues(values))}
+          size="md"
+          variant="primary-outlined"
+          checkedVariant="primary"
+          className={styles["checkbox-group"]}
         />
       </div>
 
       <div style={inputSectionStyle}>
         <div style={sectionTitle}>{t("t.bathrooms")}</div>
-        <ButtonGroup
-          name="bathrooms"
+        <CheckboxGroup
+          id="bathrooms"
           options={bathroomOptions}
-          onChange={updateValue}
-          value={formValues.bathrooms}
-          spacing={ButtonGroupSpacing.left}
+          values={getCheckboxValues(formValues.bathrooms)}
+          onChange={(values) => updateValueMulti("bathrooms", getFormValues(values))}
+          size="md"
+          variant="primary-outlined"
+          checkedVariant="primary"
+          className={styles["checkbox-group"]}
         />
       </div>
       <div style={inputSectionStyle}>

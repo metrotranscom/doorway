@@ -122,7 +122,6 @@
   "application.contact.title": "Salamat, %{firstName}. Ngayon, kailangan naming malaman kung paano ka kokontakin tungkol sa iyong aplikasyon.",
   "application.contact.verifyAddressTitle": "Nakita namin ang sumusunod na address. Mangyaring kumpirmahin na ito'y tama.",
   "application.contact.verifyMultipleAddresses": "Dahil maraming opsyon para sa kagustuhang ito, kakailanganin mong i-verify ang maraming address.",
-  "application.contact.workAddress": "Address ng Trabaho",
   "application.contact.youEntered": "Ang iyong inilagay:",
   "application.contact.yourAdditionalPhoneNumber": "Pangalawang numero ng iyong telepono",
   "application.contact.yourAddress": "Iyong Address",

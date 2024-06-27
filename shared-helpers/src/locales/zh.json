@@ -122,7 +122,6 @@
   "application.contact.title": "謝謝您，%{firstName}。現在我們需要知道如何與您聯絡申請相關事宜。",
   "application.contact.verifyAddressTitle": "我們找到了以下地址。請確認是否正確。",
   "application.contact.verifyMultipleAddresses": "由於此首選項有多個選項，因此您需要驗證多個位址。",
-  "application.contact.workAddress": "工作地址",
   "application.contact.youEntered": "您輸入了：",
   "application.contact.yourAdditionalPhoneNumber": "您的第二支電話號碼",
   "application.contact.yourAddress": "您的地址",

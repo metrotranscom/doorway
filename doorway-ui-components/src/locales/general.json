@@ -91,7 +91,6 @@
   "application.contact.suggestedAddress": "Suggested Address:",
   "application.contact.title": "Thanks %{firstName}. Now we need to know how to contact you.",
   "application.contact.verifyAddressTitle": "We have located the following address. Please confirm it's correct.",
-  "application.contact.workAddress": "Work Address",
   "application.contact.youEntered": "You Entered:",
   "application.contact.yourAdditionalPhoneNumber": "Your Second Phone Number",
   "application.contact.yourPhoneNumber": "Your Phone Number",

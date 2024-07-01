@@ -7,6 +7,7 @@ import { ScriptRunnerService } from '../../../src/services/script-runner.service
 import { PrismaService } from '../../../src/services/prisma.service';
 import { User } from '../../../src/dtos/users/user.dto';
 import { AmiChartService } from '../../../src/services/ami-chart.service';
+import { PrismaClient } from '@prisma/client';
 
 describe('Testing script runner service', () => {
   let service: ScriptRunnerService;
@@ -26,11 +27,58 @@ describe('Testing script runner service', () => {
     prisma = module.get<PrismaService>(PrismaService);
   });
 
+  it('should not transfer jurisdiction data if jurisdiction does not exist', async () => {
+    const externalPrismaClient = new PrismaClient();
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue(null);
+    const id = randomUUID();
+    await expect(
+      service.transferJurisdictionData(
+        {
+          user: {
+            id,
+          } as unknown as User,
+        } as unknown as ExpressRequest,
+        {
+          connectionString: 'sample',
+          jurisdiction: 'Sample jurisdiction',
+        },
+        externalPrismaClient,
+      ),
+    ).rejects.toThrowError(
+      "Sample jurisdiction county doesn't exist in Doorway database",
+    );
+
+    prisma.jurisdictions.findFirst = jest
+      .fn()
+      .mockResolvedValue([{ name: 'sample jurisdiction', id: randomUUID() }]);
+    await expect(
+      service.transferJurisdictionData(
+        {
+          user: {
+            id,
+          } as unknown as User,
+        } as unknown as ExpressRequest,
+        {
+          connectionString: 'sample',
+          jurisdiction: 'Sample jurisdiction',
+        },
+        externalPrismaClient,
+      ),
+    ).rejects.toThrowError(
+      "Sample jurisdiction county doesn't exist in foreign database",
+    );
+  });
   // because of how doorway ci env variables work we can't publicly expose a db for us to connect to
   it.skip('should transfer data', async () => {
     prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.jurisdictions.findFirst = jest
+      .fn()
+      .mockResolvedValue({ name: 'sample jurisdiction', id: randomUUID() });
 
     const id = randomUUID();
     const scriptName = 'data transfer';
@@ -43,6 +91,7 @@ describe('Testing script runner service', () => {
       } as unknown as ExpressRequest,
       {
         connectionString: process.env.TEST_CONNECTION_STRING,
+        jurisdiction: 'Sample jurisdiction',
       },
     );
 

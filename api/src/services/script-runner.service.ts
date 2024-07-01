@@ -12,7 +12,6 @@ import { DataTransferDTO } from '../dtos/script-runner/data-transfer.dto';
 import { AmiChartImportDTO } from '../dtos/script-runner/ami-chart-import.dto';
 import { AmiChartCreate } from '../dtos/ami-charts/ami-chart-create.dto';
 import { AmiChartService } from './ami-chart.service';
-import { connect } from 'node:http2';
 
 /**
   this is the service for running scripts
@@ -35,6 +34,7 @@ export class ScriptRunnerService {
   async transferJurisdictionData(
     req: ExpressRequest,
     dataTransferDTO: DataTransferDTO,
+    prisma?: PrismaClient,
   ): Promise<SuccessDTO> {
     // script runner standard start up
     const requestingUser = mapTo(User, req['user']);
@@ -44,13 +44,15 @@ export class ScriptRunnerService {
     );
 
     // connect to foreign db based on incoming connection string
-    const client = new PrismaClient({
-      datasources: {
-        db: {
-          url: dataTransferDTO.connectionString,
+    const client =
+      prisma ||
+      new PrismaClient({
+        datasources: {
+          db: {
+            url: dataTransferDTO.connectionString,
+          },
         },
-      },
-    });
+      });
     await client.$connect();
 
     const doorwayJurisdiction = await this.prisma.jurisdictions.findFirst({
@@ -68,7 +70,7 @@ export class ScriptRunnerService {
       await client.$queryRaw`SELECT id, name FROM jurisdictions WHERE name = ${dataTransferDTO.jurisdiction}`;
     console.log(jurisdiction);
 
-    if (!jurisdiction) {
+    if (!jurisdiction?.length) {
       throw new Error(
         `${dataTransferDTO.jurisdiction} county doesn't exist in foreign database`,
       );

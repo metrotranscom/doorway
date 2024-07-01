@@ -166,14 +166,7 @@ export const ElmVillageApplication: Application = {
         state: "AZ",
         zipCode: "90223",
       },
-      householdMemberWorkAddress: {
-        ...idDefaults,
-        street: "Member Work Street",
-        street2: "Member Work Unit",
-        city: "Member Work City",
-        state: "AR",
-        zipCode: "90224",
-      },
+
       sameAddress: YesNoEnum.no,
       relationship: HouseholdMemberRelationship.spouse,
     },

@@ -94,7 +94,6 @@ export const stagingSeed = async (
       confirmedAt: new Date(),
       jurisdictionIds: [jurisdiction.id],
       acceptedTerms: true,
-      password: 'abcdef',
     }),
   });
   await prismaClient.userAccounts.create({

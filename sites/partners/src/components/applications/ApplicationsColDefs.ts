@@ -361,7 +361,6 @@ export function getColDefs(maxHouseholdSize: number, countyCode: string) {
         return `${data.sendMailToMailingAddress ? value : data.applicant.applicantAddress.zipCode}`
       },
     },
-
     {
       headerName: t("applications.table.altContactFirstName"),
       field: "alternateContact.firstName",

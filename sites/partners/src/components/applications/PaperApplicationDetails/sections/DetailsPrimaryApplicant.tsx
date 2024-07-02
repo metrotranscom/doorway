@@ -4,7 +4,6 @@ import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import { ApplicationContext } from "../../ApplicationContext"
 import { DetailsAddressColumns, AddressColsType } from "../DetailsAddressColumns"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
-import { YesNoEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 const DetailsPrimaryApplicant = () => {
   const application = useContext(ApplicationContext)

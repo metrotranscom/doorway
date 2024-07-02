@@ -4,7 +4,6 @@ import {
   AddressCreate,
   Application,
   HouseholdMember,
-  YesNoEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 type DetailsAddressColumnsProps = {

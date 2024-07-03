@@ -1067,6 +1067,8 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
       });
 
       const val = await constructFullListingData(prisma, listing.id, jurisId);
+      val.reviewOrderType = listing.reviewOrderType;
+      val.applicationDueDate = listing.applicationDueDate;
 
       await request(app.getHttpServer())
         .put(`/listings/${listing.id}`)

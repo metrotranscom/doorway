@@ -54,7 +54,7 @@ describe("lottery", () => {
 
     const { getAllByText, findByText } = render(<Lottery listing={listing} />)
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     expect(getAllByText(listing.name).length).toBeGreaterThan(0)
@@ -74,7 +74,7 @@ describe("lottery", () => {
 
     const { getAllByText, findByText } = render(<Lottery listing={listing} />)
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     expect(getAllByText(listing.name).length).toBeGreaterThan(0)
@@ -100,7 +100,7 @@ describe("lottery", () => {
 
     const { getAllByText, findByText } = render(<Lottery listing={listing} />)
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     expect(getAllByText(listing.name).length).toBeGreaterThan(0)
@@ -126,7 +126,7 @@ describe("lottery", () => {
 
     const { queryAllByText, queryByText } = render(<Lottery listing={listing} />)
 
-    const header = queryByText("Partners Portal")
+    const header = queryByText("Lottery")
     expect(header).not.toBeInTheDocument()
     expect(queryAllByText(listing.name).length).toBe(0)
   })
@@ -150,7 +150,7 @@ describe("lottery", () => {
 
     const { getByText, findByText } = render(<Lottery listing={listing} />)
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     expect(getByText("No lottery data")).toBeInTheDocument()
@@ -182,7 +182,7 @@ describe("lottery", () => {
       <Lottery listing={{ ...listing, lotteryLastRunAt: new Date() }} />
     )
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     expect(getByText("Export lottery data")).toBeInTheDocument()
@@ -214,7 +214,7 @@ describe("lottery", () => {
       <Lottery listing={{ ...listing, lotteryLastRunAt: new Date() }} />
     )
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     fireEvent.click(getByText("Re-run lottery"))
@@ -243,7 +243,7 @@ describe("lottery", () => {
       <Lottery listing={{ ...listing, lotteryLastRunAt: new Date() }} />
     )
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     fireEvent.click(getByText("Release lottery"))

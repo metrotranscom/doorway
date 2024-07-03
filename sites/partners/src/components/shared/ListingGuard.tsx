@@ -18,7 +18,7 @@ const ListingGuard = ({ children }: AuthGuardProps) => {
     profile?.userRoles?.isAdmin ||
     profile?.userRoles?.isJurisdictionalAdmin ||
     profile?.userRoles?.isLimitedJurisdictionalAdmin ||
-    leasingAgentInListingsIds.includes(listingId)
+    leasingAgentInListingsIds?.includes(listingId)
 
   if (hasPrivileges) {
     return children

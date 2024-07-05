@@ -42,8 +42,8 @@ import { PermissionService } from '../../../src/services/permission.service';
 import { permissionActions } from '../../../src/enums/permissions/permission-actions-enum';
 
 /*
-  generates a super simple mock listing for us to test logic with
-*/
+ generates a super simple mock listing for us to test logic with
+ */
 const mockListing = (
   pos: number,
   genUnits?: { numberToMake: number; date: Date },
@@ -2408,6 +2408,8 @@ describe('Testing listing service', () => {
 
       const val = constructFullListingData(randomUUID());
       val.reservedCommunityTypes = null;
+      val.applicationDueDate = undefined;
+      val.reviewOrderType = undefined;
 
       await service.update(val as ListingUpdate, user);
 

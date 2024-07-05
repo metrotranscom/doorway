@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import {
   LanguagesEnum,
+  ListingEventsTypeEnum,
   ListingsStatusEnum,
   LotteryStatusEnum,
   Prisma,
@@ -42,6 +43,7 @@ import { permissionActions } from '../enums/permissions/permission-actions-enum'
 import { buildFilter } from '../utilities/build-filter';
 import { buildOrderByForListings } from '../utilities/build-order-by';
 import { startCronJob } from '../utilities/cron-job-starter';
+import { checkIfDatesChanged } from '../utilities/listings-utilities';
 import { mapTo } from '../utilities/mapTo';
 import {
   buildPaginationMetaInfo,
@@ -1156,6 +1158,8 @@ export class ListingService implements OnModuleInit {
   */
   async update(dto: ListingUpdate, requestingUser: User): Promise<Listing> {
     const storedListing = await this.findOrThrow(dto.id, ListingViews.details);
+    const isNonAdmin = !requestingUser?.userRoles?.isAdmin;
+    const isActiveListing = dto.status === ListingsStatusEnum.active;
 
     await this.permissionService.canOrThrow(
       requestingUser,
@@ -1166,6 +1170,31 @@ export class ListingService implements OnModuleInit {
         jurisdictionId: storedListing.jurisdictionId,
       },
     );
+
+    //check if the user has permission to edit dates
+    if (isNonAdmin && isActiveListing) {
+      const lotteryEvent = dto.listingEvents?.find(
+        (event) => event?.type === ListingEventsTypeEnum.publicLottery,
+      );
+      const storedLotteryEvent = storedListing.listingEvents?.find(
+        (event) => event?.type === ListingEventsTypeEnum.publicLottery,
+      );
+
+      if (
+        checkIfDatesChanged(
+          lotteryEvent,
+          storedLotteryEvent,
+          dto,
+          storedListing.applicationDueDate?.toISOString(),
+          storedListing.reviewOrderType,
+        )
+      ) {
+        throw new HttpException(
+          'You do not have permission to edit dates',
+          403,
+        );
+      }
+    }
 
     dto.unitsAvailable =
       dto.reviewOrderType !== ReviewOrderTypeEnum.waitlist && dto.units
@@ -1604,7 +1633,7 @@ export class ListingService implements OnModuleInit {
     clears the listing cache of either 1 listing or all listings
      @param storedListingStatus the status that was stored for the listing
      @param incomingListingStatus the incoming "new" status for a listing
-     @param savedResponseId the id of the listing   
+     @param savedResponseId the id of the listing
   */
   async cachePurge(
     storedListingStatus: ListingsStatusEnum | undefined,
@@ -1728,7 +1757,7 @@ export class ListingService implements OnModuleInit {
 
   /**
     marks the db record for this cronjob as begun or creates a cronjob that
-    is marked as begun if one does not already exist 
+    is marked as begun if one does not already exist
   */
   async markCronJobAsStarted(): Promise<void> {
     const job = await this.prisma.cronJob.findFirst({

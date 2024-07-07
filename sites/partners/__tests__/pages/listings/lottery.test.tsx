@@ -304,7 +304,7 @@ describe("lottery", () => {
 
     const { getByText, findByText } = render(<Lottery listing={listing} />)
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     fireEvent.click(getByText("Run lottery"))
@@ -336,7 +336,7 @@ describe("lottery", () => {
 
     const { getByText, findByText, findAllByText } = render(<Lottery listing={listing} />)
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     fireEvent.click(getByText("Run lottery"))

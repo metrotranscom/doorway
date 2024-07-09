@@ -369,7 +369,7 @@ describe("lottery", () => {
       <Lottery listing={updatedListing} />
     )
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     expect(getByText("File includes randomized general pool data.")).toBeInTheDocument()
@@ -417,7 +417,7 @@ describe("lottery", () => {
       <Lottery listing={updatedListing} />
     )
 
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Lottery")
     expect(header).toBeInTheDocument()
 
     expect(

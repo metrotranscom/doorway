@@ -596,11 +596,12 @@ describe('Application Controller Tests', () => {
           id: listing1Created.id,
         },
         demographics: {
-          ethnicity: 'example ethnicity',
+          ethnicity: '',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example language',
         },
         preferredUnitTypes: [
           {
@@ -632,7 +633,7 @@ describe('Application Controller Tests', () => {
         sendMailToMailingAddress: true,
         householdExpectingChanges: false,
         householdStudent: false,
-        incomeVouchers: false,
+        incomeVouchers: [],
         income: '36000',
         incomePeriod: IncomePeriodEnum.perYear,
         language: LanguagesEnum.en,
@@ -660,6 +661,7 @@ describe('Application Controller Tests', () => {
           },
         ],
       };
+
       const res = await request(app.getHttpServer())
         .post(`/applications/submit`)
         .set({ passkey: process.env.API_PASS_KEY || '' })

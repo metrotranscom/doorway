@@ -1435,6 +1435,8 @@ describe('Testing application service', () => {
     prisma.listings.findUnique = jest.fn().mockResolvedValue({
       id: randomUUID(),
       status: 'closed',
+      digitalApplication: true,
+      commonDigitalApplication: true,
     });
 
     prisma.applications.create = jest.fn().mockResolvedValue({

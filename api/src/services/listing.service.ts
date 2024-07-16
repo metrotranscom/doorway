@@ -54,6 +54,7 @@ import {
   summarizeUnitsByTypeAndRent,
   summarizeUnits,
 } from '../utilities/unit-utilities';
+import { FilterAvailabilityEnum } from '../enums/listings/filter-availability-enum';
 
 export type getListingsArgs = {
   skip: number;
@@ -276,6 +277,18 @@ export class ListingService implements OnModuleInit {
               filter[ListingFilterKeys.bathrooms],
             )}'`,
           );
+        }
+        if (
+          filter[ListingFilterKeys.availability] ===
+          FilterAvailabilityEnum.waitlistOpen
+        ) {
+          whereClauseArray.push(`combined.is_waitlist_open = true`);
+        }
+        if (
+          filter[ListingFilterKeys.availability] ===
+          FilterAvailabilityEnum.unitsAvailable
+        ) {
+          whereClauseArray.push(`combined.units_available >= 1`);
         }
         if (filter[ListingFilterKeys.monthlyRent]) {
           const comparison = filter['$comparison'];

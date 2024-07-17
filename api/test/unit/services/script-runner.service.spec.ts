@@ -240,7 +240,8 @@ describe('Testing script runner service', () => {
         .mockResolvedValueOnce([createAddress('building')])
         .mockResolvedValueOnce([createAddress('leasing agent')])
         .mockResolvedValueOnce([createAddress('application pick up')])
-        .mockResolvedValueOnce([createAddress('application drop up')]);
+        .mockResolvedValueOnce([createAddress('application drop up')])
+        .mockResolvedValueOnce([]); // units
       const createdListingId = randomUUID();
       const mockListingSave = jest
         .fn()
@@ -472,7 +473,8 @@ describe('Testing script runner service', () => {
             reserved_community_type_id: randomUUID(),
           },
         ])
-        .mockResolvedValueOnce([{ name: 'senior' }]);
+        .mockResolvedValueOnce([{ name: 'senior' }])
+        .mockResolvedValueOnce([]);
       prisma.reservedCommunityTypes.findMany = jest.fn().mockResolvedValueOnce([
         { name: 'sample reserved type', id: randomUUID() },
         { name: 'senior55', id: doorwayReservedCommunityTypeID },
@@ -578,19 +580,8 @@ describe('Testing script runner service', () => {
           reservedCommunityDescription: undefined,
           reservedCommunityMinAge: undefined,
           reservedCommunityTypes: {
-            connectOrCreate: {
-              create: {
-                description: undefined,
-                jurisdictions: {
-                  connect: {
-                    id: jurisdictionId,
-                  },
-                },
-                name: 'senior55',
-              },
-              where: {
-                id: doorwayReservedCommunityTypeID,
-              },
+            connect: {
+              id: doorwayReservedCommunityTypeID,
             },
           },
           resultLink: undefined,
@@ -852,7 +843,7 @@ describe('Testing script runner service', () => {
             status: 'active',
           },
         ])
-        .mockResolvedValueOnce(null) // no units for this test
+        .mockResolvedValueOnce([]) // no units for this test
         .mockResolvedValueOnce([
           {
             ordinal: 1,

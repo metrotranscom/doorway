@@ -223,7 +223,7 @@ export class ScriptRunnerService {
         await client.$queryRaw`SELECT * FROM unit_types`;
       const doorwayRentTypes = await this.prisma.unitRentTypes.findMany();
       console.log(`migrating ${listings.length} listings`);
-      listings.forEach(async (listing) => {
+      for (const listing of listings) {
         console.log(`migrating ${listing['name']} listing`);
 
         let buildingAddress;
@@ -308,15 +308,8 @@ export class ScriptRunnerService {
             },
             reservedCommunityTypes: reservedCommunityType
               ? {
-                  connectOrCreate: {
-                    where: { id: reservedCommunityType.id },
-                    create: {
-                      name: reservedCommunityType['name'],
-                      description: reservedCommunityType['description'],
-                      jurisdictions: {
-                        connect: { id: doorwayJurisdiction.id },
-                      },
-                    },
+                  connect: {
+                    id: reservedCommunityType.id,
                   },
                 }
               : undefined,
@@ -414,13 +407,13 @@ export class ScriptRunnerService {
         const units: any[] = await client.$queryRawUnsafe(
           `SELECT u.*, ut.name FROM units u, unit_types ut WHERE ut.id = u.unit_type_id AND u.listing_id = '${listing['id']}'`,
         );
-        units?.forEach(async (unit) => {
+        for (const unit of units) {
           let doorwayAmiChart;
           let unitType;
           let priorityType: { id: string; name: string };
           let rentType;
           // We need to get the amiChart from Doorway because it might not have been carried over from HBA
-          // Example might be the ami chart in HBA is tied to the wrong jurisdiction
+          // Example: the ami chart in HBA is tied to the wrong jurisdiction
           if (unit['ami_chart_id']) {
             doorwayAmiChart = await this.prisma.amiChart.findFirst({
               where: { id: unit['ami_chart_id'] },
@@ -449,6 +442,12 @@ export class ScriptRunnerService {
             priorityType = doorwayPriorityTypes.find(
               (type) => type.name === fullPriorityType.name,
             );
+            if (!priorityType) {
+              // Log any priority types that aren't in Doorway so we can manually add later
+              console.log(
+                `Priority type not found in Doorway: "${fullPriorityType?.name}" for listing ${listing['name']}`,
+              );
+            }
           }
           if (unit['unit_rent_type_id']) {
             const fullRentType = rentTypes.find(
@@ -504,7 +503,7 @@ export class ScriptRunnerService {
               status: unit['status'],
             },
           });
-        });
+        }
 
         // Migrate the listing to multiselect question mapping
         const listingMultiselectQuestions: {
@@ -557,7 +556,7 @@ export class ScriptRunnerService {
             }),
           });
         }
-      });
+      }
     }
 
     // disconnect from foreign db

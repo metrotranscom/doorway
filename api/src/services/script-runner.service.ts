@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import {
+  ApplicationMethodsTypeEnum,
   MultiselectQuestionsApplicationSectionEnum,
   PrismaClient,
 } from '@prisma/client';
@@ -275,6 +276,15 @@ export class ScriptRunnerService {
             }
           }
         }
+        const applicationMethods: {
+          type: string;
+          label: string;
+          external_reference: string;
+          accepts_postmarked_applications: boolean;
+          phone_number: string;
+        }[] = await client.$queryRawUnsafe(
+          `SELECT * FROM application_methods WHERE listing_id = '${listing['id']}'`,
+        );
 
         const createdListing = await this.prisma.listings.create({
           data: {
@@ -310,6 +320,21 @@ export class ScriptRunnerService {
               ? {
                   connect: {
                     id: reservedCommunityType.id,
+                  },
+                }
+              : undefined,
+            applicationMethods: applicationMethods?.length
+              ? {
+                  createMany: {
+                    data: applicationMethods.map((method) => {
+                      return {
+                        type: method.type as ApplicationMethodsTypeEnum,
+                        label: method.label,
+                        acceptsPostmarkedApplications:
+                          method.accepts_postmarked_applications,
+                        phoneNumber: method.phone_number,
+                      };
+                    }),
                   },
                 }
               : undefined,

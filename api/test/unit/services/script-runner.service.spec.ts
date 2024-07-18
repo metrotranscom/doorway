@@ -219,8 +219,8 @@ describe('Testing script runner service', () => {
             id: listingId,
             name: 'sample listing',
             created_at: new Date(),
-            digital_application: false,
-            common_digital_application: false,
+            digital_application: true,
+            common_digital_application: true,
             paper_application: false,
             referral_opportunity: false,
             assets: [],
@@ -241,6 +241,7 @@ describe('Testing script runner service', () => {
         .mockResolvedValueOnce([createAddress('leasing agent')])
         .mockResolvedValueOnce([createAddress('application pick up')])
         .mockResolvedValueOnce([createAddress('application drop up')])
+        .mockResolvedValueOnce([{ type: 'Internal' }]) // application methods
         .mockResolvedValueOnce([]); // units
       const createdListingId = randomUUID();
       const mockListingSave = jest
@@ -279,6 +280,18 @@ describe('Testing script runner service', () => {
           applicationDueDate: undefined,
           applicationFee: undefined,
           applicationMailingAddressType: undefined,
+          applicationMethods: {
+            createMany: {
+              data: [
+                {
+                  acceptsPostmarkedApplications: undefined,
+                  label: undefined,
+                  phoneNumber: undefined,
+                  type: 'Internal',
+                },
+              ],
+            },
+          },
           applicationOpenDate: undefined,
           applicationOrganization: undefined,
           applicationPickUpAddressOfficeHours: undefined,
@@ -287,7 +300,7 @@ describe('Testing script runner service', () => {
           buildingSelectionCriteria: undefined,
           buildingTotalUnits: undefined,
           closedAt: undefined,
-          commonDigitalApplication: false,
+          commonDigitalApplication: true,
           contentUpdatedAt: undefined,
           costsNotIncluded: undefined,
           createdAt: expect.anything(),
@@ -298,7 +311,7 @@ describe('Testing script runner service', () => {
           depositMax: undefined,
           depositMin: undefined,
           developer: 'developer',
-          digitalApplication: false,
+          digitalApplication: true,
           disableUnitsAccordion: undefined,
           displayWaitlistSize: false,
           homeType: undefined,
@@ -474,7 +487,8 @@ describe('Testing script runner service', () => {
           },
         ])
         .mockResolvedValueOnce([{ name: 'senior' }])
-        .mockResolvedValueOnce([]);
+        .mockResolvedValueOnce([]) // application methods
+        .mockResolvedValueOnce([]); // units
       prisma.reservedCommunityTypes.findMany = jest.fn().mockResolvedValueOnce([
         { name: 'sample reserved type', id: randomUUID() },
         { name: 'senior55', id: doorwayReservedCommunityTypeID },
@@ -658,6 +672,7 @@ describe('Testing script runner service', () => {
             status: 'active',
           },
         ])
+        .mockResolvedValueOnce([])
         .mockResolvedValueOnce([
           {
             name: 'oneBdr',
@@ -843,6 +858,7 @@ describe('Testing script runner service', () => {
             status: 'active',
           },
         ])
+        .mockResolvedValueOnce([]) // no application methods for this test
         .mockResolvedValueOnce([]) // no units for this test
         .mockResolvedValueOnce([
           {
@@ -936,6 +952,7 @@ describe('Testing script runner service', () => {
             status: 'active',
           },
         ])
+        .mockResolvedValueOnce([]) // no application methods
         .mockResolvedValueOnce([]) // no units for this test
         .mockResolvedValueOnce([]) // no multiselect questions
         .mockResolvedValueOnce([

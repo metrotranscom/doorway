@@ -38,6 +38,7 @@ import { SuccessDTO } from '../dtos/shared/success.dto';
 import { User } from '../dtos/users/user.dto';
 import Unit from '../dtos/units/unit.dto';
 import { ListingViews } from '../enums/listings/view-enum';
+import { FilterAvailabilityEnum } from '../enums/listings/filter-availability-enum';
 import { ListingFilterKeys } from '../enums/listings/filter-key-enum';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import { buildFilter } from '../utilities/build-filter';
@@ -54,7 +55,6 @@ import {
   summarizeUnitsByTypeAndRent,
   summarizeUnits,
 } from '../utilities/unit-utilities';
-import { FilterAvailabilityEnum } from '../enums/listings/filter-availability-enum';
 
 export type getListingsArgs = {
   skip: number;
@@ -283,8 +283,7 @@ export class ListingService implements OnModuleInit {
           FilterAvailabilityEnum.waitlistOpen
         ) {
           whereClauseArray.push(`combined.is_waitlist_open = true`);
-        }
-        if (
+        } else if (
           filter[ListingFilterKeys.availability] ===
           FilterAvailabilityEnum.unitsAvailable
         ) {

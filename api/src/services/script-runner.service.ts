@@ -319,7 +319,7 @@ export class ScriptRunnerService {
                 id: doorwayJurisdiction.id,
               },
             },
-            reservedCommunityTypes: reservedCommunityType
+            reservedCommunityTypes: reservedCommunityType?.id
               ? {
                   connect: {
                     id: reservedCommunityType.id,
@@ -595,6 +595,335 @@ export class ScriptRunnerService {
       `data transfer listings ${dataTransferDTO.jurisdiction}`,
       requestingUser,
     );
+    return { success: true };
+  }
+
+  /**
+   *
+   * @param req incoming request object
+   * @param dataTransferDTO data transfer endpoint args. Should contain foreign db connection string
+   * @returns successDTO
+   * @description transfers partner users from foreign data into the database this api normally connects to
+   */
+  async transferJurisdictionUserApplicationData(
+    req: ExpressRequest,
+    dataTransferDTO: DataTransferDTO,
+    prisma?: PrismaClient,
+  ): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      `data transfer user and application ${dataTransferDTO.jurisdiction}`,
+      requestingUser,
+    );
+
+    // connect to foreign db based on incoming connection string
+    const client =
+      prisma ||
+      new PrismaClient({
+        datasources: {
+          db: {
+            url: dataTransferDTO.connectionString,
+          },
+        },
+      });
+    await client.$connect();
+
+    const doorwayJurisdiction = await this.prisma.jurisdictions.findFirst({
+      where: { name: dataTransferDTO.jurisdiction },
+    });
+
+    if (!doorwayJurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in Doorway database`,
+      );
+    }
+
+    // get jurisdiction
+    const jurisdiction: { id: string }[] =
+      await client.$queryRaw`SELECT id, name FROM jurisdictions WHERE name = ${dataTransferDTO.jurisdiction}`;
+
+    if (!jurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in foreign database`,
+      );
+    }
+
+    const partnerUsers = await client.userAccounts.findMany({
+      include: {
+        listings: {
+          select: { id: true, jurisdictionId: true },
+        },
+      },
+      where: {
+        userRoles: {
+          isPartner: true,
+        },
+        jurisdictions: {
+          some: { id: jurisdiction[0].id },
+        },
+      },
+    });
+
+    if (partnerUsers?.length) {
+      console.log(`migrating ${partnerUsers.length} partner users`);
+      for (const partner of partnerUsers) {
+        await this.prisma.userAccounts.create({
+          data: {
+            ...partner,
+            updatedAt: undefined, // updated at should be the date it's imported to doorway
+            agreedToTermsOfService: false, // Users will need to agree to terms again as they differ in Doorway
+            listings: partner.listings
+              ? {
+                  connect: partner.listings
+                    .filter(
+                      (listing) =>
+                        listing.jurisdictionId === jurisdiction[0].id,
+                    )
+                    .map((listing) => {
+                      return { id: listing.id };
+                    }),
+                }
+              : undefined,
+            userRoles: {
+              create: { isPartner: true },
+            },
+            jurisdictions: {
+              connect: {
+                id: doorwayJurisdiction.id,
+              },
+            },
+          },
+        });
+      }
+    }
+
+    const publicUsers = await client.userAccounts.findMany({
+      include: {
+        applications: {
+          select: {
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+            deletedAt: true,
+            appUrl: true,
+            additionalPhone: true,
+            contactPreferences: true,
+            householdSize: true,
+            sendMailToMailingAddress: true,
+            householdExpectingChanges: true,
+            householdStudent: true,
+            // incomeVouchers: true, //TODO: figure out how to handle with the differences in doorway (boolean vs enum type)
+            income: true,
+            incomePeriod: true,
+            preferences: true,
+            programs: true,
+            status: true,
+            language: true,
+            submissionType: true,
+            acceptedTerms: true,
+            submissionDate: true,
+            markedAsDuplicate: true,
+            confirmationCode: true,
+            reviewStatus: true,
+            applicant: {
+              select: {
+                firstName: true,
+                middleName: true,
+                lastName: true,
+                applicantWorkAddress: true,
+                applicantAddress: true,
+                emailAddress: true,
+                noEmail: true,
+                noPhone: true,
+                phoneNumber: true,
+                phoneNumberType: true,
+                workInRegion: true,
+                birthDay: true,
+                birthMonth: true,
+                birthYear: true,
+              },
+            },
+            listings: {
+              select: {
+                id: true,
+                jurisdictionId: true,
+              },
+            },
+            applicationsAlternateAddress: true,
+            alternateContact: {
+              select: {
+                type: true,
+                otherType: true,
+                firstName: true,
+                lastName: true,
+                agency: true,
+                phoneNumber: true,
+                emailAddress: true,
+                address: true,
+              },
+            },
+            applicationsMailingAddress: true,
+            demographics: {
+              select: {
+                ethnicity: true,
+                gender: true,
+                sexualOrientation: true,
+                howDidYouHear: true,
+                race: true,
+              },
+            },
+            accessibility: true,
+            householdMember: {
+              include: {
+                householdMemberWorkAddress: true,
+                householdMemberAddress: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        jurisdictions: {
+          some: { id: jurisdiction[0].id },
+        },
+        userRoles: null,
+        applications: { some: {} },
+      },
+    });
+
+    if (publicUsers?.length) {
+      console.log(`migrating ${publicUsers.length} public users`);
+      for (const publicUser of publicUsers) {
+        let user = await this.prisma.userAccounts.findFirst({
+          where: { email: publicUser.email },
+        });
+        if (!user) {
+          user = await this.prisma.userAccounts.create({
+            data: {
+              ...publicUser,
+              updatedAt: undefined, // updated at should be the date it's imported to doorway
+              agreedToTermsOfService: false, // Users will need to agree to terms again as they differ in Doorway
+              jurisdictions: {
+                connect: {
+                  id: doorwayJurisdiction.id,
+                },
+              },
+              applications: undefined,
+            },
+          });
+        } else {
+          console.log(
+            `a user with email ${user.email} already exists in the system`,
+          );
+        }
+        for (const application of publicUser.applications) {
+          // Only migrate applications for this jurisdiction
+          if (application.listings.jurisdictionId !== jurisdiction[0].id) {
+            return;
+          }
+          // addresses need to be created first in order to connect to the application
+          await this.prisma.address.createMany({
+            data: [
+              ...application.householdMember.map(
+                (member) => member.householdMemberAddress,
+              ),
+              ...application.householdMember.map(
+                (member) => member.householdMemberWorkAddress,
+              ),
+            ],
+          });
+          try {
+            await this.prisma.applications.create({
+              data: {
+                ...application,
+                userAccounts: {
+                  connect: {
+                    // Tie the application to the user, either the new user or the one in our system with the same email
+                    id: user.id,
+                  },
+                },
+                listings: {
+                  connect: {
+                    id: application.listings.id,
+                  },
+                },
+                alternateContact: application.alternateContact
+                  ? {
+                      create: {
+                        ...application.alternateContact,
+                        address: application.alternateContact.address
+                          ? {
+                              connectOrCreate: {
+                                where: {
+                                  id: application.alternateContact.address.id,
+                                },
+                                create: application.alternateContact.address,
+                              },
+                            }
+                          : undefined,
+                      },
+                    }
+                  : undefined,
+                accessibility: { create: application.accessibility },
+                applicant: {
+                  create: {
+                    ...application.applicant,
+                    applicantWorkAddress: application.applicant
+                      .applicantWorkAddress
+                      ? { create: application.applicant.applicantWorkAddress }
+                      : undefined,
+                    applicantAddress: application.applicant.applicantAddress
+                      ? { create: application.applicant.applicantAddress }
+                      : undefined,
+                  },
+                },
+                applicationsMailingAddress: {
+                  connectOrCreate: {
+                    where: { id: application.applicationsMailingAddress.id },
+                    create: application.applicationsMailingAddress,
+                  },
+                },
+                applicationsAlternateAddress: {
+                  connectOrCreate: {
+                    where: { id: application.applicationsAlternateAddress.id },
+                    create: application.applicationsAlternateAddress,
+                  },
+                },
+                demographics: {
+                  create: application.demographics,
+                },
+                householdMember: {
+                  createMany: {
+                    data: application.householdMember.map((member) => {
+                      return {
+                        ...member,
+                        applicationId: undefined,
+                        householdMemberWorkAddress: undefined,
+                        householdMemberAddress: undefined,
+                      };
+                    }),
+                  },
+                },
+              },
+            });
+          } catch (e) {
+            console.log(
+              `unable to migrate application ${application.id} for user ${user.id}`,
+            );
+          }
+        }
+      }
+    }
+
+    // disconnect from foreign db
+    await client.$disconnect();
+
+    // script runner standard spin down
+    await this.markScriptAsComplete(
+      `data transfer user and application ${dataTransferDTO.jurisdiction}`,
+      requestingUser,
+    );
+
     return { success: true };
   }
 

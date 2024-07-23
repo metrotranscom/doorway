@@ -185,7 +185,7 @@ export class ListingController {
     return await this.listingService.delete(dto.id, mapTo(User, req['user']));
   }
 
-  @Put('process')
+  @Put('closeListings')
   @ApiOperation({
     summary: 'Trigger the listing process job',
     operationId: 'process',

@@ -333,7 +333,7 @@ export class ApplicationCsvExporterService
       },
       {
         path: 'receivedAt',
-        label: 'Application Received Date',
+        label: 'Application Received At',
         format: (val: string): string =>
           formatLocalDate(
             val,

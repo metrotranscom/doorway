@@ -824,12 +824,12 @@ export class ScriptRunnerService {
           // addresses need to be created first in order to connect to the application
           await this.prisma.address.createMany({
             data: [
-              ...application.householdMember.map(
+              ...(application.householdMember?.map(
                 (member) => member.householdMemberAddress,
-              ),
-              ...application.householdMember.map(
+              ) || []),
+              ...(application.householdMember?.map(
                 (member) => member.householdMemberWorkAddress,
-              ),
+              ) || []),
             ],
           });
           try {
@@ -869,23 +869,23 @@ export class ScriptRunnerService {
                   create: {
                     ...application.applicant,
                     applicantWorkAddress: application.applicant
-                      .applicantWorkAddress
+                      ?.applicantWorkAddress
                       ? { create: application.applicant.applicantWorkAddress }
                       : undefined,
-                    applicantAddress: application.applicant.applicantAddress
+                    applicantAddress: application.applicant?.applicantAddress
                       ? { create: application.applicant.applicantAddress }
                       : undefined,
                   },
                 },
                 applicationsMailingAddress: {
                   connectOrCreate: {
-                    where: { id: application.applicationsMailingAddress.id },
+                    where: { id: application.applicationsMailingAddress?.id },
                     create: application.applicationsMailingAddress,
                   },
                 },
                 applicationsAlternateAddress: {
                   connectOrCreate: {
-                    where: { id: application.applicationsAlternateAddress.id },
+                    where: { id: application.applicationsAlternateAddress?.id },
                     create: application.applicationsAlternateAddress,
                   },
                 },
@@ -894,19 +894,21 @@ export class ScriptRunnerService {
                 },
                 householdMember: {
                   createMany: {
-                    data: application.householdMember.map((member) => {
-                      return {
-                        ...member,
-                        applicationId: undefined,
-                        householdMemberWorkAddress: undefined,
-                        householdMemberAddress: undefined,
-                      };
-                    }),
+                    data:
+                      application.householdMember?.map((member) => {
+                        return {
+                          ...member,
+                          applicationId: undefined,
+                          householdMemberWorkAddress: undefined,
+                          householdMemberAddress: undefined,
+                        };
+                      }) || [],
                   },
                 },
               },
             });
           } catch (e) {
+            console.log('e', e);
             console.log(
               `unable to migrate application ${application.id} for user ${user.id}`,
             );

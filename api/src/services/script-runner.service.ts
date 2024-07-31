@@ -406,7 +406,8 @@ export class ScriptRunnerService {
             customMapPin: listing['custom_map_pin'],
             publishedAt: listing['published_at'],
             closedAt: listing['closed_at'],
-            afsLastRunAt: listing['afs_last_run'],
+            // afs last run needs to be now so the afs job isn't triggered by the applications ported over in the next script
+            afsLastRunAt: new Date(),
             lastApplicationUpdateAt: listing['last_application_update_at'],
             requestedChanges: listing['requested_changes'],
             requestedChangesDate: listing['requested_changes_date'],
@@ -706,77 +707,23 @@ export class ScriptRunnerService {
             updatedAt: true,
             deletedAt: true,
             appUrl: true,
-            additionalPhone: true,
-            contactPreferences: true,
             householdSize: true,
-            sendMailToMailingAddress: true,
-            householdExpectingChanges: true,
-            householdStudent: true,
-            // incomeVouchers: true, //TODO: figure out how to handle with the differences in doorway (boolean vs enum type)
-            income: true,
-            incomePeriod: true,
-            preferences: true,
-            programs: true,
-            status: true,
-            language: true,
             submissionType: true,
             acceptedTerms: true,
             submissionDate: true,
             markedAsDuplicate: true,
             confirmationCode: true,
             reviewStatus: true,
-            applicant: {
-              select: {
-                firstName: true,
-                middleName: true,
-                lastName: true,
-                applicantWorkAddress: true,
-                applicantAddress: true,
-                emailAddress: true,
-                noEmail: true,
-                noPhone: true,
-                phoneNumber: true,
-                phoneNumberType: true,
-                workInRegion: true,
-                birthDay: true,
-                birthMonth: true,
-                birthYear: true,
-              },
-            },
+            status: true,
             listings: {
               select: {
                 id: true,
                 jurisdictionId: true,
               },
             },
-            applicationsAlternateAddress: true,
-            alternateContact: {
-              select: {
-                type: true,
-                otherType: true,
-                firstName: true,
-                lastName: true,
-                agency: true,
-                phoneNumber: true,
-                emailAddress: true,
-                address: true,
-              },
-            },
-            applicationsMailingAddress: true,
-            demographics: {
-              select: {
-                ethnicity: true,
-                gender: true,
-                sexualOrientation: true,
-                howDidYouHear: true,
-                race: true,
-              },
-            },
-            accessibility: true,
             householdMember: {
-              include: {
-                householdMemberWorkAddress: true,
-                householdMemberAddress: true,
+              select: {
+                id: true,
               },
             },
           },
@@ -821,21 +768,21 @@ export class ScriptRunnerService {
           if (application.listings.jurisdictionId !== jurisdiction[0].id) {
             return;
           }
-          // addresses need to be created first in order to connect to the application
-          await this.prisma.address.createMany({
-            data: [
-              ...(application.householdMember?.map(
-                (member) => member.householdMemberAddress,
-              ) || []),
-              ...(application.householdMember?.map(
-                (member) => member.householdMemberWorkAddress,
-              ) || []),
-            ],
-          });
           try {
             await this.prisma.applications.create({
               data: {
-                ...application,
+                id: application.id,
+                createdAt: application.createdAt,
+                updatedAt: application.updatedAt,
+                deletedAt: application.deletedAt,
+                confirmationCode: application.confirmationCode,
+                submissionType: application.submissionType,
+                submissionDate: application.submissionDate,
+                preferences: [],
+                programs: [],
+                status: application.status,
+                householdSize: application.householdSize,
+                appUrl: application.appUrl,
                 userAccounts: {
                   connect: {
                     // Tie the application to the user, either the new user or the one in our system with the same email
@@ -845,64 +792,6 @@ export class ScriptRunnerService {
                 listings: {
                   connect: {
                     id: application.listings.id,
-                  },
-                },
-                alternateContact: application.alternateContact
-                  ? {
-                      create: {
-                        ...application.alternateContact,
-                        address: application.alternateContact.address
-                          ? {
-                              connectOrCreate: {
-                                where: {
-                                  id: application.alternateContact.address.id,
-                                },
-                                create: application.alternateContact.address,
-                              },
-                            }
-                          : undefined,
-                      },
-                    }
-                  : undefined,
-                accessibility: { create: application.accessibility },
-                applicant: {
-                  create: {
-                    ...application.applicant,
-                    applicantWorkAddress: application.applicant
-                      ?.applicantWorkAddress
-                      ? { create: application.applicant.applicantWorkAddress }
-                      : undefined,
-                    applicantAddress: application.applicant?.applicantAddress
-                      ? { create: application.applicant.applicantAddress }
-                      : undefined,
-                  },
-                },
-                applicationsMailingAddress: {
-                  connectOrCreate: {
-                    where: { id: application.applicationsMailingAddress?.id },
-                    create: application.applicationsMailingAddress,
-                  },
-                },
-                applicationsAlternateAddress: {
-                  connectOrCreate: {
-                    where: { id: application.applicationsAlternateAddress?.id },
-                    create: application.applicationsAlternateAddress,
-                  },
-                },
-                demographics: {
-                  create: application.demographics,
-                },
-                householdMember: {
-                  createMany: {
-                    data:
-                      application.householdMember?.map((member) => {
-                        return {
-                          ...member,
-                          applicationId: undefined,
-                          householdMemberWorkAddress: undefined,
-                          householdMemberAddress: undefined,
-                        };
-                      }) || [],
                   },
                 },
               },

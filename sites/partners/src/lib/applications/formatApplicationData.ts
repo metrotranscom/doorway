@@ -8,7 +8,6 @@ import {
   getInputType,
 } from "@bloom-housing/shared-helpers"
 import { FormTypes, ApplicationTypes, Address } from "../../lib/applications/FormTypes"
-import { convertDataToLocal } from "../../lib/helpers"
 
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
@@ -31,6 +30,8 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 dayjs.extend(customParseFormat)
+
+const TIME_24H_FORMAT = "MM/DD/YYYY HH:mm:ss"
 
 /*
   Some of fields are optional, not active, so it occurs 'undefined' as value.
@@ -88,8 +89,6 @@ export const mapFormToApi = ({
     : null
 
   const submissionDate: Date | null = (() => {
-    const TIME_24H_FORMAT = "MM/DD/YYYY HH:mm:ss"
-
     // rename default (wrong property names)
     const {
       day: submissionDay,
@@ -110,6 +109,24 @@ export const mapFormToApi = ({
     return formattedDate
   })()
 
+  const receivedAt: Date | null = (() => {
+    const { day: receivedDay, month: receivedMonth, year: receivedYear } = data?.dateReceived || {}
+    const { hours, minutes = 0, seconds = 0, period } = data?.timeReceived || {}
+
+    if (!receivedDay || !receivedMonth || !receivedYear) return null
+
+    const dateString = dayjs(
+      `${receivedMonth}/${receivedDay}/${receivedYear} ${hours}:${minutes}:${seconds} ${period}`,
+      "MM/DD/YYYY hh:mm:ss a"
+    ).format(TIME_24H_FORMAT)
+
+    const formattedDate = dayjs(dateString, TIME_24H_FORMAT).toDate()
+
+    return formattedDate
+  })()
+
+  const receivedBy = data.application?.receivedBy || null
+
   // create applicant
   const applicant = ((): ApplicantUpdate => {
     const phoneNumber: string | null = data?.phoneNumber || null
@@ -117,23 +134,15 @@ export const mapFormToApi = ({
     const phoneNumberType: string | null = applicantData.phoneNumberType || null
     const noEmail = !applicantData.emailAddress
     const noPhone = !phoneNumber
-    const workInRegion: YesNoEnum | null = applicantData?.workInRegion || null
     const emailAddress: string | null = applicantData?.emailAddress || null
 
     applicantData.firstName = mapEmptyStringToNull(applicantData.firstName)
     applicantData.lastName = mapEmptyStringToNull(applicantData.lastName)
 
-    const workAddress = getAddress(
-      applicantData?.workInRegion === YesNoEnum.yes,
-      applicantData?.applicantWorkAddress
-    )
-
     return {
       ...applicantData,
       ...data.dateOfBirth,
       emailAddress,
-      workInRegion,
-      applicantWorkAddress: workAddress,
       phoneNumber,
       phoneNumberType,
       noEmail,
@@ -247,6 +256,8 @@ export const mapFormToApi = ({
     }, {})
 
   const result = {
+    receivedAt,
+    receivedBy,
     submissionDate,
     language,
     applicant,
@@ -287,6 +298,10 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
   const submissionDate = applicationData.submissionDate
     ? dayjs(new Date(applicationData.submissionDate))
     : null
+
+  const receivedAt = applicationData.receivedAt ? dayjs(new Date(applicationData.receivedAt)) : null
+
+  const receivedBy = applicationData.receivedBy
 
   const dateOfBirth = (() => {
     const { birthDay, birthMonth, birthYear } = applicationData.applicant
@@ -332,6 +347,36 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
     }
   })()
 
+  const timeReceived = (() => {
+    if (!receivedAt) return
+
+    const hours = receivedAt.format("hh")
+    const minutes = receivedAt.format("mm")
+    const seconds = receivedAt.format("ss")
+    const period = receivedAt.format("a").toLowerCase() as TimeFieldPeriod
+
+    return {
+      hours,
+      minutes,
+      seconds,
+      period,
+    }
+  })()
+
+  const dateReceived = (() => {
+    if (!receivedAt) return null
+
+    const month = receivedAt.format("MM")
+    const day = receivedAt.format("DD")
+    const year = receivedAt.format("YYYY")
+
+    return {
+      month,
+      day,
+      year,
+    }
+  })()
+
   const phoneNumber = applicationData.applicant.phoneNumber
 
   const preferences =
@@ -366,12 +411,7 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
     const householdExpectingChanges = getYesNoValue(applicationData.householdExpectingChanges)
     const householdStudent = getYesNoValue(applicationData.householdStudent)
 
-    const workInRegion = applicationData.applicant.workInRegion
-
-    const applicant = {
-      ...applicationData.applicant,
-      workInRegion,
-    }
+    const applicant = applicationData.applicant
 
     const preferredUnit = applicationData?.preferredUnitTypes?.map((unit) => unit.id)
 
@@ -408,6 +448,7 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
       acceptedTerms,
       alternateContact,
       programs,
+      receivedBy,
     }
 
     return result
@@ -417,6 +458,8 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
     dateOfBirth,
     dateSubmitted,
     timeSubmitted,
+    dateReceived,
+    timeReceived,
     phoneNumber,
     incomeMonth,
     incomeYear,

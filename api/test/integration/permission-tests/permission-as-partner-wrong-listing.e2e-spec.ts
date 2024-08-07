@@ -124,6 +124,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     const listingData = await listingFactory(jurisId, prisma, {
       multiselectQuestions: [msq],
+      digitalApp: true,
     });
     const listing = await prisma.listings.create({
       data: listingData,
@@ -1056,8 +1057,28 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should error as forbidden for process endpoint', async () => {
       await request(app.getHttpServer())
-        .put(`/listings/process`)
+        .put(`/listings/closeListings`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for expireLotteries endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/listings/expireLotteries`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for lottery status endpoint', async () => {
+      await request(app.getHttpServer())
+        .put('/listings/lotteryStatus')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          listingId: listingId,
+          lotteryStatus: 'publishedToPublic',
+        })
         .set('Cookie', cookies)
         .expect(403);
     });

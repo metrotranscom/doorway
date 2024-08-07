@@ -1,10 +1,12 @@
 import {
-  Prisma,
   AmiChart,
-  MultiselectQuestions,
-  PrismaClient,
-  ListingsStatusEnum,
   ApplicationMethodsTypeEnum,
+  ListingsStatusEnum,
+  LotteryStatusEnum,
+  MultiselectQuestions,
+  Prisma,
+  PrismaClient,
+  ReviewOrderTypeEnum,
 } from '@prisma/client';
 import { randomInt } from 'crypto';
 import { randomName } from './word-generator';
@@ -41,6 +43,9 @@ export const listingFactory = async (
     reservedCommunityType?: string;
     digitalApp?: boolean;
     noImage?: boolean;
+    lotteryStatus?: LotteryStatusEnum;
+    closedAt?: Date;
+    reviewOrderType?: ReviewOrderTypeEnum;
   },
 ): Promise<Prisma.ListingsCreateInput> => {
   const previousListing = optionalParams?.listing || {};
@@ -57,15 +62,14 @@ export const listingFactory = async (
     optionalParams?.reservedCommunityType,
   );
 
-  const digitalApp = !!optionalParams?.digitalApp
-    ? optionalParams.digitalApp
-    : Math.random() < 0.5;
+  const digitalApp = optionalParams?.digitalApp ?? Math.random() < 0.5;
 
   return {
     createdAt: new Date(),
     assets: [],
     name: randomName(),
     status: optionalParams?.status || ListingsStatusEnum.active,
+    lotteryStatus: optionalParams?.lotteryStatus || undefined,
     displayWaitlistSize: Math.random() < 0.5,
     listingsBuildingAddress: {
       create: addressFactory(),
@@ -143,6 +147,8 @@ export const listingFactory = async (
         }
       : undefined,
     applicationDueDate: optionalParams?.applicationDueDate ?? undefined,
+    closedAt: optionalParams?.closedAt ?? undefined,
+    reviewOrderType: optionalParams?.reviewOrderType ?? undefined,
     developer: randomName(),
     leasingAgentName: randomName(),
     leasingAgentEmail: 'leasing-agent@example.com',

@@ -64,7 +64,7 @@ export const countyKeys = [
   "Marin",
   "Napa",
   // "San Francisco",
-  // "San Mateo",
+  "San Mateo",
   "Santa Clara",
   "Solano",
   "Sonoma",
@@ -326,6 +326,7 @@ export enum RoleOption {
   Administrator = "administrator",
   Partner = "partner",
   JurisdictionalAdmin = "jurisdictionalAdmin",
+  LimitedJurisdictionalAdmin = "limitedJurisdictionalAdmin",
 }
 export const roleKeys = Object.values(RoleOption)
 

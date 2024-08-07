@@ -16,9 +16,10 @@ import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 type RankingsAndResultsProps = {
   listing?: FormListing
+  disableDueDates?: boolean
 }
 
-const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
+const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProps) => {
   const formMethods = useFormContext()
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -79,6 +80,8 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                     label: t("listings.firstComeFirstServe"),
                     value: "reviewOrderFCFS",
                     id: "reviewOrderFCFS",
+                    disabled:
+                      disableDueDates && listing?.reviewOrderType === ReviewOrderTypeEnum.lottery,
                     defaultChecked:
                       listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe,
                   },
@@ -86,6 +89,9 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                     label: t("listings.lotteryTitle"),
                     value: "reviewOrderLottery",
                     id: "reviewOrderLottery",
+                    disabled:
+                      disableDueDates &&
+                      listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe,
                     defaultChecked: listing?.reviewOrderType === ReviewOrderTypeEnum.lottery,
                   },
                 ]}
@@ -105,11 +111,13 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                   {
                     ...yesNoRadioOptions[0],
                     id: "dueDateQuestionYes",
+                    disabled: disableDueDates && !listing?.applicationDueDate,
                     defaultChecked: listing && listing.applicationDueDate !== null,
                   },
                   {
                     ...yesNoRadioOptions[1],
                     id: "dueDateQuestionNo",
+                    disabled: disableDueDates && listing?.applicationDueDate !== null,
                     defaultChecked: listing && !listing.applicationDueDate,
                   },
                 ]}
@@ -119,6 +127,32 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
         )}
         {reviewOrder === "reviewOrderLottery" && (
           <>
+            {process.env.showLottery && (
+              <Grid.Row columns={2} className={"flex items-center"}>
+                <Grid.Cell>
+                  <p className={`field-label m-4 ml-0`}>{t("listings.lotteryOptInQuestion")}</p>
+                  <FieldGroup
+                    name="lotteryOptInQuestion"
+                    type="radio"
+                    register={register}
+                    fields={[
+                      {
+                        ...yesNoRadioOptions[0],
+                        id: "lotteryOptInYes",
+                        defaultChecked:
+                          !listing || listing.lotteryOptIn === true || !listing.lotteryOptIn,
+                      },
+
+                      {
+                        ...yesNoRadioOptions[1],
+                        id: "lotteryOptInNo",
+                        defaultChecked: listing && listing.lotteryOptIn === false,
+                      },
+                    ]}
+                  />
+                </Grid.Cell>
+              </Grid.Row>
+            )}
             <Grid.Row columns={3}>
               <Grid.Cell>
                 <DateField
@@ -127,6 +161,7 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                   id={"lotteryDate"}
                   register={register}
                   watch={watch}
+                  disabled={disableDueDates}
                   defaultDate={{
                     month: lotteryEvent?.startDate
                       ? dayjs(new Date(lotteryEvent?.startDate)).utc().format("MM")
@@ -147,6 +182,7 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                   id={"lotteryStartTime"}
                   register={register}
                   watch={watch}
+                  disabled={disableDueDates}
                   defaultValues={{
                     hours: lotteryEvent?.startTime
                       ? dayjs(new Date(lotteryEvent?.startTime)).format("hh")
@@ -168,6 +204,7 @@ const RankingsAndResults = ({ listing }: RankingsAndResultsProps) => {
                   id={"lotteryEndTime"}
                   register={register}
                   watch={watch}
+                  disabled={disableDueDates}
                   defaultValues={{
                     hours: lotteryEvent?.endTime
                       ? dayjs(new Date(lotteryEvent?.endTime)).format("hh")

@@ -1,15 +1,8 @@
 import React, { useState, useCallback, useContext, useEffect } from "react"
 import { useRouter } from "next/router"
 import dayjs from "dayjs"
-import {
-  t,
-  Form,
-  AlertBox,
-  LoadingOverlay,
-  Modal,
-  LatitudeLongitude,
-} from "@bloom-housing/ui-components"
-import { Button, Icon, Tabs } from "@bloom-housing/ui-seeds"
+import { t, Form, AlertBox, LoadingOverlay, LatitudeLongitude } from "@bloom-housing/ui-components"
+import { Button, Dialog, Icon, Tabs } from "@bloom-housing/ui-seeds"
 import ChevronLeftIcon from "@heroicons/react/20/solid/ChevronLeftIcon"
 import ChevronRightIcon from "@heroicons/react/20/solid/ChevronRightIcon"
 import { AuthContext, MessageContext, listingSectionQuestions } from "@bloom-housing/shared-helpers"
@@ -62,6 +55,7 @@ type ListingFormProps = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ListingForm = ({ listing, editMode }: ListingFormProps) => {
   const defaultValues = editMode ? listing : formDefaults
+  const isListingActive = listing?.status === ListingsStatusEnum.active
   const formMethods = useForm<FormListing>({
     defaultValues,
     shouldUnregister: false,
@@ -147,7 +141,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
     newData?: Partial<FormListing>
   ) => {
     if (confirm && status === ListingsStatusEnum.active) {
-      if (listing?.status === ListingsStatusEnum.active) {
+      if (isListingActive) {
         setListingIsAlreadyLiveModal(true)
       } else {
         setPublishModal(true)
@@ -314,10 +308,18 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                             units={units}
                             setUnits={setUnits}
                             disableUnitsAccordion={listing?.disableUnitsAccordion}
+                            disableListingAvailability={
+                              isListingActive && !profile.userRoles.isAdmin
+                            }
                           />
                           <SelectAndOrder
                             addText={t("listings.addPreference")}
                             drawerTitle={t("listings.addPreferences")}
+                            drawerSubtitle={
+                              process.env.showLottery && listing?.lotteryOptIn
+                                ? t("listings.lotteryPreferenceSubtitle")
+                                : null
+                            }
                             editText={t("listings.editPreferences")}
                             listingData={preferences || []}
                             setListingData={setPreferences}
@@ -370,7 +372,10 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                           </div>
                         </Tabs.TabPanel>
                         <Tabs.TabPanel>
-                          <RankingsAndResults listing={listing} />
+                          <RankingsAndResults
+                            listing={listing}
+                            disableDueDates={isListingActive && !profile.userRoles.isAdmin}
+                          />
                           <LeasingAgent />
                           <ApplicationTypes listing={listing} />
                           <ApplicationAddress listing={listing} />
@@ -378,6 +383,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
                             listing={listing}
                             openHouseEvents={openHouseEvents}
                             setOpenHouseEvents={setOpenHouseEvents}
+                            disableDueDate={isListingActive && !profile.userRoles.isAdmin}
                           />
 
                           <div className="-ml-8 -mt-8 relative" style={{ top: "7rem" }}>
@@ -429,12 +435,19 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
         </>
       </LoadingOverlay>
 
-      <Modal
-        open={!!closeModal}
-        title={t("t.areYouSure")}
-        ariaDescription={t("listings.closeThisListing")}
+      <Dialog
+        isOpen={!!closeModal}
         onClose={() => setCloseModal(false)}
-        actions={[
+        ariaLabelledBy="listing-form-close-listing-dialog-header"
+        ariaDescribedBy="listing-form-close-listing-dialog-content"
+      >
+        <Dialog.Header id="listing-form-close-listing-dialog-header">
+          {t("t.areYouSure")}
+        </Dialog.Header>
+        <Dialog.Content id="listing-form-close-listing-dialog-content">
+          {t("listings.closeThisListing")}
+        </Dialog.Content>
+        <Dialog.Footer>
           <Button
             type="button"
             variant="secondary"
@@ -445,7 +458,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("listings.actions.close")}
-          </Button>,
+          </Button>
           <Button
             type="button"
             variant="primary-outlined"
@@ -455,18 +468,23 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("t.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("listings.closeThisListing")}
-      </Modal>
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
 
-      <Modal
-        open={!!publishModal}
-        title={t("t.areYouSure")}
-        ariaDescription={t("listings.publishThisListing")}
+      <Dialog
+        isOpen={!!publishModal}
         onClose={() => setPublishModal(false)}
-        actions={[
+        ariaLabelledBy="listing-form-publish-listing-dialog-header"
+        ariaDescribedBy="listing-form-publish-listing-dialog-content"
+      >
+        <Dialog.Header id="listing-form-publish-listing-dialog-header">
+          {t("t.areYouSure")}
+        </Dialog.Header>
+        <Dialog.Content id="listing-form-publish-listing-dialog-content">
+          {t("listings.publishThisListing")}
+        </Dialog.Content>
+        <Dialog.Footer>
           <Button
             id="publishButtonConfirm"
             type="button"
@@ -478,7 +496,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("listings.actions.publish")}
-          </Button>,
+          </Button>
           <Button
             type="button"
             variant="primary-outlined"
@@ -488,18 +506,23 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("t.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("listings.publishThisListing")}
-      </Modal>
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
 
-      <Modal
-        open={listingIsAlreadyLiveModal}
-        title={t("t.areYouSure")}
-        ariaDescription={t("listings.listingIsAlreadyLive")}
+      <Dialog
+        isOpen={listingIsAlreadyLiveModal}
         onClose={() => setListingIsAlreadyLiveModal(false)}
-        actions={[
+        ariaLabelledBy="listing-form-live-confirmation-dialog-header"
+        ariaDescribedBy="listing-form-live-confirmation-dialog-content"
+      >
+        <Dialog.Header id="listing-form-live-confirmation-dialog-header">
+          {t("t.areYouSure")}
+        </Dialog.Header>
+        <Dialog.Content id="listing-form-live-confirmation-dialog-content">
+          {t("listings.listingIsAlreadyLive")}
+        </Dialog.Content>
+        <Dialog.Footer>
           <Button
             id="saveAlreadyLiveListingButtonConfirm"
             type="button"
@@ -511,7 +534,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("t.save")}
-          </Button>,
+          </Button>
           <Button
             type="button"
             variant="primary-outlined"
@@ -521,18 +544,21 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("t.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("listings.listingIsAlreadyLive")}
-      </Modal>
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
 
-      <Modal
-        open={submitForApprovalModal}
-        title={t("t.areYouSure")}
-        ariaDescription={t("listings.approval.submitForApprovalDescription")}
+      <Dialog
+        isOpen={submitForApprovalModal}
         onClose={() => setSubmitForApprovalModal(false)}
-        actions={[
+        ariaLabelledBy="listing-form-approval-dialog-header"
+        ariaDescribedBy="listing-form-approval-dialog-content"
+      >
+        <Dialog.Header id="listing-form-approval-dialog-header">{t("t.areYouSure")}</Dialog.Header>
+        <Dialog.Content id="listing-form-approval-dialog-content">
+          {t("listings.approval.submitForApprovalDescription")}
+        </Dialog.Content>
+        <Dialog.Footer>
           <Button
             id="submitListingForApprovalButtonConfirm"
             type="button"
@@ -544,7 +570,7 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("t.submit")}
-          </Button>,
+          </Button>
           <Button
             type="button"
             onClick={() => {
@@ -553,11 +579,9 @@ const ListingForm = ({ listing, editMode }: ListingFormProps) => {
             size="sm"
           >
             {t("t.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("listings.approval.submitForApprovalDescription")}
-      </Modal>
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
 
       <RequestChangesModal
         defaultValue={listing?.requestedChanges}

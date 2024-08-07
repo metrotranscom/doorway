@@ -51,7 +51,6 @@ export type ApplicationTypes = {
     middleName?: string
     lastName?: string
     emailAddress?: string
-    workInRegion?: YesNoEnum
     applicantAddress: Address
     applicantWorkAddress: Address
     phoneNumberType?: string
@@ -60,12 +59,15 @@ export type ApplicationTypes = {
   programs?: Record<string, string | unknown>
   reviewStatus?: ApplicationReviewStatusEnum
   phoneNumber?: string
+  receivedBy?: string
 }
 
 export type FormTypes = {
   dateOfBirth: DOBFieldValues
   timeSubmitted: TimeFieldValues
   dateSubmitted: DateFieldValues
+  timeReceived: TimeFieldValues
+  dateReceived: DateFieldValues
   phoneNumber: string
   incomeYear?: string
   incomeMonth?: string

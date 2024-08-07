@@ -9,6 +9,7 @@ import {
 import { Expose, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsDate,
   IsDefined,
@@ -16,6 +17,7 @@ import {
   IsNumber,
   IsString,
   MaxLength,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { ValidationsGroupsEnum } from '../../enums/shared/validation-groups-enum';
@@ -29,6 +31,7 @@ import { ApplicationMultiselectQuestion } from './application-multiselect-questi
 import { Demographic } from './demographic.dto';
 import { HouseholdMember } from './household-member.dto';
 import { UnitType } from '../unit-types/unit-type.dto';
+import { ApplicationLotteryPosition } from './application-lottery-position.dto';
 
 export class Application extends AbstractDTO {
   @Expose()
@@ -154,6 +157,19 @@ export class Application extends AbstractDTO {
   @ApiPropertyOptional()
   submissionDate?: Date;
 
+  @Expose()
+  @IsString({ groups: [ValidationsGroupsEnum.default] })
+  @MaxLength(64, { groups: [ValidationsGroupsEnum.default] })
+  @MinLength(1, { groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional()
+  receivedBy?: string;
+
+  @Expose()
+  @IsDate({ groups: [ValidationsGroupsEnum.default] })
+  @Type(() => Date)
+  @ApiPropertyOptional()
+  receivedAt?: Date;
+
   // if this field is true then the application is a confirmed duplicate
   // meaning that the record in the applicaiton flagged set table has a status of duplicate
   @Expose()
@@ -265,4 +281,12 @@ export class Application extends AbstractDTO {
   @Type(() => IdDTO)
   @ApiProperty({ type: IdDTO })
   listings: IdDTO;
+
+  @Expose()
+  @IsDefined({ groups: [ValidationsGroupsEnum.default] })
+  @IsArray({ groups: [ValidationsGroupsEnum.default] })
+  @ValidateNested({ groups: [ValidationsGroupsEnum.default], each: true })
+  @Type(() => ApplicationLotteryPosition)
+  @ApiProperty({ type: ApplicationLotteryPosition, isArray: true })
+  applicationLotteryPositions: ApplicationLotteryPosition[];
 }

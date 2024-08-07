@@ -3,8 +3,8 @@ import { useWatch, useFormContext } from "react-hook-form"
 import { getDetailFieldDate, getDetailFieldTime } from "../../PaperListingDetails/sections/helpers"
 import dayjs from "dayjs"
 import { YesNoEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import { t, DateField, TimeField, Drawer, MinimalTable, Modal } from "@bloom-housing/ui-components"
-import { Button, Link, Grid } from "@bloom-housing/ui-seeds"
+import { t, DateField, TimeField, MinimalTable } from "@bloom-housing/ui-components"
+import { Button, Dialog, Drawer, Link, Grid } from "@bloom-housing/ui-seeds"
 import { FormListing, TempEvent } from "../../../../lib/listings/formTypes"
 import { OpenHouseForm } from "../OpenHouseForm"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
@@ -13,12 +13,14 @@ type ApplicationDatesProps = {
   openHouseEvents: TempEvent[]
   setOpenHouseEvents: (events: TempEvent[]) => void
   listing?: FormListing
+  disableDueDate?: boolean
 }
 
 const ApplicationDates = ({
   listing,
   openHouseEvents,
   setOpenHouseEvents,
+  disableDueDate,
 }: ApplicationDatesProps) => {
   const openHouseHeaders = {
     date: "t.date",
@@ -116,7 +118,7 @@ const ApplicationDates = ({
               register={register}
               watch={watch}
               note={t("listings.whenApplicationsClose")}
-              disabled={enableDueDate === YesNoEnum.no}
+              disabled={disableDueDate || enableDueDate === YesNoEnum.no}
               defaultDate={{
                 month: listing?.applicationDueDate
                   ? dayjs(new Date(listing?.applicationDueDate)).format("MM")
@@ -137,7 +139,7 @@ const ApplicationDates = ({
               id={"applicationDueTimeField"}
               register={register}
               watch={watch}
-              disabled={enableDueDate === YesNoEnum.no}
+              disabled={disableDueDate || enableDueDate === YesNoEnum.no}
               defaultValues={{
                 hours: listing?.applicationDueDate
                   ? dayjs(new Date(listing?.applicationDueDate)).format("hh")
@@ -185,30 +187,39 @@ const ApplicationDates = ({
       </SectionWithGrid>
 
       <Drawer
-        open={!!drawerOpenHouse}
-        title={t("listings.sections.addOpenHouse")}
-        ariaDescription={t("listings.sections.addOpenHouse")}
+        isOpen={!!drawerOpenHouse}
         onClose={() => setDrawerOpenHouse(false)}
+        ariaLabelledBy="application-dates-drawer-header"
       >
+        <Drawer.Header id="application-dates-drawer-header">
+          {t("listings.sections.addOpenHouse")}
+        </Drawer.Header>
         <OpenHouseForm
           onSubmit={onOpenHouseEventsSubmit}
           currentEvent={(drawerOpenHouse as TempEvent) || undefined}
         />
       </Drawer>
 
-      <Modal
-        open={!!modalDeleteOpenHouse}
-        title={t("listings.events.deleteThisEvent")}
-        ariaDescription={t("listings.events.deleteConf")}
+      <Dialog
+        isOpen={!!modalDeleteOpenHouse}
+        ariaLabelledBy="application-dates-dialog-header"
+        ariaDescribedBy="application-dates-dialog-content"
         onClose={() => setModalDeleteOpenHouse(null)}
-        actions={[
+      >
+        <Dialog.Header id="application-dates-dialog-header">
+          {t("listings.events.deleteThisEvent")}
+        </Dialog.Header>
+        <Dialog.Content id="application-dates-dialog-content">
+          {t("listings.events.deleteConf")}
+        </Dialog.Content>
+        <Dialog.Footer>
           <Button
             variant="alert"
             onClick={() => onOpenHouseEventDelete(modalDeleteOpenHouse)}
             size="sm"
           >
             {t("t.delete")}
-          </Button>,
+          </Button>
           <Button
             onClick={() => {
               setModalDeleteOpenHouse(null)
@@ -217,11 +228,9 @@ const ApplicationDates = ({
             size="sm"
           >
             {t("t.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("listings.events.deleteConf")}
-      </Modal>
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
     </>
   )
 }

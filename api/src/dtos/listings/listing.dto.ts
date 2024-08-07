@@ -18,6 +18,7 @@ import {
   ApplicationAddressTypeEnum,
   ApplicationMethodsTypeEnum,
   ListingsStatusEnum,
+  LotteryStatusEnum,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import { EnforceLowerCase } from '../../decorators/enforce-lower-case.decorator';
@@ -410,6 +411,20 @@ class Listing extends AbstractDTO {
   @IsDate({ groups: [ValidationsGroupsEnum.default] })
   @Type(() => Date)
   @ApiPropertyOptional()
+  lotteryLastRunAt?: Date;
+
+  @Expose()
+  @IsEnum(LotteryStatusEnum, { groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional({
+    enum: LotteryStatusEnum,
+    enumName: 'LotteryStatusEnum',
+  })
+  lotteryStatus?: LotteryStatusEnum;
+
+  @Expose()
+  @IsDate({ groups: [ValidationsGroupsEnum.default] })
+  @Type(() => Date)
+  @ApiPropertyOptional()
   lastApplicationUpdateAt?: Date;
 
   @Expose()
@@ -577,6 +592,11 @@ class Listing extends AbstractDTO {
   @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
   @ApiPropertyOptional()
   isExternal?: boolean;
+
+  @Expose()
+  @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional()
+  lotteryOptIn?: boolean;
 }
 
 export { Listing as default, Listing };

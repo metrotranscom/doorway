@@ -1,15 +1,8 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react"
-import {
-  t,
-  AppearanceStyleType,
-  MinimalTable,
-  Drawer,
-  Modal,
-  FieldGroup,
-  StandardTableData,
-} from "@bloom-housing/ui-components"
-import { Button, FieldValue, Grid } from "@bloom-housing/ui-seeds"
+import React, { useState, useMemo, useCallback, useContext, useEffect } from "react"
+import { t, MinimalTable, FieldGroup, StandardTableData } from "@bloom-housing/ui-components"
+import { Button, Dialog, Drawer, FieldValue, Grid, Tag } from "@bloom-housing/ui-seeds"
 import { ReviewOrderTypeEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { MessageContext } from "@bloom-housing/shared-helpers"
 import UnitForm from "../UnitForm"
 import { useFormContext, useWatch } from "react-hook-form"
 import { TempUnit } from "../../../../lib/listings/formTypes"
@@ -20,13 +13,19 @@ type UnitProps = {
   units: TempUnit[]
   setUnits: (units: TempUnit[]) => void
   disableUnitsAccordion: boolean
+  disableListingAvailability?: boolean
 }
 
-const FormUnits = ({ units, setUnits, disableUnitsAccordion }: UnitProps) => {
+const FormUnits = ({
+  units,
+  setUnits,
+  disableUnitsAccordion,
+  disableListingAvailability,
+}: UnitProps) => {
+  const { addToast } = useContext(MessageContext)
   const [unitDrawerOpen, setUnitDrawerOpen] = useState(false)
   const [unitDeleteModal, setUnitDeleteModal] = useState<number | null>(null)
   const [defaultUnit, setDefaultUnit] = useState<TempUnit | null>(null)
-  const [toastContent, setToastContent] = useState(null)
 
   const formMethods = useFormContext()
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -185,6 +184,9 @@ const FormUnits = ({ units, setUnits, disableUnitsAccordion }: UnitProps) => {
                   id: "availableUnits",
                   dataTestId: "listingAvailability.availableUnits",
                   defaultChecked: listing?.reviewOrderType !== ReviewOrderTypeEnum.waitlist,
+                  disabled:
+                    disableListingAvailability &&
+                    listing?.reviewOrderType === ReviewOrderTypeEnum.waitlist,
                 },
                 {
                   label: t("listings.waitlist.open"),
@@ -192,6 +194,9 @@ const FormUnits = ({ units, setUnits, disableUnitsAccordion }: UnitProps) => {
                   id: "openWaitlist",
                   dataTestId: "listingAvailability.openWaitlist",
                   defaultChecked: listing?.reviewOrderType === ReviewOrderTypeEnum.waitlist,
+                  disabled:
+                    disableListingAvailability &&
+                    listing?.reviewOrderType !== ReviewOrderTypeEnum.waitlist,
                 },
               ]}
             />
@@ -229,37 +234,39 @@ const FormUnits = ({ units, setUnits, disableUnitsAccordion }: UnitProps) => {
       )}
 
       <Drawer
-        open={unitDrawerOpen}
-        title={t("listings.unit.add")}
-        headerTag={
-          units.some((unit) => unit.tempId === defaultUnit?.tempId) ? t("t.saved") : t("t.draft")
-        }
-        headerTagStyle={
-          units.some((unit) => unit.tempId === defaultUnit?.tempId)
-            ? AppearanceStyleType.success
-            : null
-        }
-        ariaDescription={t("listings.unit.add")}
+        isOpen={unitDrawerOpen}
         onClose={() => setUnitDrawerOpen(false)}
-        toastContent={toastContent}
-        toastStyle={"success"}
+        ariaLabelledBy="units-drawer-header"
       >
+        <Drawer.Header id="units-drawer-header">
+          {t("listings.unit.add")}
+          <Tag
+            variant={
+              units.some((unit) => unit.tempId === defaultUnit?.tempId)
+                ? "success-inverse"
+                : undefined
+            }
+          >
+            {units.some((unit) => unit.tempId === defaultUnit?.tempId)
+              ? t("t.saved")
+              : t("t.draft")}
+          </Tag>
+        </Drawer.Header>
         <UnitForm
           onSubmit={(unit) => {
-            setToastContent(null)
             saveUnit(unit)
           }}
           onClose={(openNextUnit: boolean, openCurrentUnit: boolean, defaultUnit: TempUnit) => {
             setDefaultUnit(defaultUnit)
             if (openNextUnit) {
               if (defaultUnit) {
-                setToastContent(t("listings.unit.unitCopied"))
+                addToast(t("listings.unit.unitCopied"), { variant: "success" })
               }
               editUnit(nextId)
             } else if (!openCurrentUnit) {
               setUnitDrawerOpen(false)
             } else {
-              setToastContent(t("listings.unit.unitSaved"))
+              addToast(t("listings.unit.unitSaved"), { variant: "success" })
             }
           }}
           draft={!units.some((unit) => unit.tempId === defaultUnit?.tempId)}
@@ -268,15 +275,13 @@ const FormUnits = ({ units, setUnits, disableUnitsAccordion }: UnitProps) => {
         />
       </Drawer>
 
-      <Modal
-        open={!!unitDeleteModal}
-        title={t("listings.unit.delete")}
-        ariaDescription={t("listings.unit.deleteConf")}
-        onClose={() => setUnitDeleteModal(null)}
-        actions={[
+      <Dialog isOpen={!!unitDeleteModal} onClose={() => setUnitDeleteModal(null)}>
+        <Dialog.Header>{t("listings.unit.delete")}</Dialog.Header>
+        <Dialog.Content>{t("listings.unit.deleteConf")}</Dialog.Content>
+        <Dialog.Footer>
           <Button variant="alert" onClick={() => deleteUnit(unitDeleteModal)} size="sm">
             {t("t.delete")}
-          </Button>,
+          </Button>
           <Button
             onClick={() => {
               setUnitDeleteModal(null)
@@ -285,11 +290,9 @@ const FormUnits = ({ units, setUnits, disableUnitsAccordion }: UnitProps) => {
             size="sm"
           >
             {t("t.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("listings.unit.deleteConf")}
-      </Modal>
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
     </>
   )
 }

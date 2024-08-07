@@ -97,7 +97,7 @@ export function useListingsData({
       $comparison: EnumListingFilterParamsComparison["="],
       leasingAgents: userId,
     })
-  } else if (roles?.isJurisdictionalAdmin) {
+  } else if (roles?.isJurisdictionalAdmin || roles?.isLimitedJurisdictionalAdmin) {
     params.filter.push({
       $comparison: EnumListingFilterParamsComparison.IN,
       jurisdiction: userJurisidctionIds[0],
@@ -518,6 +518,15 @@ export const useApplicationsExport = (listingId: string, includeDemographics: bo
     () =>
       applicationsService.listAsCsv({ listingId, includeDemographics, timeZone: dayjs.tz.guess() }),
     `applications-${listingId}-${createDateStringFromNow()}.csv`
+  )
+}
+
+export const useLotteryExport = (listingId: string) => {
+  const { applicationsService } = useContext(AuthContext)
+
+  return useCsvExport(
+    () => applicationsService.lotteryResults({ listingId, timeZone: dayjs.tz.guess() }),
+    `lottery-${listingId}-${createDateStringFromNow()}.csv`
   )
 }
 

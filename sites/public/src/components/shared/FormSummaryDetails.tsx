@@ -265,18 +265,7 @@ const FormSummaryDetails = ({
             <MultiLineAddress address={reformatAddress(application.applicationsMailingAddress)} />
           </FieldValue>
         )}
-        {application.applicant.workInRegion === "yes" && (
-          <FieldValue
-            testId={"app-summary-applicant-work-address"}
-            id="applicantWorkAddress"
-            label={t("application.contact.workAddress")}
-            className={styles["summary-value"]}
-          >
-            <MultiLineAddress
-              address={reformatAddress(application.applicant.applicantWorkAddress)}
-            />
-          </FieldValue>
-        )}
+
         {application.contactPreferences && (
           <FieldValue
             testId={"app-summary-contact-preference-type"}
@@ -492,7 +481,7 @@ const FormSummaryDetails = ({
             label={t("application.review.voucherOrSubsidy")}
             className={styles["summary-value"]}
           >
-            {application.incomeVouchers ? t("t.yes") : t("t.no")}
+            {application.incomeVouchers?.some((item) => item === "none") ? t("t.no") : t("t.yes")}
           </FieldValue>
 
           {application.incomePeriod && (

@@ -356,7 +356,7 @@ export class ListingsService {
       body?: ListingUpdate
     } = {} as any,
     options: IRequestOptions = {}
-  ): Promise<any> {
+  ): Promise<Listing> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/listings/{id}"
       url = url.replace("{id}", params["id"] + "")
@@ -380,6 +380,44 @@ export class ListingsService {
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Trigger the lottery process job
+   */
+  expireLotteries(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings/expireLotteries"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Change the listing lottery status
+   */
+  lotteryStatus(
+    params: {
+      /** requestBody */
+      body?: ListingLotteryStatus
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings/lotteryStatus"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
 
       configs.data = data
 
@@ -1447,6 +1485,35 @@ export class ApplicationsService {
     })
   }
   /**
+   * Get applications lottery results
+   */
+  lotteryResults(
+    params: {
+      /**  */
+      listingId: string
+      /**  */
+      includeDemographics?: boolean
+      /**  */
+      timeZone?: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/applications/getLotteryResults"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+      configs.params = {
+        listingId: params["listingId"],
+        includeDemographics: params["includeDemographics"],
+        timeZone: params["timeZone"],
+      }
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * Get applications as csv
    */
   listAsCsv(
@@ -2144,7 +2211,7 @@ export class ScriptRunnerService {
   /**
    * A script that pulls data from one source into the current db
    */
-  dataTransfer(
+  transferJurisdictionData(
     params: {
       /** requestBody */
       body?: DataTransferDTO
@@ -2152,7 +2219,29 @@ export class ScriptRunnerService {
     options: IRequestOptions = {}
   ): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
-      let url = basePath + "/scriptRunner/dataTransfer"
+      let url = basePath + "/scriptRunner/transferJurisdictionData"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that pulls data from one source into the current db
+   */
+  transferJurisdictionListingsData(
+    params: {
+      /** requestBody */
+      body?: DataTransferDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/transferJurisdictionListingsData"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
@@ -2175,6 +2264,31 @@ export class ScriptRunnerService {
   ): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/scriptRunner/amiChartImport"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+}
+
+export class LotteryService {
+  /**
+   * Generate the lottery results for a listing
+   */
+  lotteryGenerate(
+    params: {
+      /** requestBody */
+      body?: ApplicationCsvQueryParams
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/lottery/generateLotteryResults"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
@@ -2245,6 +2359,9 @@ export interface ListingFilterParams {
 
   /**  */
   isExternal?: boolean
+
+  /**  */
+  availability?: FilterAvailabilityEnum
 
   /**  */
   city?: string
@@ -3096,6 +3213,12 @@ export interface Listing {
   afsLastRunAt?: Date
 
   /**  */
+  lotteryLastRunAt?: Date
+
+  /**  */
+  lotteryStatus?: LotteryStatusEnum
+
+  /**  */
   lastApplicationUpdateAt?: Date
 
   /**  */
@@ -3172,6 +3295,9 @@ export interface Listing {
 
   /**  */
   isExternal?: boolean
+
+  /**  */
+  lotteryOptIn?: boolean
 }
 
 export interface PaginationMeta {
@@ -3597,6 +3723,12 @@ export interface ListingCreate {
   contentUpdatedAt?: Date
 
   /**  */
+  lotteryLastRunAt?: Date
+
+  /**  */
+  lotteryStatus?: LotteryStatusEnum
+
+  /**  */
   lastApplicationUpdateAt?: Date
 
   /**  */
@@ -3613,6 +3745,9 @@ export interface ListingCreate {
 
   /**  */
   isExternal?: boolean
+
+  /**  */
+  lotteryOptIn?: boolean
 
   /**  */
   listingMultiselectQuestions?: IdDTO[]
@@ -3664,6 +3799,14 @@ export interface ListingCreate {
 
   /**  */
   requestedChangesUser?: IdDTO
+}
+
+export interface ListingLotteryStatus {
+  /**  */
+  listingId: string
+
+  /**  */
+  lotteryStatus: LotteryStatusEnum
 }
 
 export interface ListingUpdate {
@@ -3851,6 +3994,12 @@ export interface ListingUpdate {
   contentUpdatedAt?: Date
 
   /**  */
+  lotteryLastRunAt?: Date
+
+  /**  */
+  lotteryStatus?: LotteryStatusEnum
+
+  /**  */
   lastApplicationUpdateAt?: Date
 
   /**  */
@@ -3867,6 +4016,9 @@ export interface ListingUpdate {
 
   /**  */
   isExternal?: boolean
+
+  /**  */
+  lotteryOptIn?: boolean
 
   /**  */
   listingMultiselectQuestions?: IdDTO[]
@@ -4132,6 +4284,20 @@ export interface ApplicationMultiselectQuestion {
   options: ApplicationMultiselectQuestionOption[]
 }
 
+export interface ApplicationLotteryPosition {
+  /**  */
+  listingId: string
+
+  /**  */
+  applicationId: string
+
+  /**  */
+  multiselectQuestionId: string
+
+  /**  */
+  ordinal: number
+}
+
 export interface Application {
   /**  */
   id: string
@@ -4200,6 +4366,12 @@ export interface Application {
   submissionDate?: Date
 
   /**  */
+  receivedBy?: string
+
+  /**  */
+  receivedAt?: Date
+
+  /**  */
   markedAsDuplicate: boolean
 
   /**  */
@@ -4243,6 +4415,9 @@ export interface Application {
 
   /**  */
   listings: IdDTO
+
+  /**  */
+  applicationLotteryPositions: ApplicationLotteryPosition[]
 }
 
 export interface ApplicationFlaggedSet {
@@ -4945,6 +5120,12 @@ export interface ApplicationCreate {
   submissionDate?: Date
 
   /**  */
+  receivedBy?: string
+
+  /**  */
+  receivedAt?: Date
+
+  /**  */
   reviewStatus?: ApplicationReviewStatusEnum
 
   /**  */
@@ -5040,6 +5221,12 @@ export interface ApplicationUpdate {
   submissionDate?: Date
 
   /**  */
+  receivedBy?: string
+
+  /**  */
+  receivedAt?: Date
+
+  /**  */
   reviewStatus?: ApplicationReviewStatusEnum
 
   /**  */
@@ -5095,6 +5282,9 @@ export interface UserRole {
 
   /**  */
   isJurisdictionalAdmin?: boolean
+
+  /**  */
+  isLimitedJurisdictionalAdmin?: boolean
 
   /**  */
   isPartner?: boolean
@@ -5344,6 +5534,9 @@ export interface Login {
 
   /**  */
   mfaType?: MfaType
+
+  /**  */
+  reCaptchaToken?: string
 }
 
 export interface LoginViaSingleUseCode {
@@ -5412,6 +5605,9 @@ export interface MapLayer {
 export interface DataTransferDTO {
   /**  */
   connectionString: string
+
+  /**  */
+  jurisdiction: string
 }
 
 export interface AmiChartImportDTO {
@@ -5423,6 +5619,17 @@ export interface AmiChartImportDTO {
 
   /**  */
   jurisdictionId: string
+}
+
+export interface ApplicationCsvQueryParams {
+  /**  */
+  listingId: string
+
+  /**  */
+  includeDemographics?: boolean
+
+  /**  */
+  timeZone?: string
 }
 
 export enum ListingViews {
@@ -5457,6 +5664,11 @@ export enum ListingsStatusEnum {
   "pendingReview" = "pendingReview",
   "changesRequested" = "changesRequested",
 }
+
+export enum FilterAvailabilityEnum {
+  "waitlistOpen" = "waitlistOpen",
+  "unitsAvailable" = "unitsAvailable",
+}
 export enum EnumListingFilterParamsComparison {
   "=" = "=",
   "<>" = "<>",
@@ -5473,6 +5685,15 @@ export enum ReviewOrderTypeEnum {
   "lottery" = "lottery",
   "firstComeFirstServe" = "firstComeFirstServe",
   "waitlist" = "waitlist",
+}
+
+export enum LotteryStatusEnum {
+  "errored" = "errored",
+  "ran" = "ran",
+  "approved" = "approved",
+  "releasedToPartners" = "releasedToPartners",
+  "publishedToPublic" = "publishedToPublic",
+  "expired" = "expired",
 }
 
 export enum ValidationMethodEnum {

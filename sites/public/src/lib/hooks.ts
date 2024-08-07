@@ -1,17 +1,7 @@
 import { useContext, useEffect, useState } from "react"
-import axios from "axios"
-//import qs from "qs"
 import { useRouter } from "next/router"
 import { ApplicationStatusProps, isInternalLink } from "@bloom-housing/ui-components"
-import {
-  // EnumListingFilterParamsComparison,
-  Jurisdiction,
-  Listing,
-  // ListingFilterParams,
-  // ListingOrderByKeys,
-  // ListingsStatusEnum,
-  // OrderByEnum,
-} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ParsedUrlQuery } from "querystring"
 import { AppSubmissionContext } from "./applications/AppSubmissionContext"
 import { getListingApplicationStatus } from "./helpers"
@@ -153,38 +143,3 @@ export async function fetchClosedListings(req: any) {
   )
 }
 */
-
-let jurisdiction: Jurisdiction | null = null
-
-export async function fetchJurisdictionByName(
-  backendApiBase: string,
-  jurisdictionName: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  req: any
-) {
-  try {
-    if (jurisdiction) {
-      return jurisdiction
-    }
-
-    const headers: Record<string, string> = {
-      "x-forwarded-for": req.headers["x-forwarded-for"] ?? req.socket.remoteAddress,
-    }
-
-    if (process.env.API_PASS_KEY) {
-      headers.passkey = process.env.API_PASS_KEY
-    }
-
-    const jurisdictionRes = await axios.get(
-      `${backendApiBase}/jurisdictions/byName/${jurisdictionName}`,
-      {
-        headers,
-      }
-    )
-    jurisdiction = jurisdictionRes?.data
-  } catch (error) {
-    console.log("error = ", error)
-  }
-
-  return jurisdiction
-}

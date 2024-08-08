@@ -2,9 +2,9 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import {
   ApplicationMethodsTypeEnum,
   MultiselectQuestionsApplicationSectionEnum,
-  Prisma
+  Prisma,
   PrismaClient,
-  LanguagesEnum
+  LanguagesEnum,
 } from '@prisma/client';
 import { Request as ExpressRequest } from 'express';
 import { PrismaService } from './prisma.service';

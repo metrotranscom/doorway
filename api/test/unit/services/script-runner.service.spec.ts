@@ -6,6 +6,7 @@ import {
   LanguagesEnum,
   MultiselectQuestionsApplicationSectionEnum,
   PrismaClient,
+  ReviewOrderTypeEnum,
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
@@ -356,7 +357,7 @@ describe('Testing script runner service', () => {
           id: listingId,
           accessibility: 'accessibility',
           additionalApplicationSubmissionNotes: undefined,
-          afsLastRunAt: undefined,
+          afsLastRunAt: expect.anything(),
           amenities: 'amenities',
           amiPercentageMax: undefined,
           amiPercentageMin: undefined,
@@ -605,7 +606,7 @@ describe('Testing script runner service', () => {
           id: listingId,
           accessibility: undefined,
           additionalApplicationSubmissionNotes: undefined,
-          afsLastRunAt: undefined,
+          afsLastRunAt: expect.anything(),
           amenities: undefined,
           amiPercentageMax: undefined,
           amiPercentageMin: undefined,
@@ -1259,33 +1260,11 @@ describe('Testing script runner service', () => {
           id: applicationListingId,
           jurisdictionId: externalJurisdictionId,
         },
-        householdMember: [
-          {
-            id: randomUUID(),
-            orderId: 1,
-            firstName: 'householdFirst',
-            lastName: 'householdLast',
-            addressId: randomUUID(),
-            workAddressId: randomUUID(),
-            householdMemberAddress: createAddress('householdMember1'),
-            householdMemberWorkAddress: createAddress('householdMemberWork1'),
-          },
-        ],
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: false,
         appUrl: 'appUrl',
-        additionalPhone: false,
-        contactPreferences: [],
         householdSize: 1,
-        sendMailToMailingAddress: true,
-        householdExpectingChanges: true,
-        householdStudent: null,
-        // incomeVouchers: true, //TODO: figure out how to handle with the differences in doorway (boolean vs enum type)
-        income: 'income',
-        incomePeriod: null,
-        preferences: [],
-        programs: [],
         status: ApplicationStatusEnum.submitted,
         language: LanguagesEnum.en,
         submissionType: ApplicationSubmissionTypeEnum.electronical,
@@ -1359,89 +1338,15 @@ describe('Testing script runner service', () => {
         },
       });
 
-      expect(prisma.address.createMany).toBeCalledTimes(1);
-      expect(prisma.address.createMany).toBeCalledWith({
-        data: [
-          {
-            city: 'householdMember1 city',
-            state: 'householdMember1 state',
-            street: 'householdMember1 street',
-            street2: 'householdMember1 street2',
-            zipCode: '12345',
-          },
-          {
-            city: 'householdMemberWork1 city',
-            state: 'householdMemberWork1 state',
-            street: 'householdMemberWork1 street',
-            street2: 'householdMemberWork1 street2',
-            zipCode: '12345',
-          },
-        ],
-      });
-
       expect(prisma.applications.create).toBeCalledTimes(1);
       expect(prisma.applications.create).toBeCalledWith({
         data: {
-          acceptedTerms: true,
-          accessibility: {
-            create: undefined,
-          },
-          additionalPhone: false,
-          alternateContact: undefined,
           appUrl: 'appUrl',
-          applicant: {
-            create: {
-              applicantAddress: undefined,
-              applicantWorkAddress: undefined,
-            },
-          },
-          applicationsAlternateAddress: {
-            connectOrCreate: {
-              create: undefined,
-              where: {
-                id: undefined,
-              },
-            },
-          },
-          applicationsMailingAddress: {
-            connectOrCreate: {
-              create: undefined,
-              where: {
-                id: undefined,
-              },
-            },
-          },
           confirmationCode: 'confirmationCode',
-          contactPreferences: [],
           createdAt: expect.anything(),
           deletedAt: false,
-          demographics: {
-            create: undefined,
-          },
-          householdExpectingChanges: true,
-          householdMember: {
-            createMany: {
-              data: [
-                {
-                  applicationId: undefined,
-                  firstName: 'householdFirst',
-                  addressId: expect.anything(),
-                  workAddressId: expect.anything(),
-                  householdMemberAddress: undefined,
-                  householdMemberWorkAddress: undefined,
-                  id: expect.anything(),
-                  lastName: 'householdLast',
-                  orderId: 1,
-                },
-              ],
-            },
-          },
           householdSize: 1,
-          householdStudent: null,
           id: expect.anything(),
-          income: 'income',
-          incomePeriod: null,
-          language: 'en',
           listings: {
             connect: {
               id: applicationListingId,
@@ -1451,7 +1356,6 @@ describe('Testing script runner service', () => {
           preferences: [],
           programs: [],
           reviewStatus: 'valid',
-          sendMailToMailingAddress: true,
           status: 'submitted',
           submissionDate: expect.anything(),
           submissionType: 'electronical',

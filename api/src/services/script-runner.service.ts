@@ -715,6 +715,7 @@ export class ScriptRunnerService {
             confirmationCode: true,
             reviewStatus: true,
             status: true,
+            language: true,
             listings: {
               select: {
                 id: true,
@@ -769,6 +770,7 @@ export class ScriptRunnerService {
             return;
           }
           try {
+            console.log('application', application);
             await this.prisma.applications.create({
               data: {
                 id: application.id,
@@ -783,6 +785,8 @@ export class ScriptRunnerService {
                 status: application.status,
                 householdSize: application.householdSize,
                 appUrl: application.appUrl,
+                markedAsDuplicate: application.markedAsDuplicate,
+                reviewStatus: application.reviewStatus,
                 userAccounts: {
                   connect: {
                     // Tie the application to the user, either the new user or the one in our system with the same email

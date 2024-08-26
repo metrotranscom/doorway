@@ -2,6 +2,7 @@ import React, { useState, useContext, useMemo } from "react"
 import Head from "next/head"
 import axios from "axios"
 import dayjs from "dayjs"
+import { useRouter } from "next/router"
 import advancedFormat from "dayjs/plugin/advancedFormat"
 import Ticket from "@heroicons/react/24/solid/TicketIcon"
 import Download from "@heroicons/react/24/solid/ArrowDownTrayIcon"
@@ -10,7 +11,7 @@ import Markdown from "markdown-to-jsx"
 import { t, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
 import { Button, Card, Dialog, Heading, Icon, Message } from "@bloom-housing/ui-seeds"
 import { CardHeader, CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
-import { AuthContext } from "@bloom-housing/shared-helpers"
+import { AuthContext, MessageContext } from "@bloom-housing/shared-helpers"
 import {
   Listing,
   ListingEventsTypeEnum,
@@ -39,6 +40,9 @@ const Lottery = (props: { listing: Listing | undefined }) => {
   const metaImage = ""
 
   const { listing } = props
+
+  const { addToast } = useContext(MessageContext)
+  const router = useRouter()
 
   const [runModal, setRunModal] = useState(false)
   const [reRunModal, setReRunModal] = useState(false)
@@ -123,7 +127,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
     })
 
     return items
-  }, [lotteryActivityLogData, profile])
+  }, [lotteryActivityLogData])
 
   if (!listing) return <div>{t("t.errorOccurred")}</div>
 
@@ -424,14 +428,17 @@ const Lottery = (props: { listing: Listing | undefined }) => {
               <Button
                 variant={duplicatesExist ? "alert" : "primary"}
                 onClick={async () => {
+                  setLoading(true)
                   try {
-                    setLoading(true)
                     await lotteryService.lotteryGenerate({ body: { id: listing.id } })
                     setLoading(false)
                     setRunModal(false)
-                    location.reload()
+                    addToast(t("listings.lottery.toast.run"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 size="sm"
@@ -488,14 +495,17 @@ const Lottery = (props: { listing: Listing | undefined }) => {
               <Button
                 variant="alert"
                 onClick={async () => {
+                  setLoading(true)
                   try {
-                    setLoading(true)
                     await lotteryService.lotteryGenerate({ body: { id: listing.id } })
                     setLoading(false)
                     setReRunModal(false)
-                    location.reload()
+                    addToast(t("listings.lottery.toast.rerun"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 size="sm"
@@ -537,10 +547,14 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                         lotteryStatus: LotteryStatusEnum.releasedToPartners,
                       },
                     })
-                    location.reload()
+                    setLoading(false)
+                    setReleaseModal(false)
+                    addToast(t("listings.lottery.toast.released"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
                     setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 loadingMessage={loading ? t("t.loading") : null}
@@ -612,10 +626,14 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                         lotteryStatus: LotteryStatusEnum.ran,
                       },
                     })
-                    location.reload()
+                    setLoading(false)
+                    setRetractModal(false)
+                    addToast(t("listings.lottery.toast.retracted"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
                     setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 loadingMessage={loading ? t("t.loading") : null}
@@ -658,8 +676,15 @@ const Lottery = (props: { listing: Listing | undefined }) => {
               <Button
                 variant="primary"
                 onClick={async () => {
-                  await onExport()
-                  setExportModal(false)
+                  setLoading(true)
+                  try {
+                    await onExport()
+                    setLoading(false)
+                    setExportModal(false)
+                  } catch {
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
+                  }
                 }}
                 size="sm"
                 loadingMessage={loading || exportLoading ? t("t.loading") : undefined}
@@ -706,8 +731,15 @@ const Lottery = (props: { listing: Listing | undefined }) => {
               <Button
                 variant="primary"
                 onClick={async () => {
-                  await onExport()
-                  setTermsExportModal(false)
+                  setLoading(true)
+                  try {
+                    await onExport()
+                    setLoading(false)
+                    setTermsExportModal(false)
+                  } catch {
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
+                  }
                 }}
                 size="sm"
                 loadingMessage={loading || exportLoading ? t("t.loading") : undefined}
@@ -750,10 +782,14 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                         lotteryStatus: LotteryStatusEnum.publishedToPublic,
                       },
                     })
-                    location.reload()
+                    setLoading(false)
+                    setPublishModal(false)
+                    addToast(t("listings.lottery.toast.published"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
                     setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 loadingMessage={loading ? t("t.loading") : null}

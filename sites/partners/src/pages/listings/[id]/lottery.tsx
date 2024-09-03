@@ -1,19 +1,22 @@
-import React, { useState, useContext } from "react"
+import React, { useState, useContext, useMemo } from "react"
 import Head from "next/head"
 import axios from "axios"
 import dayjs from "dayjs"
+import { useRouter } from "next/router"
+import advancedFormat from "dayjs/plugin/advancedFormat"
 import Ticket from "@heroicons/react/24/solid/TicketIcon"
 import Download from "@heroicons/react/24/solid/ArrowDownTrayIcon"
 import ExclamationCirleIcon from "@heroicons/react/24/solid/ExclamationCircleIcon"
+import Markdown from "markdown-to-jsx"
 import { t, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
 import { Button, Card, Dialog, Heading, Icon, Message } from "@bloom-housing/ui-seeds"
 import { CardHeader, CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
-import { AuthContext } from "@bloom-housing/shared-helpers"
+import { AuthContext, MessageContext } from "@bloom-housing/shared-helpers"
 import {
   Listing,
-  ListingUpdate,
   ListingEventsTypeEnum,
   ListingsStatusEnum,
+  LotteryActivityLogItem,
   LotteryStatusEnum,
   ReviewOrderTypeEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -24,27 +27,52 @@ import ListingGuard from "../../../components/shared/ListingGuard"
 import { NavigationHeader } from "../../../components/shared/NavigationHeader"
 import { ListingStatusBar } from "../../../components/listings/ListingStatusBar"
 import { logger } from "../../../logger"
-import { useFlaggedApplicationsMeta, useLotteryExport } from "../../../lib/hooks"
+import {
+  useFlaggedApplicationsMeta,
+  useLotteryActivityLog,
+  useLotteryExport,
+} from "../../../lib/hooks"
+dayjs.extend(advancedFormat)
 
 import styles from "../../../../styles/lottery.module.scss"
 
-const Lottery = (props: { listing: Listing }) => {
+const Lottery = (props: { listing: Listing | undefined }) => {
   const metaDescription = ""
   const metaImage = ""
 
   const { listing } = props
 
+  const { addToast } = useContext(MessageContext)
+  const router = useRouter()
+
   const [runModal, setRunModal] = useState(false)
   const [reRunModal, setReRunModal] = useState(false)
   const [releaseModal, setReleaseModal] = useState(false)
   const [exportModal, setExportModal] = useState(false)
+  const [termsExportModal, setTermsExportModal] = useState(false)
   const [publishModal, setPublishModal] = useState(false)
   const [retractModal, setRetractModal] = useState(false)
+  const [newApplicationsModal, setNewApplicationsModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const { listingsService, lotteryService, profile } = useContext(AuthContext)
-  const { onExport, csvExportLoading } = useLotteryExport(listing?.id)
+  const { lotteryService, profile } = useContext(AuthContext)
+
+  const listingJurisdiction = profile?.jurisdictions?.find(
+    (jurisdiction) => jurisdiction.id === listing?.jurisdictions.id
+  )
+
+  const includeDemographicsPartner =
+    profile?.userRoles?.isPartner && listingJurisdiction?.enablePartnerDemographics
+
+  const { onExport, exportLoading } = useLotteryExport(
+    listing?.id,
+    (profile?.userRoles?.isAdmin ||
+      profile?.userRoles?.isJurisdictionalAdmin ||
+      includeDemographicsPartner) ??
+      false
+  )
   const { data } = useFlaggedApplicationsMeta(listing?.id)
+  const { lotteryActivityLogData } = useLotteryActivityLog(listing?.id)
   const duplicatesExist = data?.totalPendingCount > 0
   let formattedExpiryDate: string
   if (process.env.lotteryDaysTillExpiry) {
@@ -55,17 +83,56 @@ const Lottery = (props: { listing: Listing }) => {
     formattedExpiryDate = expiryDate.format("MMMM D, YYYY")
   }
 
-  if (!listing) return <div>{t("t.errorOccurred")}</div>
+  const eventMap = {
+    closed: t("listings.lottery.historyLogClosed"),
+    ran: t("listings.lottery.historyLogRun"),
+    rerun: t("listings.lottery.historyLogReRun"),
+    releasedToPartners: t("listings.lottery.historyLogReleased"),
+    retracted: t("listings.lottery.historyLogRetracted"),
+    publishedToPublic: t("listings.lottery.historyLogPublished"),
+  }
 
-  const getHistoryItem = (dateString: string, event: string, user: string) => {
+  const getHistoryItem = ({ logDate, name, status }: LotteryActivityLogItem, key: number) => {
+    let user
+    if (status === ListingsStatusEnum.closed) {
+      user = t("listings.lottery.historyLogByProperty")
+    } else if (
+      (status === LotteryStatusEnum.publishedToPublic || status === LotteryStatusEnum.expired) &&
+      !name
+    ) {
+      user = t("listings.lottery.historyLogBySystem")
+    } else {
+      user = t("listings.lottery.historyLogUser", { name: name })
+    }
     return (
-      <div className={styles["history-item"]}>
-        <div>{dateString}</div>
-        <div className={styles["event"]}>{event}</div>
+      <div className={styles["history-item"]} key={key}>
+        <div>
+          {t("listings.lottery.historyLogTimestamp", {
+            date: dayjs(logDate).format("MMMM Do, YYYY"),
+            time: dayjs(logDate).format("h:mm a"),
+          })}
+        </div>
+        <div className={styles["event"]}>{eventMap[status]}</div>
         <div className={styles["user"]}>{user}</div>
       </div>
     )
   }
+
+  const historyItems = useMemo(() => {
+    if (!lotteryActivityLogData) return
+
+    const items = []
+
+    lotteryActivityLogData.forEach((logItem, index) => {
+      if (Object.keys(eventMap).indexOf(logItem.status) >= 0) {
+        items.push(getHistoryItem(logItem, index))
+      }
+    })
+
+    return items
+  }, [lotteryActivityLogData])
+
+  if (!listing) return <div>{t("t.errorOccurred")}</div>
 
   const getMainContent = () => {
     const exportCard = (
@@ -82,7 +149,16 @@ const Lottery = (props: { listing: Listing }) => {
             : t("listings.lottery.exportFileNoPreferences")}
         </div>
         <div>
-          <Button disabled={loading || csvExportLoading} onClick={() => setExportModal(true)}>
+          <Button
+            disabled={loading || exportLoading}
+            onClick={() => {
+              if (profile?.userRoles?.isAdmin) {
+                setExportModal(true)
+              } else {
+                setTermsExportModal(true)
+              }
+            }}
+          >
             {t("t.export")}
           </Button>
         </div>
@@ -109,7 +185,7 @@ const Lottery = (props: { listing: Listing }) => {
                 onClick={() => {
                   setRunModal(true)
                 }}
-                disabled={loading || csvExportLoading}
+                disabled={loading || exportLoading}
               >
                 {t("listings.lottery.runLottery")}
               </Button>
@@ -204,23 +280,29 @@ const Lottery = (props: { listing: Listing }) => {
       return (
         <div className={styles["actions-container"]}>
           <>
+            {listing.lotteryStatus && (
+              <Button
+                className={styles["action"]}
+                onClick={() => setReRunModal(true)}
+                variant={"primary-outlined"}
+              >
+                {t("listings.lottery.reRun")}
+              </Button>
+            )}
             {listing.lotteryStatus === LotteryStatusEnum.ran && (
-              <>
-                <Button
-                  className={styles["action"]}
-                  onClick={() => setReRunModal(true)}
-                  variant={"primary-outlined"}
-                >
-                  {t("listings.lottery.reRun")}
-                </Button>
-                <Button
-                  className={styles["action"]}
-                  onClick={() => setReleaseModal(true)}
-                  variant={"primary-outlined"}
-                >
-                  {t("listings.lottery.release")}
-                </Button>
-              </>
+              <Button
+                className={styles["action"]}
+                onClick={() => {
+                  if (listing?.lotteryLastRunAt < listing?.lastApplicationUpdateAt) {
+                    setNewApplicationsModal(true)
+                  } else {
+                    setReleaseModal(true)
+                  }
+                }}
+                variant={"primary-outlined"}
+              >
+                {t("listings.lottery.release")}
+              </Button>
             )}
             {(listing.lotteryStatus === LotteryStatusEnum.releasedToPartners ||
               listing.lotteryStatus === LotteryStatusEnum.publishedToPublic) && (
@@ -307,18 +389,7 @@ const Lottery = (props: { listing: Listing }) => {
                             {t("listings.lottery.history")}
                           </Heading>
                         </CardHeader>
-                        <CardSection>
-                          {getHistoryItem(
-                            "November 21st, 2023 at 8:30am",
-                            "Listing closed",
-                            "By property"
-                          )}
-                          {getHistoryItem(
-                            "November 21st, 2023 at 8:30am",
-                            "Listing closed",
-                            "By property"
-                          )}
-                        </CardSection>
+                        <CardSection>{historyItems}</CardSection>
                       </Card>
                     </>
                   </aside>
@@ -336,9 +407,6 @@ const Lottery = (props: { listing: Listing }) => {
               {t("applications.addConfirmModalHeader")}
             </Dialog.Header>
             <Dialog.Content id="run-lottery-modal-content">
-              {process.env.lotteryDaysTillExpiry ? (
-                <p>{t("listings.lottery.dialogAlert", { date: formattedExpiryDate })}</p>
-              ) : undefined}
               {duplicatesExist ? (
                 <p>
                   {t("listings.lottery.duplicateContent")}{" "}
@@ -363,18 +431,21 @@ const Lottery = (props: { listing: Listing }) => {
               <Button
                 variant={duplicatesExist ? "alert" : "primary"}
                 onClick={async () => {
+                  setLoading(true)
                   try {
-                    setLoading(true)
-                    await lotteryService.lotteryGenerate({ body: { listingId: listing.id } })
+                    await lotteryService.lotteryGenerate({ body: { id: listing.id } })
                     setLoading(false)
                     setRunModal(false)
-                    location.reload()
+                    addToast(t("listings.lottery.toast.run"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 size="sm"
-                loadingMessage={loading || csvExportLoading ? t("t.loading") : undefined}
+                loadingMessage={loading || exportLoading ? t("t.loading") : undefined}
               >
                 {duplicatesExist
                   ? t("listings.lottery.runLotteryDuplicates")
@@ -399,21 +470,49 @@ const Lottery = (props: { listing: Listing }) => {
           >
             <Dialog.Header id="rerun-lottery-modal-header">{t("t.areYouSure")}</Dialog.Header>
             <Dialog.Content id="rerun-lottery-modal-content">
-              <p>
-                <span>{t("listings.lottery.reRunContent")}</span>{" "}
-                <span className={"font-semibold"}>{t("listings.lottery.reRunCannotBeUndone")}</span>
-              </p>
-              <p>{t("listings.lottery.reRunHistory")}</p>
-              <p>{t("applications.addConfirmModalAddApplicationPostLotteryAreYouSure")}</p>
+              {listing.lotteryStatus === LotteryStatusEnum.releasedToPartners ||
+              listing.lotteryStatus === LotteryStatusEnum.publishedToPublic ? (
+                <>
+                  <p>{t("listings.lottery.reRunContentAfterRelease")}</p>
+                  {listing.lotteryStatus === LotteryStatusEnum.publishedToPublic && (
+                    <p className={"font-semibold"}>
+                      {t("listings.lottery.reRunContentAfterReleaseRemoval")}
+                    </p>
+                  )}
+                  <p>{t("applications.addConfirmModalAddApplicationPostLotteryAreYouSure")}</p>
+                </>
+              ) : (
+                <>
+                  <p>
+                    <span>{t("listings.lottery.reRunContent")}</span>{" "}
+                    <span className={"font-semibold"}>
+                      {t("listings.lottery.reRunCannotBeUndone")}
+                    </span>
+                  </p>
+                  <p>{t("listings.lottery.reRunHistory")}</p>
+                  <p>{t("applications.addConfirmModalAddApplicationPostLotteryAreYouSure")}</p>
+                </>
+              )}
             </Dialog.Content>
             <Dialog.Footer>
               <Button
                 variant="alert"
-                onClick={() => {
-                  // re-run lottery
-                  setReRunModal(false)
+                onClick={async () => {
+                  setLoading(true)
+                  try {
+                    await lotteryService.lotteryGenerate({ body: { id: listing.id } })
+                    setLoading(false)
+                    setReRunModal(false)
+                    addToast(t("listings.lottery.toast.rerun"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
+                  } catch (err) {
+                    console.log(err)
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
+                  }
                 }}
                 size="sm"
+                loadingMessage={loading ? t("t.loading") : null}
               >
                 {t("listings.lottery.reRunUnderstand")}
               </Button>
@@ -445,16 +544,20 @@ const Lottery = (props: { listing: Listing }) => {
                 onClick={async () => {
                   setLoading(true)
                   try {
-                    await listingsService.lotteryStatus({
+                    await lotteryService.lotteryStatus({
                       body: {
-                        listingId: listing.id,
+                        id: listing.id,
                         lotteryStatus: LotteryStatusEnum.releasedToPartners,
                       },
                     })
-                    location.reload()
+                    setLoading(false)
+                    setReleaseModal(false)
+                    addToast(t("listings.lottery.toast.released"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
                     setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 loadingMessage={loading ? t("t.loading") : null}
@@ -470,6 +573,31 @@ const Lottery = (props: { listing: Listing }) => {
                 size="sm"
               >
                 {t("t.cancel")}
+              </Button>
+            </Dialog.Footer>
+          </Dialog>
+          <Dialog
+            isOpen={!!newApplicationsModal}
+            ariaLabelledBy="new-applications-modal-header"
+            ariaDescribedBy="new-applications-modal-content"
+            onClose={() => setNewApplicationsModal(false)}
+          >
+            <Dialog.Header id="new-applications-modal-header">
+              {t("listings.lottery.newAppsHeader")}
+            </Dialog.Header>
+            <Dialog.Content id="new-applications-modal-content">
+              <p>{t("listings.lottery.newApps")}</p>
+              <p className={"font-semibold"}>{t("listings.lottery.newAppsReRun")}</p>
+            </Dialog.Content>
+            <Dialog.Footer>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setNewApplicationsModal(false)
+                }}
+                size="sm"
+              >
+                {t("t.ok")}
               </Button>
             </Dialog.Footer>
           </Dialog>
@@ -495,16 +623,20 @@ const Lottery = (props: { listing: Listing }) => {
                 onClick={async () => {
                   setLoading(true)
                   try {
-                    await listingsService.lotteryStatus({
+                    await lotteryService.lotteryStatus({
                       body: {
-                        listingId: listing.id,
+                        id: listing.id,
                         lotteryStatus: LotteryStatusEnum.ran,
                       },
                     })
-                    location.reload()
+                    setLoading(false)
+                    setRetractModal(false)
+                    addToast(t("listings.lottery.toast.retracted"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
                     setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 loadingMessage={loading ? t("t.loading") : null}
@@ -547,11 +679,18 @@ const Lottery = (props: { listing: Listing }) => {
               <Button
                 variant="primary"
                 onClick={async () => {
-                  await onExport()
-                  setExportModal(false)
+                  setLoading(true)
+                  try {
+                    await onExport()
+                    setLoading(false)
+                    setExportModal(false)
+                  } catch {
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
+                  }
                 }}
                 size="sm"
-                loadingMessage={loading || csvExportLoading ? t("t.loading") : undefined}
+                loadingMessage={loading || exportLoading ? t("t.loading") : undefined}
               >
                 {t("t.export")}
               </Button>
@@ -559,6 +698,61 @@ const Lottery = (props: { listing: Listing }) => {
                 variant="primary-outlined"
                 onClick={() => {
                   setExportModal(false)
+                }}
+                size="sm"
+              >
+                {t("t.cancel")}
+              </Button>
+            </Dialog.Footer>
+          </Dialog>
+          <Dialog
+            isOpen={!!termsExportModal}
+            ariaLabelledBy="terms-export-lottery-modal-header"
+            ariaDescribedBy="terms-export-lottery-modal-content"
+            onClose={() => setTermsExportModal(false)}
+          >
+            <Dialog.Header id="terms-export-lottery-modal-header">
+              {t("listings.lottery.export")}
+            </Dialog.Header>
+            <Dialog.Content id="terms-export-lottery-modal-content">
+              <p>
+                {listing.listingMultiselectQuestions.length
+                  ? t("listings.lottery.exportFile")
+                  : t("listings.lottery.exportFileNoPreferences")}{" "}
+                {t("listings.lottery.exportContentTimestamp", {
+                  date: dayjs(listing.lotteryLastRunAt).format("MM/DD/YYYY"),
+                  time: dayjs(listing.lotteryLastRunAt).format("h:mm a"),
+                })}
+              </p>
+              <p>{t("listings.lottery.termsAccept")}</p>
+              <h2 className={styles["terms-of-use-header"]}>
+                {t("authentication.terms.termsOfUse")}
+              </h2>
+              <Markdown>{t("listings.lottery.terms")}</Markdown>
+            </Dialog.Content>
+            <Dialog.Footer>
+              <Button
+                variant="primary"
+                onClick={async () => {
+                  setLoading(true)
+                  try {
+                    await onExport()
+                    setLoading(false)
+                    setTermsExportModal(false)
+                  } catch {
+                    setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
+                  }
+                }}
+                size="sm"
+                loadingMessage={loading || exportLoading ? t("t.loading") : undefined}
+              >
+                {t("t.export")}
+              </Button>
+              <Button
+                variant="primary-outlined"
+                onClick={() => {
+                  setTermsExportModal(false)
                 }}
                 size="sm"
               >
@@ -585,16 +779,20 @@ const Lottery = (props: { listing: Listing }) => {
                 onClick={async () => {
                   setLoading(true)
                   try {
-                    await listingsService.lotteryStatus({
+                    await lotteryService.lotteryStatus({
                       body: {
-                        listingId: listing.id,
+                        id: listing.id,
                         lotteryStatus: LotteryStatusEnum.publishedToPublic,
                       },
                     })
-                    location.reload()
+                    setLoading(false)
+                    setPublishModal(false)
+                    addToast(t("listings.lottery.toast.published"), { variant: "success" })
+                    await router.push(`/listings/${listing.id}/lottery`)
                   } catch (err) {
                     console.log(err)
                     setLoading(false)
+                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
                   }
                 }}
                 loadingMessage={loading ? t("t.loading") : null}

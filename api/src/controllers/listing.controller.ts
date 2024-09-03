@@ -34,7 +34,6 @@ import Listing from '../dtos/listings/listing.dto';
 import { ListingCreate } from '../dtos/listings/listing-create.dto';
 import { ListingCsvQueryParams } from '../dtos/listings/listing-csv-query-params.dto';
 import { ListingFilterParams } from '../dtos/listings/listings-filter-params.dto';
-import { ListingLotteryStatus } from '../dtos/listings/listing-lottery-status.dto';
 import { ListingsQueryParams } from '../dtos/listings/listings-query-params.dto';
 import { ListingsRetrieveParams } from '../dtos/listings/listings-retrieve-params.dto';
 import { ListingUpdate } from '../dtos/listings/listing-update.dto';
@@ -196,36 +195,6 @@ export class ListingController {
   @UseGuards(ApiKeyGuard, OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
   async closeListings(): Promise<SuccessDTO> {
     return await this.listingService.closeListings();
-  }
-
-  @Put('expireLotteries')
-  @ApiOperation({
-    summary: 'Trigger the lottery process job',
-    operationId: 'expireLotteries',
-  })
-  @ApiOkResponse({ type: SuccessDTO })
-  @PermissionAction(permissionActions.update)
-  @UseInterceptors(ActivityLogInterceptor)
-  @UseGuards(OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
-  async expireLotteries(): Promise<SuccessDTO> {
-    return await this.listingService.expireLotteries();
-  }
-
-  @Put('lotteryStatus')
-  @ApiOperation({
-    summary: 'Change the listing lottery status',
-    operationId: 'lotteryStatus',
-  })
-  @ApiOkResponse({ type: SuccessDTO })
-  @UseGuards(ApiKeyGuard)
-  async lotteryStatus(
-    @Request() req: ExpressRequest,
-    @Body() dto: ListingLotteryStatus,
-  ): Promise<SuccessDTO> {
-    return await this.listingService.lotteryStatus(
-      dto,
-      mapTo(User, req['user']),
-    );
   }
 
   @Put(':id')

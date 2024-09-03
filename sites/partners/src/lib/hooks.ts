@@ -516,18 +516,49 @@ export const useApplicationsExport = (listingId: string, includeDemographics: bo
 
   return useCsvExport(
     () =>
-      applicationsService.listAsCsv({ listingId, includeDemographics, timeZone: dayjs.tz.guess() }),
+      applicationsService.listAsCsv({
+        id: listingId,
+        includeDemographics,
+        timeZone: dayjs.tz.guess(),
+      }),
     `applications-${listingId}-${createDateStringFromNow()}.csv`
   )
 }
 
-export const useLotteryExport = (listingId: string) => {
-  const { applicationsService } = useContext(AuthContext)
+export const useLotteryExport = (listingId: string, includeDemographics: boolean) => {
+  const { lotteryService } = useContext(AuthContext)
+  const [exportLoading, setExportLoading] = useState(false)
+  const { addToast } = useContext(MessageContext)
 
-  return useCsvExport(
-    () => applicationsService.lotteryResults({ listingId, timeZone: dayjs.tz.guess() }),
-    `lottery-${listingId}-${createDateStringFromNow()}.csv`
-  )
+  const onExport = useCallback(async () => {
+    setExportLoading(true)
+    try {
+      const content = await lotteryService.lotteryResults(
+        { id: listingId, includeDemographics },
+        { responseType: "arraybuffer" }
+      )
+      const blob = new Blob([new Uint8Array(content)], { type: "application/zip" })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      const now = new Date()
+      const dateString = dayjs(now).format("YYYY-MM-DD_HH-mm")
+      link.setAttribute("download", `${listingId}-${dateString}-test.zip`)
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode.removeChild(link)
+      addToast(t("t.exportSuccess"), { variant: "success" })
+    } catch (err) {
+      console.log(err)
+      addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
+    }
+    setExportLoading(false)
+  }, [])
+
+  return {
+    onExport,
+    exportLoading,
+  }
 }
 
 export const useUsersExport = () => {
@@ -539,7 +570,11 @@ export const useUsersExport = () => {
   )
 }
 
-const useCsvExport = (endpoint: () => Promise<string>, fileName: string) => {
+const useCsvExport = (
+  endpoint: () => Promise<string>,
+  fileName: string,
+  exportedAsSpreadsheet = false
+) => {
   const [csvExportLoading, setCsvExportLoading] = useState(false)
   const { addToast } = useContext(MessageContext)
 
@@ -548,7 +583,7 @@ const useCsvExport = (endpoint: () => Promise<string>, fileName: string) => {
 
     try {
       const content = await endpoint()
-      const blob = new Blob([content], { type: "text/csv" })
+      const blob = new Blob([content], { type: exportedAsSpreadsheet ? "text/xlsx" : "text/csv" })
       const fileLink = document.createElement("a")
       fileLink.setAttribute("download", fileName)
       fileLink.href = URL.createObjectURL(blob)
@@ -579,5 +614,18 @@ export function useMapLayersList(jurisdictionId?: string) {
     mapLayers: data,
     mapLayersLoading: !error && !data,
     mapLayersError: error,
+  }
+}
+
+export function useLotteryActivityLog(listingId: string) {
+  const { lotteryService } = useContext(AuthContext)
+  const fetcher = () => listingId && lotteryService.lotteryActivityLog({ id: listingId })
+
+  const { data, error } = useSWR(`/api/adapter/lottery/lotteryActivityLog/${listingId}`, fetcher)
+
+  return {
+    lotteryActivityLogData: data,
+    lotteryActivityLogLoading: !error && !data,
+    lotteryError: error,
   }
 }

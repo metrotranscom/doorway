@@ -375,49 +375,11 @@ export class ListingsService {
    */
   process(options: IRequestOptions = {}): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
-      let url = basePath + "/listings/process"
+      let url = basePath + "/listings/closeListings"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = null
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Trigger the lottery process job
-   */
-  expireLotteries(options: IRequestOptions = {}): Promise<SuccessDTO> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings/expireLotteries"
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = null
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Change the listing lottery status
-   */
-  lotteryStatus(
-    params: {
-      /** requestBody */
-      body?: ListingLotteryStatus
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<SuccessDTO> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings/lotteryStatus"
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = params.body
 
       configs.data = data
 
@@ -1485,41 +1447,12 @@ export class ApplicationsService {
     })
   }
   /**
-   * Get applications lottery results
-   */
-  lotteryResults(
-    params: {
-      /**  */
-      listingId: string
-      /**  */
-      includeDemographics?: boolean
-      /**  */
-      timeZone?: string
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/applications/getLotteryResults"
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-      configs.params = {
-        listingId: params["listingId"],
-        includeDemographics: params["includeDemographics"],
-        timeZone: params["timeZone"],
-      }
-
-      /** 适配ios13，get请求不允许带body */
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
    * Get applications as csv
    */
   listAsCsv(
     params: {
       /**  */
-      listingId: string
+      id: string
       /**  */
       includeDemographics?: boolean
       /**  */
@@ -1532,7 +1465,7 @@ export class ApplicationsService {
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
       configs.params = {
-        listingId: params["listingId"],
+        id: params["id"],
         includeDemographics: params["includeDemographics"],
         timeZone: params["timeZone"],
       }
@@ -2274,6 +2207,38 @@ export class ScriptRunnerService {
       axios(configs, resolve, reject)
     })
   }
+  /**
+   * A script that adds lottery translations to the db
+   */
+  lotteryTranslations(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/lotteryTranslations"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that opts out existing lottery listings
+   */
+  optOutExistingLotteries(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/optOutExistingLotteries"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
 }
 
 export class LotteryService {
@@ -2293,6 +2258,110 @@ export class LotteryService {
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Get applications lottery results
+   */
+  lotteryResults(
+    params: {
+      /**  */
+      id: string
+      /**  */
+      includeDemographics?: boolean
+      /**  */
+      timeZone?: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/lottery/getLotteryResults"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+      configs.params = {
+        id: params["id"],
+        includeDemographics: params["includeDemographics"],
+        timeZone: params["timeZone"],
+      }
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Change the listing lottery status
+   */
+  lotteryStatus(
+    params: {
+      /** requestBody */
+      body?: ListingLotteryStatus
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/lottery/lotteryStatus"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Get a lottery activity log
+   */
+  lotteryActivityLog(
+    params: {
+      /**  */
+      id: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<LotteryActivityLogItem[]> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/lottery/lotteryActivityLog/{id}"
+      url = url.replace("{id}", params["id"] + "")
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Trigger the lottery auto publish process job
+   */
+  autoPublishResults(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/lottery/autoPublishResults"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Trigger the lottery expiration process job
+   */
+  expireLotteries(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/lottery/expireLotteries"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
 
       configs.data = data
 
@@ -3799,14 +3868,6 @@ export interface ListingCreate {
 
   /**  */
   requestedChangesUser?: IdDTO
-}
-
-export interface ListingLotteryStatus {
-  /**  */
-  listingId: string
-
-  /**  */
-  lotteryStatus: LotteryStatusEnum
 }
 
 export interface ListingUpdate {
@@ -5623,13 +5684,32 @@ export interface AmiChartImportDTO {
 
 export interface ApplicationCsvQueryParams {
   /**  */
-  listingId: string
+  id: string
 
   /**  */
   includeDemographics?: boolean
 
   /**  */
   timeZone?: string
+}
+
+export interface ListingLotteryStatus {
+  /**  */
+  id: string
+
+  /**  */
+  lotteryStatus: LotteryStatusEnum
+}
+
+export interface LotteryActivityLogItem {
+  /**  */
+  status: string
+
+  /**  */
+  name: string
+
+  /**  */
+  logDate: Date
 }
 
 export enum ListingViews {

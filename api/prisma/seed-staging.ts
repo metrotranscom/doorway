@@ -3,6 +3,7 @@ import {
   ApplicationMethodsTypeEnum,
   ApplicationSubmissionTypeEnum,
   LanguagesEnum,
+  ListingEventsTypeEnum,
   ListingsStatusEnum,
   MultiselectQuestions,
   MultiselectQuestionsApplicationSectionEnum,
@@ -169,7 +170,7 @@ export const stagingSeed = async (
   const mapLayer = await prismaClient.mapLayers.create({
     data: mapLayerFactory(jurisdiction.id, 'Washington DC', simplifiedDCMap),
   });
-  const multiselectQuestion1 = await prismaClient.multiselectQuestions.create({
+  const cityEmployeeQuestion = await prismaClient.multiselectQuestions.create({
     data: multiselectQuestionFactory(jurisdiction.id, {
       multiselectQuestion: {
         text: 'City Employees',
@@ -186,7 +187,7 @@ export const stagingSeed = async (
       },
     }),
   });
-  const multiselectQuestion2 = await prismaClient.multiselectQuestions.create({
+  const workInCityQuestion = await prismaClient.multiselectQuestions.create({
     data: multiselectQuestionFactory(jurisdiction.id, {
       multiselectQuestion: {
         text: 'Work in the city',
@@ -215,21 +216,24 @@ export const stagingSeed = async (
       },
     }),
   });
-  const multiselectQuestion3 = await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(jurisdiction.id, {
-      multiselectQuestion: {
-        text: 'Veteran',
-        description:
-          'Have you or anyone in your household served in the US military?',
-        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
-        optOutText: 'Prefer not to say',
-        options: [
-          { text: 'Yes', exclusive: true, ordinal: 1 },
-          { text: 'No', exclusive: true, ordinal: 2 },
-        ],
-      },
-    }),
-  });
+  const veteranProgramQuestion = await prismaClient.multiselectQuestions.create(
+    {
+      data: multiselectQuestionFactory(jurisdiction.id, {
+        multiselectQuestion: {
+          text: 'Veteran',
+          description:
+            'Have you or anyone in your household served in the US military?',
+          applicationSection:
+            MultiselectQuestionsApplicationSectionEnum.programs,
+          optOutText: 'Prefer not to say',
+          options: [
+            { text: 'Yes', exclusive: true, ordinal: 1 },
+            { text: 'No', exclusive: true, ordinal: 2 },
+          ],
+        },
+      }),
+    },
+  );
   const multiselectQuestionPrograms =
     await prismaClient.multiselectQuestions.create({
       data: multiselectQuestionFactory(jurisdiction.id, {
@@ -395,8 +399,8 @@ export const stagingSeed = async (
         },
       ],
       multiselectQuestions: [
-        multiselectQuestion1,
-        multiselectQuestion2,
+        cityEmployeeQuestion,
+        workInCityQuestion,
         multiselectQuestionPrograms,
       ],
       applications: [await applicationFactory(), await applicationFactory()],
@@ -458,6 +462,7 @@ export const stagingSeed = async (
           'Applicants will be contacted by the property agent in rank order until vacancies are filled. All of the information that you have provided will be verified and your eligibility confirmed. Your application will be removed from the waitlist if you have made any fraudulent statements. If we cannot verify a housing preference that you have claimed, you will not receive the preference but will not be otherwise penalized. Should your application be chosen, be prepared to fill out a more detailed application and provide required supporting documents.',
         status: ListingsStatusEnum.active,
         reviewOrderType: ReviewOrderTypeEnum.lottery,
+        lotteryOptIn: true,
         displayWaitlistSize: false,
         reservedCommunityDescription: null,
         reservedCommunityMinAge: null,
@@ -471,6 +476,16 @@ export const stagingSeed = async (
         listingsApplicationDropOffAddress: undefined,
         listingsApplicationMailingAddress: undefined,
         reservedCommunityTypes: undefined,
+        listingEvents: {
+          create: [
+            {
+              type: ListingEventsTypeEnum.publicLottery,
+              startDate: new Date(),
+              startTime: new Date(),
+              endTime: new Date(),
+            },
+          ],
+        },
       },
       units: [
         {
@@ -527,7 +542,7 @@ export const stagingSeed = async (
           },
         },
       ],
-      multiselectQuestions: [multiselectQuestion1],
+      multiselectQuestions: [cityEmployeeQuestion],
       // has applications that are the same email
       applications: [
         await applicationFactory({
@@ -854,7 +869,7 @@ export const stagingSeed = async (
           ],
         },
       },
-      multiselectQuestions: [multiselectQuestion2],
+      multiselectQuestions: [workInCityQuestion],
     },
     {
       listing: {
@@ -918,6 +933,7 @@ export const stagingSeed = async (
           'Applicants will be contacted by the property agent in rank order until vacancies are filled. All of the information that you have provided will be verified and your eligibility confirmed. Your application will be removed from the waitlist if you have made any fraudulent statements. If we cannot verify a housing preference that you have claimed, you will not receive the preference but will not be otherwise penalized. Should your application be chosen, be prepared to fill out a more detailed application and provide required supporting documents.',
         status: ListingsStatusEnum.active,
         reviewOrderType: ReviewOrderTypeEnum.lottery,
+        lotteryOptIn: false,
         displayWaitlistSize: false,
         reservedCommunityDescription: null,
         reservedCommunityMinAge: null,
@@ -954,10 +970,32 @@ export const stagingSeed = async (
           ],
         },
       },
+      applications: [
+        await applicationFactory({
+          multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
+        }),
+        await applicationFactory({
+          multiselectQuestions: [
+            cityEmployeeQuestion,
+            workInCityQuestion,
+            veteranProgramQuestion,
+          ],
+        }),
+        await applicationFactory({
+          multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
+        }),
+        await applicationFactory({
+          multiselectQuestions: [workInCityQuestion],
+        }),
+        await applicationFactory({
+          multiselectQuestions: [workInCityQuestion],
+        }),
+        await applicationFactory(),
+      ],
       multiselectQuestions: [
-        multiselectQuestion2,
-        multiselectQuestion1,
-        multiselectQuestion3,
+        workInCityQuestion,
+        cityEmployeeQuestion,
+        veteranProgramQuestion,
       ],
       units: [
         {

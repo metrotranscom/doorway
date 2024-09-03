@@ -17,13 +17,14 @@ import SectionWithGrid from "../../../shared/SectionWithGrid"
 type RankingsAndResultsProps = {
   listing?: FormListing
   disableDueDates?: boolean
+  isAdmin?: boolean
 }
 
-const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProps) => {
+const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndResultsProps) => {
   const formMethods = useFormContext()
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register, watch, control } = formMethods
+  const { register, watch, control, errors } = formMethods
 
   const lotteryEvent = getLotteryEvent(listing as unknown as Listing)
 
@@ -128,31 +129,48 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
         {reviewOrder === "reviewOrderLottery" && (
           <>
             {process.env.showLottery && (
-              <Grid.Row columns={2} className={"flex items-center"}>
-                <Grid.Cell>
-                  <p className={`field-label m-4 ml-0`}>{t("listings.lotteryOptInQuestion")}</p>
-                  <FieldGroup
-                    name="lotteryOptInQuestion"
-                    type="radio"
-                    register={register}
-                    fields={[
-                      {
-                        ...yesNoRadioOptions[0],
-                        id: "lotteryOptInYes",
-                        defaultChecked:
-                          !listing || listing.lotteryOptIn === true || !listing.lotteryOptIn,
-                      },
+              <>
+                {isAdmin ? (
+                  <Grid.Row columns={2} className={"flex items-center"}>
+                    <Grid.Cell>
+                      <p className={`field-label m-4 ml-0`}>{t("listings.lotteryOptInQuestion")}</p>
+                      <FieldGroup
+                        name="lotteryOptInQuestion"
+                        type="radio"
+                        register={register}
+                        fields={[
+                          {
+                            ...yesNoRadioOptions[0],
+                            id: "lotteryOptInYes",
+                            defaultChecked:
+                              !listing ||
+                              listing.lotteryOptIn === true ||
+                              listing.lotteryOptIn === null,
+                          },
 
-                      {
-                        ...yesNoRadioOptions[1],
-                        id: "lotteryOptInNo",
-                        defaultChecked: listing && listing.lotteryOptIn === false,
-                      },
-                    ]}
-                  />
-                </Grid.Cell>
-              </Grid.Row>
+                          {
+                            ...yesNoRadioOptions[1],
+                            id: "lotteryOptInNo",
+                            defaultChecked: listing && listing.lotteryOptIn === false,
+                          },
+                        ]}
+                      />
+                    </Grid.Cell>
+                  </Grid.Row>
+                ) : (
+                  <Grid.Row columns={2}>
+                    <Grid.Cell>
+                      <p className={"field-note -mt-6"}>
+                        {!listing || listing.lotteryOptIn === true || listing.lotteryOptIn === null
+                          ? t("listings.lotteryOptInPartnerYes")
+                          : t("listings.lotteryOptInPartnerNo")}
+                      </p>
+                    </Grid.Cell>
+                  </Grid.Row>
+                )}
+              </>
             )}
+
             <Grid.Row columns={3}>
               <Grid.Cell>
                 <DateField
@@ -162,17 +180,31 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                   register={register}
                   watch={watch}
                   disabled={disableDueDates}
-                  defaultDate={{
-                    month: lotteryEvent?.startDate
-                      ? dayjs(new Date(lotteryEvent?.startDate)).utc().format("MM")
-                      : null,
-                    day: lotteryEvent?.startDate
-                      ? dayjs(new Date(lotteryEvent?.startDate)).utc().format("DD")
-                      : null,
-                    year: lotteryEvent?.startDate
-                      ? dayjs(new Date(lotteryEvent?.startDate)).utc().format("YYYY")
-                      : null,
-                  }}
+                  error={
+                    errors?.lotteryDate
+                      ? {
+                          month: errors?.lotteryDate,
+                          day: errors?.lotteryDate,
+                          year: errors?.lotteryDate,
+                        }
+                      : null
+                  }
+                  errorMessage={t("errors.requiredFieldError")}
+                  defaultDate={
+                    errors?.lotteryDate
+                      ? null
+                      : {
+                          month: lotteryEvent?.startDate
+                            ? dayjs(new Date(lotteryEvent?.startDate)).utc().format("MM")
+                            : null,
+                          day: lotteryEvent?.startDate
+                            ? dayjs(new Date(lotteryEvent?.startDate)).utc().format("DD")
+                            : null,
+                          year: lotteryEvent?.startDate
+                            ? dayjs(new Date(lotteryEvent?.startDate)).utc().format("YYYY")
+                            : null,
+                        }
+                  }
                 />
               </Grid.Cell>
               <Grid.Cell>
@@ -183,18 +215,26 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                   register={register}
                   watch={watch}
                   disabled={disableDueDates}
-                  defaultValues={{
-                    hours: lotteryEvent?.startTime
-                      ? dayjs(new Date(lotteryEvent?.startTime)).format("hh")
-                      : null,
-                    minutes: lotteryEvent?.startTime
-                      ? dayjs(new Date(lotteryEvent?.startTime)).format("mm")
-                      : null,
-                    seconds: lotteryEvent?.startTime
-                      ? dayjs(new Date(lotteryEvent?.startTime)).format("ss")
-                      : null,
-                    period: new Date(lotteryEvent?.startTime).getHours() >= 12 ? "pm" : "am",
+                  error={errors?.lotteryDate ? true : false}
+                  strings={{
+                    timeError: errors?.lotteryDate ? t("errors.requiredFieldError") : null,
                   }}
+                  defaultValues={
+                    errors?.lotteryDate
+                      ? null
+                      : {
+                          hours: lotteryEvent?.startTime
+                            ? dayjs(new Date(lotteryEvent?.startTime)).format("hh")
+                            : null,
+                          minutes: lotteryEvent?.startTime
+                            ? dayjs(new Date(lotteryEvent?.startTime)).format("mm")
+                            : null,
+                          seconds: lotteryEvent?.startTime
+                            ? dayjs(new Date(lotteryEvent?.startTime)).format("ss")
+                            : null,
+                          period: new Date(lotteryEvent?.startTime).getHours() >= 12 ? "pm" : "am",
+                        }
+                  }
                 />
               </Grid.Cell>
               <Grid.Cell>
@@ -205,18 +245,26 @@ const RankingsAndResults = ({ listing, disableDueDates }: RankingsAndResultsProp
                   register={register}
                   watch={watch}
                   disabled={disableDueDates}
-                  defaultValues={{
-                    hours: lotteryEvent?.endTime
-                      ? dayjs(new Date(lotteryEvent?.endTime)).format("hh")
-                      : null,
-                    minutes: lotteryEvent?.endTime
-                      ? dayjs(new Date(lotteryEvent?.endTime)).format("mm")
-                      : null,
-                    seconds: lotteryEvent?.endTime
-                      ? dayjs(new Date(lotteryEvent?.endTime)).format("ss")
-                      : null,
-                    period: new Date(lotteryEvent?.endTime).getHours() >= 12 ? "pm" : "am",
+                  error={errors?.lotteryDate ? true : false}
+                  strings={{
+                    timeError: errors?.lotteryDate ? t("errors.requiredFieldError") : null,
                   }}
+                  defaultValues={
+                    errors?.lotteryDate
+                      ? null
+                      : {
+                          hours: lotteryEvent?.endTime
+                            ? dayjs(new Date(lotteryEvent?.endTime)).format("hh")
+                            : null,
+                          minutes: lotteryEvent?.endTime
+                            ? dayjs(new Date(lotteryEvent?.endTime)).format("mm")
+                            : null,
+                          seconds: lotteryEvent?.endTime
+                            ? dayjs(new Date(lotteryEvent?.endTime)).format("ss")
+                            : null,
+                          period: new Date(lotteryEvent?.endTime).getHours() >= 12 ? "pm" : "am",
+                        }
+                  }
                 />
               </Grid.Cell>
             </Grid.Row>

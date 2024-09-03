@@ -47,7 +47,7 @@ describe("Listings approval feature", () => {
     cy.login("user")
     searchAndOpenListing(cy, uniqueListingNameEdited)
     cy.getByID("listingEditButton").click()
-    cy.getByID("saveAndExitButton").should("be.visible")
+    cy.getByID("saveAndContinueButton").should("be.visible")
     cy.getByID("listing-status-pending-review").should("be.visible")
     cy.getByID("approveAndPublishButton").click()
     cy.getByID("listing-status-active").should("be.visible")
@@ -98,6 +98,9 @@ describe("Listings approval feature", () => {
     cy.getByID("addUnitsButton").contains("Add Unit").click()
     cy.getByID("number").type(listing["number"])
     cy.getByID("unitTypes.id").select(listing["unitType.id"])
+    cy.getByID("unitFormSaveAndExitButton").contains("Save & Exit").click()
+    cy.getByID("amiChart.id").select(1).trigger("change")
+    cy.getByID("amiPercentage").select(1)
     cy.getByID("unitFormSaveAndExitButton").contains("Save & Exit").click()
     cy.get("button").contains("Application Process").click()
 

@@ -274,5 +274,51 @@ export function questionsLinkableCards(): React.ReactElement<CardProps>[] {
         </DoorwayCollapsibleSection>
       </Card.Section>
     </Card>,
+    <Card
+      className="border-0"
+      key="lotteryResults"
+      jumplinkData={{ title: t("help.faq.lotteryResults") }}
+    >
+      <Card.Header>
+        <Heading priority={2} className={"text-primary-lighter font-semibold"}>
+          {t("help.faq.lotteryResults")}
+        </Heading>
+      </Card.Header>
+      <Card.Section>
+        <DoorwayCollapsibleSection title={t("help.faq.lotteryResults.rawRank")}>
+          <span>{t("help.faq.lotteryResults.rawRankResp1")}</span>
+        </DoorwayCollapsibleSection>
+        <DoorwayCollapsibleSection title={t("help.faq.lotteryResults.preferences")}>
+          <span>
+            {t("help.faq.lotteryResults.preferencesResp1")}
+            <br />
+            <br />
+            {t("help.faq.lotteryResults.preferencesResp2")}
+          </span>
+        </DoorwayCollapsibleSection>
+        <DoorwayCollapsibleSection title={t("help.faq.lotteryResults.order")}>
+          <span>
+            {t("help.faq.lotteryResults.orderResp1")}
+            <br />
+            <br />
+            {t("help.faq.lotteryResults.orderResp2")}
+            <ul className="text__medium-normal list-disc ml-5">
+              <li>{t("help.faq.lotteryResults.orderList1")}</li>
+              <li>{t("help.faq.lotteryResults.orderList2")}</li>
+              <li>{t("help.faq.lotteryResults.orderList3")}</li>
+            </ul>
+          </span>
+        </DoorwayCollapsibleSection>
+        <DoorwayCollapsibleSection title={"Additional questions?"}>
+          <span>
+            {t("help.faq.lotteryResults.additionalQuestionsResp1")}{" "}
+            <a href={`mailto:doorway@housingbayarea.org`}>
+              {t("help.faq.lotteryResults.additionalQuestionsResp2")}
+            </a>{" "}
+            {t("help.faq.lotteryResults.additionalQuestionsResp3")}
+          </span>
+        </DoorwayCollapsibleSection>
+      </Card.Section>
+    </Card>,
   ]
 }

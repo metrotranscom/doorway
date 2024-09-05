@@ -23,14 +23,3 @@
   font-size: var(--seeds-font-size-xs);
   color: var(--seeds-text-color-light);
 }
-
-.application-no-results {
-  padding: var(--seeds-s8);
-  background-color: var(--seeds-bg-color-muted);
-  @media (max-width: theme("screens.sm")) {
-    padding: var(--seeds-s6);
-  }
-}
-.application-no-results-text {
-  padding-bottom: var(--seeds-s6);
-}

@@ -1025,6 +1025,7 @@ describe('Lottery Controller Tests', () => {
       const jurisdiction = await prisma.jurisdictions.create({
         data: jurisdictionFactory(),
       });
+      await reservedCommunityTypeFactoryAll(jurisdiction.id, prisma);
       const listing1 = await listingFactory(jurisdiction.id, prisma, {
         status: ListingsStatusEnum.closed,
       });

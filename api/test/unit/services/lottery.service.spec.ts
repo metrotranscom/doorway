@@ -1252,7 +1252,7 @@ describe('Testing lottery service', () => {
   });
 
   describe('Test autoPublishResults endpoint', () => {
-    it('should call the updateMany', async () => {
+    it('should call the update', async () => {
       prisma.listings.findMany = jest.fn().mockResolvedValue([
         {
           id: 'example id1',

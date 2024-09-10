@@ -1082,7 +1082,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
     it('should error as forbidden for duplicate endpoint', async () => {
       const jurisdictionA = await generateJurisdiction(
         prisma,
-        'permission juris 181',
+        'permission juris 188',
       );
       await reservedCommunityTypeFactoryAll(jurisdictionA, prisma);
 

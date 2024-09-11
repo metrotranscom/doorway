@@ -26,9 +26,8 @@ import {
   Listing,
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { createTime } from "../helpers"
 dayjs.extend(customParseFormat)
-
-const TIME_24H_FORMAT = "MM/DD/YYYY HH:mm:ss"
 
 /*
   Some of fields are optional, not active, so it occurs 'undefined' as value.
@@ -92,34 +91,41 @@ export const mapFormToApi = ({
       month: submissionMonth,
       year: submissionYear,
     } = data.dateSubmitted || {}
-    const { hours, minutes = 0, seconds = 0, period } = data?.timeSubmitted || {}
-
     if (!submissionDay || !submissionMonth || !submissionYear) return null
 
-    const dateString = dayjs(
-      `${submissionMonth}/${submissionDay}/${submissionYear} ${hours}:${minutes}:${seconds} ${period}`,
-      "MM/DD/YYYY hh:mm:ss a"
-    ).format(TIME_24H_FORMAT)
+    const submissionDate = new Date(
+      parseInt(submissionYear),
+      parseInt(submissionMonth) - 1,
+      parseInt(submissionDay)
+    )
 
-    const formattedDate = dayjs(dateString, TIME_24H_FORMAT).toDate()
+    const submissionTime = createTime(submissionDate, {
+      hours: data.timeSubmitted.hours,
+      minutes: data.timeSubmitted.minutes,
+      period: data.timeSubmitted.period,
+    })
 
-    return formattedDate
+    return submissionTime
   })()
 
   const receivedAt: Date | null = (() => {
     const { day: receivedDay, month: receivedMonth, year: receivedYear } = data?.dateReceived || {}
-    const { hours, minutes = 0, seconds = 0, period } = data?.timeReceived || {}
 
     if (!receivedDay || !receivedMonth || !receivedYear) return null
 
-    const dateString = dayjs(
-      `${receivedMonth}/${receivedDay}/${receivedYear} ${hours}:${minutes}:${seconds} ${period}`,
-      "MM/DD/YYYY hh:mm:ss a"
-    ).format(TIME_24H_FORMAT)
+    const receivedDate = new Date(
+      parseInt(receivedYear),
+      parseInt(receivedMonth) - 1,
+      parseInt(receivedDay)
+    )
 
-    const formattedDate = dayjs(dateString, TIME_24H_FORMAT).toDate()
+    const receivedTime = createTime(receivedDate, {
+      hours: data.timeReceived.hours,
+      minutes: data.timeReceived.minutes,
+      period: data.timeReceived.period,
+    })
 
-    return formattedDate
+    return receivedTime
   })()
 
   const receivedBy = data.application?.receivedBy || null

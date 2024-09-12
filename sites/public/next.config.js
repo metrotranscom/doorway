@@ -42,10 +42,12 @@ module.exports = withBundleAnalyzer({
     cacheRevalidate: process.env.CACHE_REVALIDATE ? Number(process.env.CACHE_REVALIDATE) : 60,
     cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
     showProfessionalPartners: process.env.SHOW_PROFESSIONAL_PARTNERS === "TRUE",
+    showLottery: process.env.SHOW_LOTTERY === "TRUE",
     showMandatedAccounts: process.env.SHOW_MANDATED_ACCOUNTS === "TRUE",
     showPwdless: process.env.SHOW_PWDLESS === "TRUE",
     notificationsSignUpUrl: process.env.NOTIFICATIONS_SIGN_UP_URL || null,
     maintenanceWindow: process.env.MAINTENANCE_WINDOW,
+    mtcDataUrl: process.env.MTC_DATA_URL,
     // start Doorway env variables
     //googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // moved to runtime config
     awsS3BucketName: process.env.AWS_S3_BUCKET_NAME,

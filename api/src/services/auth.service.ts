@@ -91,6 +91,7 @@ export class AuthService {
     mfaCode?: boolean,
     shouldReCaptchaBlockLogin?: boolean,
     agreedToTermsOfService?: boolean,
+    ignoreTermsOfService?: boolean,
   ): Promise<SuccessDTO> {
     if (!user?.id) {
       throw new UnauthorizedException('no user found');
@@ -188,7 +189,11 @@ export class AuthService {
       }
     }
 
-    if (!user.agreedToTermsOfService && !agreedToTermsOfService) {
+    if (
+      !ignoreTermsOfService &&
+      !user.agreedToTermsOfService &&
+      !agreedToTermsOfService
+    ) {
       throw new BadRequestException(
         `User ${user.id} has not accepted the terms of service`,
       );
@@ -353,7 +358,17 @@ export class AuthService {
       },
     });
 
-    return await this.setCredentials(res, mapTo(User, user));
+    return await this.setCredentials(
+      res,
+      mapTo(User, user),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
   }
 
   /*
@@ -391,7 +406,17 @@ export class AuthService {
       },
     });
 
-    return await this.setCredentials(res, mapTo(User, user));
+    return await this.setCredentials(
+      res,
+      mapTo(User, user),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
   }
 
   /*

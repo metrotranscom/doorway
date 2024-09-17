@@ -69,6 +69,7 @@ describe('Testing single-use-code strategy', () => {
       id: randomUUID(),
       lastLoginAt: new Date(),
       failedLoginAttemptsCount: 10,
+      agreedToTermsOfService: true,
     });
     prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
       id: randomUUID(),
@@ -125,6 +126,7 @@ describe('Testing single-use-code strategy', () => {
       mfaEnabled: true,
       phoneNumberVerified: false,
       mfaCodeUpdatedAt: new Date(),
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
@@ -194,6 +196,7 @@ describe('Testing single-use-code strategy', () => {
       mfaEnabled: true,
       phoneNumberVerified: false,
       mfaCode: 'zyxwv',
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
@@ -264,6 +267,7 @@ describe('Testing single-use-code strategy', () => {
       phoneNumberVerified: false,
       mfaCode: 'zyxwv',
       mfaCodeUpdatedAt: new Date(),
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
@@ -333,6 +337,7 @@ describe('Testing single-use-code strategy', () => {
       phoneNumberVerified: false,
       singleUseCode: 'zyxwv',
       singleUseCodeUpdatedAt: new Date(),
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
@@ -406,6 +411,7 @@ describe('Testing single-use-code strategy', () => {
       phoneNumberVerified: false,
       singleUseCode: 'zyxwv',
       singleUseCodeUpdatedAt: new Date(0),
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
@@ -479,6 +485,7 @@ describe('Testing single-use-code strategy', () => {
       phoneNumberVerified: false,
       singleUseCode: 'zyxwv',
       singleUseCodeUpdatedAt: new Date(0),
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
@@ -530,6 +537,7 @@ describe('Testing single-use-code strategy', () => {
       phoneNumberVerified: false,
       singleUseCode: 'zyxwv',
       singleUseCodeUpdatedAt: new Date(0),
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
@@ -571,6 +579,7 @@ describe('Testing single-use-code strategy', () => {
       phoneNumberVerified: false,
       singleUseCode: 'zyxwv',
       singleUseCodeUpdatedAt: new Date(),
+      agreedToTermsOfService: true,
     });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });

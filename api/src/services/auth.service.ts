@@ -90,6 +90,7 @@ export class AuthService {
     reCaptchaConfigured?: boolean,
     mfaCode?: boolean,
     shouldReCaptchaBlockLogin?: boolean,
+    agreedToTermsOfService?: boolean,
   ): Promise<SuccessDTO> {
     if (!user?.id) {
       throw new UnauthorizedException('no user found');
@@ -187,6 +188,12 @@ export class AuthService {
       }
     }
 
+    if (!user.agreedToTermsOfService && !agreedToTermsOfService) {
+      throw new BadRequestException(
+        `User ${user.id} has not accepted the terms of service`,
+      );
+    }
+
     const accessToken = this.generateAccessToken(user);
     const newRefreshToken = this.generateAccessToken(user, true);
 
@@ -195,6 +202,8 @@ export class AuthService {
       data: {
         activeAccessToken: accessToken,
         activeRefreshToken: newRefreshToken,
+        agreedToTermsOfService:
+          agreedToTermsOfService ?? agreedToTermsOfService,
       },
       where: {
         id: user.id,
@@ -391,6 +400,7 @@ export class AuthService {
   async confirmAndSetCredentials(
     user: User,
     res: Response,
+    agreedToTermsOfService?: boolean,
   ): Promise<SuccessDTO> {
     if (!user.confirmedAt) {
       const data: Prisma.UserAccountsUpdateInput = {
@@ -406,6 +416,15 @@ export class AuthService {
       });
     }
 
-    return await this.setCredentials(res, user);
+    return await this.setCredentials(
+      res,
+      user,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      agreedToTermsOfService,
+    );
   }
 }

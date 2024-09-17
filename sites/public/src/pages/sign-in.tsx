@@ -23,6 +23,7 @@ import { SuccessDTO } from "@bloom-housing/shared-helpers/src/types/backend-swag
 import SignUpBenefits from "../components/account/SignUpBenefits"
 import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
+import TermsModal, { FormSignInValues } from "../components/shared/TermsModal"
 
 const SignIn = () => {
   const { addToast } = useContext(MessageContext)
@@ -56,6 +57,8 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false)
   const [reCaptchaToken, setReCaptchaToken] = useState(null)
   const [refreshReCaptcha, setRefreshReCaptcha] = useState(false)
+  const [openTermsModal, setOpenTermsModal] = useState<boolean>(false)
+  const [notChecked, setChecked] = useState(true)
 
   const {
     mutate: mutateResendConfirmation,
@@ -119,7 +122,8 @@ const SignIn = () => {
         undefined,
         undefined,
         undefined,
-        reCaptchaEnabled ? reCaptchaToken : undefined
+        reCaptchaEnabled ? reCaptchaToken : undefined,
+        !notChecked ? true : undefined
       )
       await redirectToPage()
       addToast(t(`authentication.signIn.success`, { name: user.firstName }), { variant: "success" })
@@ -129,7 +133,11 @@ const SignIn = () => {
         await singleUseCodeFlow(email, true)
       }
       const { status } = error.response || {}
-      determineNetworkError(status, error)
+      if (status === 400) {
+        setOpenTermsModal(true)
+      } else {
+        determineNetworkError(status, error)
+      }
       setRefreshReCaptcha(!refreshReCaptcha)
     }
   }
@@ -148,7 +156,8 @@ const SignIn = () => {
           undefined,
           undefined,
           undefined,
-          reCaptchaEnabled ? reCaptchaToken : undefined
+          reCaptchaEnabled ? reCaptchaToken : undefined,
+          !notChecked ? true : undefined
         )
         addToast(t(`authentication.signIn.success`, { name: user.firstName }), {
           variant: "success",
@@ -160,7 +169,11 @@ const SignIn = () => {
           await singleUseCodeFlow(email, true)
         }
         const { status } = error.response || {}
-        determineNetworkError(status, error)
+        if (status === 400) {
+          setOpenTermsModal(true)
+        } else {
+          determineNetworkError(status, error)
+        }
         setRefreshReCaptcha(!refreshReCaptcha)
       }
     }
@@ -297,6 +310,14 @@ const SignIn = () => {
       {reCaptchaEnabled && (
         <GoogleReCaptcha onVerify={onVerify} refreshReCaptcha={refreshReCaptcha} action={"login"} />
       )}
+      <TermsModal
+        control={{ register, errors, handleSubmit }}
+        onSubmit={(data) => void onSubmitPwdless(data as FormSignInValues)}
+        notChecked={notChecked}
+        setChecked={setChecked}
+        openTermsModal={openTermsModal}
+        setOpenTermsModal={setOpenTermsModal}
+      />
     </>
   )
 }

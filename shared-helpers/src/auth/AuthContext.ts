@@ -57,7 +57,8 @@ type ContextProps = {
     mfaCode?: string,
     mfaType?: MfaType,
     forPartners?: boolean,
-    reCaptchaToken?: string
+    reCaptchaToken?: string,
+    agreedToTermsOfService?: boolean
   ) => Promise<User | undefined>
   resetPassword: (
     token: string,
@@ -79,7 +80,11 @@ type ContextProps = {
     phoneNumber?: string
   ) => Promise<RequestMfaCodeResponse | undefined>
   requestSingleUseCode: (email: string) => Promise<SuccessDTO | undefined>
-  loginViaSingleUseCode: (email: string, singleUseCode: string) => Promise<User | undefined>
+  loginViaSingleUseCode: (
+    email: string,
+    singleUseCode: string,
+    agreedToTermsOfService?: boolean
+  ) => Promise<User | undefined>
 }
 
 // Internal Provider State
@@ -232,12 +237,13 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
       mfaCode: string | undefined = undefined,
       mfaType: MfaType | undefined = undefined,
       forPartners: boolean | undefined = undefined,
-      reCaptchaToken: string | undefined = undefined
+      reCaptchaToken: string | undefined = undefined,
+      agreedToTermsOfService: boolean | undefined = undefined
     ) => {
       dispatch(startLoading())
       try {
         const response = await authService?.login({
-          body: { email, password, mfaCode, mfaType, reCaptchaToken },
+          body: { email, password, mfaCode, mfaType, reCaptchaToken, agreedToTermsOfService },
         })
         if (response) {
           const profile = await userService?.profile()
@@ -260,11 +266,11 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
         dispatch(stopLoading())
       }
     },
-    loginViaSingleUseCode: async (email, singleUseCode) => {
+    loginViaSingleUseCode: async (email, singleUseCode, agreedToTermsOfService) => {
       dispatch(startLoading())
       try {
         const response = await authService?.loginViaASingleUseCode({
-          body: { email, singleUseCode },
+          body: { email, singleUseCode, agreedToTermsOfService },
         })
         if (response) {
           const profile = await userService?.profile()

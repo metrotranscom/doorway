@@ -5120,6 +5120,12 @@ export interface PublicAppsFiltered {
   submissionDate?: Date
 
   /**  */
+  receivedBy?: string
+
+  /**  */
+  receivedAt?: Date
+
+  /**  */
   markedAsDuplicate: boolean
 
   /**  */
@@ -5805,6 +5811,9 @@ export interface Login {
 
   /**  */
   reCaptchaToken?: string
+
+  /**  */
+  agreedToTermsOfService?: boolean
 }
 
 export interface LoginViaSingleUseCode {
@@ -5813,6 +5822,9 @@ export interface LoginViaSingleUseCode {
 
   /**  */
   singleUseCode: string
+
+  /**  */
+  agreedToTermsOfService?: boolean
 }
 
 export interface RequestMfaCode {

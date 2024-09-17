@@ -583,6 +583,31 @@ export class ApplicationFlaggedSetsService {
       axios(configs, resolve, reject)
     })
   }
+  /**
+   * Trigger the duplicate check process
+   */
+  processDuplicates(
+    params: {
+      /**  */
+      listingId?: string
+      /**  */
+      force?: boolean
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/applicationFlaggedSets/process_duplicates"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+      configs.params = { listingId: params["listingId"], force: params["force"] }
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
 }
 
 export class AmiChartsService {
@@ -5153,6 +5178,12 @@ export interface PublicAppsFiltered {
   submissionDate?: Date
 
   /**  */
+  receivedBy?: string
+
+  /**  */
+  receivedAt?: Date
+
+  /**  */
   markedAsDuplicate: boolean
 
   /**  */
@@ -6084,6 +6115,7 @@ export enum AfsView {
 export enum RuleEnum {
   "nameAndDOB" = "nameAndDOB",
   "email" = "email",
+  "combination" = "combination",
 }
 
 export enum FlaggedSetStatusEnum {

@@ -194,10 +194,10 @@ export class AuthService {
       !user.agreedToTermsOfService &&
       !agreedToTermsOfService &&
       !(
-        user.userRoles.isAdmin ||
-        user.userRoles.isJurisdictionalAdmin ||
-        user.userRoles.isLimitedJurisdictionalAdmin ||
-        user.userRoles.isPartner
+        user.userRoles?.isAdmin ||
+        user.userRoles?.isJurisdictionalAdmin ||
+        user.userRoles?.isLimitedJurisdictionalAdmin ||
+        user.userRoles?.isPartner
       )
     ) {
       throw new BadRequestException(

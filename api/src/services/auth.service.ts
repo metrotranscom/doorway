@@ -192,7 +192,13 @@ export class AuthService {
     if (
       !ignoreTermsOfService &&
       !user.agreedToTermsOfService &&
-      !agreedToTermsOfService
+      !agreedToTermsOfService &&
+      !(
+        user.userRoles.isAdmin ||
+        user.userRoles.isJurisdictionalAdmin ||
+        user.userRoles.isLimitedJurisdictionalAdmin ||
+        user.userRoles.isPartner
+      )
     ) {
       throw new BadRequestException(
         `User ${user.id} has not accepted the terms of service`,

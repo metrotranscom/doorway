@@ -152,7 +152,7 @@ export const stagingSeed = async (
       email: 'public-user@example.com',
       confirmedAt: new Date(),
       jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: false,
+      acceptedTerms: true,
       password: 'abcdef',
     }),
   });

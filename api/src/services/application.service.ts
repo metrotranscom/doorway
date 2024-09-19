@@ -645,11 +645,8 @@ export class ApplicationService {
                     ...dto.applicant.applicantAddress,
                   },
                 },
-                applicantWorkAddress: {
-                  create: {
-                    ...dto.applicant.applicantWorkAddress,
-                  },
-                },
+                //set to undefined since it's dependent on the 'work in region' question which has been removed
+                applicantWorkAddress: undefined,
                 firstName: dto.applicant.firstName?.trim(),
                 lastName: dto.applicant.lastName?.trim(),
                 birthDay: dto.applicant.birthDay

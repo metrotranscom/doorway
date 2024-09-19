@@ -4426,7 +4426,7 @@ export interface Applicant {
   workInRegion?: YesNoEnum
 
   /**  */
-  applicantWorkAddress?: Address
+  applicantWorkAddress: Address
 
   /**  */
   applicantAddress: Address
@@ -5365,7 +5365,7 @@ export interface ApplicantUpdate {
   applicantAddress: AddressCreate
 
   /**  */
-  applicantWorkAddress?: AddressCreate
+  applicantWorkAddress: AddressCreate
 }
 
 export interface AlternateContactUpdate {

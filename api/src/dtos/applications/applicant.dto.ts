@@ -100,8 +100,8 @@ export class Applicant extends AbstractDTO {
   @IsDefined({ groups: [ValidationsGroupsEnum.default] })
   @ValidateNested({ groups: [ValidationsGroupsEnum.default] })
   @Type(() => Address)
-  @ApiPropertyOptional({ type: Address })
-  applicantWorkAddress?: Address;
+  @ApiProperty({ type: Address })
+  applicantWorkAddress: Address;
 
   @Expose()
   @IsDefined({ groups: [ValidationsGroupsEnum.default] })

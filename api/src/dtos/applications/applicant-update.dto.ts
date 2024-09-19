@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
 import { ValidationsGroupsEnum } from '../../enums/shared/validation-groups-enum';
@@ -21,6 +21,6 @@ export class ApplicantUpdate extends OmitType(Applicant, [
   @Expose()
   @ValidateNested({ groups: [ValidationsGroupsEnum.default] })
   @Type(() => AddressCreate)
-  @ApiPropertyOptional({ type: AddressCreate })
-  applicantWorkAddress?: AddressCreate;
+  @ApiProperty({ type: AddressCreate })
+  applicantWorkAddress: AddressCreate;
 }

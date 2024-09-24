@@ -86,7 +86,7 @@
     "nanoid": "^3.1.12",
     "nestjs-twilio": "^4.1.1",
     "nestjs-typeorm-paginate": "^4.0.3",
-    "newrelic": "11.4.0",
+    "newrelic": "12.5.1",
     "node-polyglot": "^2.4.0",
     "passport": "^0.6.0",
     "passport-custom": "^1.1.1",

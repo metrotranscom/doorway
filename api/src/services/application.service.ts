@@ -646,7 +646,13 @@ export class ApplicationService {
                   },
                 },
                 //set to undefined since it's dependent on the 'work in region' question which has been removed
-                applicantWorkAddress: undefined,
+                applicantWorkAddress: dto.applicant.applicantWorkAddress?.street
+                  ? {
+                      create: {
+                        ...dto.applicant.applicantWorkAddress,
+                      },
+                    }
+                  : undefined,
                 firstName: dto.applicant.firstName?.trim(),
                 lastName: dto.applicant.lastName?.trim(),
                 birthDay: dto.applicant.birthDay
@@ -903,7 +909,6 @@ export class ApplicationService {
               create: dto.householdMember.map((member) => ({
                 ...member,
                 sameAddress: member.sameAddress || YesNoEnum.no,
-                workInRegion: member.workInRegion || YesNoEnum.no,
                 householdMemberAddress: {
                   create: {
                     ...member.householdMemberAddress,

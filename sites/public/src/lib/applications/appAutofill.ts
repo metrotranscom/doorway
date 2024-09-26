@@ -62,6 +62,8 @@ class AutofillCleaner {
         unsetIdentifiers(member)
         member.orderId = index
         if (member.householdMemberAddress) unsetIdentifiers(member.householdMemberAddress)
+        //same reasoning as line 51-52
+        member.householdMemberWorkAddress = undefined
       })
     unsetIdentifiers(this.application.demographics)
 

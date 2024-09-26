@@ -645,7 +645,8 @@ export class ApplicationService {
                     ...dto.applicant.applicantAddress,
                   },
                 },
-                //set to undefined since it's dependent on the 'work in region' question which has been removed
+                //explicitly set to undefined since it is otherwise an empty object which errors on Address's required fields
+                //field is currently dependent on the 'work in region' question which has been removed
                 applicantWorkAddress: dto.applicant.applicantWorkAddress?.street
                   ? {
                       create: {
@@ -726,17 +727,19 @@ export class ApplicationService {
               create: dto.householdMember.map((member) => ({
                 ...member,
                 sameAddress: member.sameAddress || YesNoEnum.no,
-                workInRegion: member.workInRegion || YesNoEnum.no,
                 householdMemberAddress: {
                   create: {
                     ...member.householdMemberAddress,
                   },
                 },
-                householdMemberWorkAddress: {
-                  create: {
-                    ...member.householdMemberWorkAddress,
-                  },
-                },
+                householdMemberWorkAddress: member.householdMemberWorkAddress
+                  ?.street
+                  ? {
+                      create: {
+                        ...member.householdMemberWorkAddress,
+                      },
+                    }
+                  : undefined,
                 firstName: member.firstName?.trim(),
                 lastName: member.lastName?.trim(),
                 birthDay: member.birthDay ? Number(member.birthDay) : undefined,

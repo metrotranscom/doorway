@@ -24,6 +24,7 @@ import SignUpBenefits from "../components/account/SignUpBenefits"
 import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
 import TermsModal, { FormSignInValues } from "../components/shared/TermsModal"
+import axios from "axios"
 
 const SignIn = () => {
   const { addToast } = useContext(MessageContext)
@@ -133,7 +134,8 @@ const SignIn = () => {
         await singleUseCodeFlow(email, true)
       }
       const { status } = error.response || {}
-      if (status === 400) {
+      const responseMessage = axios.isAxiosError(error) ? error.response?.data.message : ""
+      if (status === 400 && responseMessage?.includes("has not accepted the terms of service")) {
         setOpenTermsModal(true)
       } else {
         determineNetworkError(status, error)
@@ -169,7 +171,8 @@ const SignIn = () => {
           await singleUseCodeFlow(email, true)
         }
         const { status } = error.response || {}
-        if (status === 400) {
+        const responseMessage = axios.isAxiosError(error) ? error.response?.data.message : ""
+        if (status === 400 && responseMessage?.includes("has not accepted the terms of service")) {
           setOpenTermsModal(true)
         } else {
           determineNetworkError(status, error)

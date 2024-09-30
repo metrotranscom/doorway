@@ -7,7 +7,6 @@
     "packages": [
       "sites/public",
       "sites/partners",
-      "backend/core",
       "shared-helpers",
       "doorway-ui-components"
     ],

@@ -334,12 +334,28 @@ export class AuthService {
     res: Response,
   ): Promise<SuccessDTO> {
     const user = await this.prisma.userAccounts.findFirst({
+      include: { userRoles: true },
       where: { resetToken: dto.token },
     });
 
     if (!user) {
       throw new NotFoundException(
         `user resetToken: ${dto.token} was requested but not found`,
+      );
+    }
+
+    if (
+      !user.agreedToTermsOfService &&
+      !dto.agreedToTermsOfService &&
+      !(
+        user.userRoles?.isAdmin ||
+        user.userRoles?.isJurisdictionalAdmin ||
+        user.userRoles?.isLimitedJurisdictionalAdmin ||
+        user.userRoles?.isPartner
+      )
+    ) {
+      throw new BadRequestException(
+        `User ${user.id} has not accepted the terms of service`,
       );
     }
 
@@ -372,8 +388,7 @@ export class AuthService {
       undefined,
       undefined,
       undefined,
-      undefined,
-      true,
+      dto.agreedToTermsOfService,
     );
   }
 

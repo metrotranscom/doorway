@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useRef, useState, useCallback } from "react"
-import { useForm } from "react-hook-form"
-import { GoogleReCaptcha } from "react-google-recaptcha-v3"
-import { t, useMutate } from "@bloom-housing/ui-components"
+import axios from "axios"
 import { useRouter } from "next/router"
-import FormsLayout from "../layouts/forms"
-import { useRedirectToPrevPage } from "../lib/hooks"
+import { GoogleReCaptcha } from "react-google-recaptcha-v3"
+import { useForm } from "react-hook-form"
+import { SuccessDTO } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
   PageView,
   pushGtmEvent,
@@ -18,13 +17,14 @@ import {
   FormSignInDefault,
   FormSignInPwdless,
 } from "@bloom-housing/shared-helpers"
-import { UserStatus } from "../lib/constants"
-import { SuccessDTO } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { t, useMutate } from "@bloom-housing/ui-components"
 import SignUpBenefits from "../components/account/SignUpBenefits"
-import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
 import TermsModal, { FormSignInValues } from "../components/shared/TermsModal"
-import axios from "axios"
+import FormsLayout from "../layouts/forms"
+import { UserStatus } from "../lib/constants"
+import { useRedirectToPrevPage } from "../lib/hooks"
+import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 
 const SignIn = () => {
   const { addToast } = useContext(MessageContext)

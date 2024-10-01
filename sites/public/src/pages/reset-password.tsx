@@ -13,6 +13,8 @@ import {
 } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import FormsLayout from "../layouts/forms"
+import TermsModal, { FormSignInValues } from "../components/shared/TermsModal"
+import axios from "axios"
 
 const ResetPassword = () => {
   const router = useRouter()
@@ -26,6 +28,8 @@ const ResetPassword = () => {
   const { register, handleSubmit, errors, watch } = useForm()
   const [requestError, setRequestError] = useState<string>()
   const [loading, setLoading] = useState(false)
+  const [openTermsModal, setOpenTermsModal] = useState<boolean>(false)
+  const [notChecked, setChecked] = useState(true)
 
   const passwordValue = useRef({})
   passwordValue.current = watch("password", "")
@@ -43,7 +47,12 @@ const ResetPassword = () => {
     const { password, passwordConfirmation } = data
 
     try {
-      const user = await resetPassword(token.toString(), password, passwordConfirmation)
+      const user = await resetPassword(
+        token.toString(),
+        password,
+        passwordConfirmation,
+        !notChecked ? true : undefined
+      )
       addToast(t(`authentication.signIn.success`, { name: user.firstName }), { variant: "success" })
 
       const redirectUrl = "/applications/start/choose-language"
@@ -55,13 +64,17 @@ const ResetPassword = () => {
           : "/account/applications"
 
       await router.push(routerRedirectUrl)
-    } catch (err) {
+    } catch (error) {
       setLoading(false)
-      const { status, data } = err.response || {}
-      if (status === 400) {
+      const { status, data } = error.response || {}
+      const responseMessage = axios.isAxiosError(error) ? error.response?.data.message : ""
+
+      if (status === 400 && responseMessage?.includes("has not accepted the terms of service")) {
+        setOpenTermsModal(true)
+      } else if (status === 400) {
         setRequestError(`${t(`authentication.forgotPassword.errors.${data.message}`)}`)
       } else {
-        console.error(err)
+        console.error(error)
         setRequestError(`${t("account.settings.alerts.genericError")}`)
       }
     }
@@ -115,6 +128,14 @@ const ResetPassword = () => {
           </CardSection>
         </>
       </BloomCard>
+      <TermsModal
+        control={{ register, errors, handleSubmit }}
+        onSubmit={onSubmit}
+        notChecked={notChecked}
+        setChecked={setChecked}
+        openTermsModal={openTermsModal}
+        setOpenTermsModal={setOpenTermsModal}
+      />
     </FormsLayout>
   )
 }

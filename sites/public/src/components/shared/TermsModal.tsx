@@ -5,6 +5,11 @@ import { Button, Dialog, Heading } from "@bloom-housing/ui-seeds"
 import Markdown from "markdown-to-jsx"
 import accountStyles from "../../../styles/create-account.module.scss"
 
+export type FormResetPasswordValues = {
+  password: string
+  passwordConfirmation: string
+}
+
 export type FormSignInValues = {
   email: string
   password: string
@@ -22,7 +27,7 @@ export type TermsModalControl = {
 
 export interface TermsModalProps {
   control: TermsModalControl
-  onSubmit: (data: FormSignInValues | FormVerifyValues) => void
+  onSubmit: (data: FormResetPasswordValues | FormSignInValues | FormVerifyValues) => void
   notChecked: boolean
   setChecked: React.Dispatch<React.SetStateAction<boolean>>
   openTermsModal: boolean

@@ -63,7 +63,8 @@ type ContextProps = {
   resetPassword: (
     token: string,
     password: string,
-    passwordConfirmation: string
+    passwordConfirmation: string,
+    agreedToTermsOfService?: boolean
   ) => Promise<User | undefined>
   signOut: () => Promise<void>
   confirmAccount: (token: string) => Promise<User | undefined>
@@ -289,7 +290,7 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
       dispatch(saveProfile(null))
       dispatch(signOut())
     },
-    resetPassword: async (token, password, passwordConfirmation) => {
+    resetPassword: async (token, password, passwordConfirmation, agreedToTermsOfService) => {
       dispatch(startLoading())
       try {
         const response = await authService?.updatePassword({
@@ -297,6 +298,7 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
             token,
             password,
             passwordConfirmation,
+            agreedToTermsOfService,
           },
         })
         if (response) {

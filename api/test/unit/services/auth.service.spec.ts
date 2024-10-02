@@ -3,7 +3,6 @@ import { randomUUID } from 'crypto';
 import { sign } from 'jsonwebtoken';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@sendgrid/mail';
 import { RecaptchaEnterpriseServiceClient } from '@google-cloud/recaptcha-enterprise';
 import {
   ACCESS_TOKEN_AVAILABLE_NAME,
@@ -941,7 +940,9 @@ describe('Testing auth service', () => {
       cookie: jest.fn(),
     };
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({ id });
+    prisma.userAccounts.findFirst = jest
+      .fn()
+      .mockResolvedValue({ id, agreedToTermsOfService: true });
 
     await authService.updatePassword(
       {
@@ -953,6 +954,9 @@ describe('Testing auth service', () => {
     );
 
     expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      include: {
+        userRoles: true,
+      },
       where: {
         resetToken: token,
       },
@@ -1010,9 +1014,11 @@ describe('Testing auth service', () => {
       cookie: jest.fn(),
     };
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id: secondId });
-    prisma.userAccounts.findFirst = jest
-      .fn()
-      .mockResolvedValue({ id: secondId, resetToken: secondToken });
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+      id: secondId,
+      resetToken: secondToken,
+      agreedToTermsOfService: true,
+    });
 
     await expect(
       async () =>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from "react"
+import axios from "axios"
 import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
 import { Field, Form, t, AlertBox } from "@bloom-housing/ui-components"
@@ -11,10 +12,9 @@ import {
   BloomCard,
   MessageContext,
 } from "@bloom-housing/shared-helpers"
+import TermsModal from "../components/shared/TermsModal"
 import { UserStatus } from "../lib/constants"
 import FormsLayout from "../layouts/forms"
-import TermsModal, { FormSignInValues } from "../components/shared/TermsModal"
-import axios from "axios"
 
 const ResetPassword = () => {
   const router = useRouter()
@@ -66,6 +66,8 @@ const ResetPassword = () => {
       await router.push(routerRedirectUrl)
     } catch (error) {
       setLoading(false)
+      setOpenTermsModal(false)
+      setChecked(true)
       const { status, data } = error.response || {}
       const responseMessage = axios.isAxiosError(error) ? error.response?.data.message : ""
 

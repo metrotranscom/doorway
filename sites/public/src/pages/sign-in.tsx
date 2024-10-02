@@ -167,6 +167,8 @@ const SignIn = () => {
         await redirectToPage()
       } catch (error) {
         setLoading(false)
+        setOpenTermsModal(false)
+        setChecked(true)
         if (sendToReCaptchaFlow(error.response.data.name)) {
           await singleUseCodeFlow(email, true)
         }

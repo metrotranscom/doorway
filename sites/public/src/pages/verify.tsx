@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react"
+import axios from "axios"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/router"
 import { Button, Alert, Dialog, Message } from "@bloom-housing/ui-seeds"
@@ -81,8 +82,11 @@ const Verify = () => {
       await redirectToPage()
     } catch (error) {
       setIsLoginLoading(false)
+      setOpenTermsModal(false)
+      setChecked(true)
       const { status } = error.response || {}
-      if (status === 400) {
+      const responseMessage = axios.isAxiosError(error) ? error.response?.data.message : ""
+      if (status === 400 && responseMessage?.includes("has not accepted the terms of service")) {
         setOpenTermsModal(true)
       } else {
         determineNetworkError(status, error)

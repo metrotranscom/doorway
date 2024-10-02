@@ -51,9 +51,13 @@ const TermsModal = ({
         onClose={() => {
           setOpenTermsModal(false)
         }}
+        ariaLabelledBy="terms-of-service-dialog-header"
+        ariaDescribedBy="terms-of-service-dialog-content"
       >
-        <Dialog.Header>{t("authentication.terms.reviewTou")}</Dialog.Header>
-        <Dialog.Content>
+        <Dialog.Header id="terms-of-service-dialog-header">
+          {t("authentication.terms.reviewTou")}
+        </Dialog.Header>
+        <Dialog.Content id="terms-of-service-dialog-content">
           <>
             <p>{t("authentication.terms.publicAccept")}</p>
             <Heading

@@ -126,7 +126,7 @@ describe('Auth Controller Tests', () => {
     expect(loggedInUser.activeRefreshToken).not.toBeNull();
   });
 
-  it('should login successfully as user who has not accepted terms but now is', async () => {
+  it('should login successfully as user who is agreeing to terms of service for first time', async () => {
     const storedUser = await prisma.userAccounts.create({
       data: await userFactory({
         roles: { isAdmin: true },

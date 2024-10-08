@@ -668,33 +668,51 @@ export class ScriptRunnerService {
     if (partnerUsers?.length) {
       console.log(`migrating ${partnerUsers.length} partner users`);
       for (const partner of partnerUsers) {
-        await this.prisma.userAccounts.create({
-          data: {
-            ...partner,
-            updatedAt: undefined, // updated at should be the date it's imported to doorway
-            agreedToTermsOfService: false, // Users will need to agree to terms again as they differ in Doorway
-            listings: partner.listings
-              ? {
-                  connect: partner.listings
-                    .filter(
-                      (listing) =>
-                        listing.jurisdictionId === jurisdiction[0].id,
-                    )
-                    .map((listing) => {
-                      return { id: listing.id };
-                    }),
-                }
-              : undefined,
-            userRoles: {
-              create: { isPartner: true },
-            },
-            jurisdictions: {
-              connect: {
-                id: doorwayJurisdiction.id,
+        const listings = partner.listings
+          ? partner.listings
+              .filter(
+                (listing) => listing.jurisdictionId === jurisdiction[0].id,
+              )
+              .map((listing) => {
+                return { id: listing.id };
+              })
+          : undefined;
+        try {
+          await this.prisma.userAccounts.create({
+            data: {
+              ...partner,
+              updatedAt: undefined, // updated at should be the date it's imported to doorway
+              agreedToTermsOfService: false, // Users will need to agree to terms again as they differ in Doorway
+              listings: partner.listings
+                ? {
+                    connect: partner.listings
+                      .filter(
+                        (listing) =>
+                          listing.jurisdictionId === jurisdiction[0].id,
+                      )
+                      .map((listing) => {
+                        return { id: listing.id };
+                      }),
+                  }
+                : undefined,
+              userRoles: {
+                create: { isPartner: true },
+              },
+              jurisdictions: {
+                connect: {
+                  id: doorwayJurisdiction.id,
+                },
               },
             },
-          },
-        });
+          });
+        } catch (e) {
+          console.log(
+            `unable to migrate partner user ${
+              partner.email
+            } for listings ${listings.toLocaleString()}`,
+          );
+          console.log(e);
+        }
       }
     }
 

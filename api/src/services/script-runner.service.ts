@@ -1106,6 +1106,85 @@ export class ScriptRunnerService {
   }
 
   /**
+   *
+   * @param req incoming request object
+   * @returns successDTO
+   * @description add duplicates information to lottery email
+   */
+  async addDuplicatesInformationToLotteryEmail(
+    req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      'add duplicates information to lottery email',
+      requestingUser,
+    );
+
+    const updateTranslation = async (
+      language: LanguagesEnum,
+      newTranslations: Record<string, string>,
+    ) => {
+      const translations = await this.prisma.translations.findFirst({
+        where: { language, jurisdictionId: null },
+      });
+      if (!translations) {
+        throw new Error(
+          `Translations for ${language} don't exist in Doorway database`,
+        );
+      }
+      const translationsJSON = translations.translations as Prisma.JsonObject;
+
+      translationsJSON.lotteryAvailable = {
+        ...(translationsJSON.lotteryAvailable as Prisma.JsonObject),
+        ...newTranslations,
+      };
+
+      // technique taken from
+      // https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/working-with-json-fields#advanced-example-update-a-nested-json-key-value
+      const dataClause = Prisma.validator<Prisma.TranslationsUpdateInput>()({
+        translations: translationsJSON,
+      });
+
+      await this.prisma.translations.update({
+        where: { id: translations.id },
+        data: dataClause,
+      });
+    };
+
+    await updateTranslation(LanguagesEnum.en, {
+      duplicatesDetails:
+        'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
+      termsOfUse: 'Terms of Use',
+    });
+    await updateTranslation(LanguagesEnum.es, {
+      duplicatesDetails:
+        'Doorway generalmente no acepta solicitudes duplicadas. Una solicitud duplicada es aquella en la que aparece una persona que también aparece en otra solicitud para la misma oportunidad de vivienda. Para obtener información más detallada sobre cómo manejamos las solicitudes duplicadas, consulte nuestros',
+      termsOfUse: 'Términos de uso',
+    });
+    await updateTranslation(LanguagesEnum.tl, {
+      duplicatesDetails:
+        'Ang Doorway sa pangkalahatan ay hindi tumatanggap ng mga duplicate na aplikasyon. Ang isang duplicate na aplikasyon ay isa na mayroong isang tao na lumilitaw din sa isa pang aplikasyon para sa parehong pagkakataon sa pabahay. Para sa mas detalyadong impormasyon sa kung paano namin pinangangasiwaan ang mga duplicate, tingnan ang aming',
+      termsOfUse: 'Mga Tuntunin ng Paggamit',
+    });
+    await updateTranslation(LanguagesEnum.vi, {
+      duplicatesDetails:
+        'Doorway thường không chấp nhận các đơn xin trùng lặp. Một đơn xin trùng lặp là đơn xin có người cũng xuất hiện trên một đơn xin khác cho cùng một cơ hội nhà ở. Để biết thông tin chi tiết hơn về cách chúng tôi xử lý các đơn xin trùng lặp, hãy xem của chúng tôi',
+      termsOfUse: 'Điều khoản sử dụng',
+    });
+    await updateTranslation(LanguagesEnum.vi, {
+      duplicatesDetails:
+        'Doorway 一般不接受重复申请。重复申请是指申请者与另一份申请者有相同的住房机会。有关我们如何处理重复申请的更多详细信息，请参阅我们的',
+      termsOfUse: '使用条款',
+    });
+
+    await this.markScriptAsComplete(
+      'add duplicates information to lottery email',
+      requestingUser,
+    );
+    return { success: true };
+  }
+
+  /**
     this is simply an example
   */
   async example(req: ExpressRequest): Promise<SuccessDTO> {

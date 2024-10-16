@@ -1,21 +1,18 @@
-import React, { RefObject } from "react"
-import { GoogleMap } from "@react-google-maps/api"
-import styles from "./MapControl.module.scss"
-import { Icon } from "@bloom-housing/ui-seeds"
+import React from "react"
 import PlusIcon from "@heroicons/react/24/solid/PlusIcon"
 import MinusIcon from "@heroicons/react/24/solid/MinusIcon"
-
+import { Icon } from "@bloom-housing/ui-seeds"
+import styles from "./MapControl.module.scss"
 import { t } from "@bloom-housing/ui-components"
 
 export interface MapControlProps {
-  mapRef: RefObject<GoogleMap>
+  zoom: number
+  setZoom: (value: React.SetStateAction<number>) => void
 }
 
 const MapControlZoomIn = (props: MapControlProps) => {
   const click = () => {
-    const m = props.mapRef.current
-    const currentZoom: number = m.state.map.getZoom()
-    m.state.map.setZoom(currentZoom + 1)
+    props.setZoom(props.zoom + 1)
   }
   return (
     <button
@@ -32,9 +29,7 @@ const MapControlZoomIn = (props: MapControlProps) => {
 
 const MapControlZoomOut = (props: MapControlProps) => {
   const click = () => {
-    const m = props.mapRef.current
-    const currentZoom: number = m.state.map.getZoom()
-    m.state.map.setZoom(currentZoom - 1)
+    props.setZoom(props.zoom - 1)
   }
 
   return (
@@ -53,8 +48,8 @@ const MapControlZoomOut = (props: MapControlProps) => {
 const MapControl = (props: MapControlProps) => {
   return (
     <div aria-label={t("t.mapControls")} role="group" className={styles["map-control"]}>
-      <MapControlZoomIn mapRef={props.mapRef} />
-      <MapControlZoomOut mapRef={props.mapRef} />
+      <MapControlZoomIn zoom={props.zoom} setZoom={props.setZoom} />
+      <MapControlZoomOut zoom={props.zoom} setZoom={props.setZoom} />
     </div>
   )
 }

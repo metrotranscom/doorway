@@ -1,9 +1,9 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingsMap } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
-import { useSwipeable } from "react-swipeable"
 import styles from "./ListingsCombined.module.scss"
+import { ListingsSearchMetadata } from "./search/ListingsSearchMetadata"
 
 type ListingsCombinedProps = {
   listings: Listing[]
@@ -12,67 +12,70 @@ type ListingsCombinedProps = {
   onPageChange: (page: number) => void
   googleMapsApiKey: string
   loading: boolean
+  listView: boolean
+  setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  filterCount: number
+  searchResults: {
+    listings: any[]
+    currentPage: number
+    lastPage: number
+    totalItems: number
+    loading: boolean
+  }
+  setListView: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
   const [showListingsList, setShowListingsList] = useState(true)
-  const [showListingsMap, setShowListingsMap] = useState(true)
+  const [isDesktop, setIsDesktop] = useState(true)
 
-  const swipeHandler = useSwipeable({
-    onSwipedUp: () => {
-      if (showListingsMap) {
-        if (showListingsList) {
-          // This is for the combined listings page, swiping up shows the listings list page.
-          setShowListingsList(true)
-          setShowListingsMap(false)
-          return
-        } else {
-          // This is for the listings map only page, swiping up shows the listings combined page.
-          setShowListingsList(true)
-          setShowListingsMap(true)
-          return
-        }
+  const DESKTOP_MIN_WIDTH = 767 // @screen md
+  useEffect(() => {
+    if (window.innerWidth > DESKTOP_MIN_WIDTH) {
+      setIsDesktop(true)
+    } else {
+      setIsDesktop(false)
+    }
+
+    const updateMedia = () => {
+      if (window.innerWidth > DESKTOP_MIN_WIDTH) {
+        setIsDesktop(true)
+      } else {
+        setIsDesktop(false)
       }
-    },
-    onSwipedDown: () => {
-      if (showListingsList) {
-        if (showListingsMap) {
-          // This is for the combined listings page, swiping down shows the listings map page.
-          setShowListingsList(false)
-          setShowListingsMap(true)
-          return
-        } else {
-          // This is for the listings list only page, swiping up shows the listings combined page.
-          setShowListingsList(true)
-          setShowListingsMap(true)
-          return
-        }
-      }
-    },
-    preventScrollOnSwipe: true,
-  })
+    }
+    window.addEventListener("resize", updateMedia)
+    return () => window.removeEventListener("resize", updateMedia)
+  }, [])
 
   const getListingsList = () => {
     return (
       <div className={styles["listings-combined"]}>
-        <div className={styles["listings-map"]}>
-          <ListingsMap
-            listings={props.listings}
-            googleMapsApiKey={props.googleMapsApiKey}
-            isMapExpanded={false}
-          />
-        </div>
-        <div className={styles["swipe-area"]} {...swipeHandler}>
-          <div className={styles["swipe-area-line"]}></div>
-        </div>
-        <div id="listings-list-expanded" className={styles["listings-list-expanded"]}>
-          <ListingsList
-            listings={props.listings}
-            currentPage={props.currentPage}
-            lastPage={props.lastPage}
-            onPageChange={props.onPageChange}
-            loading={props.loading}
-          ></ListingsList>
+        <ListingsSearchMetadata
+          loading={props.searchResults.loading}
+          setModalOpen={props.setModalOpen}
+          filterCount={props.filterCount}
+          searchResults={props.searchResults}
+          setListView={props.setListView}
+          listView={props.listView}
+        />
+        <div className={styles["listings-map-list-container"]}>
+          <div className={styles["listings-map"]}>
+            <ListingsMap
+              listings={props.listings}
+              googleMapsApiKey={props.googleMapsApiKey}
+              isMapExpanded={false}
+            />
+          </div>
+          <div id="listings-list-expanded" className={styles["listings-list-expanded"]}>
+            <ListingsList
+              listings={props.listings}
+              currentPage={props.currentPage}
+              lastPage={props.lastPage}
+              onPageChange={props.onPageChange}
+              loading={props.loading}
+            />
+          </div>
         </div>
       </div>
     )
@@ -81,6 +84,14 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
   const getListingsMap = () => {
     return (
       <div className={styles["listings-combined"]}>
+        <ListingsSearchMetadata
+          loading={props.searchResults.loading}
+          setModalOpen={props.setModalOpen}
+          filterCount={props.filterCount}
+          searchResults={props.searchResults}
+          setListView={props.setListView}
+          listView={props.listView}
+        />
         <div className={styles["listings-map-expanded"]}>
           <ListingsMap
             listings={props.listings}
@@ -89,9 +100,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             setShowListingsList={setShowListingsList}
           />
         </div>
-        <div className={styles["swipe-area-bottom"]} {...swipeHandler}>
-          <div className={styles["swipe-area-line"]}></div>
-        </div>
       </div>
     )
   }
@@ -99,25 +107,32 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
   const getListingsCombined = () => {
     return (
       <div className={styles["listings-combined"]}>
-        <div className={styles["listings-map"]}>
-          <ListingsMap
-            listings={props.listings}
-            googleMapsApiKey={props.googleMapsApiKey}
-            isMapExpanded={false}
-          />
-        </div>
-        <div id="listings-outer-container" className={styles["listings-outer-container"]}>
-          <div className={styles["swipe-area"]} {...swipeHandler}>
-            <div className={styles["swipe-area-line"]}></div>
-          </div>
-          <div id="listings-list" className={styles["listings-list"]}>
-            <ListingsList
+        <ListingsSearchMetadata
+          loading={props.searchResults.loading}
+          setModalOpen={props.setModalOpen}
+          filterCount={props.filterCount}
+          searchResults={props.searchResults}
+          setListView={props.setListView}
+          listView={props.listView}
+        />
+        <div className={styles["listings-map-list-container"]}>
+          <div className={styles["listings-map"]}>
+            <ListingsMap
               listings={props.listings}
-              currentPage={props.currentPage}
-              lastPage={props.lastPage}
-              loading={props.loading}
-              onPageChange={props.onPageChange}
-            ></ListingsList>
+              googleMapsApiKey={props.googleMapsApiKey}
+              isMapExpanded={false}
+            />
+          </div>
+          <div id="listings-outer-container" className={styles["listings-outer-container"]}>
+            <div id="listings-list" className={styles["listings-list"]}>
+              <ListingsList
+                listings={props.listings}
+                currentPage={props.currentPage}
+                lastPage={props.lastPage}
+                loading={props.loading}
+                onPageChange={props.onPageChange}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -143,13 +158,14 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
 
   let div: JSX.Element
 
-  if (showListingsList && !showListingsMap) {
+  console.log(props.listView)
+  if (!isDesktop && props.listView) {
     div = getListingsList()
     showFooter()
-  } else if (showListingsMap && !showListingsList) {
+  } else if (!isDesktop && !props.listView) {
     div = getListingsMap()
     hideFooter()
-  } else if (showListingsList && showListingsMap) {
+  } else if (isDesktop) {
     div = getListingsCombined()
     showFooter()
   }

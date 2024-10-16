@@ -28,6 +28,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const { profile, listingsService } = useContext(AuthContext)
   const [modalOpen, setModalOpen] = useState(false)
   const [filterCount, setFilterCount] = useState(0)
+  const [listView, setListView] = useState<boolean>(true)
 
   // Store the current search params for pagination
   const searchParams = useRef({
@@ -100,13 +101,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   return (
     <div className={styles["listings-vars"]}>
-      <ListingsSearchMetadata
-        loading={searchResults.loading}
-        setModalOpen={setModalOpen}
-        filterCount={filterCount}
-        searchResults={searchResults}
-      />
-
       <ListingsSearchModal
         open={modalOpen}
         searchString={props.searchString}
@@ -125,6 +119,11 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         loading={searchResults.loading}
         googleMapsApiKey={props.googleMapsApiKey}
         onPageChange={onPageChange}
+        listView={listView}
+        setModalOpen={setModalOpen}
+        filterCount={filterCount}
+        searchResults={searchResults}
+        setListView={setListView}
       />
     </div>
   )

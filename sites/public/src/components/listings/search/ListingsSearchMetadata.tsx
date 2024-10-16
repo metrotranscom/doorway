@@ -14,6 +14,8 @@ export interface ListingsSearchMetadataProps {
     totalItems: number
     loading: boolean
   }
+  setListView: React.Dispatch<React.SetStateAction<boolean>>
+  listView: boolean
 }
 
 export const ListingsSearchMetadata = ({
@@ -21,17 +23,33 @@ export const ListingsSearchMetadata = ({
   setModalOpen,
   filterCount,
   searchResults,
+  setListView,
+  listView,
 }: ListingsSearchMetadataProps) => {
   return (
     <div className={styles["search-filter-bar"]}>
-      <span className={styles["search-total-results"]}>
-        <strong>{t("search.totalResults")}</strong> {!loading && searchResults.totalItems}
+      <span>
+        <Button
+          size={"sm"}
+          className={styles["switch-view-button"]}
+          onClick={() => setListView(!listView)}
+        >
+          {listView ? "Map View" : "List View"}
+        </Button>
       </span>
-      {!loading && searchResults.lastPage > 0 && (
-        <span>
-          ({t("t.pageXofY", { current: searchResults.currentPage, total: searchResults.lastPage })})
+      <div className={`total-results ${!listView ? styles["hide-total-results"] : ""}`}>
+        <span className={styles["search-total-results"]}>
+          <strong>{t("search.totalResults")}</strong> {!loading && searchResults.totalItems}
         </span>
-      )}
+        {!loading && searchResults.lastPage > 0 && (
+          <span>
+            (
+            {t("t.pageXofY", { current: searchResults.currentPage, total: searchResults.lastPage })}
+            )
+          </span>
+        )}
+      </div>
+
       <Button
         variant="primary-outlined"
         size="sm"

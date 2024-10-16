@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Heading } from "@bloom-housing/ui-components"
-import "./DoorwayCollapsibleSection.scss"
+import styles from "./DoorwayCollapsibleSection.module.scss"
 
 type DoorwayCollapsibleSectionProps = {
   title: string
@@ -19,12 +19,19 @@ const DoorwayCollapsibleSection = ({
 
   return (
     <div
-      className={`doorway-collapsible-section ${rootClassNames}`}
+      className={`${styles["doorway-collapsible-section"]} ${rootClassNames}`}
       onClick={() => {
         setExpanded(!isExpanded)
       }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          setExpanded(!isExpanded)
+        }
+      }}
     >
-      <div className="doorway-collapsible-section_heading-container">
+      <div className={styles["doorway-collapsible-section_heading-container"]}>
         <button
           type="button"
           className="button is-unstyled m-0 no-underline has-toggle flex items-center"
@@ -35,7 +42,9 @@ const DoorwayCollapsibleSection = ({
           </Heading>
         </button>
       </div>
-      {isExpanded && <div className="doorway-collapsible-section_section">{children}</div>}
+      {isExpanded && (
+        <div className={styles["doorway-collapsible-section_section"]}>{children}</div>
+      )}
     </div>
   )
 }

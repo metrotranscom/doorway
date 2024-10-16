@@ -1,7 +1,7 @@
 import React, { useState } from "react"
-import { Card, CardProps, generateJumplinkId } from "../../.."
-import "./DoorwayLinkableCardGroup.scss"
 import Link from "next/link"
+import { Card, CardProps, generateJumplinkId } from "@bloom-housing/doorway-ui-components"
+import styles from "./DoorwayLinkableCardGroup.module.scss"
 
 type DoorwayLinkableCardGroupProps = {
   cards: React.ReactElement<CardProps>[]
@@ -29,13 +29,12 @@ const DoorwayLinkableCardGroup = (props: DoorwayLinkableCardGroupProps) => {
     return links
   }
 
-  const [isExpanded, setExpanded] = useState(false)
   const rootClassNames = props.className ? `${props.className}` : ""
 
   return (
-    <div className={`doorway-linkable-card-group ${rootClassNames}`}>
-      <div className="doorway-linkable-card-group_nav font-serif mt-4">
-        <Card className="border-0 space-y-5">{getLinks()}</Card>
+    <div className={`${styles["doorway-linkable-card-group"]} ${rootClassNames}`}>
+      <div className={`${styles["doorway-linkable-card-group_nav"]} font-serif mt-4`}>
+        <Card className="border-0">{getLinks()}</Card>
       </div>
       <div>
         {props.children}

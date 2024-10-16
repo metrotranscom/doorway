@@ -2,6 +2,7 @@
   display: flex;
   align-items: stretch;
   height: var(--listings-component-height);
+  flex-direction: column;
 
   @media (max-width: $screen-md) {
     position: relative;
@@ -20,6 +21,10 @@
     }
   }
 
+  .listings-map-list-container {
+    display: flex;
+  }
+
   .listings-map-skip-link {
     @apply sr-only;
 
@@ -36,29 +41,30 @@
   }
 
   .listings-map-expanded {
+    background-color: var(--seeds-color-white);
     display: none;
 
     @media (max-width: $screen-md) {
       position: relative;
       display: block;
       z-index: 0;
-      height: var(--listings-component-height);
       width: 100%;
       overflow-y: auto;
+      height: 100%;
     }
   }
 
   .listings-list {
     overflow-y: auto;
-    width: var(--listings-list-width);
-    padding-top: var(--listings-list-overscroll);
+    width: 100%;
+    display: block;
 
     @media (max-width: $screen-md) {
+      display: block;
       padding-top: 0;
       position: absolute;
       z-index: 1;
-      top: var(--swipe-area-height);
-      height: calc(var(--listings-component-half-height) - var(--swipe-area-height));
+      top: 0;
       width: 100%;
       overflow-y: auto;
       background-color: var(--background-color);
@@ -72,8 +78,7 @@
       display: block;
       position: relative;
       z-index: 1;
-      height: calc(var(--listings-component-height) - var(--swipe-area-height));
-      top: var(--swipe-area-height);
+      height: calc(var(--listings-component-height));
       overflow-y: auto;
       background-color: var(--background-color);
     }
@@ -82,6 +87,9 @@
   .listings-outer-container {
     overflow-y: auto;
     width: var(--listings-list-width);
+    @media (max-width: $screen-lg) {
+      width: 50%;
+    }
 
     @media (max-width: $screen-md) {
       position: absolute;
@@ -147,11 +155,19 @@
 
   /* These attribute selectors are strange, but that's because we want to short-circuit the
      CSS module renaming and use these exact class names */
-  [class*="loading-overlay"]::before { 
+  [class*="loading-overlay"]::before {
     background-color: white;
   }
 
   [class*="loading-overlay__spinner"] {
     color: var(--seeds-color-gray-400) !important;
+  }
+}
+
+.info-window {
+  border: 1px solid red;
+  article {
+    border: 1px solid blue;
+    --margin: 0;
   }
 }

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { InfoWindow, useMap } from "@vis.gl/react-google-maps"
-import { type Marker, MarkerClusterer } from "@googlemaps/markerclusterer"
+import { MarkerClusterer } from "@googlemaps/markerclusterer"
 import { ListingsMapMarker } from "./ListingsMap"
-import { MapMarker } from "./ListingsMapMarker"
+import { MapMarker } from "./MapMarker"
 import styles from "./ListingsCombined.module.scss"
 
 export type ListingsMapMarkersProps = {
@@ -13,14 +13,16 @@ export type ListingsMapMarkersProps = {
   setInfoWindowIndex: React.Dispatch<React.SetStateAction<number>>
 }
 
-export const ListingsMapMarkers = ({
+export const MapClusterer = ({
   mapMarkers,
   setMapCenter,
   setZoom,
   infoWindowIndex,
   setInfoWindowIndex,
 }: ListingsMapMarkersProps) => {
-  const [markers, setMarkers] = useState<{ [key: string]: Marker }>({})
+  const [markers, setMarkers] = useState<{
+    [key: string]: google.maps.marker.AdvancedMarkerElement
+  }>({})
 
   const map = useMap()
   const clusterer: MarkerClusterer = useMemo(() => {
@@ -30,24 +32,15 @@ export const ListingsMapMarkers = ({
       map,
       renderer: {
         render: ({ count, position }) => {
-          const svg = window.btoa(`
-      <svg fill="#0077da" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
-        <circle cx="120" cy="120" opacity="1" r="70" />    
-      </svg>`)
-          return new google.maps.Marker({
+          const clusterMarker = document.createElement("div")
+          clusterMarker.className = styles["cluster-icon"]
+          clusterMarker.textContent = count.toString()
+
+          return new google.maps.marker.AdvancedMarkerElement({
+            map,
             position,
-            icon: {
-              url: `data:image/svg+xml;base64,${svg}`,
-              scaledSize: new google.maps.Size(60, 60),
-            },
-            label: {
-              text: count.toString(),
-              color: "rgba(255,255,255,1)",
-              fontSize: "14px",
-              fontWeight: "600",
-            },
-            // adjust zIndex to be above other markers
-            zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+            content: clusterMarker,
+            title: `${count} listings in this cluster`,
           })
         },
       },
@@ -70,21 +63,25 @@ export const ListingsMapMarkers = ({
       })
     })
     map.fitBounds(bounds, 150)
-  }, [clusterer, markers])
+  }, [clusterer, markers, map, mapMarkers])
 
-  const setMarkerRef = useCallback((marker: Marker | null, key: number) => {
-    setMarkers((markers) => {
-      if ((marker && markers[key]) || (!marker && !markers[key])) return markers
+  const setMarkerRef = useCallback(
+    (marker: google.maps.marker.AdvancedMarkerElement | null, key: number) => {
+      setMarkers((markers) => {
+        if ((marker && markers[key]) || (!marker && !markers[key])) return markers
 
-      if (marker) {
-        return { ...markers, [key]: marker }
-      } else {
-        const { [key]: _, ...newMarkers } = markers
+        if (marker) {
+          return { ...markers, [key]: marker }
+        } else {
+          const { [key]: _, ...newMarkers } = markers
 
-        return newMarkers
-      }
-    })
-  }, [])
+          return newMarkers
+        }
+      })
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
 
   const handleMarkerClick = useCallback((marker: ListingsMapMarker) => {
     setInfoWindowIndex(marker.key)

@@ -158,7 +158,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
 
   let div: JSX.Element
 
-  console.log(props.listView)
   if (!isDesktop && props.listView) {
     div = getListingsList()
     showFooter()

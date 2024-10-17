@@ -82,7 +82,12 @@
 }
 
 .total-results {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: block;
+  @media (max-width: $screen-md) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+  }
 }

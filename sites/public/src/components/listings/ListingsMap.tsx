@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { APIProvider, Map } from "@vis.gl/react-google-maps"
+import { useJsApiLoader } from "@react-google-maps/api"
 import { t } from "@bloom-housing/ui-components"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { getListingUrl, getListingCard } from "../../lib/helpers"
@@ -50,6 +51,11 @@ const ListingsMap = (props: ListingsMapProps) => {
     lng: -122.374118,
   }
   const defaultZoom = 9
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: props.googleMapsApiKey,
+  })
+
   const [infoWindowIndex, setInfoWindowIndex] = useState<number>(null)
   const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>({
     lat: defaultCenter.lat,
@@ -58,6 +64,8 @@ const ListingsMap = (props: ListingsMapProps) => {
   const [zoom, setZoom] = useState<number>(defaultZoom)
 
   const markers: ListingsMapMarker[] = getMarkers(props.listings)
+
+  if (!isLoaded) return <></>
 
   return (
     <div className={styles["listings-map"]}>

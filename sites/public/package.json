@@ -45,7 +45,7 @@
     "http-cookie-agent": "5.0.2",
     "markdown-to-jsx": "^6.11.4",
     "nanoid": "^3.1.12",
-    "next": "^13.2.4",
+    "next": "^14.2.7",
     "next-plugin-custom-babel-config": "^1.0.5",
     "node-polyglot": "^2.4.0",
     "openapi-client-axios": "^3.6.2",

@@ -44,7 +44,6 @@ user.email = 'test@example.com';
 describe('Testing lottery service', () => {
   let service: LotteryService;
   let prisma: PrismaService;
-  let permissionService: PermissionService;
   let listingService: ListingService;
   let config: ConfigService;
 

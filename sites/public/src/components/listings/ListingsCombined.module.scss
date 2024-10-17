@@ -2,6 +2,7 @@
   display: flex;
   align-items: stretch;
   height: var(--listings-component-height);
+  flex-direction: column;
 
   @media (max-width: $screen-md) {
     position: relative;
@@ -20,6 +21,12 @@
     }
   }
 
+  .listings-map-list-container {
+    --heading-offset: 240px;
+    display: flex;
+    max-height: calc(100vh - var(--heading-offset));
+  }
+
   .listings-map-skip-link {
     @apply sr-only;
 
@@ -36,29 +43,30 @@
   }
 
   .listings-map-expanded {
+    background-color: var(--seeds-color-white);
     display: none;
 
     @media (max-width: $screen-md) {
       position: relative;
       display: block;
       z-index: 0;
-      height: var(--listings-component-height);
       width: 100%;
       overflow-y: auto;
+      height: 100%;
     }
   }
 
   .listings-list {
     overflow-y: auto;
-    width: var(--listings-list-width);
-    padding-top: var(--listings-list-overscroll);
+    width: 100%;
+    display: block;
 
     @media (max-width: $screen-md) {
+      display: block;
       padding-top: 0;
       position: absolute;
       z-index: 1;
-      top: var(--swipe-area-height);
-      height: calc(var(--listings-component-half-height) - var(--swipe-area-height));
+      top: 0;
       width: 100%;
       overflow-y: auto;
       background-color: var(--background-color);
@@ -72,8 +80,7 @@
       display: block;
       position: relative;
       z-index: 1;
-      height: calc(var(--listings-component-height) - var(--swipe-area-height));
-      top: var(--swipe-area-height);
+      height: calc(var(--listings-component-height));
       overflow-y: auto;
       background-color: var(--background-color);
     }
@@ -82,62 +89,8 @@
   .listings-outer-container {
     overflow-y: auto;
     width: var(--listings-list-width);
-
-    @media (max-width: $screen-md) {
-      position: absolute;
-      z-index: 1;
-      top: var(--listings-component-half-height);
-      height: var(--listings-component-half-height);
-      width: 100%;
-      overflow-y: hidden;
-      border-top-left-radius: var(--bloom-rounded-3xl);
-      border-top-right-radius: var(--bloom-rounded-3xl);
-    }
-  }
-
-  .swipe-area {
-    display: none;
-
-    @media (max-width: $screen-md) {
-      display: block;
-      position: absolute;
-      top: 0;
-      height: var(--swipe-area-height);
-      width: 100%;
-      z-index: 2;
-      background-color: var(--background-color);
-      border-top-left-radius: var(--bloom-rounded-3xl);
-      border-top-right-radius: var(--bloom-rounded-3xl);
-    }
-  }
-
-  // The only difference between this and the above is the top attribute
-  .swipe-area-bottom {
-    display: none;
-
-    @media (max-width: $screen-md) {
-      display: block;
-      position: absolute;
-      top: calc(var(--listings-component-height) - var(--swipe-area-height));
-      height: var(--swipe-area-height);
-      width: 100%;
-      z-index: 2;
-      background-color: var(--background-color);
-      border-top-left-radius: var(--bloom-rounded-3xl);
-      border-top-right-radius: var(--bloom-rounded-3xl);
-    }
-  }
-
-  .swipe-area-line {
-    display: none;
-
-    @media (max-width: $screen-md) {
-      display: block;
-      width: 30%;
-      margin-left: 35%;
-      margin-right: 35%;
-      margin-top: var(--bloom-s4);
-      border-top: 1px solid var(--line-color);
+    @media (max-width: $screen-lg) {
+      width: 55%;
     }
   }
 }
@@ -147,11 +100,31 @@
 
   /* These attribute selectors are strange, but that's because we want to short-circuit the
      CSS module renaming and use these exact class names */
-  [class*="loading-overlay"]::before { 
+  [class*="loading-overlay"]::before {
     background-color: white;
   }
 
   [class*="loading-overlay__spinner"] {
     color: var(--seeds-color-gray-400) !important;
   }
+}
+
+.cluster-icon {
+  font-weight: var(--seeds-font-weight-semibold);
+  font-family: var(--seeds-font-sans);
+  font-size: var(--seeds-font-size-base);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0077da;
+  color: white;
+  width: var(--seeds-s8);
+  height: var(--seeds-s8);
+  @media (min-width: $screen-md) {
+    min-width: var(--seeds-s8);
+    height: var(--seeds-s8);
+  }
+  padding: 0rem var(--seeds-s1_5);
+  margin-right: var(--seeds-s1_5);
+  border-radius: 50%;
 }

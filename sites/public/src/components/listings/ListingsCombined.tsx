@@ -12,21 +12,20 @@ type ListingsCombinedProps = {
   onPageChange: (page: number) => void
   googleMapsApiKey: string
   loading: boolean
-  listView: boolean
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   filterCount: number
   searchResults: {
-    listings: any[]
+    listings: Listing[]
     currentPage: number
     lastPage: number
     totalItems: number
     loading: boolean
   }
+  listView: boolean
   setListView: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
-  const [showListingsList, setShowListingsList] = useState(true)
   const [isDesktop, setIsDesktop] = useState(true)
 
   const DESKTOP_MIN_WIDTH = 767 // @screen md
@@ -97,7 +96,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
             isMapExpanded={true}
-            setShowListingsList={setShowListingsList}
           />
         </div>
       </div>

@@ -1253,6 +1253,8 @@
   "t.loading": "Cargando",
   "t.loginIsRequired": "Es necesario iniciar sesión para poder ver esta página.",
   "t.mapControls": "Controles del mapa",
+  "t.mapListView": "Lista",
+  "t.mapMapView": "Mapa",
   "t.maxMonthlyRent": "Alquiler Mensual Máximo",
   "t.maxPrice": "Precio Máximo",
   "t.menu": "Menú",

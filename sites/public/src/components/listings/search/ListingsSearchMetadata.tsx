@@ -38,12 +38,12 @@ export const ListingsSearchMetadata = ({
           {listView ? t("t.mapMapView") : t("t.mapListView")}
         </Button>
       </span>
-      <div className={`total-results ${!listView ? styles["hide-total-results"] : ""}`}>
+      <div className={`${styles["total-results"]}`}>
         <span className={styles["search-total-results"]}>
           <strong>{t("search.totalResults")}</strong> {!loading && searchResults.totalItems}
         </span>
         {!loading && searchResults.lastPage > 0 && (
-          <span>
+          <span className={`${!listView ? styles["hide-total-results"] : ""}`}>
             (
             {t("t.pageXofY", { current: searchResults.currentPage, total: searchResults.lastPage })}
             )

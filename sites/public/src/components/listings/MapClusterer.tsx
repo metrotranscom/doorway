@@ -63,7 +63,8 @@ export const MapClusterer = ({
       })
     })
     map.fitBounds(bounds, 150)
-  }, [clusterer, markers, map, mapMarkers])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clusterer, markers])
 
   const setMarkerRef = useCallback(
     (marker: google.maps.marker.AdvancedMarkerElement | null, key: number) => {

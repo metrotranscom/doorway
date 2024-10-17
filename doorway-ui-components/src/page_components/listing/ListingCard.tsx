@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
+import Link from "next/link"
 import {
   Heading,
   AppearanceStyleType,
@@ -6,14 +7,13 @@ import {
   HeaderType,
   Icon,
   IconFillColors,
+  Tag,
   LinkButton,
   StackedTableProps,
-  Tag,
 } from "@bloom-housing/ui-components"
 import { ImageCard, ImageCardProps, ImageTag } from "../../blocks/ImageCard"
 import { AppearanceShadeType } from "../../global/AppearanceTypes"
 import "./ListingCard.scss"
-import { NavigationContext } from "../../config/NavigationContext"
 import { DoorwayListingTable } from "./DoorwayListingTable"
 
 interface ListingCardTableProps extends StandardTableProps, StackedTableProps {}
@@ -88,8 +88,7 @@ const ListingCard = (props: ListingCardProps) => {
     contentProps,
     tableProps,
   } = props
-  const { LinkComponent } = useContext(NavigationContext)
-  const linkRef = React.useRef<HTMLAnchorElement>(null)
+  const linkRef = useRef<HTMLAnchorElement>(null)
   const simulateLinkClick = () => {
     if (linkRef.current) {
       linkRef.current.click()
@@ -140,9 +139,9 @@ const ListingCard = (props: ListingCardProps) => {
       return (
         <Heading priority={priority} styleType={styleType} className={customClass}>
           {header.href ? (
-            <LinkComponent className="is-card-link" href={header.href} linkref={linkRef}>
+            <Link className="is-card-link" href={header.href} ref={linkRef}>
               {header.content}
-            </LinkComponent>
+            </Link>
           ) : (
             header.content
           )}

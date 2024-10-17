@@ -260,4 +260,30 @@
   .alert-box {
     --notice-background-color: var(--bloom-color-blue-300);
   }
+
+  .info-window {
+    .listings-row {
+      flex-direction: row;
+      --inter-row-gap: 0;
+      padding-top: 0;
+      padding-bottom: var(--seeds-s2);
+      @media (max-width: $screen-lg) {
+        flex-direction: column;
+        padding-bottom: 0;
+        .listings-row_figure {
+          margin-bottom: var(--seeds-s2);
+          width: 100%;
+          img {
+            max-width: 400px;
+          }
+        }
+        .listings-row_content {
+          padding-left: 0;
+        }
+      }
+      .listings-row_footer_container {
+        margin-bottom: 0;
+      }
+    }
+  }
 }

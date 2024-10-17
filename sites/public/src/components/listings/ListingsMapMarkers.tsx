@@ -104,12 +104,13 @@ export const ListingsMapMarkers = ({
         />
       ))}
 
-      {!!infoWindowIndex && (
+      {infoWindowIndex !== null && (
         <InfoWindow
           anchor={markers[infoWindowIndex]}
           onCloseClick={() => setInfoWindowIndex(null)}
-          className={styles["info-window"]}
+          className={"info-window"}
           minWidth={250}
+          maxWidth={500}
         >
           {mapMarkers[infoWindowIndex].infoWindowContent}
         </InfoWindow>

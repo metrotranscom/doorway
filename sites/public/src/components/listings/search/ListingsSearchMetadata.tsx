@@ -1,4 +1,5 @@
 import React from "react"
+import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { t } from "@bloom-housing/ui-components"
 import { Button } from "@bloom-housing/ui-seeds"
 import styles from "./ListingsSearch.module.scss"
@@ -8,7 +9,7 @@ export interface ListingsSearchMetadataProps {
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   filterCount: number
   searchResults: {
-    listings: any[]
+    listings: Listing[]
     currentPage: number
     lastPage: number
     totalItems: number
@@ -31,10 +32,10 @@ export const ListingsSearchMetadata = ({
       <span>
         <Button
           size={"sm"}
-          className={styles["switch-view-button"]}
           onClick={() => setListView(!listView)}
+          className={`results-bar-button ${styles["switch-view-button"]}`}
         >
-          {listView ? "Map View" : "List View"}
+          {listView ? t("t.mapMapView") : t("t.mapListView")}
         </Button>
       </span>
       <div className={`total-results ${!listView ? styles["hide-total-results"] : ""}`}>
@@ -53,7 +54,7 @@ export const ListingsSearchMetadata = ({
       <Button
         variant="primary-outlined"
         size="sm"
-        className={styles["search-filters-button"]}
+        className={"results-bar-button"}
         onClick={() => {
           setModalOpen(true)
         }}

@@ -45,9 +45,17 @@ const getMarkers = (listings: Listing[]) => {
 }
 
 const ListingsMap = (props: ListingsMapProps) => {
+  const defaultCenter = {
+    lat: 37.579795,
+    lng: -122.374118,
+  }
+  const defaultZoom = 9
   const [infoWindowIndex, setInfoWindowIndex] = useState<number>(null)
-  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>(null)
-  const [zoom, setZoom] = useState<number>(null)
+  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>({
+    lat: defaultCenter.lat,
+    lng: defaultCenter.lng,
+  })
+  const [zoom, setZoom] = useState<number>(defaultZoom)
 
   const markers: ListingsMapMarker[] = getMarkers(props.listings)
 

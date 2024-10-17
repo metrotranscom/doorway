@@ -97,96 +97,7 @@ export const stagingSeed = async (
       password: 'abcdef',
     }),
   });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin1@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin2@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin3@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin4@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin5@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin6@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin7@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin8@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: 'admin9@example.com',
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
+
   // create a jurisdictional admin
   await prismaClient.userAccounts.create({
     data: await userFactory({
@@ -1364,4 +1275,94 @@ export const stagingSeed = async (
       }
     },
   );
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin1@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin2@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin3@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin4@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin5@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin6@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin7@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin8@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      roles: { isAdmin: true },
+      email: 'admin9@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [jurisdiction.id],
+      acceptedTerms: true,
+      password: 'abcdef',
+    }),
+  });
 };

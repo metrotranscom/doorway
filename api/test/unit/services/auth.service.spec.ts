@@ -95,7 +95,7 @@ describe('Testing auth service', () => {
       sign(
         {
           sub: id,
-          expiresIn: 86400000 / 24,
+          expiresIn: 86400000 / 8,
         },
         process.env.APP_SECRET,
       ),
@@ -916,7 +916,7 @@ describe('Testing auth service', () => {
 
     await expect(
       async () =>
-        await await authService.requestMfaCode({
+        await authService.requestMfaCode({
           email: 'example@exygy.com',
           password: 'abcdef123',
           mfaType: MfaType.sms,

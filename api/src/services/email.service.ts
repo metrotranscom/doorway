@@ -147,6 +147,7 @@ export class EmailService {
   }
 
   public async sendSES(mailOptions: SendMailOptions) {
+    if (Array.isArray(mailOptions.to) && mailOptions.to.length === 0) return;
     try {
       return await this.transporter.sendMail({
         ...mailOptions,
@@ -599,7 +600,7 @@ export class EmailService {
     });
 
     const compiled = compiledTemplate({
-      listingName: listing.name,
+      listingName: this.stripAngleBrackets(listing.name),
       tableRows,
       languageUrls,
     });
@@ -677,6 +678,12 @@ export class EmailService {
         }),
       });
     }
+  }
+
+  // Useful for GovSend where we can't send entities, so we'll output certain strings raw but we want to
+  // ensure we don't let real HTML through which is an XSS risk
+  stripAngleBrackets(markup: string): string {
+    return markup.replace(/[<>]/g, '');
   }
 
   formatLocalDate(rawDate: string | Date, format: string): string {

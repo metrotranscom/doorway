@@ -16,6 +16,7 @@ import { OptionalAuthGuard } from '../guards/optional.guard';
 import { AdminOrJurisdictionalAdminGuard } from '../guards/admin-or-jurisdiction-admin.guard';
 import { DataTransferDTO } from '../dtos/script-runner/data-transfer.dto';
 import { AmiChartImportDTO } from '../dtos/script-runner/ami-chart-import.dto';
+import { CommunityTypeDTO } from '../dtos/script-runner/community-type.dto';
 
 @Controller('scriptRunner')
 @ApiTags('scriptRunner')
@@ -36,7 +37,8 @@ export class ScirptRunnerController {
 
   @Put('transferJurisdictionData')
   @ApiOperation({
-    summary: 'A script that pulls data from one source into the current db',
+    summary:
+      'A script that pulls jurisdiction data from one source into the current db',
     operationId: 'transferJurisdictionData',
   })
   @ApiOkResponse({ type: SuccessDTO })
@@ -52,7 +54,8 @@ export class ScirptRunnerController {
 
   @Put('transferJurisdictionListingsData')
   @ApiOperation({
-    summary: 'A script that pulls data from one source into the current db',
+    summary:
+      'A script that pulls listing data from one source into the current db',
     operationId: 'transferJurisdictionListingsData',
   })
   @ApiOkResponse({ type: SuccessDTO })
@@ -61,6 +64,23 @@ export class ScirptRunnerController {
     @Request() req: ExpressRequest,
   ): Promise<SuccessDTO> {
     return await this.scriptRunnerService.transferJurisdictionListingData(
+      req,
+      dataTransferDTO,
+    );
+  }
+
+  @Put('transferJurisdictionUserApplicationData')
+  @ApiOperation({
+    summary:
+      'A script that pulls user and application data from one source into the current db',
+    operationId: 'transferJurisdictionUserApplicationData',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async transferJurisdictionUserApplicationData(
+    @Body() dataTransferDTO: DataTransferDTO,
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.transferJurisdictionUserApplicationData(
       req,
       dataTransferDTO,
     );
@@ -120,5 +140,23 @@ export class ScirptRunnerController {
     @Request() req: ExpressRequest,
   ): Promise<SuccessDTO> {
     return await this.scriptRunnerService.optOutExistingLotteries(req);
+  }
+
+  @Put('createNewReservedCommunityType')
+  @ApiOperation({
+    summary: 'A script that creates a new reserved community type',
+    operationId: 'createNewReservedCommunityType',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async createNewReservedCommunityType(
+    @Body() body: CommunityTypeDTO,
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.createNewReservedCommunityType(
+      req,
+      body.id,
+      body.name,
+      body.description,
+    );
   }
 }

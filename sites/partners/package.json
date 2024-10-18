@@ -44,7 +44,7 @@
     "dotenv": "^8.2.0",
     "http-cookie-agent": "5.0.2",
     "markdown-to-jsx": "^6.11.4",
-    "nanoid": "^3.1.12",
+    "nanoid": "^3.3.6",
     "next": "^13.2.4",
     "next-plugin-custom-babel-config": "^1.0.2",
     "node-polyglot": "^2.4.0",

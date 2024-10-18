@@ -1186,6 +1186,10 @@ export class ScriptRunnerService {
         duplicatesDetails:
           'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
         termsOfUse: 'Terms of Use',
+        submitAnotherApplication:
+          'If you’re not changing the primary applicant or any household members, you can just submit another application.  We’ll take the last one submitted, per the duplicate application policy.',
+        otherChanges:
+          'For other changes, please contact doorway@bayareametro.gov.',
       },
     });
     await this.updateTranslationsForLanguage(LanguagesEnum.es, {

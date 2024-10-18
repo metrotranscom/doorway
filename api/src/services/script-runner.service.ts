@@ -1123,6 +1123,7 @@ export class ScriptRunnerService {
     const updateTranslation = async (
       language: LanguagesEnum,
       newTranslations: Record<string, string>,
+      confirmationTranslations?: Record<string, string>,
     ) => {
       const translations = await this.prisma.translations.findFirst({
         where: { language, jurisdictionId: null },
@@ -1131,13 +1132,17 @@ export class ScriptRunnerService {
         console.log(
           `Translations for ${language} don't exist in Doorway database`,
         );
-        return
+        return;
       }
       const translationsJSON = translations.translations as Prisma.JsonObject;
 
       translationsJSON.lotteryAvailable = {
         ...(translationsJSON.lotteryAvailable as Prisma.JsonObject),
         ...newTranslations,
+      };
+      translationsJSON.confirmation = {
+        ...(translationsJSON.confirmation as Prisma.JsonObject),
+        ...confirmationTranslations,
       };
 
       // technique taken from
@@ -1152,11 +1157,23 @@ export class ScriptRunnerService {
       });
     };
 
-    await updateTranslation(LanguagesEnum.en, {
-      duplicatesDetails:
-        'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
-      termsOfUse: 'Terms of Use',
-    });
+    await updateTranslation(
+      LanguagesEnum.en,
+      {
+        duplicatesDetails:
+          'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
+        termsOfUse: 'Terms of Use',
+      },
+      {
+        duplicatesDetails:
+          'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
+        termsOfUse: 'Terms of Use',
+        submitAnotherApplication:
+          'If you’re not changing the primary applicant or any household members, you can just submit another application.  We’ll take the last one submitted, per the duplicate application policy.',
+        otherChanges:
+          'For other changes, please contact doorway@bayareametro.gov.',
+      },
+    );
     await updateTranslation(LanguagesEnum.es, {
       duplicatesDetails:
         'Doorway generalmente no acepta solicitudes duplicadas. Una solicitud duplicada es aquella en la que aparece una persona que también aparece en otra solicitud para la misma oportunidad de vivienda. Para obtener información más detallada sobre cómo manejamos las solicitudes duplicadas, consulte nuestros',

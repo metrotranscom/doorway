@@ -20,7 +20,7 @@ describe('Testing custom exception filter', () => {
 
     const { httpAdapter } = app.get(HttpAdapterHost);
     logger = moduleFixture.get<Logger>(Logger);
-    app.useGlobalFilters(new CustomExceptionFilter(httpAdapter));
+    app.useGlobalFilters(new CustomExceptionFilter(httpAdapter, logger));
 
     await app.init();
   });

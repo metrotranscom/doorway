@@ -4,12 +4,20 @@
   --doorway-collapsible-section-heading-container-padding: var(--bloom-s4) 0;
   --doorway-collapsible-section-section-padding: var(--bloom-s2) 0;
 
-  // This is a somewhat hack -- this button in its expanded state for some
-  // reason has more padding than in unexpanded which looks weird.
-  // Prefer fixing scoped to this component only, since this was probably
-  // intentional.
-  button.has-toggle[aria-expanded="true"]:after {
-    margin-right: var(--bloom-s2);
+  button {
+    &:after {
+      font-weight: bold;
+      display: inline-block;
+      margin-left: var(--bloom-s2);
+      margin-right: var(--bloom-s2);
+      font-size: var(--bloom-font-size-xs);
+      content: "⌃";
+      transform: rotate(180deg) translateY(2px);
+    }
+    &[aria-expanded="true"]:after {
+      transform: rotate(0deg) translateY(2px);
+      margin-right: var(--bloom-s2);
+    }
   }
 }
 .doorway-collapsible-section_heading-container {

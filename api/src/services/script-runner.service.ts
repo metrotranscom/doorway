@@ -16,7 +16,6 @@ import { DataTransferDTO } from '../dtos/script-runner/data-transfer.dto';
 import { AmiChartImportDTO } from '../dtos/script-runner/ami-chart-import.dto';
 import { AmiChartCreate } from '../dtos/ami-charts/ami-chart-create.dto';
 import { AmiChartService } from './ami-chart.service';
-import { IdDTO } from '../dtos/shared/id.dto';
 
 /**
   this is the service for running scripts

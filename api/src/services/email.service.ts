@@ -416,7 +416,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction));
 
     await this.sendSES({
-      to: emails,
+      bcc: emails,
       subject: this.polyglot.t('requestApproval.header'),
       html: this.template('request-approval')({
         appOptions: { listingName: listingInfo.name },
@@ -438,7 +438,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction));
 
     await this.sendSES({
-      to: emails,
+      bcc: emails,
       subject: this.polyglot.t('changesRequested.header'),
       html: this.template('changes-requested')({
         appOptions: { listingName: listingInfo.name },
@@ -458,7 +458,7 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction));
 
     await this.sendSES({
-      to: emails,
+      bcc: emails,
       subject: this.polyglot.t('listingApproved.header'),
       html: this.template('listing-approved')({
         appOptions: { listingName: listingInfo.name },
@@ -617,7 +617,7 @@ export class EmailService {
     appUrl: string,
   ) {
     await this.sendSES({
-      to: emails,
+      bcc: emails,
       subject: this.polyglot.t('lotteryReleased.header', {
         listingName: listingInfo.name,
       }),
@@ -639,7 +639,7 @@ export class EmailService {
     ]);
     void (await this.loadTranslations(jurisdiction));
     await this.sendSES({
-      to: emails,
+      bcc: emails,
       subject: this.polyglot.t('lotteryPublished.header', {
         listingName: listingInfo.name,
       }),

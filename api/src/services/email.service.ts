@@ -329,13 +329,12 @@ export class EmailService {
     await this.sendSES({
       to: user.email,
       subject: user.confirmedAt
-        ? `${singleUseCode} is your secure ${jurisdiction.name} sign-in code`
-        : `${singleUseCode} is your secure ${jurisdiction.name} verification code`,
+        ? `${singleUseCode} is your secure Doorway sign-in code`
+        : `${singleUseCode} is your secure Doorway verification code`,
       html: this.template('single-use-code')({
         user: user,
         singleUseCodeOptions: {
           singleUseCode,
-          jurisdictionName: jurisdiction?.name,
         },
       }),
     });

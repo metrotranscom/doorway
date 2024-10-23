@@ -1178,7 +1178,7 @@ export class ScriptRunnerService {
           singleUseCodeEmail: {
             greeting: 'Hi',
             message:
-              'Use the following code to sign in to your %{jurisdictionName} account. This code will be valid for 10 minutes. Never share this code.',
+              'Use the following code to sign in to your Doorway account. This code will be valid for 10 minutes. Never share this code.',
             singleUseCode: '%{singleUseCode}',
           },
         },

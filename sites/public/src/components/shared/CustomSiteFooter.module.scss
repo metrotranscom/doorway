@@ -29,7 +29,7 @@
   flex-direction: row;
   align-items: flex-start;
   margin: auto;
-  max-width: 1024px;
+  max-width: var(--seeds-screen-lg);
 
   @media (--md-down) {
     flex-direction: column;

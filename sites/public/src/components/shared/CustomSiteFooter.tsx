@@ -1,12 +1,11 @@
 import React from "react"
 import { t } from "@bloom-housing/ui-components"
-import { FooterNav } from "@bloom-housing/doorway-ui-components"
 import styles from "./CustomSiteFooter.module.scss"
 import dayjs from "dayjs"
 
 const CustomSiteFooter = () => {
   return (
-    <div className={styles["footer-container"]}>
+    <footer className={styles["footer-container"]}>
       <div className={styles["footer-content-container"]}>
         <div className={styles["footer"]}>
           <div className={styles["left-column-container"]}>
@@ -35,8 +34,8 @@ const CustomSiteFooter = () => {
               </a>
             </div>
           </div>
-          <div>
-            <FooterNav>
+          <div className={styles["right-column-container"]}>
+            <div className={styles.links}>
               <a href="https://mtc.ca.gov/doorway-housing-portal-privacy-policy" target="_blank">
                 {t("pageTitle.privacy")}
               </a>
@@ -58,7 +57,7 @@ const CustomSiteFooter = () => {
               >
                 {t("footer.accessibilityStatement")}
               </a>
-            </FooterNav>
+            </div>
             <div className={styles["icon-container"]}>
               <a
                 href="https://twitter.com/mtcbata"
@@ -109,7 +108,7 @@ const CustomSiteFooter = () => {
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   )
 }
 

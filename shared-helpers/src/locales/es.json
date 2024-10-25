@@ -623,7 +623,7 @@
   "filter.goToDahlia": "Para conocer los anuncios de San Francisco, vaya a ",
   "filter.goToDahliaLink": "DAHLIA",
   "footer.accessibilityStatement": "Declaración de accesibilidad",
-  "footer.bahfaCopyright": "Derechos de autor © 2023 Bay Area Housing Finance Authority. Todos los derechos reservados",
+  "footer.bahfaCopyright": "Derechos de autor © %{year} Bay Area Housing Finance Authority. Todos los derechos reservados",
   "footer.bahfaLogo": "Logo de Bay Area Housing Finance Authority",
   "footer.contact": "Contacto",
   "footer.copyright": "Demonstration Jurisdiction © 2021 • Todos los derechos reservados.",

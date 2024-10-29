@@ -664,8 +664,7 @@ export class EmailService {
     for (const language in emails) {
       void (await this.loadTranslations(null, language as LanguagesEnum));
       await this.sendSES({
-        to: emails[language],
-
+        bcc: emails[language],
         subject: this.polyglot.t('lotteryAvailable.header', {
           listingName: listingInfo.name,
         }),

@@ -6443,6 +6443,7 @@ export enum UserRoleEnum {
   "partner" = "partner",
   "admin" = "admin",
   "jurisdictionAdmin" = "jurisdictionAdmin",
+  "limitedJurisdictionAdmin" = "limitedJurisdictionAdmin",
 }
 export enum EnumMultiselectQuestionFilterParamsComparison {
   "=" = "=",

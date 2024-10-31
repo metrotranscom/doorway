@@ -368,7 +368,9 @@ const ListingFormActions = ({
         elements.push(editPostedResultsButton(lotteryResults))
       } else if (
         listing.status === ListingsStatusEnum.closed &&
-        (!listing?.lotteryOptIn || !process.env.showLottery)
+        // dwy-specific lottery logic to only show post results if showLottery flag is enabled
+        !listing?.lotteryOptIn &&
+        process.env.showLottery
       ) {
         elements.push(postResultsButton)
       }

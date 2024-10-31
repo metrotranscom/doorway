@@ -363,7 +363,7 @@ export class EmailService {
       preferenceText = this.polyglot.t(
         'confirmation.eligible.lotteryPreference',
       );
-      duplicateText = this.polyglot.t('confirmation.duplicatesDetails');
+      duplicateText = this.polyglot.t('lotteryAvailable.duplicatesDetails');
     }
     if (listing.reviewOrderType === ReviewOrderTypeEnum.waitlist) {
       eligibleText = this.polyglot.t('confirmation.eligible.waitlist');

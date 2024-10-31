@@ -364,7 +364,12 @@ export class ListingService implements OnModuleInit {
     listingId?: string,
     jurisId?: string,
     getPublicUrl = false,
-  ): Promise<{ emails: string[]; publicUrl?: string | null }> {
+    getEmailFromAddress = false,
+  ): Promise<{
+    emails: string[];
+    publicUrl?: string | null;
+    emailFromAddress?: string | null;
+  }> {
     // determine where clause(s)
     const userRolesWhere: Prisma.UserAccountsWhereInput[] = [];
     if (userRoles.includes(UserRoleEnum.admin))
@@ -387,6 +392,7 @@ export class ListingService implements OnModuleInit {
           select: {
             id: true,
             publicUrl: getPublicUrl,
+            emailFromAddress: getEmailFromAddress,
           },
         },
       },
@@ -396,13 +402,16 @@ export class ListingService implements OnModuleInit {
     });
 
     // account for users having access to multiple jurisdictions
-    const publicUrl = getPublicUrl
-      ? userResults[0]?.jurisdictions?.find((juris) => juris.id === jurisId)
-          ?.publicUrl
+    const jurisInfo = userResults[0]?.jurisdictions?.find(
+      (juris) => juris.id === jurisId,
+    );
+    const publicUrl = getPublicUrl ? jurisInfo?.publicUrl : null;
+    const emailFromAddress = getEmailFromAddress
+      ? jurisInfo?.emailFromAddress
       : null;
     const userEmails: string[] = [];
     userResults?.forEach((user) => user?.email && userEmails.push(user.email));
-    return { emails: userEmails, publicUrl };
+    return { emails: userEmails, publicUrl, emailFromAddress };
   }
 
   public async listingApprovalNotify(params: {
@@ -424,12 +433,15 @@ export class ListingService implements OnModuleInit {
         params.approvingRoles,
         params.listingInfo.id,
         params.jurisId,
+        false,
+        true,
       );
       await this.emailService.requestApproval(
         { id: params.jurisId },
         { id: params.listingInfo.id, name: params.listingInfo.name },
         userInfo.emails,
         this.configService.get('PARTNERS_PORTAL_URL'),
+        userInfo.emailFromAddress,
       );
     }
     // admin updates status to changes requested when approval requires partner changes
@@ -441,6 +453,8 @@ export class ListingService implements OnModuleInit {
         nonApprovingRoles,
         params.listingInfo.id,
         params.jurisId,
+        false,
+        true,
       );
       await this.emailService.changesRequested(
         params.user,
@@ -451,6 +465,7 @@ export class ListingService implements OnModuleInit {
         },
         userInfo.emails,
         this.configService.get('PARTNERS_PORTAL_URL'),
+        userInfo.emailFromAddress,
       );
     }
     // check if status of active requires notification
@@ -466,12 +481,14 @@ export class ListingService implements OnModuleInit {
           params.listingInfo.id,
           params.jurisId,
           true,
+          true,
         );
         await this.emailService.listingApproved(
           { id: params.jurisId },
           { id: params.listingInfo.id, name: params.listingInfo.name },
           userInfo.emails,
           userInfo.publicUrl,
+          userInfo.emailFromAddress,
         );
       }
     }

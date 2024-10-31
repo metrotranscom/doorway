@@ -1203,7 +1203,7 @@ export class ScriptRunnerService {
       confirmation: {
         submitAnotherApplication:
           'Si no va a cambiar al solicitante principal ni a ningún miembro del hogar, puede simplemente enviar otra solicitud.  Tomaremos el último enviado, según la política de solicitud de duplicados.',
-        otherChangess:
+        otherChanges:
           'Para otros cambios, comuníquese con doorway@bayareametro.gov',
       },
     });
@@ -1411,19 +1411,20 @@ export class ScriptRunnerService {
     createIfMissing?: boolean,
   ) {
     let translations;
-    translations = await this.prisma.translations.findFirst({
-      where: { language, jurisdictionId: null },
+    translations = await this.prisma.translations.findMany({
+      where: { language },
     });
 
-    if (!translations) {
+    if (!translations?.length) {
       if (createIfMissing) {
-        translations = await this.prisma.translations.create({
+        const createdTranslations = await this.prisma.translations.create({
           data: {
             language: language,
             translations: {},
             jurisdictions: undefined,
           },
         });
+        translations = [createdTranslations];
       } else {
         console.log(
           `Translations for ${language} don't exist in Doorway database`,
@@ -1432,24 +1433,26 @@ export class ScriptRunnerService {
       }
     }
 
-    const translationsJSON = translations.translations as Prisma.JsonObject;
+    for (const translation of translations) {
+      const translationsJSON = translation.translations as Prisma.JsonObject;
 
-    Object.keys(newTranslations).forEach((key) => {
-      translationsJSON[key] = {
-        ...((translationsJSON[key] || {}) as Prisma.JsonObject),
-        ...newTranslations[key],
-      };
-    });
+      Object.keys(newTranslations).forEach((key) => {
+        translationsJSON[key] = {
+          ...((translationsJSON[key] || {}) as Prisma.JsonObject),
+          ...newTranslations[key],
+        };
+      });
 
-    // technique taken from
-    // https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/working-with-json-fields#advanced-example-update-a-nested-json-key-value
-    const dataClause = Prisma.validator<Prisma.TranslationsUpdateInput>()({
-      translations: translationsJSON,
-    });
+      // technique taken from
+      // https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/working-with-json-fields#advanced-example-update-a-nested-json-key-value
+      const dataClause = Prisma.validator<Prisma.TranslationsUpdateInput>()({
+        translations: translationsJSON,
+      });
 
-    await this.prisma.translations.update({
-      where: { id: translations.id },
-      data: dataClause,
-    });
+      await this.prisma.translations.update({
+        where: { id: translation.id },
+        data: dataClause,
+      });
+    }
   }
 }

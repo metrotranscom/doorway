@@ -66,7 +66,7 @@ import { ListingCreateUpdateValidationPipe } from '../validation-pipes/listing-c
   PaginationAllowsAllQueryParams,
   IdDTO,
 )
-@UseGuards(ApiKeyGuard, OptionalAuthGuard)
+@UseGuards(OptionalAuthGuard)
 @PermissionTypeDecorator('listing')
 @ActivityLogMetadata([{ targetPropertyName: 'status', propertyPath: 'status' }])
 @UseInterceptors(ActivityLogInterceptor)
@@ -113,7 +113,7 @@ export class ListingController {
     operationId: 'listAsCsv',
   })
   @Header('Content-Type', 'application/zip')
-  @UseGuards(OptionalAuthGuard, PermissionGuard)
+  @UseGuards(ApiKeyGuard, OptionalAuthGuard, PermissionGuard)
   @UseInterceptors(ExportLogInterceptor)
   async listAsCsv(
     @Request() req: ExpressRequest,
@@ -159,6 +159,7 @@ export class ListingController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(new ListingCreateUpdateValidationPipe(defaultValidationPipeOptions))
   @ApiOkResponse({ type: Listing })
+  @UseGuards(ApiKeyGuard)
   async create(
     @Request() req: ExpressRequest,
     @Body() listingDto: ListingCreate,
@@ -185,6 +186,7 @@ export class ListingController {
   @Delete()
   @ApiOperation({ summary: 'Delete listing by id', operationId: 'delete' })
   @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  @UseGuards(ApiKeyGuard)
   async delete(
     @Body() dto: IdDTO,
     @Request() req: ExpressRequest,

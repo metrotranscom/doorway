@@ -69,18 +69,35 @@ export class ScirptRunnerController {
     );
   }
 
-  @Put('transferJurisdictionUserApplicationData')
+  @Put('transferJurisdictionPartnerUserData')
   @ApiOperation({
     summary:
-      'A script that pulls user and application data from one source into the current db',
-    operationId: 'transferJurisdictionUserApplicationData',
+      'A script that pulls partner user data from one source into the current db',
+    operationId: 'transferJurisdictionPartnerUserData',
   })
   @ApiOkResponse({ type: SuccessDTO })
-  async transferJurisdictionUserApplicationData(
+  async transferJurisdictionPartnerUserData(
     @Body() dataTransferDTO: DataTransferDTO,
     @Request() req: ExpressRequest,
   ): Promise<SuccessDTO> {
-    return await this.scriptRunnerService.transferJurisdictionUserApplicationData(
+    return await this.scriptRunnerService.transferJurisdictionPartnerUserData(
+      req,
+      dataTransferDTO,
+    );
+  }
+
+  @Put('transferJurisdictionPublicUserApplicationData')
+  @ApiOperation({
+    summary:
+      'A script that pulls public user and application data from one source into the current db',
+    operationId: 'transferJurisdictionPublicUserApplicationData',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async transferJurisdictionPublicUserApplicationData(
+    @Body() dataTransferDTO: DataTransferDTO,
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.transferJurisdictionPublicUserAndApplicationData(
       req,
       dataTransferDTO,
     );
@@ -142,6 +159,20 @@ export class ScirptRunnerController {
     return await this.scriptRunnerService.optOutExistingLotteries(req);
   }
 
+  @Put('addDuplicatesInformationToLotteryEmail')
+  @ApiOperation({
+    summary: 'A script that adds duplicates information to lottery email',
+    operationId: 'addDuplicatesInformationToLotteryEmail',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async addDuplicatesInformationToLotteryEmail(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.addDuplicatesInformationToLotteryEmail(
+      req,
+    );
+  }
+
   @Put('createNewReservedCommunityType')
   @ApiOperation({
     summary: 'A script that creates a new reserved community type',
@@ -158,5 +189,17 @@ export class ScirptRunnerController {
       body.name,
       body.description,
     );
+  }
+  @Put('updateCodeExpirationTranslations')
+  @ApiOperation({
+    summary:
+      'A script that updates single use code translations to show extended expiration time',
+    operationId: 'updateCodeExpirationTranslations',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async updateCodeExpirationTranslations(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.updateCodeExpirationTranslations(req);
   }
 }

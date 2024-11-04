@@ -77,6 +77,7 @@ describe('Testing script runner service', () => {
     });
 
     it('should transfer ami and multiselect questions', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
@@ -195,9 +196,9 @@ describe('Testing script runner service', () => {
     prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
-    prisma.translations.findFirst = jest
+    prisma.translations.findMany = jest
       .fn()
-      .mockResolvedValue({ id: randomUUID(), translations: {} });
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
     prisma.translations.update = jest.fn().mockResolvedValue(null);
 
     const id = randomUUID();
@@ -233,11 +234,53 @@ describe('Testing script runner service', () => {
     });
   });
 
+  it('should add duplicates lottery info translations', async () => {
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.findMany = jest
+      .fn()
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
+    prisma.translations.update = jest.fn().mockResolvedValue(null);
+
+    const id = randomUUID();
+    const scriptName = 'add duplicates information to lottery email';
+
+    const res = await service.addDuplicatesInformationToLotteryEmail({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+  });
+
   it('should add lottery translations and create if empty', async () => {
     prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
-    prisma.translations.findFirst = jest.fn().mockResolvedValue(undefined);
+    prisma.translations.findMany = jest.fn().mockResolvedValue(undefined);
     prisma.translations.update = jest.fn().mockResolvedValue(null);
     prisma.translations.create = jest.fn().mockReturnValue({
       language: LanguagesEnum.en,
@@ -282,6 +325,7 @@ describe('Testing script runner service', () => {
 
   describe('transferJurisdictionListingData', () => {
     it('should transfer listings', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
@@ -536,6 +580,7 @@ describe('Testing script runner service', () => {
     });
 
     it('should transfer listings with RCD', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
@@ -996,6 +1041,7 @@ describe('Testing script runner service', () => {
     });
 
     it('should transfer listing events', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
@@ -1088,7 +1134,7 @@ describe('Testing script runner service', () => {
     });
   });
 
-  describe('transferJurisdictionUserApplicationData', () => {
+  describe('transferJurisdictionPartnerUserData', () => {
     it('should transfer partner users', async () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
@@ -1141,12 +1187,12 @@ describe('Testing script runner service', () => {
         activeAccessToken: null,
         activeRefreshToken: null,
       };
-      externalPrismaClient.userAccounts.findMany
-        .mockResolvedValueOnce([partnerOne])
-        .mockResolvedValueOnce([]);
+      externalPrismaClient.userAccounts.findMany.mockResolvedValueOnce([
+        partnerOne,
+      ]);
       prisma.userAccounts.create = jest.fn();
       const id = randomUUID();
-      await service.transferJurisdictionUserApplicationData(
+      await service.transferJurisdictionPartnerUserData(
         {
           user: {
             id,
@@ -1208,8 +1254,11 @@ describe('Testing script runner service', () => {
         },
       });
     });
+  });
 
+  describe('transferJurisdictionPublicUserApplicationData', () => {
     it('should transfer public users', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
@@ -1274,20 +1323,41 @@ describe('Testing script runner service', () => {
         confirmationCode: 'confirmationCode',
         reviewStatus: ApplicationReviewStatusEnum.valid,
       };
-      externalPrismaClient.userAccounts.findMany
-        .mockResolvedValueOnce([]) // No partner users
-        .mockResolvedValueOnce([
-          { ...publicUser, applications: [application] } as any,
-        ]);
+      // application tied to a different jurisdiction
+      const differentApplication = {
+        ...application,
+        id: randomUUID(),
+        listings: { id: randomUUID(), jurisdictionId: randomUUID() },
+      };
+      const additionalPublicUsers = [...Array(25).keys()].map((user) => {
+        return {
+          ...publicUser,
+          id: randomUUID(),
+          email: `email-${user}@email.com`,
+          applications: [{ ...application, id: randomUUID() }],
+        };
+      });
+      externalPrismaClient.userAccounts.findMany.mockResolvedValueOnce([
+        {
+          ...publicUser,
+          applications: [
+            application,
+            differentApplication,
+            { ...application, id: randomUUID() },
+          ],
+        } as any,
+        ...additionalPublicUsers,
+      ]);
       const createdUserId = randomUUID();
       prisma.userAccounts.findFirst = jest.fn().mockResolvedValueOnce(null);
       prisma.userAccounts.create = jest
         .fn()
-        .mockResolvedValueOnce({ id: createdUserId });
+        .mockResolvedValueOnce({ id: createdUserId })
+        .mockResolvedValue({ id: randomUUID() });
       prisma.applications.create = jest.fn();
       prisma.address.createMany = jest.fn();
       const id = randomUUID();
-      await service.transferJurisdictionUserApplicationData(
+      await service.transferJurisdictionPublicUserAndApplicationData(
         {
           user: {
             id,
@@ -1300,7 +1370,7 @@ describe('Testing script runner service', () => {
         externalPrismaClient,
       );
 
-      expect(prisma.userAccounts.create).toBeCalledTimes(1);
+      expect(prisma.userAccounts.create).toBeCalledTimes(26);
       expect(prisma.userAccounts.create).toBeCalledWith({
         data: {
           activeAccessToken: null,
@@ -1338,7 +1408,7 @@ describe('Testing script runner service', () => {
         },
       });
 
-      expect(prisma.applications.create).toBeCalledTimes(1);
+      expect(prisma.applications.create).toBeCalledTimes(27);
       expect(prisma.applications.create).toBeCalledWith({
         data: {
           appUrl: 'appUrl',
@@ -1368,6 +1438,11 @@ describe('Testing script runner service', () => {
           },
         },
       });
+      expect(console.log).toBeCalledWith('migrating 26 public users');
+      expect(console.log).toBeCalledWith(
+        'Progress: 20 users and 21 applications',
+      );
+      expect(console.log).toBeCalledWith('migrated 27 applications');
     });
   });
 

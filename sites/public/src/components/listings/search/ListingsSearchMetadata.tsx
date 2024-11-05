@@ -28,40 +28,47 @@ export const ListingsSearchMetadata = ({
   listView,
 }: ListingsSearchMetadataProps) => {
   return (
-    <div className={styles["search-filter-bar"]}>
-      <span>
-        <Button
-          size={"sm"}
-          onClick={() => setListView(!listView)}
-          className={`results-bar-button ${styles["switch-view-button"]}`}
-        >
-          {listView ? t("t.mapMapView") : t("t.mapListView")}
-        </Button>
-      </span>
-      <div className={`${styles["total-results"]}`}>
-        <span className={styles["search-total-results"]}>
-          <strong>{t("search.totalResults")}</strong> {!loading && searchResults.totalItems}
+    <>
+      <div className={`${styles["search-filter-bar"]} ${styles["search-switch-container"]}`}>
+        <span>
+          <Button
+            size={"sm"}
+            onClick={() => setListView(!listView)}
+            className={`results-bar-button ${styles["switch-view-button"]}`}
+          >
+            {listView ? t("t.mapMapView") : t("t.mapListView")}
+          </Button>
         </span>
-        {!loading && searchResults.lastPage > 0 && (
-          <span className={`${!listView ? styles["hide-total-results"] : ""}`}>
-            (
-            {t("t.pageXofY", { current: searchResults.currentPage, total: searchResults.lastPage })}
-            )
-          </span>
-        )}
       </div>
+      <div className={styles["search-filter-bar"]}>
+        <div className={`${styles["total-results"]}`}>
+          <span className={styles["search-total-results"]}>
+            <strong>{t("search.totalResults")}</strong> {!loading && searchResults.totalItems}
+          </span>
+          {!loading && searchResults.lastPage > 0 && (
+            <span className={`${!listView ? styles["hide-total-results"] : ""}`}>
+              (
+              {t("t.pageXofY", {
+                current: searchResults.currentPage,
+                total: searchResults.lastPage,
+              })}
+              )
+            </span>
+          )}
+        </div>
 
-      <Button
-        variant="primary-outlined"
-        size="sm"
-        className={"results-bar-button"}
-        onClick={() => {
-          setModalOpen(true)
-        }}
-      >
-        <strong>{t("search.filters")}</strong>
-        {filterCount}
-      </Button>
-    </div>
+        <Button
+          variant="primary-outlined"
+          size="sm"
+          className={"results-bar-button"}
+          onClick={() => {
+            setModalOpen(true)
+          }}
+        >
+          <strong>{t("search.filters")}</strong>
+          {filterCount}
+        </Button>
+      </div>
+    </>
   )
 }

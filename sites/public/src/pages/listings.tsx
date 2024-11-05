@@ -30,7 +30,7 @@ export default function ListingsPage(props: ListingsProps) {
     searchString = searchParam
   }
   return (
-    <Layout>
+    <Layout hideFooter={true}>
       <Head>
         <title>{pageTitle}</title>
       </Head>

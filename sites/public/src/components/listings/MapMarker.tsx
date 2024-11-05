@@ -21,7 +21,7 @@ export const MapMarker = (props: MapMarkerProp) => {
   return (
     <AdvancedMarker position={marker.coordinate} onClick={handleClick} ref={ref}>
       <span>
-        <img src="/images/map-pin.svg" alt={"Listing pin"} />
+        <img src="/images/map-pin2.svg" alt={"Listing pin"} />
       </span>
     </AdvancedMarker>
   )

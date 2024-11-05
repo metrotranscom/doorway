@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { APIProvider, Map } from "@vis.gl/react-google-maps"
+import { APIProvider, Map, MapCameraChangedEvent } from "@vis.gl/react-google-maps"
 import { useJsApiLoader } from "@react-google-maps/api"
 import { t } from "@bloom-housing/ui-components"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -57,37 +57,28 @@ const ListingsMap = (props: ListingsMapProps) => {
   })
 
   const [infoWindowIndex, setInfoWindowIndex] = useState<number>(null)
-  const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>({
-    lat: defaultCenter.lat,
-    lng: defaultCenter.lng,
-  })
-  const [zoom, setZoom] = useState<number>(defaultZoom)
 
   const markers: ListingsMapMarker[] = getMarkers(props.listings)
 
   if (!isLoaded) return <></>
 
   return (
-    <div className={styles["listings-map"]}>
+    <div id={"listings-map"} className={styles["listings-map"]}>
       <a className={styles["listings-map-skip-link"]} href={`#listingsList`}>
         {t("t.skipMapOfListings")}
       </a>
-      <MapControl zoom={zoom} setZoom={setZoom} />
       <APIProvider apiKey={props.googleMapsApiKey}>
         <Map
           mapId={"listings-map"}
           style={containerStyle}
           gestureHandling={"greedy"}
           disableDefaultUI={true}
-          center={mapCenter}
-          zoom={zoom}
-          onCenterChanged={(map) => setMapCenter(map.detail.center)}
-          onZoomChanged={(map) => setZoom(map.detail.zoom)}
+          defaultZoom={defaultZoom}
+          defaultCenter={defaultCenter}
         >
+          <MapControl />
           <MapClusterer
             mapMarkers={markers}
-            setMapCenter={setMapCenter}
-            setZoom={setZoom}
             infoWindowIndex={infoWindowIndex}
             setInfoWindowIndex={setInfoWindowIndex}
           />

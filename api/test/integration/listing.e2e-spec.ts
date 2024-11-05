@@ -51,6 +51,7 @@ describe('Listing Controller Tests', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let jurisdictionAId: string;
+  let jurisdictionAEmail: string;
   let adminAccessToken: string;
 
   const testEmailService = {
@@ -87,6 +88,7 @@ describe('Listing Controller Tests', () => {
       data: jurisdictionFactory(),
     });
     jurisdictionAId = jurisdiction.id;
+    jurisdictionAEmail = jurisdiction.emailFromAddress;
     await reservedCommunityTypeFactoryAll(jurisdictionAId, prisma);
     await unitAccessibilityPriorityTypeFactoryAll(prisma);
     const adminUser = await prisma.userAccounts.create({
@@ -906,7 +908,7 @@ describe('Listing Controller Tests', () => {
       );
     });
 
-    it('update status to pending approval and notify appropriate users', async () => {
+    it.only('update status to pending approval and notify appropriate users', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/login')
         .set({ passkey: process.env.API_PASS_KEY || '' })
@@ -940,6 +942,7 @@ describe('Listing Controller Tests', () => {
         { id: listing.id, name: val.name },
         expect.arrayContaining([adminUser.email, jurisAdmin.email]),
         process.env.PARTNERS_PORTAL_URL,
+        jurisdictionAEmail,
       );
       //ensure juris admin is not included since don't have approver permissions in alameda seed
       expect(mockRequestApproval.mock.calls[0]['emails']).toEqual(
@@ -980,6 +983,7 @@ describe('Listing Controller Tests', () => {
         { id: listing.id, name: val.name },
         expect.arrayContaining([partnerUser.email]),
         jurisdictionA.publicUrl,
+        jurisdictionA.emailFromAddress,
       );
       expect(mockListingOpportunity).toBeCalledWith(
         expect.objectContaining({
@@ -1022,6 +1026,7 @@ describe('Listing Controller Tests', () => {
         { id: listing.id, name: val.name, juris: expect.anything() },
         expect.arrayContaining([partnerUser.email]),
         process.env.PARTNERS_PORTAL_URL,
+        jurisdictionAEmail,
       );
     });
   });

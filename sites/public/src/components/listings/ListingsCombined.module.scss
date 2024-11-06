@@ -1,7 +1,13 @@
 .listings-combined {
   width: 100vw;
   height: var(--listings-component-height);
+  display: flex;
   flex-direction: column;
+
+  @media (max-width: $screen-md) {
+    height: calc(var(--listings-component-height-mobile));
+    max-height: calc(var(--listings-component-height-mobile));
+  }
 
   // @media (max-width: $screen-md) {
   //   position: relative;
@@ -22,8 +28,13 @@
 
   .listings-map-list-container {
     display: flex;
-    // position: absolute;
     height: 100%;
+    @media (max-width: $screen-md) {
+      height: var(--listings-component-height-mobile);
+      max-height: var(--listings-component-height-mobile);
+      position: relative;
+      display: block;
+    }
   }
 
   .listings-map-skip-link {
@@ -50,8 +61,9 @@
       display: block;
       z-index: 0;
       width: 100%;
-      overflow-y: auto;
-      height: 100%;
+      --search-height: 0;
+      height: calc(var(--listings-component-height-mobile));
+      max-height: calc(var(--listings-component-height-mobile));
     }
   }
 
@@ -79,7 +91,6 @@
       display: block;
       position: relative;
       z-index: 1;
-      height: calc(var(--listings-component-height));
       overflow-y: auto;
       background-color: var(--background-color);
     }
@@ -92,6 +103,14 @@
       width: 55%;
     }
   }
+}
+
+.listings-map-list-container-list-only {
+  height: var(--listings-component-height-mobile);
+}
+
+.listings-map-list-container-map-only {
+  height: var(--listings-component-height-mobile);
 }
 
 .listings-list-wrapper {

@@ -2,7 +2,10 @@
   // This is a not-ideal way to do "fill window minus header and filter modal" however
   // I can't find another way to do this.
   // TODO: update header + filter modal to a not-magic number
-  --listings-component-height: calc(100vh - 183px);
+  --listings-component-height: calc(100dvh - 173px);
+  --listings-component-height-mobile: calc(100dvh - 119px);
+  // --listings-component-height-mobile: 100vh;
+
   --listings-component-half-height: calc(var(--listings-component-height) / 2);
   --listings-list-width: 600px;
   --listings-list-overscroll: calc(var(--seeds-s14) + var(--seeds-s1));
@@ -41,7 +44,10 @@
 }
 
 .search-switch-container {
+  padding-block: 0;
   @media (max-width: $screen-md) {
+    padding-block-start: var(--seeds-s2);
+    border-block-start: 1px solid var(--seeds-border-color);
     justify-content: flex-end;
     border-block-end: none;
   }

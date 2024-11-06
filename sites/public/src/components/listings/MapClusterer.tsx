@@ -40,13 +40,18 @@ const getBoundsZoomLevel = (bounds: google.maps.LatLngBounds) => {
   return Math.min(latZoom, lngZoom, ZOOM_MAX)
 }
 
-const animateMapZoomTo = (map: google.maps.Map, targetZoom: number) => {
+const animateMapZoomTo = (
+  map: google.maps.Map,
+  targetZoom: number,
+  panTo?: google.maps.LatLngLiteral
+) => {
   const currentZoom = map.getZoom()
   if (currentZoom >= targetZoom) return
   if (currentZoom !== targetZoom) {
     google.maps.event.addListenerOnce(map, "zoom_changed", () => {
       animateMapZoomTo(map, targetZoom)
     })
+    if (panTo) map.setCenter(panTo)
     setTimeout(function () {
       map.setZoom(currentZoom + 1)
     }, 80)
@@ -85,7 +90,7 @@ export const MapClusterer = ({
       },
       onClusterClick: (_, cluster, map) => {
         const zoomLevel = getBoundsZoomLevel(cluster.bounds)
-        animateMapZoomTo(map, zoomLevel)
+        animateMapZoomTo(map, zoomLevel - 1)
         map.panTo(cluster.bounds.getCenter())
       },
     })
@@ -106,7 +111,7 @@ export const MapClusterer = ({
         lng: marker.coordinate.lng,
       })
     })
-    map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
+    map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusterer, markers])
 
@@ -131,7 +136,12 @@ export const MapClusterer = ({
   const handleMarkerClick = useCallback((marker: ListingsMapMarker) => {
     setInfoWindowIndex(marker.key)
     animateMapZoomTo(map, 14)
+    const divHeightOfTheMap = document.getElementById("listings-map").clientHeight
+    const offSetFromBottom = 10
     map.panTo(marker.coordinate)
+    google.maps.event.addListenerOnce(map, "tilesloaded", function () {
+      map.panBy(0, -(divHeightOfTheMap / 2 - offSetFromBottom))
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -153,6 +163,7 @@ export const MapClusterer = ({
           className={"info-window"}
           minWidth={250}
           maxWidth={500}
+          disableAutoPan={true}
         >
           {mapMarkers[infoWindowIndex].infoWindowContent}
         </InfoWindow>

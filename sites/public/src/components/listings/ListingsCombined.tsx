@@ -58,14 +58,9 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           setListView={props.setListView}
           listView={props.listView}
         />
-        <div className={styles["listings-map-list-container"]}>
-          <div className={styles["listings-map"]}>
-            <ListingsMap
-              listings={props.listings}
-              googleMapsApiKey={props.googleMapsApiKey}
-              isMapExpanded={false}
-            />
-          </div>
+        <div
+          className={`${styles["listings-map-list-container"]} ${styles["listings-map-list-container-list-only"]}`}
+        >
           <div id="listings-list-expanded" className={styles["listings-list-expanded"]}>
             <ListingsList
               listings={props.listings}

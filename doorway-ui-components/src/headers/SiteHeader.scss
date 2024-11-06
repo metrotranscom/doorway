@@ -58,7 +58,7 @@
   --logo-width-wide: 350px;
   --logo-width-med: 255px;
   --logo-width-base_expanded: 230px;
-  --logo-width-base: 200px;
+  --logo-width-base: 180px;
   --logo-width-slim: 100px;
 
   // Link
@@ -207,7 +207,6 @@
   width: var(--base-mobile-width);
 
   @media (min-width: $screen-md) {
-    flex-flow: wrap;
     padding: var(--base-desktop-padding);
     width: var(--base-desktop-width);
   }
@@ -461,6 +460,9 @@
   .site-header__link {
     align-items: var(--link-align-items-inline);
     padding: var(--link-padding-inline);
+    @media (max-width: $screen-md) {
+      padding: var(--bloom-s1) var(--bloom-s2) var(--bloom-s3) var(--bloom-s2);
+    }
   }
 }
 

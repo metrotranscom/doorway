@@ -1058,6 +1058,7 @@ export class ScriptRunnerService {
       });
     };
 
+  private async addLotteryTranslationsHelper(createIfMissing?: boolean) {
     const enKeys = {
       lotteryReleased: {
         header: 'Lottery results for %{listingName} are ready to be published',
@@ -1158,11 +1159,31 @@ export class ScriptRunnerService {
         otherOpportunities4: 'Doorway Housing Portal 幫助中心',
       },
     };
-    await updateForLanguage(LanguagesEnum.en, enKeys);
-    await updateForLanguage(LanguagesEnum.es, esKeys);
-    await updateForLanguage(LanguagesEnum.tl, tlKeys);
-    await updateForLanguage(LanguagesEnum.vi, viKeys);
-    await updateForLanguage(LanguagesEnum.zh, zhKeys);
+    await this.updateTranslationsForLanguage(
+      LanguagesEnum.en,
+      enKeys,
+      createIfMissing,
+    );
+    await this.updateTranslationsForLanguage(
+      LanguagesEnum.es,
+      esKeys,
+      createIfMissing,
+    );
+    await this.updateTranslationsForLanguage(
+      LanguagesEnum.tl,
+      tlKeys,
+      createIfMissing,
+    );
+    await this.updateTranslationsForLanguage(
+      LanguagesEnum.vi,
+      viKeys,
+      createIfMissing,
+    );
+    await this.updateTranslationsForLanguage(
+      LanguagesEnum.zh,
+      zhKeys,
+      createIfMissing,
+    );
   }
 
   /**
@@ -1175,7 +1196,7 @@ export class ScriptRunnerService {
   async addLotteryTranslations(req: ExpressRequest): Promise<SuccessDTO> {
     const requestingUser = mapTo(User, req['user']);
     await this.markScriptAsRunStart('add lottery translations', requestingUser);
-    this.addLotteryTranslationsHelper();
+    this.addLotteryTranslationsHelper(true);
     await this.markScriptAsComplete('add lottery translations', requestingUser);
 
     return { success: true };
@@ -1196,7 +1217,7 @@ export class ScriptRunnerService {
       'add lottery translations create if empty',
       requestingUser,
     );
-    this.addLotteryTranslationsHelper();
+    this.addLotteryTranslationsHelper(true);
     await this.markScriptAsComplete(
       'add lottery translations create if empty',
       requestingUser,
@@ -1232,6 +1253,87 @@ export class ScriptRunnerService {
 
     await this.markScriptAsComplete(
       'opt out existing lotteries',
+      requestingUser,
+    );
+    return { success: true };
+  }
+
+  /**
+   *
+   * @param req incoming request object
+   * @returns successDTO
+   * @description add duplicates information to lottery email
+   */
+  async addDuplicatesInformationToLotteryEmail(
+    req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      'add duplicates information to lottery email',
+      requestingUser,
+    );
+
+    await this.updateTranslationsForLanguage(LanguagesEnum.en, {
+      lotteryAvailable: {
+        duplicatesDetails:
+          'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
+        termsOfUse: 'Terms of Use',
+      },
+      confirmation: {
+        submitAnotherApplication:
+          'If you’re not changing the primary applicant or any household members, you can just submit another application.  We’ll take the last one submitted, per the duplicate application policy.',
+        otherChanges:
+          'For other changes, please contact doorway@bayareametro.gov.',
+      },
+    });
+    await this.updateTranslationsForLanguage(LanguagesEnum.es, {
+      lotteryAvailable: {
+        duplicatesDetails:
+          'Doorway generalmente no acepta solicitudes duplicadas. Una solicitud duplicada es aquella en la que aparece una persona que también aparece en otra solicitud para la misma oportunidad de vivienda. Para obtener información más detallada sobre cómo manejamos las solicitudes duplicadas, consulte nuestros',
+        termsOfUse: 'Términos de uso',
+      },
+      confirmation: {
+        submitAnotherApplication:
+          'Si no va a cambiar al solicitante principal ni a ningún miembro del hogar, puede simplemente enviar otra solicitud.  Tomaremos el último enviado, según la política de solicitud de duplicados.',
+        otherChanges:
+          'Para otros cambios, comuníquese con doorway@bayareametro.gov',
+      },
+    });
+    await this.updateTranslationsForLanguage(LanguagesEnum.tl, {
+      lotteryAvailable: {
+        duplicatesDetails:
+          'Ang Doorway sa pangkalahatan ay hindi tumatanggap ng mga duplicate na aplikasyon. Ang isang duplicate na aplikasyon ay isa na mayroong isang tao na lumilitaw din sa isa pang aplikasyon para sa parehong pagkakataon sa pabahay. Para sa mas detalyadong impormasyon sa kung paano namin pinangangasiwaan ang mga duplicate, tingnan ang aming',
+        termsOfUse: 'Mga Tuntunin ng Paggamit',
+      },
+    });
+    await this.updateTranslationsForLanguage(LanguagesEnum.vi, {
+      lotteryAvailable: {
+        duplicatesDetails:
+          'Doorway thường không chấp nhận các đơn xin trùng lặp. Một đơn xin trùng lặp là đơn xin có người cũng xuất hiện trên một đơn xin khác cho cùng một cơ hội nhà ở. Để biết thông tin chi tiết hơn về cách chúng tôi xử lý các đơn xin trùng lặp, hãy xem của chúng tôi',
+        termsOfUse: 'Điều khoản sử dụng',
+      },
+      confirmation: {
+        submitAnotherApplication:
+          'Nếu bạn không thay đổi người nộp đơn chính hoặc bất kỳ thành viên nào trong gia đình, bạn chỉ cần gửi đơn đăng ký khác.  Chúng tôi sẽ lấy bản cuối cùng được gửi theo chính sách đăng ký trùng lặp.',
+        otherChanges:
+          'Đối với những thay đổi khác, vui lòng liên hệ với Door@bayareametro.gov.',
+      },
+    });
+    await this.updateTranslationsForLanguage(LanguagesEnum.zh, {
+      lotteryAvailable: {
+        duplicatesDetails:
+          'Doorway 一般不接受重复申请。重复申请是指申请者与另一份申请者有相同的住房机会。有关我们如何处理重复申请的更多详细信息，请参阅我们的',
+        termsOfUse: '使用条款',
+      },
+      confirmation: {
+        submitAnotherApplication:
+          '如果你不改變主申請人或任何家庭成員，你可以提交另一份申請。  我們將根據重複申請政策採用最後提交的一份申請。',
+        otherChanges: '如需其他變更，請聯絡doorway@bayareametro.gov。',
+      },
+    });
+
+    await this.markScriptAsComplete(
+      'add duplicates information to lottery email',
       requestingUser,
     );
     return { success: true };
@@ -1393,5 +1495,56 @@ export class ScriptRunnerService {
         scriptName,
       },
     });
+  }
+
+  private async updateTranslationsForLanguage(
+    language: LanguagesEnum,
+    newTranslations: Record<string, any>,
+    createIfMissing?: boolean,
+  ) {
+    let translations;
+    translations = await this.prisma.translations.findMany({
+      where: { language },
+    });
+
+    if (!translations?.length) {
+      if (createIfMissing) {
+        const createdTranslations = await this.prisma.translations.create({
+          data: {
+            language: language,
+            translations: {},
+            jurisdictions: undefined,
+          },
+        });
+        translations = [createdTranslations];
+      } else {
+        console.log(
+          `Translations for ${language} don't exist in Doorway database`,
+        );
+        return;
+      }
+    }
+
+    for (const translation of translations) {
+      const translationsJSON = translation.translations as Prisma.JsonObject;
+
+      Object.keys(newTranslations).forEach((key) => {
+        translationsJSON[key] = {
+          ...((translationsJSON[key] || {}) as Prisma.JsonObject),
+          ...newTranslations[key],
+        };
+      });
+
+      // technique taken from
+      // https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/working-with-json-fields#advanced-example-update-a-nested-json-key-value
+      const dataClause = Prisma.validator<Prisma.TranslationsUpdateInput>()({
+        translations: translationsJSON,
+      });
+
+      await this.prisma.translations.update({
+        where: { id: translation.id },
+        data: dataClause,
+      });
+    }
   }
 }

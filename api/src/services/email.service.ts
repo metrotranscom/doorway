@@ -353,6 +353,7 @@ export class EmailService {
     let eligibleText: string;
     let preferenceText: string;
     let contactText = null;
+    let duplicateText = null;
     if (listing.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe) {
       eligibleText = this.polyglot.t('confirmation.eligible.fcfs');
       preferenceText = this.polyglot.t('confirmation.eligible.fcfsPreference');
@@ -362,6 +363,7 @@ export class EmailService {
       preferenceText = this.polyglot.t(
         'confirmation.eligible.lotteryPreference',
       );
+      duplicateText = this.polyglot.t('lotteryAvailable.duplicatesDetails');
     }
     if (listing.reviewOrderType === ReviewOrderTypeEnum.waitlist) {
       eligibleText = this.polyglot.t('confirmation.eligible.waitlist');
@@ -394,6 +396,8 @@ export class EmailService {
         preferenceText,
         interviewText: this.polyglot.t('confirmation.interview'),
         eligibleText,
+        duplicateText,
+        termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
         contactText,
         nextStepsUrl:
           nextStepsUrl != 'confirmation.nextStepsUrl' ? nextStepsUrl : null,
@@ -671,7 +675,8 @@ export class EmailService {
             appUrl: jurisdiction.publicUrl,
           },
           appUrl: jurisdiction.publicUrl,
-          // These two URLs are placeholders and must be updated per jurisdiction
+          termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
+          // These three URLs are placeholders and must be updated per jurisdiction
           notificationsUrl: 'https://www.exygy.com',
           helpCenterUrl: 'https://www.exygy.com',
         }),

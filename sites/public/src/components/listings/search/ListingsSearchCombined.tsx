@@ -7,11 +7,11 @@ import { searchListings } from "../../../lib/listings/listing-service"
 import styles from "./ListingsSearch.module.scss"
 import { ListingsCombined } from "../ListingsCombined"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
-import { ListingsSearchMetadata } from "./ListingsSearchMetadata"
 
 type ListingsSearchCombinedProps = {
   searchString?: string
   googleMapsApiKey: string
+  googleMapsMapId: string
   bedrooms: FormOption[]
   bathrooms: FormOption[]
   counties: FormOption[]
@@ -118,6 +118,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         lastPage={searchResults.lastPage}
         loading={searchResults.loading}
         googleMapsApiKey={props.googleMapsApiKey}
+        googleMapsMapId={props.googleMapsMapId}
         onPageChange={onPageChange}
         listView={listView}
         setModalOpen={setModalOpen}

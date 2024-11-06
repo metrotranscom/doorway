@@ -48,6 +48,7 @@ export const listingFactory = async (
     reviewOrderType?: ReviewOrderTypeEnum;
     listingEvents?: Prisma.ListingEventsCreateWithoutListingsInput[];
     lotteryOptIn?: boolean;
+    address?: Prisma.AddressCreateInput;
   },
 ): Promise<Prisma.ListingsCreateInput> => {
   const previousListing = optionalParams?.listing || {};
@@ -80,7 +81,7 @@ export const listingFactory = async (
     lotteryOptIn: optionalParams?.lotteryOptIn || undefined,
     displayWaitlistSize: Math.random() < 0.5,
     listingsBuildingAddress: {
-      create: addressFactory(),
+      create: optionalParams.address || addressFactory(),
     },
     listingsApplicationMailingAddress: {
       create: addressFactory(),
@@ -155,7 +156,8 @@ export const listingFactory = async (
         }
       : undefined,
     applicationDueDate: optionalParams?.applicationDueDate ?? undefined,
-    reviewOrderType: optionalParams?.reviewOrderType ?? undefined,
+    reviewOrderType:
+      optionalParams?.reviewOrderType ?? ReviewOrderTypeEnum.lottery,
     developer: randomName(),
     leasingAgentName: randomName(),
     leasingAgentEmail: 'leasing-agent@example.com',

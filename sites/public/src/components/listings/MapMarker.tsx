@@ -1,6 +1,7 @@
 import React, { useCallback } from "react"
 import { AdvancedMarker } from "@vis.gl/react-google-maps"
 import { ListingsMapMarker } from "./ListingsMap"
+import styles from "./ListingsCombined.module.scss"
 
 export type MapMarkerProp = {
   marker: ListingsMapMarker
@@ -21,7 +22,7 @@ export const MapMarker = (props: MapMarkerProp) => {
   return (
     <AdvancedMarker position={marker.coordinate} onClick={handleClick} ref={ref}>
       <span>
-        <img src="/images/map-pin2.svg" alt={"Listing pin"} />
+        <img src="/images/map-pin.svg" alt={"Listing pin"} />
       </span>
     </AdvancedMarker>
   )

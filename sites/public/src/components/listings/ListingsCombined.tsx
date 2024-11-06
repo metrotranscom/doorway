@@ -11,6 +11,7 @@ type ListingsCombinedProps = {
   lastPage: number
   onPageChange: (page: number) => void
   googleMapsApiKey: string
+  googleMapsMapId: string
   loading: boolean
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   filterCount: number
@@ -90,6 +91,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           <ListingsMap
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
+            googleMapsMapId={props.googleMapsMapId}
             isMapExpanded={true}
           />
         </div>
@@ -113,6 +115,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             <ListingsMap
               listings={props.listings}
               googleMapsApiKey={props.googleMapsApiKey}
+              googleMapsMapId={props.googleMapsMapId}
               isMapExpanded={false}
             />
           </div>

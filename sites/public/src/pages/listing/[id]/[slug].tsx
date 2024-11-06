@@ -21,6 +21,7 @@ interface ListingProps {
   listing: Listing
   jurisdiction: Jurisdiction
   googleMapsApiKey: string
+  googleMapsMapId: string
 }
 
 export default function ListingPage(props: ListingProps) {
@@ -74,6 +75,7 @@ export default function ListingPage(props: ListingProps) {
         listing={listing as ListingViewListing}
         jurisdiction={props.jurisdiction}
         googleMapsApiKey={props.googleMapsApiKey}
+        googleMapsMapId={props.googleMapsMapId}
         isExternal={false}
       />
     </Layout>
@@ -150,6 +152,7 @@ export async function getServerSideProps(context: {
       listing: response.data,
       jurisdiction: response.data.jurisdictions,
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
+      googleMapsMapId: runtimeConfig.getGoogleMapsMapId(),
     },
   }
 }

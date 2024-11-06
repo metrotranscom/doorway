@@ -12,6 +12,7 @@ import Layout from "../layouts/application"
 export interface ListingsProps {
   listingsEndpoint: string
   googleMapsApiKey: string
+  googleMapsMapId: string
   bedrooms: FormOption[]
   bathrooms: FormOption[]
 }
@@ -38,6 +39,7 @@ export default function ListingsPage(props: ListingsProps) {
       <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
       <ListingsSearchCombined
         googleMapsApiKey={props.googleMapsApiKey}
+        googleMapsMapId={props.googleMapsMapId}
         searchString={searchString}
         bedrooms={props.bedrooms}
         bathrooms={props.bathrooms}
@@ -51,6 +53,7 @@ export function getServerSideProps() {
   return {
     props: {
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
+      googleMapsMapId: runtimeConfig.getGoogleMapsMapId(),
     },
   }
 }

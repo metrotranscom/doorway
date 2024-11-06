@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { APIProvider, Map, MapCameraChangedEvent } from "@vis.gl/react-google-maps"
+import { APIProvider, Map } from "@vis.gl/react-google-maps"
 import { useJsApiLoader } from "@react-google-maps/api"
 import { t } from "@bloom-housing/ui-components"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -11,6 +11,7 @@ import styles from "./ListingsCombined.module.scss"
 type ListingsMapProps = {
   listings?: Listing[]
   googleMapsApiKey: string
+  googleMapsMapId: string
   desktopMinWidth?: number
   isMapExpanded: boolean
 }
@@ -69,12 +70,13 @@ const ListingsMap = (props: ListingsMapProps) => {
       </a>
       <APIProvider apiKey={props.googleMapsApiKey}>
         <Map
-          mapId={"listings-map"}
+          mapId={props.googleMapsMapId}
           style={containerStyle}
           gestureHandling={"greedy"}
           disableDefaultUI={true}
           defaultZoom={defaultZoom}
           defaultCenter={defaultCenter}
+          clickableIcons={false}
         >
           <MapControl />
           <MapClusterer

@@ -10,6 +10,7 @@ import {
   Tag,
   LinkButton,
   StackedTableProps,
+  AppearanceSizeType,
 } from "@bloom-housing/ui-components"
 import { ImageCard, ImageCardProps, ImageTag } from "../../blocks/ImageCard"
 import { AppearanceShadeType } from "../../global/AppearanceTypes"
@@ -234,6 +235,7 @@ const ListingCard = (props: ListingCardProps) => {
                   ariaHidden={footerButton.ariaHidden}
                   key={index}
                   className={"is-secondary doorway-button"}
+                  size={AppearanceSizeType.small}
                 >
                   {footerButton.text}
                 </LinkButton>

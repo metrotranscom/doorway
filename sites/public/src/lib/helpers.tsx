@@ -165,7 +165,7 @@ export const getListingCard = (listing: Listing, index: number) => {
       ]}
       contentProps={{
         contentHeader: {
-          content: displayIndex + ". " + listing.name,
+          content: listing.name,
           href: uri,
           makeCardClickable: true,
         },

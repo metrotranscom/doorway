@@ -273,8 +273,11 @@
         .listings-row_figure {
           margin-bottom: var(--seeds-s2);
           width: 100%;
-          img {
-            max-width: 400px;
+          .image-card {
+            width: 100%;
+            img {
+              max-height: 125px;
+            }
           }
         }
         .listings-row_content {

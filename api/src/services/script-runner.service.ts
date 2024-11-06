@@ -1024,40 +1024,6 @@ export class ScriptRunnerService {
     return { success: true };
   }
 
-  private async addLotteryTranslationsHelper() {
-    const updateForLanguage = async (
-      language: LanguagesEnum,
-      translationKeys: Record<string, Record<string, string>>,
-    ) => {
-      let translations;
-      translations = await this.prisma.translations.findFirst({
-        where: { language, jurisdictionId: null },
-      });
-
-      if (!translations) {
-        translations = await this.prisma.translations.create({
-          data: {
-            language: language,
-            translations: {},
-            jurisdictions: undefined,
-          },
-        });
-      }
-
-      const translationsJSON =
-        translations.translations as unknown as Prisma.JsonArray;
-
-      await this.prisma.translations.update({
-        where: { id: translations.id },
-        data: {
-          translations: {
-            ...translationsJSON,
-            ...translationKeys,
-          },
-        },
-      });
-    };
-
   private async addLotteryTranslationsHelper(createIfMissing?: boolean) {
     const enKeys = {
       lotteryReleased: {

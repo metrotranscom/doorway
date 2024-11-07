@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import CustomSiteFooter from "../shared/CustomSiteFooter"
 import { ListingsMap } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
 import styles from "./ListingsCombined.module.scss"
 import { ListingsSearchMetadata } from "./search/ListingsSearchMetadata"
-import { getSiteFooter } from "../../lib/helpers"
 
 type ListingsCombinedProps = {
   listings: Listing[]
@@ -72,7 +72,9 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               loading={props.loading}
             />
           </div>
-          <div>{getSiteFooter()}</div>
+          <div>
+            <CustomSiteFooter />
+          </div>
         </div>
       </div>
     )

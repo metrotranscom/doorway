@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
 import { t } from "@bloom-housing/ui-components"
 import {
@@ -92,7 +92,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const initialState = parseSearchString(searchString, nullState)
   const [formValues, setFormValues] = useState(initialState)
 
-  const countFilters = (params: ListingSearchParams) => {
+  const countFilters = useCallback((params: ListingSearchParams) => {
     let count = 0
     // For each of our search params, count the number that aren't empty
     Object.values(params).forEach((value) => {
@@ -101,7 +101,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
       count++
     })
     return count
-  }
+  }, [])
 
   // We're factoring out the function to prevent requiring props in useEffect
   const filterChange = props.onFilterChange
@@ -334,7 +334,6 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
           style={clearButtonStyle}
           onClick={() => {
             clearValues()
-            props.onClose()
           }}
         >
           {t("t.clearAllFilters")}

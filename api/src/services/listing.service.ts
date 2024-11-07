@@ -232,16 +232,7 @@ export class ListingService implements OnModuleInit {
     };
   }
 
-  async listCombined(params: ListingsQueryParams): Promise<{
-    items: Listing[];
-    meta: {
-      currentPage: number;
-      itemCount: number;
-      itemsPerPage: number;
-      totalItems: number;
-      totalPages: number;
-    };
-  }> {
+  private buildListingsWhereClause = async (params: ListingsQueryParams) => {
     const onlyLettersPattern = /^[A-Za-z ]+$/;
     const whereClauseArray = [];
     if (params?.filter?.length) {
@@ -310,7 +301,20 @@ export class ListingService implements OnModuleInit {
     const listingIds: { id: string }[] = await this.prisma.$queryRawUnsafe(
       rawQuery,
     );
+    return listingIds;
+  };
 
+  async listCombined(params: ListingsQueryParams): Promise<{
+    items: Listing[];
+    meta: {
+      currentPage: number;
+      itemCount: number;
+      itemsPerPage: number;
+      totalItems: number;
+      totalPages: number;
+    };
+  }> {
+    const listingIds = await this.buildListingsWhereClause(params);
     const count = listingIds?.length;
 
     // if passed in page and limit would result in no results because there aren't that many listings
@@ -2043,7 +2047,9 @@ export class ListingService implements OnModuleInit {
     return listing.jurisdictionId;
   }
 
-  async mapMarkers(): Promise<ListingMapMarker[]> {
+  async mapMarkers(params: ListingsQueryParams): Promise<ListingMapMarker[]> {
+    const listingIds = await this.buildListingsWhereClause(params);
+
     const listingsRaw = await this.prisma.listings.findMany({
       select: {
         id: true,
@@ -2051,6 +2057,9 @@ export class ListingService implements OnModuleInit {
       },
       where: {
         status: ListingsStatusEnum.active,
+        id: {
+          in: listingIds.map((listing) => listing.id),
+        },
       },
     });
 

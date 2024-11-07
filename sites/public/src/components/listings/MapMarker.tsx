@@ -1,10 +1,10 @@
 import React, { useCallback } from "react"
 import { AdvancedMarker } from "@vis.gl/react-google-maps"
-import { ListingsMapMarker } from "./ListingsMap"
+import { MapMarkerData } from "./ListingsMap"
 
 export type MapMarkerProp = {
-  marker: ListingsMapMarker
-  onClick: (marker: ListingsMapMarker) => void
+  marker: MapMarkerData
+  onClick: (marker: MapMarkerData) => void
   setMarkerRef: (marker: google.maps.marker.AdvancedMarkerElement | null, key: number) => void
 }
 

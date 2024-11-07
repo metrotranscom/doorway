@@ -130,8 +130,12 @@ export class ListingController {
     operationId: 'mapMarkers',
   })
   @ApiOkResponse({ type: ListingMapMarker, isArray: true })
-  async mapMarkers() {
-    return await this.listingService.mapMarkers();
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  async mapMarkers(
+    @Query() queryParams: ListingsQueryParams,
+  ): Promise<ListingMapMarker[]> {
+    return await this.listingService.mapMarkers(queryParams);
   }
 
   @Get(`external/:id`)
@@ -234,7 +238,6 @@ export class ListingController {
     );
   }
 
-  // NestJS best practice to have get(':id') at the bottom of the file
   @Get(`:id`)
   @ApiOperation({ summary: 'Get listing by id', operationId: 'retrieve' })
   @UseInterceptors(ClassSerializerInterceptor)

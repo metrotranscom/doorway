@@ -2,24 +2,22 @@ import React, { useState } from "react"
 import { APIProvider, Map } from "@vis.gl/react-google-maps"
 import { useJsApiLoader } from "@react-google-maps/api"
 import { t } from "@bloom-housing/ui-components"
-import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import { getListingUrl, getListingCard } from "../../lib/helpers"
+import { ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { MapControl } from "../shared/MapControl"
 import { MapClusterer } from "./MapClusterer"
 import styles from "./ListingsCombined.module.scss"
 
 type ListingsMapProps = {
-  listings?: Listing[]
+  listings?: ListingMapMarker[]
   googleMapsApiKey: string
   googleMapsMapId: string
   desktopMinWidth?: number
   isMapExpanded: boolean
 }
 
-export type ListingsMapMarker = {
-  uri: string
+export type MapMarkerData = {
+  id: string
   key: number
-  infoWindowContent: React.JSX.Element
   coordinate: google.maps.LatLngLiteral
 }
 
@@ -30,17 +28,16 @@ const containerStyle: React.CSSProperties = {
   display: "block",
 }
 
-const getMarkers = (listings: Listing[]) => {
-  const markers: ListingsMapMarker[] = []
-  listings.forEach((listing: Listing, index) => {
+const getMarkers = (listings: ListingMapMarker[]) => {
+  const markers: MapMarkerData[] = []
+  listings.forEach((listing: ListingMapMarker, index) => {
     markers.push({
       coordinate: {
-        lat: listing.listingsBuildingAddress.latitude,
-        lng: listing.listingsBuildingAddress.longitude,
+        lat: listing.lat,
+        lng: listing.lng,
       },
-      uri: getListingUrl(listing),
+      id: listing.id,
       key: index,
-      infoWindowContent: getListingCard(listing, index),
     })
   })
   return markers
@@ -59,7 +56,7 @@ const ListingsMap = (props: ListingsMapProps) => {
 
   const [infoWindowIndex, setInfoWindowIndex] = useState<number>(null)
 
-  const markers: ListingsMapMarker[] = getMarkers(props.listings)
+  const markers: MapMarkerData[] = getMarkers(props.listings)
 
   if (!isLoaded) return <></>
 

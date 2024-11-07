@@ -3,7 +3,7 @@ import { UserStatus } from "../../../lib/constants"
 import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { t } from "@bloom-housing/ui-components"
 import { ListingSearchParams, generateSearchQuery } from "../../../lib/listings/search"
-import { searchListings } from "../../../lib/listings/listing-service"
+import { searchListings, searchMapMarkers } from "../../../lib/listings/listing-service"
 import styles from "./ListingsSearch.module.scss"
 import { ListingsCombined } from "../ListingsCombined"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
@@ -40,6 +40,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   const [searchResults, setSearchResults] = useState({
     listings: [],
+    markers: [],
     currentPage: 0,
     lastPage: 0,
     totalItems: 0,
@@ -63,12 +64,14 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const search = async (params: ListingSearchParams, page: number) => {
     const qb = generateSearchQuery(params)
     const result = await searchListings(qb, pageSize, page, listingsService)
+    const markers = await searchMapMarkers(qb, listingsService)
 
     const listings = result.items
     const meta = result.meta
 
     setSearchResults({
-      listings: listings,
+      listings,
+      markers,
       currentPage: meta.currentPage,
       lastPage: meta.totalPages,
       totalItems: meta.totalItems,
@@ -114,6 +117,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
       <ListingsCombined
         listings={searchResults.listings}
+        markers={searchResults.markers}
         currentPage={searchResults.currentPage}
         lastPage={searchResults.lastPage}
         loading={searchResults.loading}

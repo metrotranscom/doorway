@@ -1,5 +1,6 @@
 import {
   ListingFilterParams,
+  ListingMapMarker,
   ListingsService,
   ListingViews,
   PaginatedListing,
@@ -35,8 +36,6 @@ export const searchListings = async (
     filter: qb.getFilterParams(),
   }
 
-  console.log("61:", params)
-
   try {
     const response = await listingsService.listCombined(params)
     results = response
@@ -45,4 +44,24 @@ export const searchListings = async (
   }
 
   return results
+}
+
+export const searchMapMarkers = async (
+  qb: ListingQueryBuilder,
+  listingsService: ListingsService
+): Promise<ListingMapMarker[]> => {
+  const params: {
+    limit: number | "all"
+    filter: ListingFilterParams[]
+  } = {
+    limit: "all",
+    filter: qb.getFilterParams(),
+  }
+
+  try {
+    const response = await listingsService.mapMarkers(params)
+    return response
+  } catch (e) {
+    console.log("ListingService.searchMapMarkers error: ", e)
+  }
 }

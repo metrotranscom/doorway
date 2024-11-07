@@ -1,12 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState, useContext } from "react"
 import { InfoWindow, useMap } from "@vis.gl/react-google-maps"
 import { MarkerClusterer } from "@googlemaps/markerclusterer"
-import { ListingsMapMarker } from "./ListingsMap"
+import { AuthContext } from "@bloom-housing/shared-helpers"
+import { MapMarkerData } from "./ListingsMap"
 import { MapMarker } from "./MapMarker"
 import styles from "./ListingsCombined.module.scss"
+import { ListingViews } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { getListingCard } from "../../lib/helpers"
 
 export type ListingsMapMarkersProps = {
-  mapMarkers: ListingsMapMarker[]
+  mapMarkers: MapMarkerData[]
   infoWindowIndex: number
   setInfoWindowIndex: React.Dispatch<React.SetStateAction<number>>
 }
@@ -63,11 +66,22 @@ export const MapClusterer = ({
   infoWindowIndex,
   setInfoWindowIndex,
 }: ListingsMapMarkersProps) => {
+  const { listingsService } = useContext(AuthContext)
   const [markers, setMarkers] = useState<{
     [key: string]: google.maps.marker.AdvancedMarkerElement
   }>({})
+  const [infoWindowContent, setInfoWindowContent] = useState<React.JSX.Element>(null)
 
   const map = useMap()
+
+  const fetchInfoWindow = async (listingId: string) => {
+    try {
+      const response = await listingsService.retrieve({ id: listingId, view: ListingViews.base })
+      setInfoWindowContent(getListingCard(response, infoWindowIndex))
+    } catch (e) {
+      console.log("ListingService.searchMapMarkers error: ", e)
+    }
+  }
 
   const clusterer: MarkerClusterer = useMemo(() => {
     if (!map) return null
@@ -111,7 +125,7 @@ export const MapClusterer = ({
         lng: marker.coordinate.lng,
       })
     })
-    map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.1)
+    map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusterer, markers])
 
@@ -133,18 +147,10 @@ export const MapClusterer = ({
     []
   )
 
-  const handleMarkerClick = useCallback((marker: ListingsMapMarker) => {
+  const handleMarkerClick = useCallback(async (marker: MapMarkerData) => {
+    await fetchInfoWindow(marker.id)
     setInfoWindowIndex(marker.key)
-    animateMapZoomTo(map, 14)
-
-    const divWidthOfTheMap = document.getElementById("listings-map").clientWidth
-    const divHeightOfTheMap = document.getElementById("listings-map").clientHeight
-    const offSetFromBottom = divWidthOfTheMap < 540 ? 15 : 100
-
     map.panTo(marker.coordinate)
-    google.maps.event.addListenerOnce(map, "tilesloaded", function () {
-      map.panBy(0, -(divHeightOfTheMap / 2 - offSetFromBottom))
-    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -162,13 +168,16 @@ export const MapClusterer = ({
       {infoWindowIndex !== null && (
         <InfoWindow
           anchor={markers[infoWindowIndex]}
-          onCloseClick={() => setInfoWindowIndex(null)}
+          onCloseClick={() => {
+            setInfoWindowContent(null)
+            setInfoWindowIndex(null)
+          }}
           className={"info-window"}
           minWidth={250}
           maxWidth={500}
-          disableAutoPan={true}
+          disableAutoPan={false}
         >
-          {mapMarkers[infoWindowIndex].infoWindowContent}
+          {infoWindowContent}
         </InfoWindow>
       )}
     </>

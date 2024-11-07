@@ -300,11 +300,38 @@ export class ListingsService {
   /**
    * Get listing map markers
    */
-  mapMarkers(options: IRequestOptions = {}): Promise<ListingMapMarker[]> {
+  mapMarkers(
+    params: {
+      /**  */
+      page?: number
+      /**  */
+      limit?: number | "all"
+      /**  */
+      filter?: ListingFilterParams[]
+      /**  */
+      view?: ListingViews
+      /**  */
+      orderBy?: ListingOrderByKeys
+      /**  */
+      orderDir?: OrderByEnum
+      /**  */
+      search?: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<ListingMapMarker[]> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/listings/mapMarkers"
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+      configs.params = {
+        page: params["page"],
+        limit: params["limit"],
+        filter: params["filter"],
+        view: params["view"],
+        orderBy: params["orderBy"],
+        orderDir: params["orderDir"],
+        search: params["search"],
+      }
 
       /** 适配ios13，get请求不允许带body */
 

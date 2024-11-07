@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Listing, ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import CustomSiteFooter from "../shared/CustomSiteFooter"
 import { ListingsMap } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
@@ -8,6 +8,7 @@ import { ListingsSearchMetadata } from "./search/ListingsSearchMetadata"
 
 type ListingsCombinedProps = {
   listings: Listing[]
+  markers: ListingMapMarker[]
   currentPage: number
   lastPage: number
   onPageChange: (page: number) => void
@@ -93,7 +94,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         />
         <div className={styles["listings-map-expanded"]}>
           <ListingsMap
-            listings={props.listings}
+            listings={props.markers}
             googleMapsApiKey={props.googleMapsApiKey}
             googleMapsMapId={props.googleMapsMapId}
             isMapExpanded={true}
@@ -117,7 +118,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         <div className={styles["listings-map-list-container"]}>
           <div className={styles["listings-map"]}>
             <ListingsMap
-              listings={props.listings}
+              listings={props.markers}
               googleMapsApiKey={props.googleMapsApiKey}
               googleMapsMapId={props.googleMapsMapId}
               isMapExpanded={false}
@@ -132,6 +133,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
                 loading={props.loading}
                 onPageChange={props.onPageChange}
               />
+              <CustomSiteFooter />
             </div>
           </div>
         </div>

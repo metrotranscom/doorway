@@ -1,7 +1,6 @@
 import React, { useCallback } from "react"
 import { AdvancedMarker } from "@vis.gl/react-google-maps"
 import { ListingsMapMarker } from "./ListingsMap"
-import styles from "./ListingsCombined.module.scss"
 
 export type MapMarkerProp = {
   marker: ListingsMapMarker

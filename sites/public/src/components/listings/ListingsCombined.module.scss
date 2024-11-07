@@ -97,6 +97,7 @@
   }
 
   .listings-outer-container {
+    background-color: var(--seeds-color-white);
     overflow-y: auto;
     width: var(--listings-list-width);
     @media (max-width: $screen-lg) {

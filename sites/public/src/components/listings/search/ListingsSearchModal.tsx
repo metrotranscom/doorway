@@ -330,7 +330,13 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
           {t("t.showMatchingListings")}
         </Button>
         <div style={{ flexGrow: 1 }}></div>
-        <button style={clearButtonStyle} onClick={clearValues}>
+        <button
+          style={clearButtonStyle}
+          onClick={() => {
+            clearValues()
+            props.onClose()
+          }}
+        >
           {t("t.clearAllFilters")}
         </button>
       </Dialog.Footer>

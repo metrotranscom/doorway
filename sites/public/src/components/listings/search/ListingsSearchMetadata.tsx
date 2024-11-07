@@ -1,7 +1,8 @@
 import React from "react"
+import { MapIcon, ListBulletIcon, FunnelIcon } from "@heroicons/react/24/solid"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { t } from "@bloom-housing/ui-components"
-import { Button } from "@bloom-housing/ui-seeds"
+import { Button, Icon } from "@bloom-housing/ui-seeds"
 import styles from "./ListingsSearch.module.scss"
 
 export interface ListingsSearchMetadataProps {
@@ -30,19 +31,50 @@ export const ListingsSearchMetadata = ({
   return (
     <>
       <div className={`${styles["search-filter-bar"]} ${styles["search-switch-container"]}`}>
-        <span>
+        <>
           <Button
             size={"sm"}
             onClick={() => setListView(!listView)}
+            variant="primary-outlined"
             className={`results-bar-button ${styles["switch-view-button"]}`}
+            leadIcon={
+              listView ? (
+                <Icon>
+                  <MapIcon />
+                </Icon>
+              ) : (
+                <Icon>
+                  <ListBulletIcon />
+                </Icon>
+              )
+            }
           >
             {listView ? t("t.mapMapView") : t("t.mapListView")}
           </Button>
-        </span>
+          <Button
+            variant="primary-outlined"
+            size="sm"
+            className={`results-bar-button ${styles["switch-view-button"]} ${styles["filter-desktop"]}`}
+            onClick={() => {
+              setModalOpen(true)
+            }}
+            leadIcon={
+              <Icon>
+                <FunnelIcon />
+              </Icon>
+            }
+          >
+            <strong>{t("search.filters")}</strong> {filterCount}
+          </Button>
+        </>
       </div>
       <div className={styles["search-filter-bar"]}>
         <div className={`${styles["total-results"]}`}>
-          <span className={styles["search-total-results"]}>
+          <span
+            className={`${styles["search-total-results"]} ${
+              !listView ? styles["hide-total-results"] : ""
+            }`}
+          >
             <strong>{t("search.totalResults")}</strong> {!loading && searchResults.totalItems}
           </span>
           {!loading && searchResults.lastPage > 0 && (
@@ -56,17 +88,15 @@ export const ListingsSearchMetadata = ({
             </span>
           )}
         </div>
-
         <Button
           variant="primary-outlined"
           size="sm"
-          className={"results-bar-button"}
+          className={`results-bar-button ${styles["filter-mobile"]}`}
           onClick={() => {
             setModalOpen(true)
           }}
         >
-          <strong>{t("search.filters")}</strong>
-          {filterCount}
+          <strong>{t("search.filters")}</strong> {filterCount}
         </Button>
       </div>
     </>

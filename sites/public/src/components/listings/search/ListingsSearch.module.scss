@@ -2,8 +2,8 @@
   // This is a not-ideal way to do "fill window minus header and filter modal" however
   // I can't find another way to do this.
   // TODO: update header + filter modal to a not-magic number
-  --listings-component-height: calc(100dvh - 173px);
-  --listings-component-height-mobile: calc(100dvh - 119px);
+  --listings-component-height: calc(100dvh - 169px);
+  --listings-component-height-mobile: calc(100dvh - 138px);
   // --listings-component-height-mobile: 100vh;
 
   --listings-component-half-height: calc(var(--listings-component-height) / 2);
@@ -25,13 +25,12 @@
   z-index: calc(var(--seeds-z-index-overlay) - 1);
   background: white;
   padding-inline: var(--seeds-s4);
-  padding-block: var(--seeds-s1_5);
+  padding-block: var(--seeds-s1);
   gap: var(--seeds-s4);
   color: var(--seeds-text-color);
   border-block-end: 1px solid var(--seeds-border-color);
 
   @media (max-width: $screen-md) {
-    justify-content: space-between;
     position: static;
     width: 100%;
     font-size: var(--seeds-font-size-sm);
@@ -68,20 +67,43 @@
   }
 }
 
+.filter-desktop {
+  --button-font-family: inherit;
+  --button-font-weight: var(--seeds-font-weight-regular);
+  --button-interior-gap: var(--seeds-s1_5);
+  line-height: var(--seeds-line-height-4);
+  display: none;
+  @media (max-width: $screen-md) {
+    display: block;
+  }
+}
+
+.filter-mobile {
+  --button-font-family: inherit;
+  --button-font-weight: var(--seeds-font-weight-regular);
+  --button-interior-gap: var(--seeds-s1_5);
+  line-height: var(--seeds-line-height-4);
+  display: block;
+  @media (max-width: $screen-md) {
+    display: none;
+  }
+}
+
 .total-results {
   display: block;
-  // @media (max-width: $screen-md) {
-  //   display: flex;
-  //   justify-content: center;
-  //   flex-direction: column;
-  //   align-items: center;
-  // }
+  @media (max-width: $screen-md) {
+    padding-block-end: 0;
+  }
 }
 
 .switch-view-button {
   display: none;
 
   @media (max-width: $screen-md) {
+    svg {
+      margin-right: var(--seeds-s1);
+      margin-left: 0;
+    }
     display: block;
   }
 }

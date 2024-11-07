@@ -136,8 +136,11 @@ export const MapClusterer = ({
   const handleMarkerClick = useCallback((marker: ListingsMapMarker) => {
     setInfoWindowIndex(marker.key)
     animateMapZoomTo(map, 14)
+
+    const divWidthOfTheMap = document.getElementById("listings-map").clientWidth
     const divHeightOfTheMap = document.getElementById("listings-map").clientHeight
-    const offSetFromBottom = 10
+    const offSetFromBottom = divWidthOfTheMap < 540 ? 15 : 100
+
     map.panTo(marker.coordinate)
     google.maps.event.addListenerOnce(map, "tilesloaded", function () {
       map.panBy(0, -(divHeightOfTheMap / 2 - offSetFromBottom))

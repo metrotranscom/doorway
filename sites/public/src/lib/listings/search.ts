@@ -8,6 +8,7 @@ export type ListingSearchParams = {
   monthlyRent: string
   counties: string[]
   availability: FilterAvailabilityEnum
+  ids: string[]
 }
 
 /**
@@ -124,6 +125,13 @@ export function generateSearchQuery(params: ListingSearchParams) {
   // Find listings in these counties
   if (Array.isArray(params.counties) && params.counties.length > 0) {
     qb.whereIn("counties", params.counties)
+  }
+
+  // Find listings with these ids
+  if (Array.isArray(params.ids) && params.ids.length > 0) {
+    console.log("building ids")
+
+    qb.whereIn("ids", params.ids)
   }
 
   if (params.availability) {

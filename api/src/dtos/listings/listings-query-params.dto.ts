@@ -20,7 +20,7 @@ import { OrderQueryParamValidator } from '../../utilities/order-by-validator';
 export class ListingsQueryParams extends PaginationAllowsAllQueryParams {
   @Expose()
   @ApiPropertyOptional({
-    type: [String],
+    type: [ListingFilterParams],
     items: {
       $ref: getSchemaPath(ListingFilterParams),
     },

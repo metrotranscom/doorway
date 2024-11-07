@@ -12,6 +12,7 @@ export type ListingsMapMarkersProps = {
   mapMarkers: MapMarkerData[]
   infoWindowIndex: number
   setInfoWindowIndex: React.Dispatch<React.SetStateAction<number>>
+  setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
 }
 
 const getBoundsZoomLevel = (bounds: google.maps.LatLngBounds) => {
@@ -65,6 +66,7 @@ export const MapClusterer = ({
   mapMarkers,
   infoWindowIndex,
   setInfoWindowIndex,
+  setVisibleMarkers,
 }: ListingsMapMarkersProps) => {
   const { listingsService } = useContext(AuthContext)
   const [markers, setMarkers] = useState<{
@@ -73,6 +75,12 @@ export const MapClusterer = ({
   const [infoWindowContent, setInfoWindowContent] = useState<React.JSX.Element>(null)
 
   const map = useMap()
+
+  map.addListener("idle", () => {
+    const bounds = map.getBounds()
+    const visibleMarkers = mapMarkers.filter((marker) => bounds.contains(marker.coordinate))
+    setVisibleMarkers(visibleMarkers)
+  })
 
   const fetchInfoWindow = async (listingId: string) => {
     try {
@@ -93,6 +101,10 @@ export const MapClusterer = ({
           const clusterMarker = document.createElement("div")
           clusterMarker.className = styles["cluster-icon"]
           clusterMarker.textContent = count.toString()
+          const DEFAULT_REM = 1.5
+          const calculatedSize = DEFAULT_REM + 0.02 * count
+          clusterMarker.style.width = `${calculatedSize}rem`
+          clusterMarker.style.height = `${calculatedSize}rem`
 
           return new google.maps.marker.AdvancedMarkerElement({
             map,

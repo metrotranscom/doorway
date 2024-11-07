@@ -13,6 +13,7 @@ type ListingsMapProps = {
   googleMapsMapId: string
   desktopMinWidth?: number
   isMapExpanded: boolean
+  setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
 }
 
 export type MapMarkerData = {
@@ -30,7 +31,7 @@ const containerStyle: React.CSSProperties = {
 
 const getMarkers = (listings: ListingMapMarker[]) => {
   const markers: MapMarkerData[] = []
-  listings.forEach((listing: ListingMapMarker, index) => {
+  listings?.forEach((listing: ListingMapMarker, index) => {
     markers.push({
       coordinate: {
         lat: listing.lat,
@@ -80,6 +81,7 @@ const ListingsMap = (props: ListingsMapProps) => {
             mapMarkers={markers}
             infoWindowIndex={infoWindowIndex}
             setInfoWindowIndex={setInfoWindowIndex}
+            setVisibleMarkers={props.setVisibleMarkers}
           />
         </Map>
       </APIProvider>

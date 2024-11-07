@@ -249,6 +249,12 @@ export class ListingService implements OnModuleInit {
             `(combined.listings_building_address->>'county') in (${countyArray})`,
           );
         }
+        if (filter[ListingFilterKeys.ids]) {
+          const listingsArray = filter[ListingFilterKeys.ids].map(
+            (filterId) => `'${filterId}'`,
+          );
+          whereClauseArray.push(`combined.id in (${listingsArray})`);
+        }
         if (filter[ListingFilterKeys.bedrooms]) {
           whereClauseArray.push(
             `(combined_units->>'numBedrooms') =  '${Math.floor(
@@ -2050,7 +2056,7 @@ export class ListingService implements OnModuleInit {
   async mapMarkers(params: ListingsQueryParams): Promise<ListingMapMarker[]> {
     const listingIds = await this.buildListingsWhereClause(params);
 
-    const listingsRaw = await this.prisma.listings.findMany({
+    const listingsRaw = await this.prisma.combinedListings.findMany({
       select: {
         id: true,
         listingsBuildingAddress: true,

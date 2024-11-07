@@ -7,6 +7,7 @@ import { searchListings, searchMapMarkers } from "../../../lib/listings/listing-
 import styles from "./ListingsSearch.module.scss"
 import { ListingsCombined } from "../ListingsCombined"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
+import { MapMarkerData } from "../ListingsMap"
 
 type ListingsSearchCombinedProps = {
   searchString?: string
@@ -29,6 +30,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const [filterCount, setFilterCount] = useState(0)
   const [listView, setListView] = useState<boolean>(true)
+  const [visibleMarkers, setVisibleMarkers] = useState<MapMarkerData[]>([])
 
   // Store the current search params for pagination
   const searchParams = useRef({
@@ -62,9 +64,16 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const pageSize = 25
 
   const search = async (params: ListingSearchParams, page: number) => {
-    const qb = generateSearchQuery(params)
-    const result = await searchListings(qb, pageSize, page, listingsService)
-    const markers = await searchMapMarkers(qb, listingsService)
+    const modifiedParams: ListingSearchParams = {
+      ...params,
+      ids: visibleMarkers.map((marker) => marker.id),
+    }
+
+    const listingIdsOnlyQb = generateSearchQuery(modifiedParams)
+    const genericQb = generateSearchQuery(params)
+
+    const result = await searchListings(listingIdsOnlyQb, pageSize, page, listingsService)
+    const markers = await searchMapMarkers(genericQb, listingsService)
 
     const listings = result.items
     const meta = result.meta
@@ -85,6 +94,14 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     document.getElementById("listings-list-expanded")?.scrollTo(0, 0)
     window.scrollTo(0, 0)
   }
+
+  useEffect(() => {
+    async function searchListings() {
+      await search(searchParams.current, 1)
+    }
+    void searchListings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleMarkers])
 
   const onFormSubmit = async (params: ListingSearchParams) => {
     await search(params, 1)
@@ -129,6 +146,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         filterCount={filterCount}
         searchResults={searchResults}
         setListView={setListView}
+        setVisibleMarkers={setVisibleMarkers}
       />
     </div>
   )

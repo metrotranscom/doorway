@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Listing, ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import CustomSiteFooter from "../shared/CustomSiteFooter"
-import { ListingsMap } from "./ListingsMap"
+import { ListingsMap, MapMarkerData } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
 import styles from "./ListingsCombined.module.scss"
 import { ListingsSearchMetadata } from "./search/ListingsSearchMetadata"
@@ -26,6 +26,7 @@ type ListingsCombinedProps = {
   }
   listView: boolean
   setListView: React.Dispatch<React.SetStateAction<boolean>>
+  setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
@@ -98,6 +99,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             googleMapsApiKey={props.googleMapsApiKey}
             googleMapsMapId={props.googleMapsMapId}
             isMapExpanded={true}
+            setVisibleMarkers={props.setVisibleMarkers}
           />
         </div>
       </div>
@@ -122,6 +124,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               googleMapsApiKey={props.googleMapsApiKey}
               googleMapsMapId={props.googleMapsMapId}
               isMapExpanded={false}
+              setVisibleMarkers={props.setVisibleMarkers}
             />
           </div>
           <div id="listings-outer-container" className={styles["listings-outer-container"]}>

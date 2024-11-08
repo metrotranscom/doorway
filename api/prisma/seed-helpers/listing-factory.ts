@@ -96,7 +96,7 @@ export const listingFactory = async (
       create: addressFactory(),
     },
     reservedCommunityTypes:
-      Math.random() < 0.5
+      Math.random() < 0.5 && reservedCommunityType
         ? {
             connect: {
               id: reservedCommunityType.id,

@@ -71,6 +71,9 @@ export const stagingSeed = async (
       duplicateListingPermissions,
     ),
   });
+  const alamedaCounty = await prismaClient.jurisdictions.create({
+    data: jurisdictionFactory('Alameda', [UserRoleEnum.admin]),
+  });
   const marinCounty = await prismaClient.jurisdictions.create({
     data: jurisdictionFactory(
       'Marin',
@@ -120,6 +123,17 @@ export const stagingSeed = async (
       duplicateListingPermissions,
     ),
   });
+  const jurisdictionNameMap = {
+    Alameda: alamedaCounty.id,
+    'Contra Costa': additionalJurisdiction.id,
+    Marin: marinCounty.id,
+    'San Mateo': sanMateoCounty.id,
+    Napa: napaCounty.id,
+    'Santa Clara': santaClaraCounty.id,
+    Solano: solanaCounty.id,
+    Sonoma: sonomaCounty.id,
+    'San Francisco': sanFranciscoCounty.id,
+  };
   // create admin user
   await prismaClient.userAccounts.create({
     data: await userFactory({
@@ -324,10 +338,9 @@ export const stagingSeed = async (
   const unitTypes = await unitTypeFactoryAll(prismaClient);
   await unitAccessibilityPriorityTypeFactoryAll(prismaClient);
   await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
-  await reservedCommunityTypeFactoryAll(
-    additionalJurisdiction.id,
-    prismaClient,
-  );
+  Object.values(jurisdictionNameMap).forEach(async (id) => {
+    await reservedCommunityTypeFactoryAll(id, prismaClient);
+  });
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
   if (!largeSeed) {
     [
@@ -1416,14 +1429,16 @@ export const stagingSeed = async (
   });
   if (largeSeed) {
     stagingRealisticAddresses.forEach(async (addr, index) => {
-      const jurisdictionId =
-        index > 2 ? additionalJurisdiction.id : jurisdiction.id;
-      const listing = await listingFactory(jurisdictionId, prismaClient, {
-        amiChart: amiChart,
-        numberOfUnits: 4,
-        digitalApp: !!(index % 2),
-        address: addr,
-      });
+      const listing = await listingFactory(
+        jurisdictionNameMap[addr.county],
+        prismaClient,
+        {
+          amiChart: amiChart,
+          numberOfUnits: 4,
+          digitalApp: !!(index % 2),
+          address: addr,
+        },
+      );
       await prismaClient.listings.create({
         data: listing,
       });

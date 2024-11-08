@@ -137,7 +137,17 @@ export const MapClusterer = ({
         lng: marker.coordinate.lng,
       })
     })
-    map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
+
+    const visibleMarkers = mapMarkers.filter((marker) =>
+      map.getBounds().contains(marker.coordinate)
+    )
+
+    if (visibleMarkers.length === 0) {
+      map.setCenter({ lat: 37.579795, lng: -122.374118 })
+      map.setZoom(9)
+    } else {
+      map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusterer, markers])
 

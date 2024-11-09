@@ -12,7 +12,9 @@ export type ListingsMapMarkersProps = {
   mapMarkers: MapMarkerData[]
   infoWindowIndex: number
   setInfoWindowIndex: React.Dispatch<React.SetStateAction<number>>
+  visibleMarkers: MapMarkerData[]
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const getBoundsZoomLevel = (bounds: google.maps.LatLngBounds) => {
@@ -62,11 +64,14 @@ const animateMapZoomTo = (
   }
 }
 
+let delayTimer
+
 export const MapClusterer = ({
   mapMarkers,
   infoWindowIndex,
   setInfoWindowIndex,
   setVisibleMarkers,
+  setIsLoading,
 }: ListingsMapMarkersProps) => {
   const { listingsService } = useContext(AuthContext)
   const [markers, setMarkers] = useState<{
@@ -76,10 +81,16 @@ export const MapClusterer = ({
 
   const map = useMap()
 
-  map.addListener("idle", () => {
+  const resetVisibleMarkers = () => {
     const bounds = map.getBounds()
     const visibleMarkers = mapMarkers.filter((marker) => bounds.contains(marker.coordinate))
     setVisibleMarkers(visibleMarkers)
+  }
+
+  map.addListener("idle", () => {
+    setIsLoading(true)
+    clearTimeout(delayTimer)
+    delayTimer = setTimeout(resetVisibleMarkers, 800)
   })
 
   const fetchInfoWindow = async (listingId: string) => {
@@ -115,6 +126,7 @@ export const MapClusterer = ({
         },
       },
       onClusterClick: (_, cluster, map) => {
+        setInfoWindowIndex(null)
         const zoomLevel = getBoundsZoomLevel(cluster.bounds)
         animateMapZoomTo(map, zoomLevel - 1)
         map.panTo(cluster.bounds.getCenter())
@@ -138,8 +150,8 @@ export const MapClusterer = ({
       })
     })
 
-    const visibleMarkers = mapMarkers.filter((marker) =>
-      map.getBounds().contains(marker.coordinate)
+    const visibleMarkers = mapMarkers?.filter((marker) =>
+      map.getBounds()?.contains(marker.coordinate)
     )
 
     if (visibleMarkers.length === 0) {

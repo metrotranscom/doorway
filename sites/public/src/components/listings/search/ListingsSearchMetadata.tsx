@@ -14,14 +14,12 @@ export interface ListingsSearchMetadataProps {
     currentPage: number
     lastPage: number
     totalItems: number
-    loading: boolean
   }
   setListView: React.Dispatch<React.SetStateAction<boolean>>
   listView: boolean
 }
 
 export const ListingsSearchMetadata = ({
-  loading,
   setModalOpen,
   filterCount,
   searchResults,
@@ -75,9 +73,9 @@ export const ListingsSearchMetadata = ({
               !listView ? styles["hide-total-results"] : ""
             }`}
           >
-            <strong>{t("search.totalResults")}</strong> {!loading && searchResults.totalItems}
+            <strong>{t("search.totalResults")}</strong> {searchResults.totalItems}
           </span>
-          {!loading && searchResults.lastPage > 0 && (
+          {searchResults.lastPage > 0 && (
             <span className={`${!listView ? styles["hide-total-results"] : ""}`}>
               (
               {t("t.pageXofY", {

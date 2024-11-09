@@ -14,6 +14,8 @@ type ListingsMapProps = {
   desktopMinWidth?: number
   isMapExpanded: boolean
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
+  visibleMarkers: MapMarkerData[]
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export type MapMarkerData = {
@@ -82,6 +84,8 @@ const ListingsMap = (props: ListingsMapProps) => {
             infoWindowIndex={infoWindowIndex}
             setInfoWindowIndex={setInfoWindowIndex}
             setVisibleMarkers={props.setVisibleMarkers}
+            visibleMarkers={props.visibleMarkers}
+            setIsLoading={props.setIsLoading}
           />
         </Map>
       </APIProvider>

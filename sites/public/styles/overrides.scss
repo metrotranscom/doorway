@@ -304,4 +304,12 @@
       margin-inline-end: calc(0px - var(--seeds-s2));
     }
   }
+
+  .pagination-button-group {
+    --padding-inline-desktop: var(--seeds-s6);
+    --padding-block: var(--seeds-s6);
+    .doorway-button {
+      padding: var(--seeds-s3) var(--seeds-s4);
+    }
+  }
 }

@@ -88,6 +88,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     monthlyRent: "",
     counties: countyLabels,
     availability: null,
+    ids: undefined,
   }
   const initialState = parseSearchString(searchString, nullState)
   const [formValues, setFormValues] = useState(initialState)
@@ -114,6 +115,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     // Set initial filter count
+    console.log("initial search")
     props.onFilterChange(countFilters(formValues))
     // Fetch listings
     onSubmit()

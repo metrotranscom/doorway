@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { Listing, ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import CustomSiteFooter from "../shared/CustomSiteFooter"
 import { ListingsMap, MapMarkerData } from "./ListingsMap"
@@ -7,14 +7,10 @@ import styles from "./ListingsCombined.module.scss"
 import { ListingsSearchMetadata } from "./search/ListingsSearchMetadata"
 
 type ListingsCombinedProps = {
-  listings: Listing[]
   markers: ListingMapMarker[]
-  currentPage: number
-  lastPage: number
   onPageChange: (page: number) => void
   googleMapsApiKey: string
   googleMapsMapId: string
-  loading: boolean
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   filterCount: number
   searchResults: {
@@ -22,40 +18,22 @@ type ListingsCombinedProps = {
     currentPage: number
     lastPage: number
     totalItems: number
-    loading: boolean
   }
   listView: boolean
   setListView: React.Dispatch<React.SetStateAction<boolean>>
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
+  visibleMarkers: MapMarkerData[]
+  isDesktop: boolean
+  loading: boolean
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
-  const [isDesktop, setIsDesktop] = useState(true)
-
-  const DESKTOP_MIN_WIDTH = 767 // @screen md
-  useEffect(() => {
-    if (window.innerWidth > DESKTOP_MIN_WIDTH) {
-      setIsDesktop(true)
-    } else {
-      setIsDesktop(false)
-    }
-
-    const updateMedia = () => {
-      if (window.innerWidth > DESKTOP_MIN_WIDTH) {
-        setIsDesktop(true)
-      } else {
-        setIsDesktop(false)
-      }
-    }
-    window.addEventListener("resize", updateMedia)
-    return () => window.removeEventListener("resize", updateMedia)
-  }, [])
-
   const getListingsList = () => {
     return (
       <div className={styles["listings-combined"]}>
         <ListingsSearchMetadata
-          loading={props.searchResults.loading}
+          loading={props.loading}
           setModalOpen={props.setModalOpen}
           filterCount={props.filterCount}
           searchResults={props.searchResults}
@@ -67,9 +45,9 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
         >
           <div id="listings-list-expanded" className={styles["listings-list-expanded"]}>
             <ListingsList
-              listings={props.listings}
-              currentPage={props.currentPage}
-              lastPage={props.lastPage}
+              listings={props.searchResults.listings}
+              currentPage={props.searchResults.currentPage}
+              lastPage={props.searchResults.lastPage}
               onPageChange={props.onPageChange}
               loading={props.loading}
             />
@@ -86,7 +64,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     return (
       <div className={styles["listings-combined"]}>
         <ListingsSearchMetadata
-          loading={props.searchResults.loading}
+          loading={props.loading}
           setModalOpen={props.setModalOpen}
           filterCount={props.filterCount}
           searchResults={props.searchResults}
@@ -100,6 +78,8 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             googleMapsMapId={props.googleMapsMapId}
             isMapExpanded={true}
             setVisibleMarkers={props.setVisibleMarkers}
+            visibleMarkers={props.visibleMarkers}
+            setIsLoading={props.setIsLoading}
           />
         </div>
       </div>
@@ -110,7 +90,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     return (
       <div className={styles["listings-combined"]}>
         <ListingsSearchMetadata
-          loading={props.searchResults.loading}
+          loading={props.loading}
           setModalOpen={props.setModalOpen}
           filterCount={props.filterCount}
           searchResults={props.searchResults}
@@ -125,14 +105,16 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               googleMapsMapId={props.googleMapsMapId}
               isMapExpanded={false}
               setVisibleMarkers={props.setVisibleMarkers}
+              visibleMarkers={props.visibleMarkers}
+              setIsLoading={props.setIsLoading}
             />
           </div>
           <div id="listings-outer-container" className={styles["listings-outer-container"]}>
             <div id="listings-list" className={styles["listings-list"]}>
               <ListingsList
-                listings={props.listings}
-                currentPage={props.currentPage}
-                lastPage={props.lastPage}
+                listings={props.searchResults.listings}
+                currentPage={props.searchResults.currentPage}
+                lastPage={props.searchResults.lastPage}
                 loading={props.loading}
                 onPageChange={props.onPageChange}
               />
@@ -163,13 +145,13 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
 
   let div: JSX.Element
 
-  if (!isDesktop && props.listView) {
+  if (!props.isDesktop && props.listView) {
     div = getListingsList()
     showFooter()
-  } else if (!isDesktop && !props.listView) {
+  } else if (!props.isDesktop && !props.listView) {
     div = getListingsMap()
     hideFooter()
-  } else if (isDesktop) {
+  } else if (props.isDesktop) {
     div = getListingsCombined()
     showFooter()
   }

@@ -119,13 +119,23 @@
 
   /* These attribute selectors are strange, but that's because we want to short-circuit the
      CSS module renaming and use these exact class names */
-  [class*="loading-overlay"]::before {
-    background-color: white;
+  [class*="loading-overlay"] {
+    padding: 0;
+    min-height: var(--seeds-s40);
+    margin-bottom: var(--seeds-s4);
   }
 
   [class*="loading-overlay__spinner"] {
-    color: var(--seeds-color-gray-400) !important;
+    top: var(--seeds-s20);
   }
+
+  // [class*="loading-overlay"]::before {
+  //   background-color: white;
+  // }
+
+  // [class*="loading-overlay__spinner"] {
+  //   color: var(--seeds-color-gray-400) !important;
+  // }
 }
 
 .cluster-icon {

@@ -15,6 +15,7 @@ type ListingsListProps = {
 }
 
 const ListingsList = (props: ListingsListProps) => {
+  console.log("listings list", props.listings.length)
   const listingsDiv = (
     <div id="listingsList">
       {props.listings.length > 0 || props.loading ? (
@@ -67,8 +68,9 @@ const ListingsList = (props: ListingsListProps) => {
     ) : (
       <div></div>
     )
+
   const pagination =
-    props.lastPage != 0 ? (
+    props.lastPage !== 0 ? (
       <Pagination
         currentPage={props.currentPage}
         lastPage={props.lastPage}

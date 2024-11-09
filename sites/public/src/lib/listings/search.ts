@@ -129,8 +129,6 @@ export function generateSearchQuery(params: ListingSearchParams) {
 
   // Find listings with these ids
   if (Array.isArray(params.ids) && params.ids.length > 0) {
-    console.log("building ids")
-
     qb.whereIn("ids", params.ids)
   }
 

@@ -30,7 +30,10 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const [filterCount, setFilterCount] = useState(0)
   const [listView, setListView] = useState<boolean>(true)
-  const [visibleMarkers, setVisibleMarkers] = useState<MapMarkerData[]>([])
+  const [visibleMarkers, setVisibleMarkers] = useState<MapMarkerData[]>(null)
+  const [currentMarkers, setCurrentMarkers] = useState<MapMarkerData[]>(null)
+  const [isDesktop, setIsDesktop] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Store the current search params for pagination
   const searchParams = useRef({
@@ -46,7 +49,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     currentPage: 0,
     lastPage: 0,
     totalItems: 0,
-    loading: true,
   })
 
   useEffect(() => {
@@ -66,26 +68,34 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const search = async (params: ListingSearchParams, page: number) => {
     const modifiedParams: ListingSearchParams = {
       ...params,
-      ids: visibleMarkers.map((marker) => marker.id),
+      ids: visibleMarkers?.map((marker) => marker.id),
     }
 
     const listingIdsOnlyQb = generateSearchQuery(modifiedParams)
     const genericQb = generateSearchQuery(params)
 
-    const result = await searchListings(listingIdsOnlyQb, pageSize, page, listingsService)
-    const markers = await searchMapMarkers(genericQb, listingsService)
+    let newListings
+    let newMeta
 
-    const listings = result.items
-    const meta = result.meta
-
+    if (isDesktop || listView) {
+      setIsLoading(true)
+      const result = await searchListings(listingIdsOnlyQb, pageSize, page, listingsService)
+      newListings = result.items
+      newMeta = result.meta
+    }
+    let newMarkers
+    if (params !== searchParams.current || !visibleMarkers) {
+      newMarkers = await searchMapMarkers(genericQb, listingsService)
+    }
     setSearchResults({
-      listings,
-      markers,
-      currentPage: meta.currentPage,
-      lastPage: meta.totalPages,
-      totalItems: meta.totalItems,
-      loading: false,
+      listings: newListings ?? searchResults.listings,
+      markers: newMarkers ?? searchResults.markers,
+      currentPage: newMeta ? newMeta.currentPage : searchResults.currentPage,
+      lastPage: newMeta ? newMeta.totalPages : searchResults.lastPage,
+      totalItems: newMeta ? newMeta.totalItems : searchResults.totalItems,
     })
+
+    setIsLoading(false)
 
     searchParams.current = params
 
@@ -99,13 +109,71 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     async function searchListings() {
       await search(searchParams.current, 1)
     }
-    void searchListings()
+    if (listView) {
+      void searchListings()
+    }
+  }, [listView])
+
+  const DESKTOP_MIN_WIDTH = 767 // @screen md
+  useEffect(() => {
+    if (window.innerWidth > DESKTOP_MIN_WIDTH) {
+      setIsDesktop(true)
+    } else {
+      setIsDesktop(false)
+    }
+
+    const updateMedia = () => {
+      if (window.innerWidth > DESKTOP_MIN_WIDTH) {
+        setIsDesktop(true)
+      } else {
+        setIsDesktop(false)
+      }
+    }
+    window.addEventListener("resize", updateMedia)
+    return () => window.removeEventListener("resize", updateMedia)
+  }, [])
+
+  useEffect(() => {
+    async function searchListings() {
+      await search(searchParams.current, 1)
+    }
+
+    const oldMarkers = JSON.stringify(
+      currentMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
+    )
+    const newMarkers = JSON.stringify(
+      visibleMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
+    )
+    if (oldMarkers !== newMarkers) {
+      setCurrentMarkers(visibleMarkers)
+      void searchListings()
+    } else {
+      setIsLoading(false)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleMarkers])
 
   const onFormSubmit = async (params: ListingSearchParams) => {
     await search(params, 1)
   }
+
+  // useEffect(() => {
+  //   const initialState = parseSearchString(props.searchString, {
+  //     bedrooms: null,
+  //     bathrooms: null,
+  //     minRent: "",
+  //     monthlyRent: "",
+  //     counties: props.counties.map((county) => county.label),
+  //     availability: null,
+  //     ids: undefined,
+  //   })
+
+  //   const firstPageLoadFilter = async () => {
+  //     await search(initialState, 1)
+  //   }
+
+  //   void firstPageLoadFilter()
+  // }, [])
 
   const onPageChange = async (page: number) => {
     await search(searchParams.current, page)
@@ -133,11 +201,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       />
 
       <ListingsCombined
-        listings={searchResults.listings}
         markers={searchResults.markers}
-        currentPage={searchResults.currentPage}
-        lastPage={searchResults.lastPage}
-        loading={searchResults.loading}
         googleMapsApiKey={props.googleMapsApiKey}
         googleMapsMapId={props.googleMapsMapId}
         onPageChange={onPageChange}
@@ -147,6 +211,10 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         searchResults={searchResults}
         setListView={setListView}
         setVisibleMarkers={setVisibleMarkers}
+        visibleMarkers={visibleMarkers}
+        isDesktop={isDesktop}
+        loading={isLoading}
+        setIsLoading={setIsLoading}
       />
     </div>
   )

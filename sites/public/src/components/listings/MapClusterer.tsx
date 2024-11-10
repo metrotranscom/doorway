@@ -71,6 +71,7 @@ export const MapClusterer = ({
   infoWindowIndex,
   setInfoWindowIndex,
   setVisibleMarkers,
+  visibleMarkers,
   setIsLoading,
 }: ListingsMapMarkersProps) => {
   const { listingsService } = useContext(AuthContext)
@@ -83,8 +84,9 @@ export const MapClusterer = ({
 
   const resetVisibleMarkers = () => {
     const bounds = map.getBounds()
-    const visibleMarkers = mapMarkers.filter((marker) => bounds.contains(marker.coordinate))
-    setVisibleMarkers(visibleMarkers)
+    const newVisibleMarkers = mapMarkers.filter((marker) => bounds.contains(marker.coordinate))
+    if (!visibleMarkers && newVisibleMarkers.length === 0) return
+    setVisibleMarkers(newVisibleMarkers)
   }
 
   map.addListener("idle", () => {
@@ -155,8 +157,7 @@ export const MapClusterer = ({
     )
 
     if (visibleMarkers.length === 0) {
-      map.setCenter({ lat: 37.579795, lng: -122.374118 })
-      map.setZoom(9)
+      return
     } else {
       map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
     }

@@ -66,6 +66,19 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const pageSize = 25
 
   const search = async (params: ListingSearchParams, page: number) => {
+    if (searchResults.listings.length && visibleMarkers?.length === 0) {
+      setSearchResults({
+        listings: [],
+        markers: searchResults.markers,
+        currentPage: 0,
+        lastPage: 0,
+        totalItems: 0,
+      })
+      setIsLoading(false)
+
+      searchParams.current = params
+      return
+    }
     const modifiedParams: ListingSearchParams = {
       ...params,
       ids: visibleMarkers?.map((marker) => marker.id),
@@ -79,7 +92,12 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
     if (isDesktop || listView) {
       setIsLoading(true)
-      const result = await searchListings(listingIdsOnlyQb, pageSize, page, listingsService)
+      const result = await searchListings(
+        isDesktop ? listingIdsOnlyQb : genericQb,
+        pageSize,
+        page,
+        listingsService
+      )
       newListings = result.items
       newMeta = result.meta
     }
@@ -144,7 +162,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     const newMarkers = JSON.stringify(
       visibleMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
     )
-    if (oldMarkers !== newMarkers) {
+    if (oldMarkers !== newMarkers && isDesktop) {
       setCurrentMarkers(visibleMarkers)
       void searchListings()
     } else {

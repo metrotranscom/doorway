@@ -111,20 +111,20 @@ export const MapClusterer = ({
     return new MarkerClusterer({
       map,
       renderer: {
-        render: ({ count, position }) => {
+        render: (cluster) => {
           const clusterMarker = document.createElement("div")
           clusterMarker.className = styles["cluster-icon"]
-          clusterMarker.textContent = count.toString()
+          clusterMarker.textContent = cluster.count.toString()
           const DEFAULT_REM = 1.5
-          const calculatedSize = DEFAULT_REM + 0.02 * count
+          const calculatedSize = DEFAULT_REM + 0.02 * cluster.count
           clusterMarker.style.width = `${calculatedSize}rem`
           clusterMarker.style.height = `${calculatedSize}rem`
 
           return new google.maps.marker.AdvancedMarkerElement({
             map,
-            position,
+            position: cluster.position,
             content: clusterMarker,
-            title: `${count} listings in this cluster`,
+            title: `${cluster.count} listings in this cluster`,
           })
         },
       },

@@ -132,7 +132,6 @@ export const getListings = (listings: Listing[]) => {
 
 export const getListingCard = (listing: Listing, index: number) => {
   const uri = getListingUrl(listing)
-  const displayIndex: string = (index + 1).toString()
   return (
     <ListingCard
       key={index}

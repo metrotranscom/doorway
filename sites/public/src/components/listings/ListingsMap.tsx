@@ -8,7 +8,7 @@ import { MapClusterer } from "./MapClusterer"
 import styles from "./ListingsCombined.module.scss"
 
 type ListingsMapProps = {
-  listings?: ListingMapMarker[]
+  listings?: ListingMapMarker[] | null
   googleMapsApiKey: string
   googleMapsMapId: string
   desktopMinWidth?: number
@@ -32,7 +32,8 @@ const containerStyle: React.CSSProperties = {
 }
 
 const getMarkers = (listings: ListingMapMarker[]) => {
-  const markers: MapMarkerData[] = []
+  const markers: MapMarkerData[] | null = []
+  if (!listings) return null
   listings?.forEach((listing: ListingMapMarker, index) => {
     markers.push({
       coordinate: {
@@ -59,7 +60,7 @@ const ListingsMap = (props: ListingsMapProps) => {
 
   const [infoWindowIndex, setInfoWindowIndex] = useState<number>(null)
 
-  const markers: MapMarkerData[] = getMarkers(props.listings)
+  const markers: MapMarkerData[] | null = getMarkers(props.listings)
 
   if (!isLoaded) return <></>
 

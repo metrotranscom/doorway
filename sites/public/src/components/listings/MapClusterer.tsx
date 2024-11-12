@@ -9,7 +9,7 @@ import { ListingViews } from "@bloom-housing/shared-helpers/src/types/backend-sw
 import { getListingCard } from "../../lib/helpers"
 
 export type ListingsMapMarkersProps = {
-  mapMarkers: MapMarkerData[]
+  mapMarkers: MapMarkerData[] | null
   infoWindowIndex: number
   setInfoWindowIndex: React.Dispatch<React.SetStateAction<number>>
   visibleMarkers: MapMarkerData[]
@@ -79,6 +79,7 @@ export const MapClusterer = ({
     [key: string]: google.maps.marker.AdvancedMarkerElement
   }>({})
   const [infoWindowContent, setInfoWindowContent] = useState<React.JSX.Element>(null)
+  const [boundsLoading, setBoundsLoading] = useState(true)
 
   const map = useMap()
 
@@ -152,6 +153,9 @@ export const MapClusterer = ({
       })
     })
 
+    // Only automatically size the map to fit all pins on first map load
+    if (boundsLoading === false) return
+
     const visibleMarkers = mapMarkers?.filter((marker) =>
       map.getBounds()?.contains(marker.coordinate)
     )
@@ -160,6 +164,7 @@ export const MapClusterer = ({
       return
     } else {
       map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
+      setBoundsLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusterer, markers])

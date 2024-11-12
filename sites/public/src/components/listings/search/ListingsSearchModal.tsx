@@ -115,7 +115,6 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     // Set initial filter count
-    console.log("initial search")
     props.onFilterChange(countFilters(formValues))
     // Fetch listings
     onSubmit()

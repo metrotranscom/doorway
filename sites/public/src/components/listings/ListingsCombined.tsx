@@ -7,7 +7,7 @@ import styles from "./ListingsCombined.module.scss"
 import { ListingsSearchMetadata } from "./search/ListingsSearchMetadata"
 
 type ListingsCombinedProps = {
-  markers: ListingMapMarker[]
+  markers: ListingMapMarker[] | null
   onPageChange: (page: number) => void
   googleMapsApiKey: string
   googleMapsMapId: string

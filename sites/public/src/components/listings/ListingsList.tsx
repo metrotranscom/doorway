@@ -15,7 +15,6 @@ type ListingsListProps = {
 }
 
 const ListingsList = (props: ListingsListProps) => {
-  console.log("listings list", props.listings.length)
   const listingsDiv = (
     <div id="listingsList">
       {props.listings.length > 0 || props.loading ? (

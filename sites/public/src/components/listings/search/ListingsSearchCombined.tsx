@@ -1,8 +1,12 @@
-import React, { useRef, useState, useEffect, useContext } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import { UserStatus } from "../../../lib/constants"
 import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { t } from "@bloom-housing/ui-components"
-import { ListingSearchParams, generateSearchQuery } from "../../../lib/listings/search"
+import {
+  ListingSearchParams,
+  generateSearchQuery,
+  parseSearchString,
+} from "../../../lib/listings/search"
 import { searchListings, searchMapMarkers } from "../../../lib/listings/listing-service"
 import styles from "./ListingsSearch.module.scss"
 import { ListingsCombined } from "../ListingsCombined"
@@ -34,14 +38,17 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const [currentMarkers, setCurrentMarkers] = useState<MapMarkerData[]>(null)
   const [isDesktop, setIsDesktop] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
-
-  // Store the current search params for pagination
-  const searchParams = useRef({
-    bedrooms: null,
-    bathrooms: null,
-    monthlyRent: null,
-    counties: [],
-  } as ListingSearchParams)
+  const [searchFilter, setSearchFilter] = useState(
+    parseSearchString(props.searchString, {
+      bedrooms: null,
+      bathrooms: null,
+      minRent: "",
+      monthlyRent: "",
+      counties: props.counties.map((county) => county.label),
+      availability: null,
+      ids: undefined,
+    })
+  )
 
   const [searchResults, setSearchResults] = useState({
     listings: [],
@@ -65,7 +72,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   // This can be changed later if needed
   const pageSize = 25
 
-  const search = async (params: ListingSearchParams, page: number) => {
+  const search = async (page: number, changingFilter?: boolean) => {
+    // If a user pans over empty space, reset the listings to empty instead of refetching
     if (searchResults.listings.length && visibleMarkers?.length === 0) {
       setSearchResults({
         listings: [],
@@ -75,17 +83,16 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         totalItems: 0,
       })
       setIsLoading(false)
-
-      searchParams.current = params
       return
     }
+
     const modifiedParams: ListingSearchParams = {
-      ...params,
+      ...searchFilter,
       ids: visibleMarkers?.map((marker) => marker.id),
     }
 
     const listingIdsOnlyQb = generateSearchQuery(modifiedParams)
-    const genericQb = generateSearchQuery(params)
+    const genericQb = generateSearchQuery(searchFilter)
 
     let newListings
     let newMeta
@@ -93,7 +100,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     if (isDesktop || listView) {
       setIsLoading(true)
       const result = await searchListings(
-        isDesktop ? listingIdsOnlyQb : genericQb,
+        isDesktop && !changingFilter ? listingIdsOnlyQb : genericQb,
         pageSize,
         page,
         listingsService
@@ -101,10 +108,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       newListings = result.items
       newMeta = result.meta
     }
-    let newMarkers
-    if (params !== searchParams.current || !visibleMarkers) {
-      newMarkers = await searchMapMarkers(genericQb, listingsService)
-    }
+    const newMarkers = await searchMapMarkers(genericQb, listingsService)
+
     setSearchResults({
       listings: newListings ?? searchResults.listings,
       markers: newMarkers ?? searchResults.markers,
@@ -112,10 +117,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       lastPage: newMeta ? newMeta.totalPages : searchResults.lastPage,
       totalItems: newMeta ? newMeta.totalItems : searchResults.totalItems,
     })
-
     setIsLoading(false)
-
-    searchParams.current = params
 
     document.getElementById("listings-outer-container")?.scrollTo(0, 0)
     document.getElementById("listings-list")?.scrollTo(0, 0)
@@ -125,7 +127,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   useEffect(() => {
     async function searchListings() {
-      await search(searchParams.current, 1)
+      await search(1)
     }
     if (listView) {
       void searchListings()
@@ -153,7 +155,14 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   useEffect(() => {
     async function searchListings() {
-      await search(searchParams.current, 1)
+      await search(1, true)
+    }
+    void searchListings()
+  }, [searchFilter])
+
+  useEffect(() => {
+    async function searchListings() {
+      await search(1)
     }
 
     const oldMarkers = JSON.stringify(
@@ -171,30 +180,12 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleMarkers])
 
-  const onFormSubmit = async (params: ListingSearchParams) => {
-    await search(params, 1)
+  const onFormSubmit = (params: ListingSearchParams) => {
+    setSearchFilter(params)
   }
 
-  // useEffect(() => {
-  //   const initialState = parseSearchString(props.searchString, {
-  //     bedrooms: null,
-  //     bathrooms: null,
-  //     minRent: "",
-  //     monthlyRent: "",
-  //     counties: props.counties.map((county) => county.label),
-  //     availability: null,
-  //     ids: undefined,
-  //   })
-
-  //   const firstPageLoadFilter = async () => {
-  //     await search(initialState, 1)
-  //   }
-
-  //   void firstPageLoadFilter()
-  // }, [])
-
   const onPageChange = async (page: number) => {
-    await search(searchParams.current, page)
+    await search(page)
   }
 
   const onModalClose = () => {

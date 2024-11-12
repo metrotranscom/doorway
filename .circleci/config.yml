@@ -31,7 +31,6 @@ executors:
       SHOW_LOTTERY: "TRUE"
       SHOW_PUBLIC_LOTTERY: "TRUE"
       THROTTLE_LIMIT: 1000
-      LIMIT_CLOSED_LISTING_ACTIONS: "TRUE"
 
   standard-node:
     docker:

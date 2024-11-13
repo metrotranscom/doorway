@@ -400,14 +400,16 @@ export class ListingService implements OnModuleInit {
         OR: userRolesWhere,
       },
     });
-
     // account for users having access to multiple jurisdictions
-    const jurisInfo = userResults[0]?.jurisdictions?.find(
+    const userWithJuris = userResults?.find(
+      (user) => user.jurisdictions.length,
+    );
+    const matchingJurisInfo = userWithJuris?.jurisdictions?.find(
       (juris) => juris.id === jurisId,
     );
-    const publicUrl = getPublicUrl ? jurisInfo?.publicUrl : null;
+    const publicUrl = getPublicUrl ? matchingJurisInfo?.publicUrl : null;
     const emailFromAddress = getEmailFromAddress
-      ? jurisInfo?.emailFromAddress
+      ? matchingJurisInfo?.emailFromAddress
       : null;
     const userEmails: string[] = [];
     userResults?.forEach((user) => user?.email && userEmails.push(user.email));

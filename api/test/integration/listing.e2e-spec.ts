@@ -908,7 +908,7 @@ describe('Listing Controller Tests', () => {
       );
     });
 
-    it.only('update status to pending approval and notify appropriate users', async () => {
+    it('update status to pending approval and notify appropriate users', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/login')
         .set({ passkey: process.env.API_PASS_KEY || '' })

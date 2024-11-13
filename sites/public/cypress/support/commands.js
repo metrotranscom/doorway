@@ -47,7 +47,7 @@ Cypress.Commands.add("checkErrorMessages", (command) => {
 Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
   cy.visit("/")
   cy.getByTestId("View Listings-1").click()
-  cy.get(".is-card-link").contains(listingName).click()
+  cy.getByTestId("listing-card-component").contains(listingName).click()
   cy.getByID("listing-view-apply-button").eq(1).click()
   cy.get("[data-testid=sign-in-email-field]").type("admin@example.com")
   cy.getByID("use-password-instead").click()
@@ -70,7 +70,7 @@ Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
 
 Cypress.Commands.add("beginApplicationSignedIn", (listingName) => {
   cy.visit("/listings")
-  cy.get(".is-card-link").contains(listingName).click()
+  cy.getByTestId("listing-card-component").contains(listingName).click()
   cy.getByID("listing-view-apply-button").eq(1).click()
   cy.getByID("app-choose-language-button").eq(0).click()
   cy.getByID("app-next-step-button").click()

@@ -16,7 +16,6 @@ import dayjs from 'dayjs';
 import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
 import {
   rockyMountainAddress,
-  yellowstoneAddress,
   yosemiteAddress,
   stagingRealisticAddresses,
 } from './seed-helpers/address-factory';
@@ -412,7 +411,7 @@ export const stagingSeed = async (
           contentUpdatedAt: new Date(),
           publishedAt: new Date(),
           listingsBuildingAddress: {
-            create: yellowstoneAddress,
+            create: stagingRealisticAddresses[0],
           },
           listingsApplicationPickUpAddress: undefined,
           listingsLeasingAgentAddress: undefined,
@@ -816,7 +815,7 @@ export const stagingSeed = async (
           contentUpdatedAt: new Date(),
           publishedAt: new Date(),
           listingsBuildingAddress: {
-            create: yellowstoneAddress,
+            create: stagingRealisticAddresses[1],
           },
           listingsApplicationMailingAddress: {
             create: rockyMountainAddress,
@@ -1314,6 +1313,7 @@ export const stagingSeed = async (
           multiselectQuestions: value.multiselectQuestions,
           applications: value.applications,
           afsLastRunSetInPast: true,
+          address: stagingRealisticAddresses[index + 4],
         });
         const savedListing = await prismaClient.listings.create({
           data: listing,

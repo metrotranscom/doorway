@@ -1,14 +1,11 @@
 import React from "react"
-import {
-  Listing,
-  ListingFilterParams,
-  ListingMapMarker,
-} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Listing, ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import CustomSiteFooter from "../shared/CustomSiteFooter"
 import { ListingsMap, MapMarkerData } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
 import styles from "./ListingsCombined.module.scss"
 import { ListingsSearchMetadata } from "./search/ListingsSearchMetadata"
+import { ListingSearchParams } from "../../lib/listings/search"
 
 type ListingsCombinedProps = {
   markers: ListingMapMarker[] | null
@@ -30,7 +27,7 @@ type ListingsCombinedProps = {
   isDesktop: boolean
   loading: boolean
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  searchFilter: ListingFilterParams
+  searchFilter: ListingSearchParams
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {

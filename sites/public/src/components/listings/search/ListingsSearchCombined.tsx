@@ -12,6 +12,7 @@ import styles from "./ListingsSearch.module.scss"
 import { ListingsCombined } from "../ListingsCombined"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
 import { MapMarkerData } from "../ListingsMap"
+import { ListingFilterParams } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 type ListingsSearchCombinedProps = {
   searchString?: string

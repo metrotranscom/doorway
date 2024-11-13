@@ -5,11 +5,9 @@ import { AuthContext } from "@bloom-housing/shared-helpers"
 import { MapMarkerData } from "./ListingsMap"
 import { MapMarker } from "./MapMarker"
 import styles from "./ListingsCombined.module.scss"
-import {
-  ListingFilterParams,
-  ListingViews,
-} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { ListingViews } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { getListingCard, getBoundsZoomLevel } from "../../lib/helpers"
+import { ListingSearchParams } from "../../lib/listings/search"
 
 export type ListingsMapMarkersProps = {
   mapMarkers: MapMarkerData[] | null
@@ -18,7 +16,7 @@ export type ListingsMapMarkersProps = {
   visibleMarkers: MapMarkerData[]
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  searchFilter: ListingFilterParams
+  searchFilter: ListingSearchParams
 }
 
 // Zoom in slowly by recursively setting the zoom level

@@ -102,6 +102,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
       count++
     })
     return count
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // We're factoring out the function to prevent requiring props in useEffect

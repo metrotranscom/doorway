@@ -5,7 +5,10 @@ import { AuthContext } from "@bloom-housing/shared-helpers"
 import { MapMarkerData } from "./ListingsMap"
 import { MapMarker } from "./MapMarker"
 import styles from "./ListingsCombined.module.scss"
-import { ListingViews } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import {
+  ListingFilterParams,
+  ListingViews,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { getListingCard, getBoundsZoomLevel } from "../../lib/helpers"
 
 export type ListingsMapMarkersProps = {
@@ -15,15 +18,7 @@ export type ListingsMapMarkersProps = {
   visibleMarkers: MapMarkerData[]
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  searchFilter: {
-    bedrooms: any
-    bathrooms: any
-    minRent: string
-    monthlyRent: string
-    counties: string[]
-    availability: any
-    ids: any
-  }
+  searchFilter: ListingFilterParams
 }
 
 // Zoom in slowly by recursively setting the zoom level
@@ -91,6 +86,7 @@ export const MapClusterer = ({
       setCurrentMapMarkers(mapMarkers)
       resetVisibleMarkers()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapMarkers])
 
   const fetchInfoWindow = async (listingId: string) => {
@@ -138,6 +134,7 @@ export const MapClusterer = ({
         map.panTo(cluster.bounds.getCenter())
       },
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map])
 
   useEffect(() => {

@@ -3538,7 +3538,10 @@ describe('Testing listing service', () => {
 
       externalPrismaClient.$queryRawUnsafe.mockResolvedValueOnce(['random id']);
 
-      await service.mapMarkers({});
+      await service.mapMarkers({
+        limit: 'all',
+        filter: [],
+      });
 
       expect(prisma.combinedListings.findMany).toHaveBeenCalledWith({
         select: {

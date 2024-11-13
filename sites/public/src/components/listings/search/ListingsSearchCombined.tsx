@@ -152,6 +152,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       await search(1, true)
     }
     void searchListings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchFilter])
 
   // Re-search when the map's visible markers are changed

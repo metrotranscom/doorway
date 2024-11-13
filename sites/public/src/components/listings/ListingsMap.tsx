@@ -2,7 +2,10 @@ import React, { useState } from "react"
 import { APIProvider, Map } from "@vis.gl/react-google-maps"
 import { useJsApiLoader } from "@react-google-maps/api"
 import { t } from "@bloom-housing/ui-components"
-import { ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import {
+  ListingFilterParams,
+  ListingMapMarker,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { MapControl } from "../shared/MapControl"
 import { MapClusterer } from "./MapClusterer"
 import styles from "./ListingsCombined.module.scss"
@@ -16,15 +19,7 @@ type ListingsMapProps = {
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
   visibleMarkers: MapMarkerData[]
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  searchFilter: {
-    bedrooms: any
-    bathrooms: any
-    minRent: string
-    monthlyRent: string
-    counties: string[]
-    availability: any
-    ids: any
-  }
+  searchFilter: ListingFilterParams
 }
 
 export type MapMarkerData = {

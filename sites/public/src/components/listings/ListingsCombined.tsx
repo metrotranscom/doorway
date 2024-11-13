@@ -1,5 +1,9 @@
 import React from "react"
-import { Listing, ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import {
+  Listing,
+  ListingFilterParams,
+  ListingMapMarker,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import CustomSiteFooter from "../shared/CustomSiteFooter"
 import { ListingsMap, MapMarkerData } from "./ListingsMap"
 import { ListingsList } from "./ListingsList"
@@ -26,15 +30,7 @@ type ListingsCombinedProps = {
   isDesktop: boolean
   loading: boolean
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  searchFilter: {
-    bedrooms: any
-    bathrooms: any
-    minRent: string
-    monthlyRent: string
-    counties: string[]
-    availability: any
-    ids: any
-  }
+  searchFilter: ListingFilterParams
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {

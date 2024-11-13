@@ -298,6 +298,20 @@ export class ListingsService {
     })
   }
   /**
+   * Get listing map markers
+   */
+  mapMarkers(options: IRequestOptions = {}): Promise<ListingMapMarker[]> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings/mapMarkers"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * Get listing for external consumption by id
    */
   externalRetrieve(
@@ -317,55 +331,6 @@ export class ListingsService {
       configs.params = { view: params["view"] }
 
       /** 适配ios13，get请求不允许带body */
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Get listing by id
-   */
-  retrieve(
-    params: {
-      /**  */
-      id: string
-      /**  */
-      view?: ListingViews
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<Listing> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings/{id}"
-      url = url.replace("{id}", params["id"] + "")
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-      configs.params = { view: params["view"] }
-
-      /** 适配ios13，get请求不允许带body */
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Update listing by id
-   */
-  update(
-    params: {
-      /**  */
-      id: string
-      /** requestBody */
-      body?: ListingUpdate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<Listing> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings/{id}"
-      url = url.replace("{id}", params["id"] + "")
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
 
       axios(configs, resolve, reject)
     })
@@ -404,6 +369,55 @@ export class ListingsService {
       let data = null
 
       configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Update listing by id
+   */
+  update(
+    params: {
+      /**  */
+      id: string
+      /** requestBody */
+      body?: ListingUpdate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<Listing> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings/{id}"
+      url = url.replace("{id}", params["id"] + "")
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Get listing by id
+   */
+  retrieve(
+    params: {
+      /**  */
+      id: string
+      /**  */
+      view?: ListingViews
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<Listing> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings/{id}"
+      url = url.replace("{id}", params["id"] + "")
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+      configs.params = { view: params["view"] }
+
+      /** 适配ios13，get请求不允许带body */
 
       axios(configs, resolve, reject)
     })
@@ -2247,7 +2261,7 @@ export class ScriptRunnerService {
     })
   }
   /**
-   * A script that pulls data from one source into the current db
+   * A script that pulls jurisdiction data from one source into the current db
    */
   transferJurisdictionData(
     params: {
@@ -2269,7 +2283,7 @@ export class ScriptRunnerService {
     })
   }
   /**
-   * A script that pulls data from one source into the current db
+   * A script that pulls listing data from one source into the current db
    */
   transferJurisdictionListingsData(
     params: {
@@ -2280,6 +2294,50 @@ export class ScriptRunnerService {
   ): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/scriptRunner/transferJurisdictionListingsData"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that pulls partner user data from one source into the current db
+   */
+  transferJurisdictionPartnerUserData(
+    params: {
+      /** requestBody */
+      body?: DataTransferDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/transferJurisdictionPartnerUserData"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that pulls public user and application data from one source into the current db
+   */
+  transferJurisdictionPublicUserApplicationData(
+    params: {
+      /** requestBody */
+      body?: DataTransferDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/transferJurisdictionPublicUserApplicationData"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
@@ -2302,6 +2360,28 @@ export class ScriptRunnerService {
   ): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/scriptRunner/amiChartImport"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that takes in a standardized string and outputs the input for the ami chart update endpoint
+   */
+  amiChartUpdateImport(
+    params: {
+      /** requestBody */
+      body?: AmiChartUpdateImportDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/amiChartUpdateImport"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
@@ -2350,6 +2430,60 @@ export class ScriptRunnerService {
   optOutExistingLotteries(options: IRequestOptions = {}): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/scriptRunner/optOutExistingLotteries"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that adds duplicates information to lottery email
+   */
+  addDuplicatesInformationToLotteryEmail(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/addDuplicatesInformationToLotteryEmail"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that creates a new reserved community type
+   */
+  createNewReservedCommunityType(
+    params: {
+      /** requestBody */
+      body?: CommunityTypeDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/createNewReservedCommunityType"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that updates single use code translations to show extended expiration time
+   */
+  updateCodeExpirationTranslations(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/updateCodeExpirationTranslations"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
@@ -3572,6 +3706,17 @@ export interface PaginatedListing {
 
   /**  */
   meta: PaginationMeta
+}
+
+export interface ListingMapMarker {
+  /**  */
+  id: string
+
+  /**  */
+  lat: number
+
+  /**  */
+  lng: number
 }
 
 export interface UnitAmiChartOverrideCreate {
@@ -4938,7 +5083,10 @@ export interface JurisdictionCreate {
   allowSingleUseCodeLogin: boolean
 
   /**  */
-  listingApprovalPermissions: EnumJurisdictionCreateListingApprovalPermissions[]
+  listingApprovalPermissions: UserRoleEnum[]
+
+  /**  */
+  duplicateListingPermissions: UserRoleEnum[]
 }
 
 export interface JurisdictionUpdate {
@@ -4991,7 +5139,10 @@ export interface JurisdictionUpdate {
   allowSingleUseCodeLogin: boolean
 
   /**  */
-  listingApprovalPermissions: EnumJurisdictionUpdateListingApprovalPermissions[]
+  listingApprovalPermissions: UserRoleEnum[]
+
+  /**  */
+  duplicateListingPermissions: UserRoleEnum[]
 }
 
 export interface Jurisdiction {
@@ -5053,7 +5204,10 @@ export interface Jurisdiction {
   allowSingleUseCodeLogin: boolean
 
   /**  */
-  listingApprovalPermissions: EnumJurisdictionListingApprovalPermissions[]
+  listingApprovalPermissions: UserRoleEnum[]
+
+  /**  */
+  duplicateListingPermissions: UserRoleEnum[]
 }
 
 export interface MultiselectQuestionCreate {
@@ -6032,6 +6186,25 @@ export interface AmiChartImportDTO {
   jurisdictionId: string
 }
 
+export interface AmiChartUpdateImportDTO {
+  /**  */
+  values: string
+
+  /**  */
+  amiId: string
+}
+
+export interface CommunityTypeDTO {
+  /**  */
+  id: string
+
+  /**  */
+  name: string
+
+  /**  */
+  description?: string
+}
+
 export interface ApplicationCsvQueryParams {
   /**  */
   id: string
@@ -6265,23 +6438,12 @@ export enum HouseholdMemberRelationship {
   "other" = "other",
 }
 export type AllExtraDataTypes = BooleanInput | TextInput | AddressInput
-export enum EnumJurisdictionCreateListingApprovalPermissions {
+export enum UserRoleEnum {
   "user" = "user",
   "partner" = "partner",
   "admin" = "admin",
   "jurisdictionAdmin" = "jurisdictionAdmin",
-}
-export enum EnumJurisdictionUpdateListingApprovalPermissions {
-  "user" = "user",
-  "partner" = "partner",
-  "admin" = "admin",
-  "jurisdictionAdmin" = "jurisdictionAdmin",
-}
-export enum EnumJurisdictionListingApprovalPermissions {
-  "user" = "user",
-  "partner" = "partner",
-  "admin" = "admin",
-  "jurisdictionAdmin" = "jurisdictionAdmin",
+  "limitedJurisdictionAdmin" = "limitedJurisdictionAdmin",
 }
 export enum EnumMultiselectQuestionFilterParamsComparison {
   "=" = "=",

@@ -16,12 +16,14 @@ import { OptionalAuthGuard } from '../guards/optional.guard';
 import { AdminOrJurisdictionalAdminGuard } from '../guards/admin-or-jurisdiction-admin.guard';
 import { DataTransferDTO } from '../dtos/script-runner/data-transfer.dto';
 import { AmiChartImportDTO } from '../dtos/script-runner/ami-chart-import.dto';
+import { AmiChartUpdateImportDTO } from '../dtos/script-runner/ami-chart-update-import.dto';
 import { CommunityTypeDTO } from '../dtos/script-runner/community-type.dto';
+import { ApiKeyGuard } from '../guards/api-key.guard';
 
 @Controller('scriptRunner')
 @ApiTags('scriptRunner')
 @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
-@UseGuards(OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
+@UseGuards(ApiKeyGuard, OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
 export class ScirptRunnerController {
   constructor(private readonly scriptRunnerService: ScriptRunnerService) {}
 
@@ -69,18 +71,35 @@ export class ScirptRunnerController {
     );
   }
 
-  @Put('transferJurisdictionUserApplicationData')
+  @Put('transferJurisdictionPartnerUserData')
   @ApiOperation({
     summary:
-      'A script that pulls user and application data from one source into the current db',
-    operationId: 'transferJurisdictionUserApplicationData',
+      'A script that pulls partner user data from one source into the current db',
+    operationId: 'transferJurisdictionPartnerUserData',
   })
   @ApiOkResponse({ type: SuccessDTO })
-  async transferJurisdictionUserApplicationData(
+  async transferJurisdictionPartnerUserData(
     @Body() dataTransferDTO: DataTransferDTO,
     @Request() req: ExpressRequest,
   ): Promise<SuccessDTO> {
-    return await this.scriptRunnerService.transferJurisdictionUserApplicationData(
+    return await this.scriptRunnerService.transferJurisdictionPartnerUserData(
+      req,
+      dataTransferDTO,
+    );
+  }
+
+  @Put('transferJurisdictionPublicUserApplicationData')
+  @ApiOperation({
+    summary:
+      'A script that pulls public user and application data from one source into the current db',
+    operationId: 'transferJurisdictionPublicUserApplicationData',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async transferJurisdictionPublicUserApplicationData(
+    @Body() dataTransferDTO: DataTransferDTO,
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.transferJurisdictionPublicUserAndApplicationData(
       req,
       dataTransferDTO,
     );
@@ -100,6 +119,23 @@ export class ScirptRunnerController {
     return await this.scriptRunnerService.amiChartImport(
       req,
       amiChartImportDTO,
+    );
+  }
+
+  @Put('amiChartUpdateImport')
+  @ApiOperation({
+    summary:
+      'A script that takes in a standardized string and outputs the input for the ami chart update endpoint',
+    operationId: 'amiChartUpdateImport',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async amiChartUpdateImport(
+    @Body() amiChartUpdateImportDTO: AmiChartUpdateImportDTO,
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.amiChartUpdateImport(
+      req,
+      amiChartUpdateImportDTO,
     );
   }
 
@@ -142,6 +178,20 @@ export class ScirptRunnerController {
     return await this.scriptRunnerService.optOutExistingLotteries(req);
   }
 
+  @Put('addDuplicatesInformationToLotteryEmail')
+  @ApiOperation({
+    summary: 'A script that adds duplicates information to lottery email',
+    operationId: 'addDuplicatesInformationToLotteryEmail',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async addDuplicatesInformationToLotteryEmail(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.addDuplicatesInformationToLotteryEmail(
+      req,
+    );
+  }
+
   @Put('createNewReservedCommunityType')
   @ApiOperation({
     summary: 'A script that creates a new reserved community type',
@@ -158,5 +208,17 @@ export class ScirptRunnerController {
       body.name,
       body.description,
     );
+  }
+  @Put('updateCodeExpirationTranslations')
+  @ApiOperation({
+    summary:
+      'A script that updates single use code translations to show extended expiration time',
+    operationId: 'updateCodeExpirationTranslations',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async updateCodeExpirationTranslations(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.updateCodeExpirationTranslations(req);
   }
 }

@@ -1046,6 +1046,11 @@ describe('Listing Controller Tests', () => {
 
       const res = await request(app.getHttpServer())
         .post('/listings/mapMarkers')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          limit: 'all',
+          filter: [],
+        })
         .expect(201);
 
       expect(res.body.length).toBeGreaterThanOrEqual(1);

@@ -1080,6 +1080,7 @@ describe('Lottery Controller Tests', () => {
           juris: expect.stringMatching(jurisdictionAId),
         },
         expect.arrayContaining([partnerUser.email, adminUser.email]),
+        process.env.PARTNERS_PORTAL_URL,
         jurisdictionAEmail,
       );
 

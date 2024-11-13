@@ -67,7 +67,7 @@ export const MapClusterer = ({
 
   const resetVisibleMarkers = () => {
     const bounds = map.getBounds()
-    const newVisibleMarkers = mapMarkers.filter((marker) => bounds.contains(marker.coordinate))
+    const newVisibleMarkers = mapMarkers.filter((marker) => bounds?.contains(marker.coordinate))
     if (!visibleMarkers && newVisibleMarkers.length === 0) return
 
     setVisibleMarkers(newVisibleMarkers)

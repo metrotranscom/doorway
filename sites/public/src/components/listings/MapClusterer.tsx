@@ -61,6 +61,7 @@ export const MapClusterer = ({
   }>({})
   const [infoWindowContent, setInfoWindowContent] = useState<React.JSX.Element>(null)
   const [isFirstBoundsLoad, setIsFirstBoundsLoad] = useState(true)
+  const [currentMapMarkers, setCurrentMapMarkers] = useState(mapMarkers)
 
   const map = useMap()
 
@@ -78,6 +79,19 @@ export const MapClusterer = ({
     clearTimeout(delayTimer)
     delayTimer = setTimeout(resetVisibleMarkers, 800)
   })
+
+  useEffect(() => {
+    const oldMarkers = JSON.stringify(
+      currentMapMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
+    )
+    const newMarkers = JSON.stringify(
+      mapMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
+    )
+    if (oldMarkers !== newMarkers) {
+      setCurrentMapMarkers(mapMarkers)
+      resetVisibleMarkers()
+    }
+  }, [mapMarkers])
 
   const fetchInfoWindow = async (listingId: string) => {
     try {
@@ -155,7 +169,7 @@ export const MapClusterer = ({
       setIsFirstBoundsLoad(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clusterer, markers])
+  }, [clusterer, markers, currentMapMarkers])
 
   // Keeps track of the markers on the map, passed to each marker
   const setMarkerRef = useCallback(

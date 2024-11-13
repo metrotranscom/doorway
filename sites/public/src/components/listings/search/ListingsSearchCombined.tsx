@@ -73,8 +73,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const pageSize = 25
 
   const search = async (page: number, changingFilter?: boolean) => {
-    console.log("search")
-    console.log({ changingFilter })
     // If a user pans over empty space, reset the listings to empty instead of refetching
     if (visibleMarkers?.length === 0 && !changingFilter) {
       setSearchResults({
@@ -88,7 +86,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       return
     }
 
-    console.log({ visibleMarkers })
     const modifiedParams: ListingSearchParams = {
       ...searchFilter,
       ids: visibleMarkers?.map((marker) => marker.id),
@@ -102,9 +99,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     let newMeta
 
     // Don't search listings as you move the map if you're in mobile map view, otherwise update the list
-    console.log("about to search")
     if (isDesktop || listView) {
-      console.log("doing new listings")
       setIsLoading(true)
       const result = await searchListings(
         isDesktop ? listingIdsOnlyQb : genericQb,
@@ -115,7 +110,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       newListings = result.items
       newMeta = result.meta
     }
-    console.log("doing new markers")
     const newMarkers = await searchMapMarkers(genericQb, listingsService)
 
     setSearchResults({

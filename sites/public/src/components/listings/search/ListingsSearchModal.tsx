@@ -338,9 +338,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         <div style={{ flexGrow: 1 }}></div>
         <button
           style={clearButtonStyle}
-          onClick={() => {
-            clearValues()
-          }}
+          onClick={clearValues}
           data-testid={"listings-map-filter-dialog-clear-button"}
         >
           {t("t.clearAllFilters")}

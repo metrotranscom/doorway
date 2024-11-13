@@ -157,7 +157,8 @@ export const listingFactory = async (
       : undefined,
     applicationDueDate: optionalParams?.applicationDueDate ?? undefined,
     reviewOrderType:
-      optionalParams?.reviewOrderType ?? ReviewOrderTypeEnum.lottery,
+      optionalParams?.reviewOrderType ??
+      ReviewOrderTypeEnum.firstComeFirstServe,
     developer: randomName(),
     leasingAgentName: randomName(),
     leasingAgentEmail: 'leasing-agent@example.com',

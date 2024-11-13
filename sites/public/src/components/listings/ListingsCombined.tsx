@@ -26,6 +26,15 @@ type ListingsCombinedProps = {
   isDesktop: boolean
   loading: boolean
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  searchFilter: {
+    bedrooms: any
+    bathrooms: any
+    minRent: string
+    monthlyRent: string
+    counties: string[]
+    availability: any
+    ids: any
+  }
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
@@ -80,6 +89,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             setVisibleMarkers={props.setVisibleMarkers}
             visibleMarkers={props.visibleMarkers}
             setIsLoading={props.setIsLoading}
+            searchFilter={props.searchFilter}
           />
         </div>
       </div>
@@ -107,6 +117,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               setVisibleMarkers={props.setVisibleMarkers}
               visibleMarkers={props.visibleMarkers}
               setIsLoading={props.setIsLoading}
+              searchFilter={props.searchFilter}
             />
           </div>
           <div id="listings-outer-container" className={styles["listings-outer-container"]}>

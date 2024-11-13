@@ -73,6 +73,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const pageSize = 25
 
   const search = async (page: number, changingFilter?: boolean) => {
+    console.log("search")
+    console.log({ changingFilter })
     // If a user pans over empty space, reset the listings to empty instead of refetching
     if (visibleMarkers?.length === 0 && !changingFilter) {
       setSearchResults({
@@ -86,18 +88,23 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       return
     }
 
+    console.log({ visibleMarkers })
     const modifiedParams: ListingSearchParams = {
       ...searchFilter,
       ids: visibleMarkers?.map((marker) => marker.id),
     }
 
+    // Search the listings by both the filter & the visible markers - but search the markers by only the filter, so that you can scroll out of the currently searched view and still see the markers
     const listingIdsOnlyQb = generateSearchQuery(modifiedParams)
     const genericQb = generateSearchQuery(searchFilter)
 
     let newListings
     let newMeta
 
+    // Don't search listings as you move the map if you're in mobile map view, otherwise update the list
+    console.log("about to search")
     if (isDesktop || listView) {
+      console.log("doing new listings")
       setIsLoading(true)
       const result = await searchListings(
         isDesktop ? listingIdsOnlyQb : genericQb,
@@ -108,6 +115,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       newListings = result.items
       newMeta = result.meta
     }
+    console.log("doing new markers")
     const newMarkers = await searchMapMarkers(genericQb, listingsService)
 
     setSearchResults({
@@ -124,15 +132,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     document.getElementById("listings-list-expanded")?.scrollTo(0, 0)
     window.scrollTo(0, 0)
   }
-
-  useEffect(() => {
-    async function searchListings() {
-      await search(1)
-    }
-    if (listView) {
-      void searchListings()
-    }
-  }, [listView])
 
   const DESKTOP_MIN_WIDTH = 767 // @screen md
   useEffect(() => {
@@ -153,6 +152,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     return () => window.removeEventListener("resize", updateMedia)
   }, [])
 
+  // Re-search when the filter is updated
   useEffect(() => {
     async function searchListings() {
       await search(1, true)
@@ -160,6 +160,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     void searchListings()
   }, [searchFilter])
 
+  // Re-search when the map's visible markers are changed
   useEffect(() => {
     async function searchListings() {
       await search(1)
@@ -171,6 +172,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     const newMarkers = JSON.stringify(
       visibleMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
     )
+    // Only re-search if the visible markers are not the same
     if (oldMarkers !== newMarkers && isDesktop) {
       setCurrentMarkers(visibleMarkers)
       void searchListings()
@@ -224,6 +226,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         isDesktop={isDesktop}
         loading={isLoading}
         setIsLoading={setIsLoading}
+        searchFilter={searchFilter}
       />
     </div>
   )

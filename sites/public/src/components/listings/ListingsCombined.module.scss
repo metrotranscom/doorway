@@ -5,14 +5,9 @@
   flex-direction: column;
 
   @media (max-width: $screen-md) {
-    height: calc(var(--listings-component-height-mobile));
-    max-height: calc(var(--listings-component-height-mobile));
+    height: var(--listings-component-height-mobile);
+    max-height: var(--listings-component-height-mobile);
   }
-
-  // @media (max-width: $screen-md) {
-  //   position: relative;
-  //   display: block;
-  // }
 
   .listings-map {
     flex: 1;
@@ -61,7 +56,6 @@
       display: block;
       z-index: 0;
       width: 100%;
-      --search-height: 0;
       height: calc(var(--listings-component-height-mobile));
       max-height: calc(var(--listings-component-height-mobile));
     }
@@ -128,14 +122,6 @@
   [class*="loading-overlay__spinner"] {
     top: var(--seeds-s20);
   }
-
-  // [class*="loading-overlay"]::before {
-  //   background-color: white;
-  // }
-
-  // [class*="loading-overlay__spinner"] {
-  //   color: var(--seeds-color-gray-400) !important;
-  // }
 }
 
 .cluster-icon {

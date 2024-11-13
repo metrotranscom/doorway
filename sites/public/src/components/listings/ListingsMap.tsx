@@ -16,6 +16,15 @@ type ListingsMapProps = {
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
   visibleMarkers: MapMarkerData[]
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  searchFilter: {
+    bedrooms: any
+    bathrooms: any
+    minRent: string
+    monthlyRent: string
+    counties: string[]
+    availability: any
+    ids: any
+  }
 }
 
 export type MapMarkerData = {
@@ -87,6 +96,7 @@ const ListingsMap = (props: ListingsMapProps) => {
             setVisibleMarkers={props.setVisibleMarkers}
             visibleMarkers={props.visibleMarkers}
             setIsLoading={props.setIsLoading}
+            searchFilter={props.searchFilter}
           />
         </Map>
       </APIProvider>

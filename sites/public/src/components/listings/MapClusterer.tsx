@@ -6,7 +6,7 @@ import { MapMarkerData } from "./ListingsMap"
 import { MapMarker } from "./MapMarker"
 import styles from "./ListingsCombined.module.scss"
 import { ListingViews } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import { getListingCard } from "../../lib/helpers"
+import { getListingCard, getBoundsZoomLevel } from "../../lib/helpers"
 
 export type ListingsMapMarkersProps = {
   mapMarkers: MapMarkerData[] | null
@@ -15,38 +15,19 @@ export type ListingsMapMarkersProps = {
   visibleMarkers: MapMarkerData[]
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  searchFilter: {
+    bedrooms: any
+    bathrooms: any
+    minRent: string
+    monthlyRent: string
+    counties: string[]
+    availability: any
+    ids: any
+  }
 }
 
-const getBoundsZoomLevel = (bounds: google.maps.LatLngBounds) => {
-  const mapElement = document.getElementById("listings-map")
-  const WORLD_DIM = { height: 256, width: 256 }
-  const ZOOM_MAX = 21
-
-  function latRad(lat) {
-    const sin = Math.sin((lat * Math.PI) / 180)
-    const radX2 = Math.log((1 + sin) / (1 - sin)) / 2
-    return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2
-  }
-
-  function zoom(mapPx, worldPx, fraction) {
-    return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2)
-  }
-
-  const ne = bounds.getNorthEast()
-  const sw = bounds.getSouthWest()
-
-  const latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI
-
-  const lngDiff = ne.lng() - sw.lng()
-  const lngFraction = (lngDiff < 0 ? lngDiff + 360 : lngDiff) / 360
-
-  const latZoom = zoom(mapElement.clientHeight, WORLD_DIM.height, latFraction)
-  const lngZoom = zoom(mapElement.clientWidth, WORLD_DIM.width, lngFraction)
-
-  return Math.min(latZoom, lngZoom, ZOOM_MAX)
-}
-
-const animateMapZoomTo = (
+// Zoom in slowly by recursively setting the zoom level
+const animateZoom = (
   map: google.maps.Map,
   targetZoom: number,
   panTo?: google.maps.LatLngLiteral
@@ -55,7 +36,7 @@ const animateMapZoomTo = (
   if (currentZoom >= targetZoom) return
   if (currentZoom !== targetZoom) {
     google.maps.event.addListenerOnce(map, "zoom_changed", () => {
-      animateMapZoomTo(map, targetZoom)
+      animateZoom(map, targetZoom)
     })
     if (panTo) map.setCenter(panTo)
     setTimeout(function () {
@@ -79,7 +60,7 @@ export const MapClusterer = ({
     [key: string]: google.maps.marker.AdvancedMarkerElement
   }>({})
   const [infoWindowContent, setInfoWindowContent] = useState<React.JSX.Element>(null)
-  const [boundsLoading, setBoundsLoading] = useState(true)
+  const [isFirstBoundsLoad, setIsFirstBoundsLoad] = useState(true)
 
   const map = useMap()
 
@@ -87,9 +68,11 @@ export const MapClusterer = ({
     const bounds = map.getBounds()
     const newVisibleMarkers = mapMarkers.filter((marker) => bounds.contains(marker.coordinate))
     if (!visibleMarkers && newVisibleMarkers.length === 0) return
+
     setVisibleMarkers(newVisibleMarkers)
   }
 
+  // Whenever the user's map navigation finishes, on a 1 second delay, reset the currently visible markers on the map to re-search the list
   map.addListener("idle", () => {
     setIsLoading(true)
     clearTimeout(delayTimer)
@@ -105,7 +88,7 @@ export const MapClusterer = ({
         </div>
       )
     } catch (e) {
-      console.log("ListingService.searchMapMarkers error: ", e)
+      console.log("listingsService.retrieve error: ", e)
     }
   }
 
@@ -116,6 +99,7 @@ export const MapClusterer = ({
       map,
       renderer: {
         render: (cluster) => {
+          // Create the cluster icon styles
           const clusterMarker = document.createElement("div")
           clusterMarker.className = styles["cluster-icon"]
           clusterMarker.textContent = cluster.count.toString()
@@ -136,7 +120,7 @@ export const MapClusterer = ({
       onClusterClick: (_, cluster, map) => {
         setInfoWindowIndex(null)
         const zoomLevel = getBoundsZoomLevel(cluster.bounds)
-        animateMapZoomTo(map, zoomLevel - 1)
+        animateZoom(map, zoomLevel - 1)
         map.panTo(cluster.bounds.getCenter())
       },
     })
@@ -159,8 +143,7 @@ export const MapClusterer = ({
     })
 
     // Only automatically size the map to fit all pins on first map load
-    if (boundsLoading === false) return
-
+    if (isFirstBoundsLoad === false) return
     const visibleMarkers = mapMarkers?.filter((marker) =>
       map.getBounds()?.contains(marker.coordinate)
     )
@@ -169,11 +152,12 @@ export const MapClusterer = ({
       return
     } else {
       map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
-      setBoundsLoading(false)
+      setIsFirstBoundsLoad(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusterer, markers])
 
+  // Keeps track of the markers on the map, passed to each marker
   const setMarkerRef = useCallback(
     (marker: google.maps.marker.AdvancedMarkerElement | null, key: number) => {
       setMarkers((markers) => {

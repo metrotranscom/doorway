@@ -2,9 +2,10 @@
   // This is a not-ideal way to do "fill window minus header and filter modal" however
   // I can't find another way to do this.
   // TODO: update header + filter modal to a not-magic number
-  --listings-component-height: calc(100dvh - 169px);
-  --listings-component-height-mobile: calc(100dvh - 126px);
-  // --listings-component-height-mobile: 100vh;
+  --desktop-header-offset: 169px;
+  --mobile-header-offset: 126px;
+  --listings-component-height: calc(100dvh - var(--desktop-header-offset));
+  --listings-component-height-mobile: calc(100dvh - var(--mobile-header-offset));
 
   --listings-component-half-height: calc(var(--listings-component-height) / 2);
   --listings-list-width: 600px;

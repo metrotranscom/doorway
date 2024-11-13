@@ -3525,22 +3525,25 @@ describe('Testing listing service', () => {
 
   describe('Test mapMarkers endpoint', () => {
     it('should find all active listings', async () => {
-      prisma.listings.findMany = jest.fn().mockResolvedValue([
+      prisma.combinedListings.findMany = jest.fn().mockResolvedValue([
         {
           id: 'random id',
           listingsBuildingAddress: exampleAddress,
         },
       ]);
 
-      await service.mapMarkers();
+      await service.mapMarkers({});
 
-      expect(prisma.listings.findMany).toHaveBeenCalledWith({
+      expect(prisma.combinedListings.findMany).toHaveBeenCalledWith({
         select: {
           id: true,
           listingsBuildingAddress: true,
         },
         where: {
           status: ListingsStatusEnum.active,
+          id: {
+            in: expect.any(Array),
+          },
         },
       });
     });

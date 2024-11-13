@@ -10,7 +10,9 @@ import {
   ReviewOrderTypeEnum,
   UnitTypeEnum,
   UserRoleEnum,
+  PrismaClient,
 } from '@prisma/client';
+import { mockDeep } from 'jest-mock-extended';
 import { randomUUID } from 'crypto';
 import { stringify } from 'qs';
 import request from 'supertest';
@@ -46,6 +48,8 @@ import { addressFactory } from '../../prisma/seed-helpers/address-factory';
 import { AddressCreate } from '../../src/dtos/addresses/address-create.dto';
 import { EmailService } from '../../src/services/email.service';
 import { userFactory } from '../../prisma/seed-helpers/user-factory';
+
+const externalPrismaClient = mockDeep<PrismaClient>();
 
 describe('Listing Controller Tests', () => {
   let app: INestApplication;
@@ -1041,8 +1045,8 @@ describe('Listing Controller Tests', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .get('/listings/mapMarkers')
-        .expect(200);
+        .post('/listings/mapMarkers')
+        .expect(201);
 
       expect(res.body.length).toBeGreaterThanOrEqual(1);
 

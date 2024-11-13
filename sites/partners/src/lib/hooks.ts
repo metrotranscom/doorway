@@ -80,6 +80,7 @@ export function useListingsData({
     filter: [],
     search,
     view: ListingViews.base,
+    $comparison: null,
   }
 
   if (sort) {

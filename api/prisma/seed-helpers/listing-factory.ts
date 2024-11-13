@@ -81,7 +81,7 @@ export const listingFactory = async (
     lotteryOptIn: optionalParams?.lotteryOptIn || undefined,
     displayWaitlistSize: Math.random() < 0.5,
     listingsBuildingAddress: {
-      create: optionalParams.address || addressFactory(),
+      create: optionalParams?.address || addressFactory(),
     },
     listingsApplicationMailingAddress: {
       create: addressFactory(),

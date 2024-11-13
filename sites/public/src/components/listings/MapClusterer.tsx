@@ -99,7 +99,11 @@ export const MapClusterer = ({
   const fetchInfoWindow = async (listingId: string) => {
     try {
       const response = await listingsService.retrieve({ id: listingId, view: ListingViews.base })
-      setInfoWindowContent(getListingCard(response, infoWindowIndex))
+      setInfoWindowContent(
+        <div data-testid={"listings-map-info-window"}>
+          {getListingCard(response, infoWindowIndex)}
+        </div>
+      )
     } catch (e) {
       console.log("ListingService.searchMapMarkers error: ", e)
     }
@@ -119,6 +123,7 @@ export const MapClusterer = ({
           const calculatedSize = DEFAULT_REM + 0.02 * cluster.count
           clusterMarker.style.width = `${calculatedSize}rem`
           clusterMarker.style.height = `${calculatedSize}rem`
+          clusterMarker.setAttribute("data-testid", "map-cluster")
 
           return new google.maps.marker.AdvancedMarkerElement({
             map,

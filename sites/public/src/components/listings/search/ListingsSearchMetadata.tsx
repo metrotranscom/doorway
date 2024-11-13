@@ -72,11 +72,15 @@ export const ListingsSearchMetadata = ({
             className={`${styles["search-total-results"]} ${
               !listView ? styles["hide-total-results"] : ""
             }`}
+            data-testid={"map-total-results"}
           >
             <strong>{t("search.totalResults")}</strong> {searchResults.totalItems}
           </span>
           {searchResults.lastPage > 0 && (
-            <span className={`${!listView ? styles["hide-total-results"] : ""}`}>
+            <span
+              className={`${!listView ? styles["hide-total-results"] : ""}`}
+              data-testid={"map-pagination"}
+            >
               (
               {t("t.pageXofY", {
                 current: searchResults.currentPage,
@@ -93,6 +97,7 @@ export const ListingsSearchMetadata = ({
           onClick={() => {
             setModalOpen(true)
           }}
+          id={"listings-map-filter-button"}
         >
           <strong>{t("search.filters")}</strong> {filterCount}
         </Button>

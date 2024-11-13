@@ -74,7 +74,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   const search = async (page: number, changingFilter?: boolean) => {
     // If a user pans over empty space, reset the listings to empty instead of refetching
-    if (searchResults.listings.length && visibleMarkers?.length === 0 && !changingFilter) {
+    if (visibleMarkers?.length === 0 && !changingFilter) {
       setSearchResults({
         listings: [],
         markers: searchResults.markers,

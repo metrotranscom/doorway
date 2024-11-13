@@ -199,7 +199,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         check = false
       }
       countyFields.push({
-        id: `county-item-${idx}`,
+        id: `county-item-${county.label}`,
         index: idx,
         label: county.label,
         value: county.value,
@@ -327,7 +327,12 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         <img src={"/images/county-map.png"} alt={t("welcome.bayAreaCountyMap")} />
       </Dialog.Content>
       <Dialog.Footer>
-        <Button type="button" className="is-secondary" onClick={onSubmit}>
+        <Button
+          type="button"
+          className="is-secondary"
+          onClick={onSubmit}
+          id={"listings-map-filter-dialog-show-button"}
+        >
           {t("t.showMatchingListings")}
         </Button>
         <div style={{ flexGrow: 1 }}></div>
@@ -336,6 +341,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
           onClick={() => {
             clearValues()
           }}
+          data-testid={"listings-map-filter-dialog-clear-button"}
         >
           {t("t.clearAllFilters")}
         </button>

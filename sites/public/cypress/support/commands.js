@@ -47,6 +47,7 @@ Cypress.Commands.add("checkErrorMessages", (command) => {
 Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
   cy.visit("/")
   cy.getByTestId("View Listings-1").click()
+  cy.getByTestId("map-total-results").contains("Total results 4")
   cy.getByTestId("loading-overlay").should("not.exist")
   cy.get(".is-card-link").contains(listingName).click({ force: true })
   cy.getByID("listing-view-apply-button").eq(1).click()
@@ -71,6 +72,7 @@ Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
 
 Cypress.Commands.add("beginApplicationSignedIn", (listingName) => {
   cy.visit("/listings")
+  cy.getByTestId("map-total-results").contains("Total results 4")
   cy.getByTestId("loading-overlay").should("not.exist")
   cy.get(".is-card-link").contains(listingName).click({ force: true })
   cy.getByID("listing-view-apply-button").eq(1).click()

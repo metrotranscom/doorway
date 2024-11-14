@@ -189,6 +189,18 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleMarkers])
 
+  useEffect(() => {
+    async function searchListings() {
+      await search(1)
+    }
+
+    if (!isFirstBoundsLoad && searchResults.listings.length === 0) {
+      void searchListings()
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFirstBoundsLoad])
+
   const onFormSubmit = (params: ListingSearchParams) => {
     setSearchFilter(params)
   }

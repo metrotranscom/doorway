@@ -17,6 +17,8 @@ export type ListingsMapMarkersProps = {
   setVisibleMarkers: React.Dispatch<React.SetStateAction<MapMarkerData[]>>
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
   searchFilter: ListingSearchParams
+  isFirstBoundsLoad: boolean
+  setIsFirstBoundsLoad: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 // Zoom in slowly by recursively setting the zoom level
@@ -47,13 +49,14 @@ export const MapClusterer = ({
   setVisibleMarkers,
   visibleMarkers,
   setIsLoading,
+  isFirstBoundsLoad,
+  setIsFirstBoundsLoad,
 }: ListingsMapMarkersProps) => {
   const { listingsService } = useContext(AuthContext)
   const [markers, setMarkers] = useState<{
     [key: string]: google.maps.marker.AdvancedMarkerElement
   }>({})
   const [infoWindowContent, setInfoWindowContent] = useState<React.JSX.Element>(null)
-  const [isFirstBoundsLoad, setIsFirstBoundsLoad] = useState(true)
   const [currentMapMarkers, setCurrentMapMarkers] = useState(mapMarkers)
 
   const map = useMap()
@@ -70,7 +73,7 @@ export const MapClusterer = ({
   map.addListener("idle", () => {
     setIsLoading(true)
     clearTimeout(delayTimer)
-    delayTimer = setTimeout(resetVisibleMarkers, 800)
+    delayTimer = setTimeout(resetVisibleMarkers, isFirstBoundsLoad ? 0 : 800)
   })
 
   useEffect(() => {

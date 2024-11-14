@@ -18,6 +18,8 @@ type ListingsMapProps = {
   visibleMarkers: MapMarkerData[]
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
   searchFilter: ListingSearchParams
+  isFirstBoundsLoad: boolean
+  setIsFirstBoundsLoad: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export type MapMarkerData = {
@@ -90,6 +92,8 @@ const ListingsMap = (props: ListingsMapProps) => {
             visibleMarkers={props.visibleMarkers}
             setIsLoading={props.setIsLoading}
             searchFilter={props.searchFilter}
+            isFirstBoundsLoad={props.isFirstBoundsLoad}
+            setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
           />
         </Map>
       </APIProvider>

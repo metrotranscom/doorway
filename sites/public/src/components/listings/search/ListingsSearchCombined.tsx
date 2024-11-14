@@ -12,7 +12,6 @@ import styles from "./ListingsSearch.module.scss"
 import { ListingsCombined } from "../ListingsCombined"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModal"
 import { MapMarkerData } from "../ListingsMap"
-import { ListingFilterParams } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 type ListingsSearchCombinedProps = {
   searchString?: string
@@ -39,6 +38,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const [currentMarkers, setCurrentMarkers] = useState<MapMarkerData[]>(null)
   const [isDesktop, setIsDesktop] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
+  const [isFirstBoundsLoad, setIsFirstBoundsLoad] = useState<boolean>(true)
+
   const [searchFilter, setSearchFilter] = useState(
     parseSearchString(props.searchString, {
       bedrooms: null,
@@ -96,11 +97,12 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     const listingIdsOnlyQb = generateSearchQuery(modifiedParams)
     const genericQb = generateSearchQuery(searchFilter)
 
-    let newListings
+    let newListings = null
     let newMeta
 
     // Don't search listings as you move the map if you're in mobile map view, otherwise update the list
-    if (isDesktop || listView) {
+    if ((!isFirstBoundsLoad && (isDesktop || listView)) || !isDesktop) {
+      console.log("SEARCHING LISTINGS")
       setIsLoading(true)
       const result = await searchListings(
         isDesktop ? listingIdsOnlyQb : genericQb,
@@ -111,7 +113,11 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       newListings = result.items
       newMeta = result.meta
     }
-    const newMarkers = await searchMapMarkers(genericQb, listingsService)
+    let newMarkers = null
+    if (changingFilter) {
+      console.log("SEARCHING MARKERS")
+      newMarkers = await searchMapMarkers(genericQb, listingsService)
+    }
 
     setSearchResults({
       listings: newListings ?? searchResults.listings,
@@ -120,7 +126,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       lastPage: newMeta ? newMeta.totalPages : searchResults.lastPage,
       totalItems: newMeta ? newMeta.totalItems : searchResults.totalItems,
     })
-    setIsLoading(false)
+
+    if (!isFirstBoundsLoad || !isDesktop) setIsLoading(false)
 
     document.getElementById("listings-outer-container")?.scrollTo(0, 0)
     document.getElementById("listings-list")?.scrollTo(0, 0)
@@ -155,6 +162,10 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     void searchListings()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchFilter])
+
+  useEffect(() => {
+    if (!listView) setIsFirstBoundsLoad(true)
+  }, [listView])
 
   // Re-search when the map's visible markers are changed
   useEffect(() => {
@@ -223,6 +234,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
         loading={isLoading}
         setIsLoading={setIsLoading}
         searchFilter={searchFilter}
+        isFirstBoundsLoad={isFirstBoundsLoad}
+        setIsFirstBoundsLoad={setIsFirstBoundsLoad}
       />
     </div>
   )

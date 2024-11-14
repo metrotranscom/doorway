@@ -28,9 +28,16 @@ type ListingsCombinedProps = {
   loading: boolean
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
   searchFilter: ListingSearchParams
+  isFirstBoundsLoad: boolean
+  setIsFirstBoundsLoad: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
+  const getListLoading = () => {
+    if (!props.googleMapsApiKey || !props.googleMapsMapId || !props.loading) return false
+    return true
+  }
+
   const getListingsList = () => {
     return (
       <div className={styles["listings-combined"]}>
@@ -51,7 +58,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               currentPage={props.searchResults.currentPage}
               lastPage={props.searchResults.lastPage}
               onPageChange={props.onPageChange}
-              loading={props.loading}
+              loading={getListLoading()}
             />
           </div>
           <div>
@@ -83,6 +90,8 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             visibleMarkers={props.visibleMarkers}
             setIsLoading={props.setIsLoading}
             searchFilter={props.searchFilter}
+            isFirstBoundsLoad={props.isFirstBoundsLoad}
+            setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
           />
         </div>
       </div>
@@ -111,6 +120,8 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               visibleMarkers={props.visibleMarkers}
               setIsLoading={props.setIsLoading}
               searchFilter={props.searchFilter}
+              isFirstBoundsLoad={props.isFirstBoundsLoad}
+              setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
             />
           </div>
           <div id="listings-outer-container" className={styles["listings-outer-container"]}>
@@ -119,7 +130,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
                 listings={props.searchResults.listings}
                 currentPage={props.searchResults.currentPage}
                 lastPage={props.searchResults.lastPage}
-                loading={props.loading}
+                loading={getListLoading()}
                 onPageChange={props.onPageChange}
               />
               <CustomSiteFooter />

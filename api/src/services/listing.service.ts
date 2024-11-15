@@ -400,10 +400,12 @@ export class ListingService implements OnModuleInit {
         OR: userRolesWhere,
       },
     });
+
     // account for users having access to multiple jurisdictions
-    const userWithJuris = userResults?.find(
-      (user) => user.jurisdictions.length,
+    const userWithJuris = userResults?.find((user) =>
+      user.jurisdictions.some((juris) => juris.id === jurisId),
     );
+
     const matchingJurisInfo = userWithJuris?.jurisdictions?.find(
       (juris) => juris.id === jurisId,
     );

@@ -302,9 +302,6 @@ export class ListingService implements OnModuleInit {
     From combined_listings combined, jsonb_array_elements(combined.units) combined_units
     ${whereClause}`;
 
-    console.log({ whereClause });
-    console.log({ rawQuery });
-
     // The raw unsafe query is not ideal. But for the use case we have it is the only way
     // to do the constructed query. SQL injections are safeguarded by dto validation to type check
     // and the ones that are strings are checked to only be appropriate characters above

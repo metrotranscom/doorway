@@ -63,8 +63,8 @@ export const MapClusterer = ({
 
   const resetVisibleMarkers = () => {
     const bounds = map.getBounds()
-    const newVisibleMarkers = mapMarkers.filter((marker) => bounds?.contains(marker.coordinate))
-    if (!visibleMarkers && newVisibleMarkers.length === 0) return
+    const newVisibleMarkers = mapMarkers?.filter((marker) => bounds?.contains(marker.coordinate))
+    if (!visibleMarkers && newVisibleMarkers?.length === 0) return
 
     setVisibleMarkers(newVisibleMarkers)
   }
@@ -74,6 +74,14 @@ export const MapClusterer = ({
     setIsLoading(true)
     clearTimeout(delayTimer)
     delayTimer = setTimeout(resetVisibleMarkers, isFirstBoundsLoad ? 0 : 800)
+  })
+
+  map.addListener("click", () => {
+    setInfoWindowIndex(null)
+  })
+
+  map.addListener("drag", () => {
+    setInfoWindowIndex(null)
   })
 
   useEffect(() => {
@@ -147,7 +155,7 @@ export const MapClusterer = ({
     const bounds = new window.google.maps.LatLngBounds()
 
     if (!map) return
-    mapMarkers.map((marker) => {
+    mapMarkers?.map((marker) => {
       bounds.extend({
         lat: marker.coordinate.lat,
         lng: marker.coordinate.lng,
@@ -191,7 +199,6 @@ export const MapClusterer = ({
   const handleMarkerClick = useCallback(async (marker: MapMarkerData) => {
     await fetchInfoWindow(marker.id)
     setInfoWindowIndex(marker.key)
-    map.panTo(marker.coordinate)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

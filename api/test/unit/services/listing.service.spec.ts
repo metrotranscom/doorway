@@ -3532,6 +3532,10 @@ describe('Testing listing service', () => {
           constructFullListingData(),
         ]);
 
+      prisma.$queryRawUnsafe = jest
+        .fn()
+        .mockResolvedValue([{ id: randomUUID() }]);
+
       const params: ListingsQueryParams = {};
 
       await service.mapMarkers(params);

@@ -1028,25 +1028,31 @@ describe('Listing Controller Tests', () => {
 
   describe('mapMarkers endpoint', () => {
     it('should find all active listings', async () => {
-      const listingData = await listingFactory(jurisdictionAId, prisma);
+      const listingData = await listingFactory(jurisdictionAId, prisma, {
+        numberOfUnits: 2,
+      });
       const listing = await prisma.listings.create({
         data: listingData,
+        include: {
+          units: true,
+        },
       });
 
       const closedListingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
+        numberOfUnits: 2,
       });
       const closedListing = await prisma.listings.create({
         data: closedListingData,
+        include: {
+          units: true,
+        },
       });
 
       const res = await request(app.getHttpServer())
         .post('/listings/mapMarkers')
         .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send({
-          limit: 'all',
-          filter: [],
-        })
+        .send({} as ListingsQueryParams)
         .expect(201);
 
       expect(res.body.length).toBeGreaterThanOrEqual(1);

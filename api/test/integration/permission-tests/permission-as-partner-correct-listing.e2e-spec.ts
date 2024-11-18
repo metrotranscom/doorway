@@ -1079,7 +1079,6 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
         jurisId,
       );
       val.applicationDueDate = new Date('05-16-2024 01:25:18PM GMT+2');
-      val.reviewOrderType = null;
 
       await request(app.getHttpServer())
         .put(`/listings/${userListingId}`)

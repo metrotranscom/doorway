@@ -192,9 +192,9 @@ export class ListingsService {
       /**  */
       view?: ListingViews
       /**  */
-      orderBy?: ListingOrderByKeys
+      orderBy?: ListingOrderByKeys[]
       /**  */
-      orderDir?: OrderByEnum
+      orderDir?: OrderByEnum[]
       /**  */
       search?: string
     } = {} as any,
@@ -2780,10 +2780,10 @@ export interface ListingsQueryParams {
   view?: ListingViews
 
   /**  */
-  orderBy?: ListingOrderByKeys
+  orderBy?: ListingOrderByKeys[]
 
   /**  */
-  orderDir?: OrderByEnum
+  orderDir?: OrderByEnum[]
 
   /**  */
   search?: string
@@ -6329,22 +6329,18 @@ export enum ListingViews {
   "csv" = "csv",
 }
 
-export enum ListingOrderByKeys {
-  "mostRecentlyUpdated" = "mostRecentlyUpdated",
-  "applicationDates" = "applicationDates",
-  "mostRecentlyClosed" = "mostRecentlyClosed",
-  "mostRecentlyPublished" = "mostRecentlyPublished",
-  "name" = "name",
-  "waitlistOpen" = "waitlistOpen",
-  "status" = "status",
-  "unitsAvailable" = "unitsAvailable",
-  "marketingType" = "marketingType",
-}
+export type ListingOrderByKeys =
+  | mostRecentlyUpdated
+  | applicationDates
+  | mostRecentlyClosed
+  | mostRecentlyPublished
+  | name
+  | waitlistOpen
+  | status
+  | unitsAvailable
+  | marketingType
 
-export enum OrderByEnum {
-  "asc" = "asc",
-  "desc" = "desc",
-}
+export type OrderByEnum = asc | desc
 
 export enum ApplicationAddressTypeEnum {
   "leasingAgent" = "leasingAgent",

@@ -77,6 +77,12 @@ export const listingFactory = async (
       : optionalParams?.status === ListingsStatusEnum.closed
       ? new Date()
       : null,
+    publishedAt:
+      !!optionalParams?.status &&
+      optionalParams.status !== ListingsStatusEnum.active &&
+      optionalParams.status !== ListingsStatusEnum.closed
+        ? null
+        : new Date(),
     lotteryStatus: optionalParams?.lotteryStatus || undefined,
     lotteryOptIn: optionalParams?.lotteryOptIn || undefined,
     displayWaitlistSize: Math.random() < 0.5,

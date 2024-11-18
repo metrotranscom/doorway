@@ -42,7 +42,6 @@ import { ListingViews } from '../enums/listings/view-enum';
 import { FilterAvailabilityEnum } from '../enums/listings/filter-availability-enum';
 import { ListingFilterKeys } from '../enums/listings/filter-key-enum';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
-import { OrderByEnum } from '../enums/shared/order-by-enum';
 import { buildFilter } from '../utilities/build-filter';
 import { buildOrderByForListings } from '../utilities/build-order-by';
 import { startCronJob } from '../utilities/cron-job-starter';
@@ -57,6 +56,7 @@ import {
   summarizeUnitsByTypeAndRent,
   summarizeUnits,
 } from '../utilities/unit-utilities';
+import { ListingOrderByKeys } from '../enums/listings/order-by-enum';
 
 export type getListingsArgs = {
   skip: number;
@@ -203,7 +203,10 @@ export class ListingService implements OnModuleInit {
     const listingsRaw = await this.prisma.listings.findMany({
       skip: calculateSkip(params.limit, page),
       take: calculateTake(params.limit),
-      orderBy: buildOrderByForListings(params.orderBy, params.orderDir),
+      orderBy: buildOrderByForListings(
+        params.orderBy,
+        params.orderDir,
+      ) as Prisma.ListingsOrderByWithRelationInput[],
       include: views[params.view ?? 'full'],
       where: whereClause,
     });
@@ -341,9 +344,10 @@ export class ListingService implements OnModuleInit {
           in: listingIds.map((listing) => listing.id),
         },
       },
-      orderBy: {
-        name: OrderByEnum.ASC,
-      },
+      orderBy: buildOrderByForListings(
+        [ListingOrderByKeys.mostRecentlyPublished],
+        params.orderDir,
+      ) as Prisma.CombinedListingsOrderByWithRelationInput[],
     });
 
     listingsRaw.forEach((listing) => {

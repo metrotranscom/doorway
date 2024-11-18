@@ -29,6 +29,8 @@ export const searchListings = async (
     limit: limit || "all",
     page: page,
     filter: qb.getFilterParams(),
+    orderBy: ["mostRecentlyPublished"],
+    orderDir: ["desc"],
   }
 
   try {

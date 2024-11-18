@@ -386,35 +386,33 @@ export class ListingService implements OnModuleInit {
       });
     }
 
-    const userResults = await this.prisma.userAccounts.findMany({
-      include: {
-        jurisdictions: {
-          select: {
-            id: true,
-            publicUrl: getPublicUrl,
-            emailFromAddress: getEmailFromAddress,
-          },
-        },
+    const rawUsers = await this.prisma.userAccounts.findMany({
+      select: {
+        id: true,
+        email: true,
       },
       where: {
         OR: userRolesWhere,
       },
     });
 
-    // account for users having access to multiple jurisdictions
-    const userWithJuris = userResults?.find((user) =>
-      user.jurisdictions.some((juris) => juris.id === jurisId),
-    );
+    const rawJuris = await this.prisma.jurisdictions.findFirst({
+      select: {
+        id: true,
+        publicUrl: getPublicUrl,
+        emailFromAddress: getEmailFromAddress,
+      },
+      where: {
+        id: jurisId,
+      },
+    });
 
-    const matchingJurisInfo = userWithJuris?.jurisdictions?.find(
-      (juris) => juris.id === jurisId,
-    );
-    const publicUrl = getPublicUrl ? matchingJurisInfo?.publicUrl : null;
+    const publicUrl = getPublicUrl ? rawJuris?.publicUrl : null;
     const emailFromAddress = getEmailFromAddress
-      ? matchingJurisInfo?.emailFromAddress
+      ? rawJuris?.emailFromAddress
       : null;
     const userEmails: string[] = [];
-    userResults?.forEach((user) => user?.email && userEmails.push(user.email));
+    rawUsers?.forEach((user) => user?.email && userEmails.push(user.email));
     return { emails: userEmails, publicUrl, emailFromAddress };
   }
 

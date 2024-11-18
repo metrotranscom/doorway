@@ -241,7 +241,7 @@ export function useApplicationsData(
   }
 
   if (orderBy) {
-    Object.assign(params, { orderBy, order: order || OrderByEnum.asc })
+    Object.assign(params, { orderBy, order: order || "asc" })
   }
 
   const paramsString = qs.stringify(params)

@@ -3529,19 +3529,16 @@ describe('Testing listing service', () => {
 
   describe('Test mapMarkers endpoint', () => {
     it('should find all active listings', async () => {
-      prisma.combinedListings.findMany = jest.fn().mockResolvedValue([
-        {
-          id: 'random id',
-          listingsBuildingAddress: exampleAddress,
-        },
-      ]);
+      prisma.combinedListings.findMany = jest
+        .fn()
+        .mockResolvedValue([
+          constructFullListingData(),
+          constructFullListingData(),
+        ]);
 
-      externalPrismaClient.$queryRawUnsafe.mockResolvedValueOnce(['random id']);
+      const params: ListingsQueryParams = {};
 
-      await service.mapMarkers({
-        limit: 'all',
-        filter: [],
-      });
+      await service.mapMarkers(params);
 
       expect(prisma.combinedListings.findMany).toHaveBeenCalledWith({
         select: {

@@ -39,8 +39,8 @@ env:
   SHOW_MANDATED_ACCOUNTS: "TRUE"
   SHOW_PWDLESS: "TRUE"
   SHOW_PUBLIC_LOTTERY: "TRUE"
-  GOOGLE_MAPS_API_KEY: "some-key-here"
-  GOOGLE_MAPS_MAP_ID: "some-key-here"
+  GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+  GOOGLE_MAPS_MAP_ID: ${{ secrets.GOOGLE_MAPS_MAP_ID }}
 
 jobs:
   public-cypress:

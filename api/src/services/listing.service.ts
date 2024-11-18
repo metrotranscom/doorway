@@ -236,7 +236,7 @@ export class ListingService implements OnModuleInit {
     };
   }
 
-  private buildListingsWhereClause = async (params: ListingsQueryParams) => {
+  async buildListingsWhereClause(params: ListingsQueryParams) {
     const onlyLettersPattern = /^[A-Za-z ]+$/;
     const whereClauseArray = [];
     if (params?.filter?.length) {
@@ -312,7 +312,7 @@ export class ListingService implements OnModuleInit {
       rawQuery,
     );
     return listingIds;
-  };
+  }
 
   async listCombined(params: ListingsQueryParams): Promise<{
     items: Listing[];

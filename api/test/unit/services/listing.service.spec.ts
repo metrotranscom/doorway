@@ -8,13 +8,11 @@ import {
   ReviewOrderTypeEnum,
   UnitTypeEnum,
   UserRoleEnum,
-  PrismaClient,
 } from '@prisma/client';
 import { Logger } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
-import { mockDeep } from 'jest-mock-extended';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
 import { PrismaService } from '../../../src/services/prisma.service';
@@ -42,8 +40,6 @@ import { PermissionService } from '../../../src/services/permission.service';
 import { permissionActions } from '../../../src/enums/permissions/permission-actions-enum';
 import { ApplicationService } from '../../../src/services/application.service';
 import { GeocodingService } from '../../../src/services/geocoding.service';
-
-const externalPrismaClient = mockDeep<PrismaClient>();
 
 /*
  generates a super simple mock listing for us to test logic with

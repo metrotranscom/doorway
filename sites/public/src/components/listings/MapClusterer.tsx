@@ -127,6 +127,7 @@ export const MapClusterer = ({
           clusterMarker.style.width = `${calculatedSize}rem`
           clusterMarker.style.height = `${calculatedSize}rem`
           clusterMarker.setAttribute("data-testid", "map-cluster")
+          clusterMarker.setAttribute("aria-collapsed", "true")
 
           return new google.maps.marker.AdvancedMarkerElement({
             map,

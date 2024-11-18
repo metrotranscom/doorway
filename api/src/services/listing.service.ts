@@ -411,8 +411,11 @@ export class ListingService implements OnModuleInit {
     const emailFromAddress = getEmailFromAddress
       ? rawJuris?.emailFromAddress
       : null;
-    const userEmails: string[] = [];
-    rawUsers?.forEach((user) => user?.email && userEmails.push(user.email));
+
+    const userEmails: string[] = rawUsers?.reduce((userEmails, user) => {
+      if (user?.email) userEmails.push(user.email);
+      return userEmails;
+    }, []);
     return { emails: userEmails, publicUrl, emailFromAddress };
   }
 

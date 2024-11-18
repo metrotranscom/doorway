@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Heading } from "@bloom-housing/ui-seeds"
 import { ZeroListingsItem } from "@bloom-housing/doorway-ui-components"
 import { LoadingOverlay, t, InfoCard, LinkButton } from "@bloom-housing/ui-components"
 import { getListings } from "../../lib/helpers"
@@ -17,6 +18,9 @@ type ListingsListProps = {
 const ListingsList = (props: ListingsListProps) => {
   const listingsDiv = (
     <div id="listingsList">
+      <Heading className={"sr-only"} priority={2}>
+        {t("t.listingsList")}
+      </Heading>
       {props.listings.length > 0 || props.loading ? (
         <div className="listingsList">{getListings(props.listings)}</div>
       ) : (
@@ -79,11 +83,11 @@ const ListingsList = (props: ListingsListProps) => {
       <></>
     )
   return (
-    <div className={styles["listings-list-wrapper"]}>
+    <section className={styles["listings-list-wrapper"]} aria-label="Listings list">
       <LoadingOverlay isLoading={props.loading}>{listingsDiv}</LoadingOverlay>
       {pagination}
       {infoCards}
-    </div>
+    </section>
   )
 }
 export { ListingsList as default, ListingsList }

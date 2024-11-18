@@ -254,6 +254,7 @@ const ListingCard = (props: ListingCardProps) => {
       className={`listings-row ${componentIsClickable ? "cursor-pointer" : ""}`}
       data-testid={"listing-card-component"}
       onClick={componentIsClickable ? simulateLinkClick : undefined}
+      aria-label={`${contentProps?.contentHeader?.content} listing`}
     >
       <div className="listings-row_figure">
         <ImageCard {...imageCardProps} />

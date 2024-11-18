@@ -109,11 +109,13 @@ export function Pagination(props: PaginationProps) {
   }
 
   return (
-    <ButtonGroup
-      spacing={ButtonGroupSpacing.even}
-      pagination={true}
-      columns={buttonColumns}
-      className={"pagination-button-group"}
-    />
+    <section aria-label={"Listings list pagination"}>
+      <ButtonGroup
+        spacing={ButtonGroupSpacing.even}
+        pagination={true}
+        columns={buttonColumns}
+        className={"pagination-button-group"}
+      />
+    </section>
   )
 }

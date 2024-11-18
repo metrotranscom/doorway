@@ -1,5 +1,6 @@
 import React from "react"
 import Head from "next/head"
+import { Heading } from "@bloom-housing/ui-seeds"
 import { t } from "@bloom-housing/ui-components"
 import { MetaTags } from "../components/shared/MetaTags"
 import ListingsSearchCombined, {
@@ -37,6 +38,9 @@ export default function ListingsPage(props: ListingsProps) {
       </Head>
 
       <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
+      <Heading className={"sr-only"} priority={1}>
+        {t("nav.listings")}
+      </Heading>
       <ListingsSearchCombined
         googleMapsApiKey={props.googleMapsApiKey}
         googleMapsMapId={props.googleMapsMapId}

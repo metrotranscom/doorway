@@ -1250,6 +1250,8 @@
   "t.lastUpdated": "Última actualización",
   "t.less": "Menos",
   "t.letter": "Carta",
+  "t.listingsList": "Lista de listados",
+  "t.listingsMap": "Mapa de listados",
   "t.loading": "Cargando",
   "t.loginIsRequired": "Es necesario iniciar sesión para poder ver esta página.",
   "t.mapControls": "Controles del mapa",

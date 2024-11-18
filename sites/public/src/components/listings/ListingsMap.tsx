@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { APIProvider, Map } from "@vis.gl/react-google-maps"
 import { useJsApiLoader } from "@react-google-maps/api"
+import { Heading } from "@bloom-housing/ui-seeds"
 import { t } from "@bloom-housing/ui-components"
 import { ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { MapControl } from "../shared/MapControl"
@@ -73,6 +74,9 @@ const ListingsMap = (props: ListingsMapProps) => {
       <a className={styles["listings-map-skip-link"]} href={`#listingsList`}>
         {t("t.skipMapOfListings")}
       </a>
+      <Heading className={"sr-only"} priority={2}>
+        {t("t.listingsMap")}
+      </Heading>
       <APIProvider apiKey={props.googleMapsApiKey}>
         <Map
           mapId={props.googleMapsMapId}

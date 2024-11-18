@@ -167,6 +167,7 @@ export const getListingCard = (listing: Listing, index: number) => {
           content: listing.name,
           href: uri,
           makeCardClickable: true,
+          priority: 3,
         },
         contentSubheader: { content: getListingCardSubtitle(listing.listingsBuildingAddress) },
       }}

@@ -83,8 +83,8 @@ export async function getServerSideProps(context: {
       // There's nothing missing from the listing jurisdiction that
       // requires another call to the jurisdiction endpoint
       jurisdiction: response.data.jurisdictions,
-      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
-      googleMapsMapId: runtimeConfig.getGoogleMapsMapId(),
+      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey() || null,
+      googleMapsMapId: runtimeConfig.getGoogleMapsMapId() || null,
     },
   }
 }

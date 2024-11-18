@@ -52,8 +52,8 @@ export default function ListingsPage(props: ListingsProps) {
 export function getServerSideProps() {
   return {
     props: {
-      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
-      googleMapsMapId: runtimeConfig.getGoogleMapsMapId(),
+      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey() || null,
+      googleMapsMapId: runtimeConfig.getGoogleMapsMapId() || null,
     },
   }
 }

@@ -102,7 +102,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
     // Don't search listings as you move the map if you're in mobile map view, otherwise update the list
     if ((!isFirstBoundsLoad && (isDesktop || listView)) || !isDesktop) {
-      console.log("SEARCHING LISTINGS")
       setIsLoading(true)
       const result = await searchListings(
         isDesktop ? listingIdsOnlyQb : genericQb,
@@ -115,7 +114,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     }
     let newMarkers = null
     if (changingFilter) {
-      console.log("SEARCHING MARKERS")
       newMarkers = await searchMapMarkers(genericQb, listingsService)
     }
 

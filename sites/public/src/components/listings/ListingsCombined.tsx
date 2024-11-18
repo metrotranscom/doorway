@@ -141,34 +141,14 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     )
   }
 
-  const hideFooter = () => {
-    const footer = Array.from(
-      document.getElementsByClassName("site-footer") as HTMLCollectionOf<HTMLElement>
-    )[0]
-    if (footer !== undefined && footer.style.display !== "none") {
-      footer.style.display = "none"
-    }
-  }
-  const showFooter = () => {
-    const footer = Array.from(
-      document.getElementsByClassName("site-footer") as HTMLCollectionOf<HTMLElement>
-    )[0]
-    if (footer !== undefined && footer.style.display == "none") {
-      footer.style.display = "flex"
-    }
-  }
-
   let div: JSX.Element
 
   if (!props.isDesktop && props.listView) {
     div = getListingsList()
-    showFooter()
   } else if (!props.isDesktop && !props.listView) {
     div = getListingsMap()
-    hideFooter()
   } else if (props.isDesktop) {
     div = getListingsCombined()
-    showFooter()
   }
 
   return div

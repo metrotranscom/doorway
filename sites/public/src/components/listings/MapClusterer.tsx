@@ -142,6 +142,7 @@ export const MapClusterer = ({
         const zoomLevel = getBoundsZoomLevel(cluster.bounds)
         animateZoom(map, zoomLevel - 1)
         map.panTo(cluster.bounds.getCenter())
+        map.getDiv().focus()
       },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps

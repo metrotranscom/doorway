@@ -27,8 +27,8 @@ export const ListingsSearchMetadata = ({
   listView,
 }: ListingsSearchMetadataProps) => {
   return (
-    <>
-      <div className={`${styles["search-filter-bar"]} ${styles["search-switch-container"]}`}>
+    <section role="contentinfo" aria-label="Listing filter bar">
+      <div className={`${styles["search-filter-bar"]}`}>
         <>
           <Button
             size={"sm"}
@@ -102,6 +102,6 @@ export const ListingsSearchMetadata = ({
           <strong>{t("search.filters")}</strong> {filterCount}
         </Button>
       </div>
-    </>
+    </section>
   )
 }

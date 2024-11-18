@@ -337,9 +337,12 @@ export const stagingSeed = async (
   const unitTypes = await unitTypeFactoryAll(prismaClient);
   await unitAccessibilityPriorityTypeFactoryAll(prismaClient);
   await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
-  Object.values(jurisdictionNameMap).forEach(async (id) => {
-    await reservedCommunityTypeFactoryAll(id, prismaClient);
-  });
+  for (const juris in jurisdictionNameMap) {
+    await reservedCommunityTypeFactoryAll(
+      jurisdictionNameMap[juris],
+      prismaClient,
+    );
+  }
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
   if (!largeSeed) {
     [

@@ -1,6 +1,6 @@
 import { publicUser, updatedPublicUser } from "../../mockData/userData"
 
-describe.skip("User accounts", () => {
+describe("User accounts", () => {
   it("should allow users to update their account information", () => {
     cy.visit("/sign-in")
     cy.signIn(publicUser.email, publicUser.password)

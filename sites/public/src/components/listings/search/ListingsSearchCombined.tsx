@@ -101,7 +101,12 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     let newMeta
 
     // Don't search listings as you move the map if you're in mobile map view, otherwise update the list
-    if ((!isFirstBoundsLoad && (isDesktop || listView)) || !isDesktop) {
+    if (
+      (!isFirstBoundsLoad &&
+        (isDesktop || listView) &&
+        !(visibleMarkers?.length === 0 && changingFilter)) ||
+      !isDesktop
+    ) {
       setIsLoading(true)
       const result = await searchListings(
         isDesktop ? listingIdsOnlyQb : genericQb,

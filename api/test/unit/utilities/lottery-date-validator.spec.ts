@@ -18,7 +18,7 @@ describe('Testing OrderQueryParamValidator', () => {
     ).toBeTruthy();
   });
 
-  it('should return true if reviewOrderType is lottery and lotteryOptIn is no', () => {
+  it('should return false if reviewOrderType is lottery and lotteryOptIn is no', () => {
     const lotteryDateParamValidator = new LotteryDateParamValidator();
     expect(
       lotteryDateParamValidator.validate([], {
@@ -31,7 +31,7 @@ describe('Testing OrderQueryParamValidator', () => {
         constraints: [],
         targetName: '',
       }),
-    ).toBeTruthy();
+    ).toBeFalsy();
   });
 
   it('should return false if reviewOrderType is lottery and lotteryOptIn is yes and listingEvents is empty', () => {

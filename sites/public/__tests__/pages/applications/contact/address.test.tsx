@@ -24,7 +24,7 @@ describe("applications pages", () => {
 
   describe("address step", () => {
     it("should render form fields", () => {
-      const { getByText, getByTestId, getAllByTestId } = render(<ApplicationAddress />)
+      const { getByText, getByTestId } = render(<ApplicationAddress />)
 
       expect(
         getByText("Now we need to know how to contact you about your application.", {

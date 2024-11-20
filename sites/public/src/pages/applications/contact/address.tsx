@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { Alert } from "@bloom-housing/ui-seeds"
-import { Field, FieldGroup, Form, PhoneField, Select, t } from "@bloom-housing/ui-components"
+import { Field, Form, PhoneField, Select, t } from "@bloom-housing/ui-components"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import {
   phoneNumberKeys,
@@ -14,7 +14,6 @@ import {
   mergeDeep,
 } from "@bloom-housing/shared-helpers"
 import FormsLayout from "../../../layouts/forms"
-import { disableContactFormOption } from "../../../lib/helpers"
 import { useFormConductor } from "../../../lib/hooks"
 import {
   FoundAddress,

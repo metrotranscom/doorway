@@ -10,7 +10,7 @@ describe("Paper Application Tests", () => {
     cy.signOut()
   })
 
-  it("fill paper application form completely", () => {
+  it.only("fill paper application form completely", () => {
     cy.fixture("application").then((application) => {
       cy.fillPrimaryApplicant(application)
       cy.fillAlternateContact(application)

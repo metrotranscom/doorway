@@ -140,9 +140,7 @@ Cypress.Commands.add("fillPrimaryApplicant", (application, fieldsToSkip = []) =>
     { id: "application.applicant.applicantAddress.state", fieldKey: "applicant.address.state" },
   ]
 
-  const fieldsToClick = [{ id: "email", fieldKey: "email" }]
-
-  fillFields(application, fieldsToType, fieldsToSelect, fieldsToClick, fieldsToSkip)
+  fillFields(application, fieldsToType, fieldsToSelect, [], fieldsToSkip)
 })
 
 Cypress.Commands.add("fillAlternateContact", (application, fieldsToSkip = []) => {

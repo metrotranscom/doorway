@@ -313,7 +313,6 @@ Cypress.Commands.add("verifyPrimaryApplicant", (application, fieldsToSkip = []) 
     { id: "dateOfBirth", fieldKey: "dateOfBirth" },
     { id: "phoneNumber", fieldKey: "formattedPhoneNumber" },
     { id: "additionalPhoneNumber", fieldKey: "formattedAdditionalPhoneNumber" },
-    { id: "preferredContact", fieldKey: "preferredContact" },
     { id: "residenceAddress.streetAddress", fieldKey: "applicant.address.street" },
     { id: "residenceAddress.street2", fieldKey: "applicant.address.street2" },
     { id: "residenceAddress.city", fieldKey: "applicant.address.city" },

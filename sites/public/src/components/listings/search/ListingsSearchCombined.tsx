@@ -101,8 +101,11 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     let newMeta
 
     // Don't search listings as you move the map if you're in mobile map view, otherwise update the list
+    // Wait until markers have been fetched for the first time before searching listings for the first time
+    // Don't search the listings if the filter is changing - first search the markers, which will update the listings
     if (
       (!isFirstBoundsLoad &&
+        !changingFilter &&
         (isDesktop || listView) &&
         !(visibleMarkers?.length === 0 && changingFilter)) ||
       !isDesktop
@@ -118,8 +121,17 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       newMeta = result.meta
     }
     let newMarkers = null
-    if (changingFilter) {
+
+    // Only search the markers if the filter is changing
+    // Don't search markers again if the first fetch of markers is still loading inside the map (race condition)
+    if (changingFilter && !(isFirstBoundsLoad && isDesktop && searchResults.markers.length)) {
       newMarkers = await searchMapMarkers(genericQb, listingsService)
+      // If the filter from the homepage has zero results, don't fetch the listings
+      if (isFirstBoundsLoad && newMarkers.length === 0) {
+        newListings = []
+        setIsLoading(false)
+        setIsFirstBoundsLoad(false)
+      }
     }
 
     setSearchResults({
@@ -130,6 +142,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       totalItems: newMeta ? newMeta.totalItems : searchResults.totalItems,
     })
 
+    // On desktop, keep list loading set to true until map is finished with its first load
     if (!isFirstBoundsLoad || !isDesktop) setIsLoading(false)
 
     document.getElementById("listings-outer-container")?.scrollTo(0, 0)
@@ -166,6 +179,18 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchFilter])
 
+  // Re-search when entering mobile
+  useEffect(() => {
+    async function searchListings() {
+      await search(1, true)
+    }
+    if (!isDesktop) {
+      void searchListings()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDesktop])
+
+  // Re-set the view when entering the map on mobile to fit bounds
   useEffect(() => {
     if (!listView) setIsFirstBoundsLoad(true)
   }, [listView])
@@ -182,6 +207,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     const newMarkers = JSON.stringify(
       visibleMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
     )
+
     // Only re-search if the visible markers are not the same
     if (oldMarkers !== newMarkers && isDesktop) {
       setCurrentMarkers(visibleMarkers)
@@ -192,6 +218,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleMarkers])
 
+  // Search the listings once the map has been loaded for the first time
   useEffect(() => {
     async function searchListings() {
       await search(1)

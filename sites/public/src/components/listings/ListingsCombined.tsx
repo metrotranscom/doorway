@@ -58,7 +58,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               currentPage={props.searchResults.currentPage}
               lastPage={props.searchResults.lastPage}
               onPageChange={props.onPageChange}
-              loading={getListLoading()}
+              loading={getListLoading() || (props.isFirstBoundsLoad && props.isDesktop)}
             />
           </div>
           <div>
@@ -92,6 +92,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             searchFilter={props.searchFilter}
             isFirstBoundsLoad={props.isFirstBoundsLoad}
             setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
+            isDesktop={props.isDesktop}
           />
         </div>
       </div>
@@ -122,6 +123,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               searchFilter={props.searchFilter}
               isFirstBoundsLoad={props.isFirstBoundsLoad}
               setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
+              isDesktop={props.isDesktop}
             />
           </div>
           <div id="listings-outer-container" className={styles["listings-outer-container"]}>
@@ -130,7 +132,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
                 listings={props.searchResults.listings}
                 currentPage={props.searchResults.currentPage}
                 lastPage={props.searchResults.lastPage}
-                loading={getListLoading()}
+                loading={getListLoading() || (props.isFirstBoundsLoad && props.isDesktop)}
                 onPageChange={props.onPageChange}
               />
               <CustomSiteFooter />

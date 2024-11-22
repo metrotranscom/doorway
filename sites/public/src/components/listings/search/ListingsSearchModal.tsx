@@ -111,16 +111,6 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     filterChange(countFilters(formValues))
   }, [formValues, filterChange, countFilters])
 
-  // Run this once immediately after first render
-  // Empty array is intentional; it's how we make sure it only runs once
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    // Set initial filter count
-    props.onFilterChange(countFilters(formValues))
-    // Fetch listings
-    onSubmit()
-  }, [])
-
   const clearValues = () => {
     setFormValues(nullState)
 

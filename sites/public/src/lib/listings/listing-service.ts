@@ -1,8 +1,10 @@
 import {
   ListingMapMarker,
+  ListingOrderByKeys,
   ListingsQueryParams,
   ListingsService,
   ListingViews,
+  OrderByEnum,
   PaginatedListing,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingQueryBuilder } from "./listing-query-builder"
@@ -29,8 +31,8 @@ export const searchListings = async (
     limit: limit || "all",
     page: page,
     filter: qb.getFilterParams(),
-    orderBy: ["mostRecentlyPublished"],
-    orderDir: ["desc"],
+    orderBy: [ListingOrderByKeys.mostRecentlyPublished],
+    orderDir: [OrderByEnum.desc],
   }
 
   try {

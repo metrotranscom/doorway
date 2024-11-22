@@ -19,6 +19,7 @@ export type ListingsMapMarkersProps = {
   searchFilter: ListingSearchParams
   isFirstBoundsLoad: boolean
   setIsFirstBoundsLoad: React.Dispatch<React.SetStateAction<boolean>>
+  isDesktop: boolean
 }
 
 // Zoom in slowly by recursively setting the zoom level
@@ -51,6 +52,7 @@ export const MapClusterer = ({
   setIsLoading,
   isFirstBoundsLoad,
   setIsFirstBoundsLoad,
+  isDesktop,
 }: ListingsMapMarkersProps) => {
   const { listingsService } = useContext(AuthContext)
   const [markers, setMarkers] = useState<{
@@ -64,7 +66,12 @@ export const MapClusterer = ({
   const resetVisibleMarkers = () => {
     const bounds = map.getBounds()
     const newVisibleMarkers = mapMarkers?.filter((marker) => bounds?.contains(marker.coordinate))
-    if (!visibleMarkers && newVisibleMarkers?.length === 0) return
+    // if (!visibleMarkers && newVisibleMarkers?.length === 0) {
+    //   console.log("here")
+    //   // return
+    // }
+    // Wait to refetch again until the map has finished fitting bounds
+    if (isFirstBoundsLoad && isDesktop) return mapMarkers
 
     setVisibleMarkers(newVisibleMarkers)
   }
@@ -174,7 +181,9 @@ export const MapClusterer = ({
       return
     } else {
       map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
-      setIsFirstBoundsLoad(false)
+      setTimeout(() => {
+        setIsFirstBoundsLoad(false)
+      }, 1000)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusterer, markers, currentMapMarkers])

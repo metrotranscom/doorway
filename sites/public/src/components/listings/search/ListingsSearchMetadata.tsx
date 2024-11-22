@@ -28,7 +28,7 @@ export const ListingsSearchMetadata = ({
 }: ListingsSearchMetadataProps) => {
   return (
     <section role="contentinfo" aria-label="Listing filter bar">
-      <div className={`${styles["search-filter-bar"]}`}>
+      <div className={`${styles["search-filter-bar"]} ${styles["search-switch-container"]}`}>
         <>
           <Button
             size={"sm"}

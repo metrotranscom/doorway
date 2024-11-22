@@ -21,6 +21,7 @@ type ListingsMapProps = {
   searchFilter: ListingSearchParams
   isFirstBoundsLoad: boolean
   setIsFirstBoundsLoad: React.Dispatch<React.SetStateAction<boolean>>
+  isDesktop: boolean
 }
 
 export type MapMarkerData = {
@@ -98,6 +99,7 @@ const ListingsMap = (props: ListingsMapProps) => {
             searchFilter={props.searchFilter}
             isFirstBoundsLoad={props.isFirstBoundsLoad}
             setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
+            isDesktop={props.isDesktop}
           />
         </Map>
       </APIProvider>

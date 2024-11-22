@@ -77,7 +77,7 @@
     "@types/react": "^18.0.34",
     "babel-loader": "^8.1.0",
     "concurrently": "^5.3.0",
-    "cypress": "^12.8.1",
+    "cypress": "^13.16.0",
     "jest": "^26.5.3",
     "js-levenshtein": "^1.1.6",
     "msw": "^0.46.0",

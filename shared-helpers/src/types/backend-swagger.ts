@@ -6329,18 +6329,22 @@ export enum ListingViews {
   "csv" = "csv",
 }
 
-export type ListingOrderByKeys =
-  | mostRecentlyUpdated
-  | applicationDates
-  | mostRecentlyClosed
-  | mostRecentlyPublished
-  | name
-  | waitlistOpen
-  | status
-  | unitsAvailable
-  | marketingType
+export enum ListingOrderByKeys {
+  "mostRecentlyUpdated" = "mostRecentlyUpdated",
+  "applicationDates" = "applicationDates",
+  "mostRecentlyClosed" = "mostRecentlyClosed",
+  "mostRecentlyPublished" = "mostRecentlyPublished",
+  "name" = "name",
+  "waitlistOpen" = "waitlistOpen",
+  "status" = "status",
+  "unitsAvailable" = "unitsAvailable",
+  "marketingType" = "marketingType",
+}
 
-export type OrderByEnum = asc | desc
+export enum OrderByEnum {
+  "asc" = "asc",
+  "desc" = "desc",
+}
 
 export enum ApplicationAddressTypeEnum {
   "leasingAgent" = "leasingAgent",

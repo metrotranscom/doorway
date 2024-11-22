@@ -17,6 +17,7 @@ const MapControl = () => {
         className={`${styles["control-style"]} ${styles["in-style"]}`}
         onClick={() => map.setZoom(map.getZoom() + 1)}
         aria-label={t("t.zoomIn")}
+        data-testid="map-zoom-in"
       >
         <Icon size="lg" className={styles["control-icon"]}>
           <PlusIcon />
@@ -26,6 +27,7 @@ const MapControl = () => {
         className={`${styles["control-style"]} ${styles["out-style"]}`}
         onClick={() => map.setZoom(map.getZoom() - 1)}
         aria-label={t("t.zoomOut")}
+        data-testid="map-zoom-out"
       >
         <Icon size="lg" className={styles["control-icon"]}>
           <MinusIcon />

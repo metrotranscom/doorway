@@ -9,6 +9,12 @@ import { MapClusterer } from "./MapClusterer"
 import styles from "./ListingsCombined.module.scss"
 import { ListingSearchParams } from "../../lib/listings/search"
 
+const defaultCenter = {
+  lat: 37.579795,
+  lng: -122.374118,
+}
+const defaultZoom = 9
+
 type ListingsMapProps = {
   listings?: ListingMapMarker[] | null
   googleMapsApiKey: string
@@ -54,12 +60,6 @@ const getMarkers = (listings: ListingMapMarker[]) => {
 }
 
 const ListingsMap = (props: ListingsMapProps) => {
-  const defaultCenter = {
-    lat: 37.579795,
-    lng: -122.374118,
-  }
-  const defaultZoom = 9
-
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: props.googleMapsApiKey,
   })

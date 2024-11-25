@@ -41,6 +41,15 @@ const animateZoom = (
   }
 }
 
+const sortMarkers = (unsortedMarkers: MapMarkerData[]) => {
+  return JSON.stringify(
+    unsortedMarkers?.sort((a, b) => {
+      if (a.coordinate.lat === b.coordinate.lat) return a.coordinate.lng - b.coordinate.lng
+      return a.coordinate.lat - b.coordinate.lat
+    })
+  )
+}
+
 let delayTimer
 
 export const MapClusterer = ({
@@ -48,7 +57,6 @@ export const MapClusterer = ({
   infoWindowIndex,
   setInfoWindowIndex,
   setVisibleMarkers,
-  visibleMarkers,
   setIsLoading,
   isFirstBoundsLoad,
   setIsFirstBoundsLoad,
@@ -66,10 +74,6 @@ export const MapClusterer = ({
   const resetVisibleMarkers = () => {
     const bounds = map.getBounds()
     const newVisibleMarkers = mapMarkers?.filter((marker) => bounds?.contains(marker.coordinate))
-    // if (!visibleMarkers && newVisibleMarkers?.length === 0) {
-    //   console.log("here")
-    //   // return
-    // }
     // Wait to refetch again until the map has finished fitting bounds
     if (isFirstBoundsLoad && isDesktop) return mapMarkers
 
@@ -92,12 +96,9 @@ export const MapClusterer = ({
   })
 
   useEffect(() => {
-    const oldMarkers = JSON.stringify(
-      currentMapMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
-    )
-    const newMarkers = JSON.stringify(
-      mapMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
-    )
+    const oldMarkers = sortMarkers(currentMapMarkers)
+    const newMarkers = sortMarkers(mapMarkers)
+
     if (oldMarkers !== newMarkers) {
       setCurrentMapMarkers(mapMarkers)
       resetVisibleMarkers()

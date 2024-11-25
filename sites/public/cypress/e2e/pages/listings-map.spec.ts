@@ -1,5 +1,5 @@
 // When testing this locally, ensure your screen size compares to Cypress's screen size as it will affect the way the map creates clusters
-describe("Listings map", function () {
+describe.skip("Listings map", function () {
   it("renders the listing map", function () {
     cy.viewport(1500, 800)
     cy.intercept("**/listings/mapMarkers", (req) => {

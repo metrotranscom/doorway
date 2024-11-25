@@ -165,7 +165,7 @@ export const ElmVillageApplication: Application = {
         zipCode: "90223",
       },
       sameAddress: YesNoEnum.no,
-      relationship: HouseholdMemberRelationship.spouse,
+      relationship: HouseholdMemberRelationship.spousePartner,
     },
   ],
   preferredUnitTypes: [

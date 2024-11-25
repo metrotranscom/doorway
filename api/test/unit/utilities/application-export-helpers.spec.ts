@@ -131,26 +131,6 @@ describe('Testing application export helpers', () => {
       label: `Primary Applicant Mailing Zip Code`,
     },
     {
-      path: 'applicant.applicantWorkAddress.street',
-      label: `Primary Applicant Work Street`,
-    },
-    {
-      path: 'applicant.applicantWorkAddress.street2',
-      label: `Primary Applicant Work Street 2`,
-    },
-    {
-      path: 'applicant.applicantWorkAddress.city',
-      label: `Primary Applicant Work City`,
-    },
-    {
-      path: 'applicant.applicantWorkAddress.state',
-      label: `Primary Applicant Work State`,
-    },
-    {
-      path: 'applicant.applicantWorkAddress.zipCode',
-      label: `Primary Applicant Work Zip Code`,
-    },
-    {
       path: 'alternateContact.firstName',
       label: 'Alternate Contact First Name',
     },

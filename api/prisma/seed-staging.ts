@@ -1426,7 +1426,7 @@ export const stagingSeed = async (
     }),
   });
   if (largeSeed) {
-    stagingRealisticAddresses.forEach(async (addr, index) => {
+    Object.values(stagingRealisticAddresses).forEach(async (addr, index) => {
       const listing = await listingFactory(
         jurisdictionNameMap[addr.county],
         prismaClient,

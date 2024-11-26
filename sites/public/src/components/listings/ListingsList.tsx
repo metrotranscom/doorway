@@ -22,7 +22,7 @@ const ListingsList = (props: ListingsListProps) => {
         {t("t.listingsList")}
       </Heading>
       {props.listings.length > 0 || props.loading ? (
-        <div className="listingsList">{getListings(props.listings)}</div>
+        <div className={styles["listings-list-container"]}>{getListings(props.listings)}</div>
       ) : (
         <ZeroListingsItem title={t("t.noMatchingListings")} description={t("t.tryRemovingFilters")}>
           {/* <Button>{t("t.clearAllFilters")}</Button> */}
@@ -31,46 +31,43 @@ const ListingsList = (props: ListingsListProps) => {
     </div>
   )
 
-  const infoCards =
-    props.currentPage == props.lastPage || props.lastPage == 0 ? (
-      <div>
-        {process.env.notificationsSignUpUrl && (
-          <InfoCard
-            title={t("t.signUpForAlerts")}
-            subtitle={t("t.subscribeToListingAlerts")}
-            className="is-normal-primary-lighter"
+  const infoCards = (
+    <div className={styles["info-cards-container"]}>
+      {process.env.notificationsSignUpUrl && (
+        <InfoCard
+          title={t("t.signUpForAlerts")}
+          subtitle={t("t.subscribeToListingAlerts")}
+          className="is-normal-primary-lighter"
+        >
+          <LinkButton
+            href={process.env.notificationsSignUpUrl}
+            newTab={true}
+            className="is-primary"
           >
-            <LinkButton
-              href={process.env.notificationsSignUpUrl}
-              newTab={true}
-              className="is-primary"
-            >
-              {t("t.signUp")}
-            </LinkButton>
-          </InfoCard>
-        )}
-        <InfoCard
-          title={t("t.needHelp")}
-          subtitle={t("t.emergencyShelter")}
-          className="is-normal-secondary-lighter"
-        >
-          <LinkButton href="/help/housing-help" className="is-secondary">
-            {t("t.helpCenter")}
+            {t("t.signUp")}
           </LinkButton>
         </InfoCard>
-        <InfoCard
-          title={t("t.housingInSanFrancisco")}
-          subtitle={t("t.seeSanFranciscoListings")}
-          className="is-normal-secondary-lighter"
-        >
-          <LinkButton href="https://housing.sfgov.org/" newTab={true} className="is-secondary">
-            {t("t.seeListings")}
-          </LinkButton>
-        </InfoCard>
-      </div>
-    ) : (
-      <div></div>
-    )
+      )}
+      <InfoCard
+        title={t("t.needHelp")}
+        subtitle={t("t.emergencyShelter")}
+        className="is-normal-secondary-lighter"
+      >
+        <LinkButton href="/help/housing-help" className="is-secondary">
+          {t("t.helpCenter")}
+        </LinkButton>
+      </InfoCard>
+      <InfoCard
+        title={t("t.housingInSanFrancisco")}
+        subtitle={t("t.seeSanFranciscoListings")}
+        className="is-normal-secondary-lighter"
+      >
+        <LinkButton href="https://housing.sfgov.org/" newTab={true} className="is-secondary">
+          {t("t.seeListings")}
+        </LinkButton>
+      </InfoCard>
+    </div>
+  )
 
   const pagination =
     props.lastPage !== 0 ? (

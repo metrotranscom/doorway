@@ -110,6 +110,7 @@
 
 .listings-list-wrapper {
   --padding: var(--seeds-s10);
+  border-left: 1px solid var(--seeds-color-gray-450);
 
   /* These attribute selectors are strange, but that's because we want to short-circuit the
      CSS module renaming and use these exact class names */
@@ -144,4 +145,9 @@
   border-radius: 50%;
   border: 1px solid white;
   box-shadow: 0 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.listings-list-container {
+  border-bottom: 1px solid var(--seeds-color-gray-450);
+  margin-bottom: var(--seeds-s4);
 }

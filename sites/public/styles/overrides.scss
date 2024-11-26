@@ -139,7 +139,7 @@
         color: var(--seeds-text-color-dark);
         text-transform: uppercase;
         font-weight: bold;
-        letter-spacing: .025rem;
+        letter-spacing: 0.025rem;
         font-size: var(--seeds-font-size-xs);
       }
     }
@@ -294,6 +294,10 @@
     }
   }
 
+  .listings-row {
+    --inter-row-gap: var(--seeds-s3_5);
+  }
+
   .results-bar-button {
     --button-interior-gap: var(--seeds-s1_5);
     line-height: var(--seeds-line-height-4);
@@ -307,7 +311,7 @@
 
   .pagination-button-group {
     --padding-inline-desktop: var(--seeds-s6);
-    --padding-block: var(--seeds-s6);
+    --padding-block: var(--seeds-s2) var(--seeds-s6);
     .doorway-button {
       padding: var(--seeds-s3) var(--seeds-s4);
     }

@@ -6453,26 +6453,6 @@ export interface PublicLotteryTotal {
   multiselectQuestionId?: string
 }
 
-export enum ListingsStatusEnum {
-  "active" = "active",
-  "pending" = "pending",
-  "closed" = "closed",
-  "pendingReview" = "pendingReview",
-  "changesRequested" = "changesRequested",
-}
-
-export enum FilterAvailabilityEnum {
-  "waitlistOpen" = "waitlistOpen",
-  "unitsAvailable" = "unitsAvailable",
-}
-export enum EnumListingFilterParamsComparison {
-  "=" = "=",
-  "<>" = "<>",
-  "IN" = "IN",
-  ">=" = ">=",
-  "<=" = "<=",
-  "NA" = "NA",
-}
 export interface FeatureFlagAssociate {
   /**  */
   id: string
@@ -6509,6 +6489,26 @@ export interface FeatureFlagUpdate {
   active: boolean
 }
 
+export enum ListingsStatusEnum {
+  "active" = "active",
+  "pending" = "pending",
+  "closed" = "closed",
+  "pendingReview" = "pendingReview",
+  "changesRequested" = "changesRequested",
+}
+
+export enum FilterAvailabilityEnum {
+  "waitlistOpen" = "waitlistOpen",
+  "unitsAvailable" = "unitsAvailable",
+}
+export enum EnumListingFilterParamsComparison {
+  "=" = "=",
+  "<>" = "<>",
+  "IN" = "IN",
+  ">=" = ">=",
+  "<=" = "<=",
+  "NA" = "NA",
+}
 export enum ListingViews {
   "fundamentals" = "fundamentals",
   "base" = "base",

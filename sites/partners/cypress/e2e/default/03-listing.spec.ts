@@ -87,8 +87,20 @@ describe("Listing Management Tests", () => {
     })
   })
 
+  // Fill out a First Come, First Serve (FCFS) listing
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function fillOutListing(cy: Cypress.cy, listing: any): void {
+    cy.intercept("GET", "/geocoding/v5/**", { fixture: "address" })
+    cy.intercept("POST", "https://api.cloudinary.com/v1_1/exygy/upload", {
+      fixture: "cypressUpload",
+    })
+    cy.intercept(
+      "GET",
+      "https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/dev/cypress-automated-image-upload-071e2ab9-5a52-4f34-85f0-e41f696f4b96.jpg",
+      {
+        fixture: "cypress-automated-image-upload-071e2ab9-5a52-4f34-85f0-e41f696f4b96.jpeg",
+      }
+    )
     cy.getByID("jurisdictions.id").select(listing["jurisdiction.id"])
     cy.getByID("name").type(listing["name"])
     cy.getByID("developer").type(listing["developer"])
@@ -117,6 +129,16 @@ describe("Listing Management Tests", () => {
         "https://assets.website-files.com/5fbfdd121e108ea418ede824/5fbfdea9a7287d45a63d821b_Exygy%20Logo.svg"
       )
 
+    cy.intercept("POST", "https://api.cloudinary.com/v1_1/exygy/upload", {
+      public_id: "dev/cypress-automated-image-upload-46806882-b98d-49d7-ac83-8016ab4b2f08",
+    })
+    cy.intercept(
+      "GET",
+      "https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/dev/cypress-automated-image-upload-46806882-b98d-49d7-ac83-8016ab4b2f08.jpg",
+      {
+        fixture: "cypress-automated-image-upload-46806882-b98d-49d7-ac83-8016ab4b2f08.jpg",
+      }
+    )
     cy.getByID("add-photos-button").contains("Edit Photos").click()
     cy.getByTestId("dropzone-input").attachFile(
       "cypress-automated-image-upload-46806882-b98d-49d7-ac83-8016ab4b2f08.jpg",
@@ -217,7 +239,6 @@ describe("Listing Management Tests", () => {
     cy.getByID("specialNotes").type(listing["specialNotes"])
     cy.get("button").contains("Application Process").click()
     cy.getByID("reviewOrderFCFS").check()
-    cy.getByID("dueDateQuestionNo").check()
     cy.getByID("waitlistOpenNo").check()
     cy.getByID("leasingAgentName").type(listing["leasingAgentName"])
     cy.getByID("leasingAgentEmail").type(listing["leasingAgentEmail"])
@@ -271,6 +292,13 @@ describe("Listing Management Tests", () => {
     cy.getByID("startTime.period").select("AM")
     cy.getByID("endTime.period").select("PM")
     cy.getByID("saveOpenHouseFormButton").contains("Save").click()
+
+    cy.getByID("applicationDueDateField.month").type(listing["date.month"])
+    cy.getByID("applicationDueDateField.day").type(listing["date.day"])
+    cy.getByID("applicationDueDateField.year").type((new Date().getFullYear() + 1).toString())
+    cy.getByID("applicationDueTimeField.hours").type(listing["startTime.hours"])
+    cy.getByID("applicationDueTimeField.minutes").type(listing["startTime.minutes"])
+    cy.getByID("applicationDueTimeField.period").select("PM")
     cy.getByID("publishButton").contains("Publish").click()
 
     cy.getByID("publishButtonConfirm").contains("Publish").click()
@@ -299,8 +327,8 @@ describe("Listing Management Tests", () => {
     cy.getByID("buildingAddress.state").contains("CA")
     cy.getByID("buildingAddress.zipCode").contains(listing["buildingAddress.zipCode"])
     cy.getByID("yearBuilt").contains(listing["yearBuilt"])
-    cy.getByID("longitude").contains("-121.95")
-    cy.getByID("latitude").contains("37.76")
+    cy.getByID("longitude").contains("-122")
+    cy.getByID("latitude").contains("37.7")
     cy.getByID("reservedCommunityType").contains(listing["reservedCommunityType.id"])
     cy.getByID("reservedCommunityDescription").contains(listing["reservedCommunityDescription"])
     cy.getByTestId("unit-types-or-individual").contains("Unit Types")
@@ -335,7 +363,6 @@ describe("Listing Management Tests", () => {
     cy.getByID("programRules").contains(listing["programRules"])
     cy.getByID("specialNotes").contains(listing["specialNotes"])
     cy.getByID("reviewOrderQuestion").contains("First come first serve")
-    cy.getByID("dueDateQuestion").contains("No")
     cy.getByID("whatToExpect").contains(
       "Applicants will be contacted by the property agent in rank order until vacancies are filled. All of the information that you have provided will be verified and your eligibility confirmed. Your application will be removed from the waitlist if you have made any fraudulent statements. If we cannot verify a housing preference that you have claimed, you will not receive the preference but will not be otherwise penalized. Should your application be chosen, be prepared to fill out a more detailed application and provide required supporting documents."
     )

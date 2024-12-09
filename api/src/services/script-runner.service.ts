@@ -1309,10 +1309,6 @@ export class ScriptRunnerService {
       },
     });
 
-    const workAddressesIds = applicants
-      .concat(householdMembers)
-      .map((address) => address.workAddressId);
-
     await this.prisma.applicant.updateMany({
       data: {
         workAddressId: null,
@@ -1335,15 +1331,17 @@ export class ScriptRunnerService {
       },
     });
 
-    const result = await this.prisma.address.deleteMany({
+    const workAddressesIds = applicants
+      .concat(householdMembers)
+      .map((address) => address.workAddressId);
+
+    await this.prisma.address.deleteMany({
       where: {
         id: {
           in: workAddressesIds,
         },
       },
     });
-
-    console.log(result);
 
     await this.markScriptAsComplete('remove work addresses', requestingUser);
     return { success: true };

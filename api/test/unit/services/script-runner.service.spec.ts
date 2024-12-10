@@ -1975,7 +1975,7 @@ describe('Testing script runner service', () => {
         },
       },
     });
-    expect(prisma.address.deleteMany).toHaveBeenCalledTimes;
+    expect(prisma.address.deleteMany).toHaveBeenCalledTimes(2);
   });
 
   // | ---------- HELPER TESTS BELOW ---------- | //

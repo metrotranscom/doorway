@@ -86,6 +86,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     bathrooms: null,
     minRent: "",
     monthlyRent: "",
+    propertyName: "",
     counties: countyLabels,
     availability: null,
     ids: undefined,
@@ -208,6 +209,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const { register, getValues, setValue, watch } = useForm()
   const monthlyRentFormatted = watch("monthlyRent")
   const minRentFormatted = watch("minRent")
+  const propertyName = watch("propertyName")
   const currencyFormatting = /,|\.\d{2}/g
 
   // workarounds to leverage UI-C's currency formatting without full refactor
@@ -226,6 +228,13 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthlyRentFormatted])
+
+  useEffect(() => {
+    if (propertyName) {
+      updateValue("propertyName", propertyName)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyName])
 
   return (
     <Dialog
@@ -282,7 +291,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
               defaultValue={formValues.minRent}
               placeholder={t("t.minPrice")}
               className="doorway-field"
-              inputClassName="rent-input"
+              inputClassName="typed-input"
               labelClassName="input-label"
             ></Field>
             <div style={hyphenContainerStyle}>
@@ -298,10 +307,26 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
               defaultValue={formValues.monthlyRent}
               placeholder={t("t.maxPrice")}
               className="doorway-field"
-              inputClassName="rent-input"
+              inputClassName="typed-input"
               labelClassName="input-label"
             ></Field>
           </div>
+        </div>
+        <div style={inputSectionStyle}>
+          <div style={sectionTitle}>{t("listings.propertyName")}</div>
+          <Field
+            type="text"
+            id="propertyName"
+            name="propertyName"
+            subNote={t("listings.popertyName.helper")}
+            register={register}
+            setValue={setValue}
+            getValues={getValues}
+            defaultValue={formValues.propertyName}
+            className="doorway-field"
+            inputClassName="typed-input"
+            labelClassName="input-label"
+          />
         </div>
 
         <div style={inputSectionStyle}>

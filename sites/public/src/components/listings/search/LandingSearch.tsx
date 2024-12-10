@@ -39,6 +39,7 @@ export function LandingSearch(props: LandingSearchProps) {
     availability: null,
     minRent: "",
     monthlyRent: "",
+    propertyName: "",
     counties: countyLabels,
     ids: null,
   }
@@ -47,6 +48,7 @@ export function LandingSearch(props: LandingSearchProps) {
   const [openCountyMapModal, setOpenCountyMapModal] = useState(false)
 
   const createListingsUrl = (formValues: ListingSearchParams) => {
+    console.log(formValues)
     const searchUrl = buildSearchString(formValues)
     return "/listings?search=" + searchUrl
   }
@@ -57,7 +59,7 @@ export function LandingSearch(props: LandingSearchProps) {
     Object.assign(newValues, formValues)
     newValues[name] = value
     setFormValues(newValues)
-    // console.log(`${name} has been set to ${value}`) // uncomment to debug
+    console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
   const updateValueMulti = (name: string, labels: string[]) => {
@@ -130,6 +132,14 @@ export function LandingSearch(props: LandingSearchProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthlyRentFormatted])
 
+  const propertyName = watch("propertyName")
+  useEffect(() => {
+    if (propertyName) {
+      updateValue("propertyName", propertyName)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyName])
+
   return (
     <Card className="bg-accent-cool-light">
       <div className={styles["input-section"]}>
@@ -170,7 +180,23 @@ export function LandingSearch(props: LandingSearchProps) {
           defaultValue={formValues.monthlyRent}
           placeholder="$"
           className="doorway-field p-0 md:-mt-1"
-          inputClassName="rent-input"
+          inputClassName="typed-input"
+          labelClassName="input-label"
+        />
+      </div>
+      <div className={styles["input-section"]}>
+        <div className={styles["input-section_title"]}>{t("listings.propertyName")}</div>
+        <Field
+          type="text"
+          id="propertyName"
+          name="propertyName"
+          subNote={t("listings.popertyName.helper")}
+          register={register}
+          setValue={setValue}
+          getValues={getValues}
+          defaultValue={formValues.propertyName}
+          className="doorway-field p-0 md:-mt-1"
+          inputClassName="typed-input"
           labelClassName="input-label"
         />
       </div>

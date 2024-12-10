@@ -286,10 +286,19 @@ export class ListingService implements OnModuleInit {
         }
         if (filter[ListingFilterKeys.monthlyRent]) {
           const comparison = filter['$comparison'];
+          //sanitize user input here
           whereClauseArray.push(
             `(combined_units->>'monthlyRent')::FLOAT ${comparison} '${
               filter[ListingFilterKeys.monthlyRent]
             }'`,
+          );
+        }
+        if (filter[ListingFilterKeys.name]) {
+          const comparison = filter['$comparison'];
+          whereClauseArray.push(
+            `UPPER(combined.name) ${comparison} UPPER('%${
+              filter[ListingFilterKeys.name]
+            }%')`,
           );
         }
       });
@@ -297,7 +306,7 @@ export class ListingService implements OnModuleInit {
 
     // Only return active listings
     whereClauseArray.push("combined.status = 'active'");
-
+    console.log(whereClauseArray);
     const whereClause = whereClauseArray?.length
       ? `where ${whereClauseArray.join(' AND ')}`
       : '';

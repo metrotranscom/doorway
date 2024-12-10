@@ -6,6 +6,7 @@ export type ListingSearchParams = {
   bathrooms: string
   minRent: string
   monthlyRent: string
+  propertyName: string
   counties: string[]
   availability: FilterAvailabilityEnum
   ids: string[]
@@ -120,6 +121,9 @@ export function generateSearchQuery(params: ListingSearchParams) {
   // Find listings that have units with rent less than or equal to requested amount
   if (params.monthlyRent && params.monthlyRent != "") {
     qb.whereLessThanEqual("monthlyRent", params.monthlyRent)
+  }
+  if (params.propertyName && params.propertyName != "") {
+    qb.whereLike("name", params.propertyName)
   }
 
   // Find listings in these counties

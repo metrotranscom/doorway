@@ -286,19 +286,22 @@ export class ListingService implements OnModuleInit {
         }
         if (filter[ListingFilterKeys.monthlyRent]) {
           const comparison = filter['$comparison'];
-          //sanitize user input here
           whereClauseArray.push(
             `(combined_units->>'monthlyRent')::FLOAT ${comparison} '${
               filter[ListingFilterKeys.monthlyRent]
             }'`,
           );
         }
+
         if (filter[ListingFilterKeys.name]) {
           const comparison = filter['$comparison'];
+          //remove most special characters and escape those that are allowed
+          //add FE validation to search fields to mantain working url, and some partners stuff too
+          const cleanedValue = filter[ListingFilterKeys.name]
+            .replace(/[^a-zA-Z0-9' -]/g, '')
+            .replace(/[']/g, "''");
           whereClauseArray.push(
-            `UPPER(combined.name) ${comparison} UPPER('%${
-              filter[ListingFilterKeys.name]
-            }%')`,
+            `UPPER(combined.name) ${comparison} UPPER('%${cleanedValue}%')`,
           );
         }
       });
@@ -306,7 +309,6 @@ export class ListingService implements OnModuleInit {
 
     // Only return active listings
     whereClauseArray.push("combined.status = 'active'");
-    console.log(whereClauseArray);
     const whereClause = whereClauseArray?.length
       ? `where ${whereClauseArray.join(' AND ')}`
       : '';

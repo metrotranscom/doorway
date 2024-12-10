@@ -1888,11 +1888,11 @@ describe('Testing script runner service', () => {
     prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
     prisma.applicant.findMany = jest
       .fn()
-      .mockResolvedValue([{ id: id, workAddressId: id }]);
+      .mockResolvedValueOnce([{ id: id, workAddressId: id }]);
     prisma.applicant.updateMany = jest.fn().mockResolvedValue(null);
     prisma.householdMember.findMany = jest
       .fn()
-      .mockResolvedValue([{ id: id, workAddressId: id }]);
+      .mockResolvedValueOnce([{ id: id, workAddressId: id }]);
     prisma.householdMember.updateMany = jest.fn().mockResolvedValue(null);
     prisma.address.deleteMany = jest.fn().mockResolvedValue(null);
 
@@ -1933,6 +1933,17 @@ describe('Testing script runner service', () => {
           not: null,
         },
       },
+      take: 10000,
+    });
+    expect(prisma.applicant.updateMany).toHaveBeenCalledWith({
+      data: {
+        workAddressId: null,
+      },
+      where: {
+        id: {
+          in: [id],
+        },
+      },
     });
     expect(prisma.householdMember.findMany).toHaveBeenCalledWith({
       select: {
@@ -1944,34 +1955,27 @@ describe('Testing script runner service', () => {
           not: null,
         },
       },
+      take: 10000,
     });
-    expect(prisma.applicant.updateMany).toHaveBeenCalledWith({
-      data: {
-        workAddressId: null,
-      },
-      where: {
-        workAddressId: {
-          not: null,
-        },
-      },
-    });
+
     expect(prisma.householdMember.updateMany).toHaveBeenCalledWith({
       data: {
         workAddressId: null,
       },
       where: {
-        workAddressId: {
-          not: null,
+        id: {
+          in: [id],
         },
       },
     });
     expect(prisma.address.deleteMany).toHaveBeenCalledWith({
       where: {
         id: {
-          in: [id, id],
+          in: [id],
         },
       },
     });
+    expect(prisma.address.deleteMany).toHaveBeenCalledTimes;
   });
 
   // | ---------- HELPER TESTS BELOW ---------- | //

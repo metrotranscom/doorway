@@ -1314,8 +1314,8 @@ export class ScriptRunnerService {
         workAddressId: null,
       },
       where: {
-        id: {
-          in: applicants.map((applicant) => applicant.id),
+        workAddressId: {
+          not: null,
         },
       },
     });
@@ -1325,8 +1325,8 @@ export class ScriptRunnerService {
         workAddressId: null,
       },
       where: {
-        id: {
-          in: householdMembers.map((householdMember) => householdMember.id),
+        workAddressId: {
+          not: null,
         },
       },
     });
@@ -1335,13 +1335,15 @@ export class ScriptRunnerService {
       .concat(householdMembers)
       .map((address) => address.workAddressId);
 
-    await this.prisma.address.deleteMany({
-      where: {
-        id: {
-          in: workAddressesIds,
+    for (let i = 0; i < workAddressesIds.length; i += 10000) {
+      await this.prisma.address.deleteMany({
+        where: {
+          id: {
+            in: workAddressesIds.slice(i, i + 10000),
+          },
         },
-      },
-    });
+      });
+    }
 
     await this.markScriptAsComplete('remove work addresses', requestingUser);
     return { success: true };

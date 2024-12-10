@@ -1950,8 +1950,8 @@ describe('Testing script runner service', () => {
         workAddressId: null,
       },
       where: {
-        id: {
-          in: [id],
+        workAddressId: {
+          not: null,
         },
       },
     });
@@ -1960,8 +1960,8 @@ describe('Testing script runner service', () => {
         workAddressId: null,
       },
       where: {
-        id: {
-          in: [id],
+        workAddressId: {
+          not: null,
         },
       },
     });

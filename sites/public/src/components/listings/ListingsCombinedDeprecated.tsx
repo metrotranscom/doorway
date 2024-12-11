@@ -1,9 +1,11 @@
-import React from "react"
+import React, { useState } from "react"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingsMap } from "./ListingsMapDeprecated"
 import { ListingsList } from "./ListingsList"
 import CustomSiteFooter from "../shared/CustomSiteFooter"
+import { useSwipeable } from "react-swipeable"
 import styles from "./ListingsCombined.module.scss"
+import deprecatedStyles from "./ListingsCombinedDeprecated.module.scss"
 
 type ListingsCombinedProps = {
   listings: Listing[]
@@ -18,6 +20,43 @@ type ListingsCombinedProps = {
 }
 
 const ListingsCombined = (props: ListingsCombinedProps) => {
+  const [showListingsList, setShowListingsList] = useState(true)
+  const [showListingsMap, setShowListingsMap] = useState(true)
+
+  const swipeHandler = useSwipeable({
+    onSwipedUp: () => {
+      if (showListingsMap) {
+        if (showListingsList) {
+          // This is for the combined listings page, swiping up shows the listings list page.
+          setShowListingsList(true)
+          setShowListingsMap(false)
+          return
+        } else {
+          // This is for the listings map only page, swiping up shows the listings combined page.
+          setShowListingsList(true)
+          setShowListingsMap(true)
+          return
+        }
+      }
+    },
+    onSwipedDown: () => {
+      if (showListingsList) {
+        if (showListingsMap) {
+          // This is for the combined listings page, swiping down shows the listings map page.
+          setShowListingsList(false)
+          setShowListingsMap(true)
+          return
+        } else {
+          // This is for the listings list only page, swiping up shows the listings combined page.
+          setShowListingsList(true)
+          setShowListingsMap(true)
+          return
+        }
+      }
+    },
+    preventScrollOnSwipe: true,
+  })
+
   const getListingsList = () => {
     return (
       <div className={`${styles["listings-combined"]} flex-row`}>
@@ -28,8 +67,11 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             isMapExpanded={false}
           />
         </div>
+        <div className={deprecatedStyles["swipe-area"]} {...swipeHandler}>
+          <div className={deprecatedStyles["swipe-area-line"]}></div>
+        </div>
         <div
-          className={`${styles["listings-map-list-container"]} ${styles["listings-map-list-container-list-only"]}`}
+          className={`${styles["listings-map-list-container"]} ${deprecatedStyles["listings-map-list-container-list-only-deprecated"]}`}
         >
           <div id="listings-list-expanded" className={styles["listings-list-expanded"]}>
             <ListingsList
@@ -56,7 +98,11 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
             isMapExpanded={true}
+            setShowListingsList={setShowListingsList}
           />
+        </div>
+        <div className={deprecatedStyles["swipe-area-bottom"]} {...swipeHandler}>
+          <div className={deprecatedStyles["swipe-area-line"]}></div>
         </div>
       </div>
     )
@@ -70,10 +116,17 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
             isMapExpanded={false}
+            setShowListingsList={setShowListingsList}
           />
         </div>
-        <div id="listings-outer-container" className={styles["listings-outer-container"]}>
-          <div id="listings-list" className={styles["listings-list"]}>
+        <div
+          id="listings-outer-container"
+          className={deprecatedStyles["listings-outer-container-deprecated"]}
+        >
+          <div className={deprecatedStyles["swipe-area"]} {...swipeHandler}>
+            <div className={deprecatedStyles["swipe-area-line"]}></div>
+          </div>
+          <div id="listings-list" className={deprecatedStyles["listings-list-deprecated"]}>
             <ListingsList
               listings={props.listings}
               currentPage={props.currentPage}
@@ -90,11 +143,13 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
 
   let div: JSX.Element
 
-  if (!props.isDesktop && props.listView) {
+  if (props.isDesktop) {
+    div = getListingsCombined()
+  } else if (showListingsList && !showListingsMap) {
     div = getListingsList()
-  } else if (!props.isDesktop && !props.listView) {
+  } else if (showListingsMap && !showListingsList) {
     div = getListingsMap()
-  } else if (props.isDesktop) {
+  } else if (showListingsList && showListingsMap) {
     div = getListingsCombined()
   }
 

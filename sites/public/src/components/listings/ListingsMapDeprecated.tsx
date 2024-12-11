@@ -11,6 +11,7 @@ type ListingsMapProps = {
   googleMapsApiKey: string
   desktopMinWidth?: number
   isMapExpanded: boolean
+  setShowListingsList?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const containerStyle: React.CSSProperties = {
@@ -33,7 +34,7 @@ const ListingsMap = (props: ListingsMapProps) => {
   const [openInfoWindow, setOpenInfoWindow] = useState(false)
   const [infoWindowIndex, setInfoWindowIndex] = useState(null)
 
-  const [_, setIsDesktop] = useState(true)
+  const [isDesktop, setIsDesktop] = useState(true)
 
   const DESKTOP_MIN_WIDTH = props.desktopMinWidth || 767 // @screen md
   useEffect(() => {
@@ -72,8 +73,6 @@ const ListingsMap = (props: ListingsMapProps) => {
     markers.push({ lat, lng, uri, key, infoWindow })
   })
 
-  console.log({ isLoaded })
-
   const mapRef = React.useRef(null)
   return isLoaded ? (
     <div className={styles["listings-map"]}>
@@ -99,8 +98,23 @@ const ListingsMap = (props: ListingsMapProps) => {
               fontSize: "var(--bloom-font-size-2xs)",
             }}
             onClick={() => {
-              setOpenInfoWindow(true)
-              setInfoWindowIndex(marker.key)
+              if (isDesktop) {
+                setOpenInfoWindow(true)
+                setInfoWindowIndex(marker.key)
+              } else {
+                if (props.isMapExpanded) {
+                  // Bring up the listings list with the correct listing at the top. A short timeout
+                  // is needed so the listings row element can be found in the document.
+                  props.setShowListingsList(true)
+                  setTimeout(() => {
+                    const element = document.getElementsByClassName("listings-row")[marker.key - 1]
+                    element.scrollIntoView(false)
+                  }, 1)
+                } else {
+                  const element = document.getElementsByClassName("listings-row")[marker.key - 1]
+                  element.scrollIntoView(false)
+                }
+              }
             }}
             key={marker.key.toString()}
             icon={{

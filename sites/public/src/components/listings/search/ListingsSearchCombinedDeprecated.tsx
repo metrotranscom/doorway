@@ -7,7 +7,7 @@ import { searchListings } from "../../../lib/listings/listing-service"
 import styles from "./ListingsSearch.module.scss"
 import { ListingsCombined } from "../ListingsCombinedDeprecated"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModalDeprecated"
-import { ListingsSearchMetadata } from "./ListingsSearchMetadata"
+import { ListingsSearchMetadata } from "./ListingsSearchMetadataDeprecated"
 
 type ListingsSearchCombinedProps = {
   searchString?: string
@@ -128,8 +128,6 @@ function ListingsSearchCombinedDeprecated(props: ListingsSearchCombinedProps) {
         setModalOpen={setModalOpen}
         filterCount={filterCount}
         searchResults={searchResults}
-        listView={listView}
-        setListView={setListView}
       />
 
       <ListingsSearchModal

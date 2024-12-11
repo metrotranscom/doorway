@@ -16,8 +16,9 @@ import { User } from '../../../src/dtos/users/user.dto';
 import { ApplicationCreate } from '../../../src/dtos/applications/application-create.dto';
 import { of } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { Logger } from '@nestjs/common';
 
-let sendMock;
+let sendSingleMock, sendBulkMock;
 const translationServiceMock = {
   getMergedTranslations: () => {
     return translationFactory().translations;
@@ -56,6 +57,7 @@ describe('Testing email service', () => {
           useValue: jurisdictionServiceMock,
         },
         { provide: HttpService, useValue: httpServiceMock },
+        Logger,
         GoogleTranslateService,
       ],
     }).compile();
@@ -63,9 +65,11 @@ describe('Testing email service', () => {
 
   beforeEach(async () => {
     jest.useFakeTimers();
-    sendMock = jest.fn();
+    sendSingleMock = jest.fn();
+    sendBulkMock = jest.fn();
     service = await module.resolve(EmailService);
-    service.sendSES = sendMock;
+    service.sendSingleSES = sendSingleMock;
+    service.sendBulkSES = sendBulkMock;
   });
 
   const user = {
@@ -82,10 +86,10 @@ describe('Testing email service', () => {
       'http://localhost:3000',
       'http://localhost:3000/?token=',
     );
-    expect(sendMock).toHaveBeenCalled();
-    expect(sendMock.mock.calls[0][0].to).toEqual(user.email);
-    expect(sendMock.mock.calls[0][0].subject).toEqual('Welcome');
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock).toHaveBeenCalled();
+    expect(sendSingleMock.mock.calls[0][0].to).toEqual(user.email);
+    expect(sendSingleMock.mock.calls[0][0].subject).toEqual('Welcome');
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'Thank you for setting up your account on http://localhost:3000.',
     );
   });
@@ -100,15 +104,15 @@ describe('Testing email service', () => {
       'http://localhost:3001',
       'http://localhost:3001/?token=',
     );
-    expect(sendMock).toHaveBeenCalled();
-    expect(sendMock.mock.calls[0][0].to).toEqual(user.email);
-    expect(sendMock.mock.calls[0][0].subject).toEqual(
+    expect(sendSingleMock).toHaveBeenCalled();
+    expect(sendSingleMock.mock.calls[0][0].to).toEqual(user.email);
+    expect(sendSingleMock.mock.calls[0][0].subject).toEqual(
       'Welcome to the Partners Portal',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'Welcome to the Partners Portal at http://localhost:3001',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'You will now be able to manage listings and applications that you are a part of from one centralized location.',
     );
   });
@@ -121,18 +125,18 @@ describe('Testing email service', () => {
       'http://localhost:3001/confirmation',
       'newemail@example.com',
     );
-    expect(sendMock).toHaveBeenCalled();
-    expect(sendMock.mock.calls[0][0].to).toEqual('newemail@example.com');
-    expect(sendMock.mock.calls[0][0].subject).toEqual(
+    expect(sendSingleMock).toHaveBeenCalled();
+    expect(sendSingleMock.mock.calls[0][0].to).toEqual('newemail@example.com');
+    expect(sendSingleMock.mock.calls[0][0].subject).toEqual(
       'Bloom email change request',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'An email address change has been requested for your account.',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'To confirm the change to your email address, please click the link below:',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       '<a href="http://localhost:3001/confirmation">Confirm email change</a>',
     );
   });
@@ -148,19 +152,21 @@ describe('Testing email service', () => {
       'http://localhost:3001',
       'resetToken',
     );
-    expect(sendMock).toHaveBeenCalled();
-    expect(sendMock.mock.calls[0][0].to).toEqual(user.email);
-    expect(sendMock.mock.calls[0][0].subject).toEqual('Forgot your password?');
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock).toHaveBeenCalled();
+    expect(sendSingleMock.mock.calls[0][0].to).toEqual(user.email);
+    expect(sendSingleMock.mock.calls[0][0].subject).toEqual(
+      'Forgot your password?',
+    );
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'A request to reset your Bloom Housing Portal website password for http://localhost:3001 has recently been made.',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'If you did make this request, please click on the link below to reset your password:',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       '<a href="http://localhost:3001/reset-password?token&#x3D;resetToken">Change my password</a>',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'Your password won&#x27;t change until you access the link above and create a new one.',
     );
   });
@@ -176,19 +182,21 @@ describe('Testing email service', () => {
       'http://localhost:3001?redirectUrl=redirect&listingId=123',
       'resetToken',
     );
-    expect(sendMock).toHaveBeenCalled();
-    expect(sendMock.mock.calls[0][0].to).toEqual(user.email);
-    expect(sendMock.mock.calls[0][0].subject).toEqual('Forgot your password?');
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock).toHaveBeenCalled();
+    expect(sendSingleMock.mock.calls[0][0].to).toEqual(user.email);
+    expect(sendSingleMock.mock.calls[0][0].subject).toEqual(
+      'Forgot your password?',
+    );
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'A request to reset your Bloom Housing Portal website password for http://localhost:3001 has recently been made.',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'If you did make this request, please click on the link below to reset your password:',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       '<a href="http://localhost:3001/reset-password?token&#x3D;resetToken&amp;redirectUrl&#x3D;redirect&amp;listingId&#x3D;123">Change my password</a>',
     );
-    expect(sendMock.mock.calls[0][0].html).toContain(
+    expect(sendSingleMock.mock.calls[0][0].html).toContain(
       'Your password won&#x27;t change until you access the link above and create a new one.',
     );
   });
@@ -231,27 +239,29 @@ describe('Testing email service', () => {
         application as ApplicationCreate,
         'http://localhost:3001',
       );
-      expect(sendMock).toHaveBeenCalled();
-      expect(sendMock.mock.calls[0][0].to).toEqual(
+      expect(sendSingleMock).toHaveBeenCalled();
+      expect(sendSingleMock.mock.calls[0][0].to).toEqual(
         'applicant.email@example.com',
       );
-      expect(sendMock.mock.calls[0][0].subject).toEqual(
+      expect(sendSingleMock.mock.calls[0][0].subject).toEqual(
         'Your Application Confirmation',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         '<td class="step step-complete"><img src="https://res.cloudinary.com/exygy/image/upload/v1652459517/core/step-left-active_vo3fnq.png" alt="indication of step completed" /></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         '<td class="step step-complete"><span class="step-label" aria-current="true">Application <br />received</span></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain('What happens next?');
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
+        'What happens next?',
+      );
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'Eligible applicants will be contacted on a first come first serve basis until vacancies are filled.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'Housing preferences, if applicable, will affect first come first serve order.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'If you are contacted for an interview, you will be asked to fill out a more detailed application and provide supporting documents',
       );
     });
@@ -261,30 +271,32 @@ describe('Testing email service', () => {
         application as ApplicationCreate,
         'http://localhost:3001',
       );
-      expect(sendMock).toHaveBeenCalled();
-      expect(sendMock.mock.calls[0][0].to).toEqual(
+      expect(sendSingleMock).toHaveBeenCalled();
+      expect(sendSingleMock.mock.calls[0][0].to).toEqual(
         'applicant.email@example.com',
       );
-      expect(sendMock.mock.calls[0][0].subject).toEqual(
+      expect(sendSingleMock.mock.calls[0][0].subject).toEqual(
         'Your Application Confirmation',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         '<td class="step step-complete"><img src="https://res.cloudinary.com/exygy/image/upload/v1652459517/core/step-left-active_vo3fnq.png" alt="indication of step completed" /></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         '<td class="step step-complete"><span class="step-label" aria-current="true">Application <br />received</span></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain('What happens next?');
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
+        'What happens next?',
+      );
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'Once the application period closes, eligible applicants will be placed in order based on lottery rank order.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'Housing preferences, if applicable, will affect lottery rank order.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'If you are contacted for an interview, you will be asked to fill out a more detailed application and provide supporting documents',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'If you’re not changing the primary applicant or any household members, you can just submit another application.  We’ll take the last one submitted, per the duplicate application policy.',
       );
     });
@@ -294,30 +306,32 @@ describe('Testing email service', () => {
         application as ApplicationCreate,
         'http://localhost:3001',
       );
-      expect(sendMock).toHaveBeenCalled();
-      expect(sendMock.mock.calls[0][0].to).toEqual(
+      expect(sendSingleMock).toHaveBeenCalled();
+      expect(sendSingleMock.mock.calls[0][0].to).toEqual(
         'applicant.email@example.com',
       );
-      expect(sendMock.mock.calls[0][0].subject).toEqual(
+      expect(sendSingleMock.mock.calls[0][0].subject).toEqual(
         'Your Application Confirmation',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         '<td class="step step-complete"><img src="https://res.cloudinary.com/exygy/image/upload/v1652459517/core/step-left-active_vo3fnq.png" alt="indication of step completed" /></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         '<td class="step step-complete"><span class="step-label" aria-current="true">Application <br />received</span></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain('What happens next?');
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
+        'What happens next?',
+      );
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'Eligible applicants will be placed on the waitlist on a first come first serve basis until waitlist spots are filled.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'Housing preferences, if applicable, will affect waitlist order.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'If you are contacted for an interview, you will be asked to fill out a more detailed application and provide supporting documents',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(sendSingleMock.mock.calls[0][0].html).toContain(
         'You may be contacted while on the waitlist to confirm that you wish to remain on the waitlist',
       );
     });
@@ -334,9 +348,9 @@ describe('Testing email service', () => {
         'http://localhost:3001',
       );
 
-      expect(sendMock).toHaveBeenCalled();
-      const emailMock = sendMock.mock.calls[0][0];
-      expect(emailMock.bcc).toEqual(emailArr);
+      expect(sendBulkMock).toHaveBeenCalled();
+      const emailMock = sendBulkMock.mock.calls[0][0];
+      expect(emailMock.emails).toEqual(emailArr);
       expect(emailMock.subject).toEqual('Listing approval requested');
       expect(emailMock.html).toMatch(
         `<img src="https://housingbayarea.mtc.ca.gov/images/doorway-logo.png" alt="Bloom Housing Portal" width="300" height="65" class="header-image"/>`,
@@ -376,9 +390,9 @@ describe('Testing email service', () => {
         'http://localhost:3001',
       );
 
-      expect(sendMock).toHaveBeenCalled();
-      const emailMock = sendMock.mock.calls[0][0];
-      expect(emailMock.bcc).toEqual(emailArr);
+      expect(sendBulkMock).toHaveBeenCalled();
+      const emailMock = sendBulkMock.mock.calls[0][0];
+      expect(emailMock.emails).toEqual(emailArr);
       expect(emailMock.subject).toEqual('Listing changes requested');
       expect(emailMock.html).toMatch(
         `<img src="https://housingbayarea.mtc.ca.gov/images/doorway-logo.png" alt="Bloom Housing Portal" width="300" height="65" class="header-image"/>`,
@@ -421,9 +435,9 @@ describe('Testing email service', () => {
         'http://localhost:3000',
       );
 
-      expect(sendMock).toHaveBeenCalled();
-      const emailMock = sendMock.mock.calls[0][0];
-      expect(emailMock.bcc).toEqual(emailArr);
+      expect(sendBulkMock).toHaveBeenCalled();
+      const emailMock = sendBulkMock.mock.calls[0][0];
+      expect(emailMock.emails).toEqual(emailArr);
       expect(emailMock.subject).toEqual('New published listing');
       expect(emailMock.html).toMatch(
         `<img src="https://housingbayarea.mtc.ca.gov/images/doorway-logo.png" alt="Bloom Housing Portal" width="300" height="65" class="header-image"/>`,

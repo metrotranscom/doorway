@@ -66,21 +66,13 @@ export const ListingsSearchMetadata = ({
           </Button>
         </>
       </div>
-      <div className={styles["search-filter-bar"]}>
+      <div className={`${styles["search-filter-bar"]}`}>
         <div className={`${styles["total-results"]}`}>
-          <span
-            className={`${styles["search-total-results"]} ${
-              !listView ? styles["hide-total-results"] : ""
-            }`}
-            data-testid={"map-total-results"}
-          >
+          <span className={`${styles["search-total-results"]}`} data-testid={"map-total-results"}>
             <strong>{t("search.totalResults")}</strong> {searchResults.totalItems}
           </span>
           {searchResults.lastPage > 0 && (
-            <span
-              className={`${!listView ? styles["hide-total-results"] : ""}`}
-              data-testid={"map-pagination"}
-            >
+            <span data-testid={"map-pagination"}>
               (
               {t("t.pageXofY", {
                 current: searchResults.currentPage,

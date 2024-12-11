@@ -3,7 +3,7 @@
   // I can't find another way to do this.
   // TODO: update header + filter modal to a not-magic number
   --desktop-header-offset: 169px;
-  --mobile-header-offset: 126px;
+  --mobile-header-offset: 215px;
   --listings-component-height: calc(100dvh - var(--desktop-header-offset));
   --listings-component-height-mobile: calc(100dvh - var(--mobile-header-offset));
 
@@ -27,7 +27,7 @@
   background: white;
   padding-inline: var(--seeds-s4);
   padding-block: var(--seeds-s1);
-  gap: var(--seeds-s4);
+  gap: var(--seeds-s6);
   color: var(--seeds-text-color);
   border-block-end: 1px solid var(--seeds-border-color);
 
@@ -36,6 +36,7 @@
     width: 100%;
     font-size: var(--seeds-font-size-sm);
     padding-inline: var(--seeds-s4);
+    padding-block: var(--seeds-s2);
   }
 
   strong {
@@ -46,16 +47,17 @@
 .search-switch-container {
   padding-block: 0;
   @media (max-width: $screen-md) {
-    padding-block-start: var(--seeds-s2);
+    padding-block: var(--seeds-s1);
     border-block-start: 1px solid var(--seeds-border-color);
     justify-content: flex-end;
     border-block-end: none;
+    border-bottom: 1px solid var(--seeds-border-color);
   }
 }
 
 .search-total-results {
   font-size: var(--seeds-font-size-xl);
-  margin-right: var(--seeds-s4);
+  margin-right: var(--seeds-s6);
 
   @media (max-width: $screen-md) {
     font-size: var(--seeds-font-size-sm);
@@ -63,9 +65,7 @@
 }
 
 .hide-total-results {
-  @media (max-width: $screen-md) {
-    display: none;
-  }
+  display: none;
 }
 
 .filter-desktop {

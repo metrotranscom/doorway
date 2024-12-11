@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingsMap } from "./ListingsMapDeprecated"
-import { ListingsList } from "./ListingsList"
+import { ListingsList } from "./ListingsListDeprecated"
 import CustomSiteFooter from "../shared/CustomSiteFooter"
 import { useSwipeable } from "react-swipeable"
 import styles from "./ListingsCombined.module.scss"

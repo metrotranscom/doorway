@@ -67,7 +67,9 @@ const ListingsMap = (props: ListingsMapProps) => {
     // for that listing.
     const infoWindow = (
       <InfoWindow position={{ lat: lat, lng: lng }} onCloseClick={() => setOpenInfoWindow(false)}>
-        <div className={"info-window"}>{getListingCard(listing, key - 1)}</div>
+        <div className={"info-window"}>
+          {getListingCard({ ...listing, name: `${key}. ${listing.name}` }, key - 1)}
+        </div>
       </InfoWindow>
     )
     markers.push({ lat, lng, uri, key, infoWindow })
@@ -108,11 +110,13 @@ const ListingsMap = (props: ListingsMapProps) => {
                   props.setShowListingsList(true)
                   setTimeout(() => {
                     const element = document.getElementsByClassName("listings-row")[marker.key - 1]
-                    element.scrollIntoView(false)
+                    element.scrollIntoView({ block: "start" })
+                    window.scrollTo(0, 0)
                   }, 1)
                 } else {
                   const element = document.getElementsByClassName("listings-row")[marker.key - 1]
-                  element.scrollIntoView(false)
+                  element.scrollIntoView({ block: "start" })
+                  window.scrollTo(0, 0)
                 }
               }
             }}

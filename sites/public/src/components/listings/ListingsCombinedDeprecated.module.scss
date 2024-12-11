@@ -70,6 +70,7 @@
 
   @media (max-width: $screen-md) {
     position: absolute;
+    max-height: var(--listings-component-height-mobile);
     z-index: 1;
     top: calc(calc(calc(100vh - 183px) / 2));
     width: 100%;

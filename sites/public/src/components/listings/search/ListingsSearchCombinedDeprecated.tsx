@@ -84,8 +84,6 @@ function ListingsSearchCombinedDeprecated(props: ListingsSearchCombinedProps) {
     const qb = generateSearchQuery(params)
     const result = await searchListings(qb, pageSize, page, listingsService)
 
-    console.log({ result })
-
     const listings = result.items
     const meta = result.meta
 

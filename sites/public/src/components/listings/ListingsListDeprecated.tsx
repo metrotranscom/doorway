@@ -18,7 +18,13 @@ const ListingsList = (props: ListingsListProps) => {
   const listingsDiv = (
     <div id="listingsList">
       {props.listings.length > 0 || props.loading ? (
-        <div className="listingsList">{getListings(props.listings)}</div>
+        <div className="listingsList">
+          {getListings(
+            props.listings.map((listing, index) => {
+              return { ...listing, name: `${index + 1}. ${listing.name}` }
+            })
+          )}
+        </div>
       ) : (
         <ZeroListingsItem
           title={t("t.noMatchingListings")}

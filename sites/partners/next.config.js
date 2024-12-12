@@ -52,7 +52,6 @@ module.exports = withBundleAnalyzer(
       awsSecretKey: process.env.AWS_SECRET_KEY,
       awsRegion: process.env.AWS_REGION,
       fileService: process.env.FILE_SERVICE,
-      featureListingsApproval: process.env.FEATURE_LISTINGS_APPROVAL,
       maintenanceWindow: process.env.MAINTENANCE_WINDOW,
       reCaptchaKey: process.env.RECAPTCHA_KEY,
       showLottery: process.env.SHOW_LOTTERY === "TRUE",

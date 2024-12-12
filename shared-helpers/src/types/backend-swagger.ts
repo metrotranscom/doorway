@@ -2557,7 +2557,6 @@ export class ScriptRunnerService {
       axios(configs, resolve, reject)
     })
   }
-
   /**
    * A script that adds existing feature flags into the feature flag table
    */
@@ -6517,42 +6516,6 @@ export interface PublicLotteryTotal {
 
   /**  */
   multiselectQuestionId?: string
-}
-
-export interface FeatureFlagAssociate {
-  /**  */
-  id: string
-
-  /**  */
-  associate: string[]
-
-  /**  */
-  remove: string[]
-}
-
-export interface FeatureFlagCreate {
-  /**  */
-  name: string
-
-  /**  */
-  description: string
-
-  /**  */
-  active: boolean
-}
-
-export interface FeatureFlagUpdate {
-  /**  */
-  id: string
-
-  /**  */
-  name: string
-
-  /**  */
-  description: string
-
-  /**  */
-  active: boolean
 }
 
 export enum ListingsStatusEnum {

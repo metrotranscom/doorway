@@ -5,6 +5,8 @@ import { LoadingOverlay, t, InfoCard, LinkButton } from "@bloom-housing/ui-compo
 import { getListings } from "../../lib/helpers"
 import { Pagination } from "./Pagination"
 import styles from "./ListingsCombined.module.scss"
+import deprecatedStyles from "./ListingsCombinedDeprecated.module.scss"
+import CustomSiteFooter from "../shared/CustomSiteFooter"
 
 type ListingsListProps = {
   listings: Listing[]
@@ -34,46 +36,44 @@ const ListingsList = (props: ListingsListProps) => {
     </div>
   )
 
-  const infoCards =
-    props.currentPage == props.lastPage || props.lastPage == 0 ? (
-      <div>
-        {process.env.notificationsSignUpUrl && (
-          <InfoCard
-            title={t("t.signUpForAlerts")}
-            subtitle={t("t.subscribeToListingAlerts")}
-            className="is-normal-primary-lighter"
+  const infoCards = (
+    <div>
+      {process.env.notificationsSignUpUrl && (
+        <InfoCard
+          title={t("t.signUpForAlerts")}
+          subtitle={t("t.subscribeToListingAlerts")}
+          className="is-normal-primary-lighter"
+        >
+          <LinkButton
+            href={process.env.notificationsSignUpUrl}
+            newTab={true}
+            className="is-primary"
           >
-            <LinkButton
-              href={process.env.notificationsSignUpUrl}
-              newTab={true}
-              className="is-primary"
-            >
-              {t("t.signUp")}
-            </LinkButton>
-          </InfoCard>
-        )}
-        <InfoCard
-          title={t("t.needHelp")}
-          subtitle={t("t.emergencyShelter")}
-          className="is-normal-secondary-lighter"
-        >
-          <LinkButton href="/help/housing-help" className="is-secondary">
-            {t("t.helpCenter")}
+            {t("t.signUp")}
           </LinkButton>
         </InfoCard>
-        <InfoCard
-          title={t("t.housingInSanFrancisco")}
-          subtitle={t("t.seeSanFranciscoListings")}
-          className="is-normal-secondary-lighter"
-        >
-          <LinkButton href="https://housing.sfgov.org/" newTab={true} className="is-secondary">
-            {t("t.seeListings")}
-          </LinkButton>
-        </InfoCard>
-      </div>
-    ) : (
-      <div></div>
-    )
+      )}
+      <InfoCard
+        title={t("t.needHelp")}
+        subtitle={t("t.emergencyShelter")}
+        className="is-normal-secondary-lighter"
+      >
+        <LinkButton href="/help/housing-help" className="is-secondary">
+          {t("t.helpCenter")}
+        </LinkButton>
+      </InfoCard>
+      <InfoCard
+        title={t("t.housingInSanFrancisco")}
+        subtitle={t("t.seeSanFranciscoListings")}
+        className="is-normal-secondary-lighter"
+      >
+        <LinkButton href="https://housing.sfgov.org/" newTab={true} className="is-secondary">
+          {t("t.seeListings")}
+        </LinkButton>
+      </InfoCard>
+    </div>
+  )
+
   const pagination =
     props.lastPage != 0 ? (
       <Pagination
@@ -85,11 +85,16 @@ const ListingsList = (props: ListingsListProps) => {
       <></>
     )
   return (
-    <div className={styles["listings-list-wrapper"]}>
-      <LoadingOverlay isLoading={props.loading}>{listingsDiv}</LoadingOverlay>
-      {pagination}
-      {infoCards}
-    </div>
+    <>
+      <div
+        className={`${styles["listings-list-wrapper"]} ${deprecatedStyles["listings-list-wrapper-deprecated"]}`}
+      >
+        <LoadingOverlay isLoading={props.loading}>{listingsDiv}</LoadingOverlay>
+        {pagination}
+        {infoCards}
+        <CustomSiteFooter />
+      </div>
+    </>
   )
 }
 export { ListingsList as default, ListingsList }

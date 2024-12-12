@@ -2,7 +2,6 @@ import React, { useState } from "react"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingsMap } from "./ListingsMapDeprecated"
 import { ListingsList } from "./ListingsListDeprecated"
-import CustomSiteFooter from "../shared/CustomSiteFooter"
 import { useSwipeable } from "react-swipeable"
 import styles from "./ListingsCombined.module.scss"
 import deprecatedStyles from "./ListingsCombinedDeprecated.module.scss"
@@ -60,20 +59,23 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
   const getListingsList = () => {
     return (
       <div className={`${styles["listings-combined"]} flex-row`}>
-        <div className={styles["listings-map"]}>
+        <div className={`${deprecatedStyles["listings-map-deprecated"]}`}>
           <ListingsMap
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
             isMapExpanded={false}
           />
         </div>
-        <div className={deprecatedStyles["swipe-area"]} {...swipeHandler}>
-          <div className={deprecatedStyles["swipe-area-line"]}></div>
-        </div>
         <div
           className={`${styles["listings-map-list-container"]} ${deprecatedStyles["listings-map-list-container-list-only-deprecated"]}`}
         >
-          <div id="listings-list-expanded" className={styles["listings-list-expanded"]}>
+          <div
+            id="listings-list-expanded"
+            className={`${deprecatedStyles["listings-list-expanded-deprecated"]}`}
+          >
+            <div className={deprecatedStyles["swipe-area"]} {...swipeHandler}>
+              <div className={deprecatedStyles["swipe-area-line"]}></div>
+            </div>
             <ListingsList
               listings={props.listings}
               currentPage={props.currentPage}
@@ -81,9 +83,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               onPageChange={props.onPageChange}
               loading={props.loading}
             />
-          </div>
-          <div>
-            <CustomSiteFooter />
           </div>
         </div>
       </div>
@@ -111,7 +110,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
   const getListingsCombined = () => {
     return (
       <div className={`${styles["listings-combined"]} flex-row`}>
-        <div className={styles["listings-map"]}>
+        <div className={`${deprecatedStyles["listings-map-deprecated"]}`}>
           <ListingsMap
             listings={props.listings}
             googleMapsApiKey={props.googleMapsApiKey}
@@ -123,10 +122,10 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
           id="listings-outer-container"
           className={deprecatedStyles["listings-outer-container-deprecated"]}
         >
-          <div className={deprecatedStyles["swipe-area"]} {...swipeHandler}>
-            <div className={deprecatedStyles["swipe-area-line"]}></div>
-          </div>
           <div id="listings-list" className={deprecatedStyles["listings-list-deprecated"]}>
+            <div className={deprecatedStyles["swipe-area"]} {...swipeHandler}>
+              <div className={deprecatedStyles["swipe-area-line"]}></div>
+            </div>
             <ListingsList
               listings={props.listings}
               currentPage={props.currentPage}
@@ -134,7 +133,6 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               loading={props.loading}
               onPageChange={props.onPageChange}
             />
-            <CustomSiteFooter />
           </div>
         </div>
       </div>

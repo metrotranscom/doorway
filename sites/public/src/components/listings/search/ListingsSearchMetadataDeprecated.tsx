@@ -3,7 +3,7 @@ import { FunnelIcon } from "@heroicons/react/24/solid"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { t } from "@bloom-housing/ui-components"
 import { Button, Icon } from "@bloom-housing/ui-seeds"
-import styles from "./ListingsSearch.module.scss"
+import styles from "./ListingsSearchDeprecated.module.scss"
 
 export interface ListingsSearchMetadataProps {
   loading: boolean

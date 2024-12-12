@@ -4,7 +4,7 @@ import { ListingList, pushGtmEvent, AuthContext } from "@bloom-housing/shared-he
 import { t } from "@bloom-housing/ui-components"
 import { ListingSearchParams, generateSearchQuery } from "../../../lib/listings/search"
 import { searchListings } from "../../../lib/listings/listing-service"
-import styles from "./ListingsSearch.module.scss"
+import styles from "./ListingsSearchDeprecated.module.scss"
 import { ListingsCombined } from "../ListingsCombinedDeprecated"
 import { FormOption, ListingsSearchModal } from "./ListingsSearchModalDeprecated"
 import { ListingsSearchMetadata } from "./ListingsSearchMetadataDeprecated"

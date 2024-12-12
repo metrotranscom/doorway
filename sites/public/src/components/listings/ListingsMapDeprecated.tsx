@@ -107,12 +107,14 @@ const ListingsMap = (props: ListingsMapProps) => {
                 if (props.isMapExpanded) {
                   // Bring up the listings list with the correct listing at the top. A short timeout
                   // is needed so the listings row element can be found in the document.
-                  props.setShowListingsList(true)
+                  setTimeout(() => {
+                    props.setShowListingsList(true)
+                  }, 1)
                   setTimeout(() => {
                     const element = document.getElementsByClassName("listings-row")[marker.key - 1]
                     element.scrollIntoView({ block: "start" })
                     window.scrollTo(0, 0)
-                  }, 1)
+                  }, 5)
                 } else {
                   const element = document.getElementsByClassName("listings-row")[marker.key - 1]
                   element.scrollIntoView({ block: "start" })

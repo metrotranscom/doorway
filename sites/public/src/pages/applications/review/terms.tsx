@@ -31,11 +31,9 @@ const ApplicationTerms = () => {
   const [sessionVoided, setSessionVoided] = useState(false)
 
   const closeCallback = useCallback(() => {
-    setSubmitting(false)
     conductor.reset()
-    void router.push("/sign-in")
-    loadProfile()
-  }, [conductor, router, loadProfile])
+    loadProfile("/sign-in")
+  }, [conductor, loadProfile])
 
   let currentPageSection = 4
   if (listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.length)
@@ -104,6 +102,9 @@ const ApplicationTerms = () => {
           })
       })
       .catch((e) => {
+        // We need to have a valid user when submitting an application.
+        // If there session is no longer valid we should send them back to login
+        // This can happen either by auth token being too old or the user logged in a different session and voided this one
         console.error(e)
         setSessionVoided(true)
       })

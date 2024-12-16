@@ -103,7 +103,7 @@ const ApplicationTerms = () => {
       })
       .catch((e) => {
         // We need to have a valid user when submitting an application.
-        // If there session is no longer valid we should send them back to login
+        // If their session is no longer valid we should send them back to login
         // This can happen either by auth token being too old or the user logged in a different session and voided this one
         console.error(e)
         setSessionVoided(true)

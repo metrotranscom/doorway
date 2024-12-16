@@ -228,6 +228,12 @@ export const stagingSeed = async (
   const amiChart = await prismaClient.amiChart.create({
     data: amiChartFactory(10, jurisdiction.id),
   });
+  const NUM_AMI_CHARTS = 5;
+  for (let index = 0; index < NUM_AMI_CHARTS; index++) {
+    await prismaClient.amiChart.create({
+      data: amiChartFactory(8, additionalJurisdiction.id),
+    });
+  }
   await prismaClient.amiChart.create({
     data: amiChartFactory(8, additionalJurisdiction.id),
   });

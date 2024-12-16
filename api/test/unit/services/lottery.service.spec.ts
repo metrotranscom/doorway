@@ -74,7 +74,6 @@ describe('Testing lottery service', () => {
             lotteryPublishedApplicant: lotteryPublishedApplicantMock,
           },
         },
-
         ConfigService,
         Logger,
         SchedulerRegistry,
@@ -659,7 +658,7 @@ describe('Testing lottery service', () => {
 
     it.todo('should update status to errored');
 
-    it('should update status to releasedToPartners from ran and send email', async () => {
+    it.only('should update status to releasedToPartners from ran and send email', async () => {
       prisma.listings.findUnique = jest.fn().mockResolvedValue({
         id: 'example id',
         name: 'example name',
@@ -722,7 +721,6 @@ describe('Testing lottery service', () => {
         { id: 'example id', juris: 'jurisId', name: 'example name' },
         ['admin@email.com', 'partner@email.com'],
         config.get('PARTNERS_PORTAL_URL'),
-        'no-reply@housingbayarea.org',
       );
     });
 

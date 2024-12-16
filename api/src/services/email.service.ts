@@ -508,15 +508,18 @@ export class EmailService {
       `Sending request approval email for listing ${listingInfo.name} to ${emails.length} emails`,
     );
 
-    await this.sendBulkSES({
-      emails: emails,
-      subject: this.polyglot.t('requestApproval.header'),
-      html: this.template('request-approval')({
-        appOptions: { listingName: listingInfo.name },
-        appUrl: appUrl,
-        listingUrl: `${appUrl}/listings/${listingInfo.id}`,
-      }),
-    });
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('requestApproval.header'),
+        html: this.template('request-approval')({
+          appOptions: { listingName: listingInfo.name },
+          appUrl: appUrl,
+          listingUrl: `${appUrl}/listings/${listingInfo.id}`,
+        }),
+      },
+      'requestApproval',
+    );
   }
 
   public async changesRequested(
@@ -534,15 +537,18 @@ export class EmailService {
       `Sending changes requested email for listing ${listingInfo.name} to ${emails.length} emails`,
     );
 
-    await this.sendBulkSES({
-      emails: emails,
-      subject: this.polyglot.t('changesRequested.header'),
-      html: this.template('changes-requested')({
-        appOptions: { listingName: listingInfo.name },
-        appUrl: appUrl,
-        listingUrl: `${appUrl}/listings/${listingInfo.id}`,
-      }),
-    });
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('changesRequested.header'),
+        html: this.template('changes-requested')({
+          appOptions: { listingName: listingInfo.name },
+          appUrl: appUrl,
+          listingUrl: `${appUrl}/listings/${listingInfo.id}`,
+        }),
+      },
+      'changesRequested',
+    );
   }
 
   public async listingApproved(
@@ -777,23 +783,26 @@ export class EmailService {
       this.logger.log(
         `Sending lottery published ${language} email for listing ${listingInfo.name} to ${emails.length} emails`,
       );
-      await this.sendBulkSES({
-        emails: emails[language],
-        subject: this.polyglot.t('lotteryAvailable.header', {
-          listingName: listingInfo.name,
-        }),
-        html: this.template('lottery-published-applicant')({
-          appOptions: {
+      await this.sendBulkSES(
+        {
+          emails: emails[language],
+          subject: this.polyglot.t('lotteryAvailable.header', {
             listingName: listingInfo.name,
+          }),
+          html: this.template('lottery-published-applicant')({
+            appOptions: {
+              listingName: listingInfo.name,
+              appUrl: jurisdiction.publicUrl,
+            },
             appUrl: jurisdiction.publicUrl,
-          },
-          appUrl: jurisdiction.publicUrl,
-          termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
-          notificationsUrl:
-            'https://public.govdelivery.com/accounts/CAMTC/signup/36832',
-          helpCenterUrl: `${jurisdiction.publicUrl}/help/questions#how-do-lottery-results-work-section`,
-        }),
-      });
+            termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
+            notificationsUrl:
+              'https://public.govdelivery.com/accounts/CAMTC/signup/36832',
+            helpCenterUrl: `${jurisdiction.publicUrl}/help/questions#how-do-lottery-results-work-section`,
+          }),
+        },
+        'lotteryPublishedApplicant',
+      );
     }
   }
 
@@ -842,5 +851,12 @@ export class EmailService {
     senior55: 'Seniors 55+',
     senior62: 'Seniors 62+',
     specialNeeds: 'Special Needs',
+    developmentalDisability: 'Developmental Disability',
+    farmworkerHousing: 'Farmworker Housing',
+    housingVoucher: 'HCV/Section 8 Voucher',
+    senior: 'Seniors',
+    seniorVeterans: 'Senior Veteran',
+    veteran: 'Veteran',
+    schoolEmployee: 'School Employee',
   };
 }

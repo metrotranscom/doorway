@@ -57,7 +57,7 @@
     display: block;
     position: static;
     z-index: 1;
-    height: calc(100dvh - 370px);
+    height: calc(calc(100dvh - calc(100dvh / 2)) - 3rem);
     overflow-y: auto;
     background-color: var(--background-color);
   }

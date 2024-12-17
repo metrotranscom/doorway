@@ -30,10 +30,10 @@ const ApplicationTerms = () => {
   const [submitting, setSubmitting] = useState(false)
   const [sessionVoided, setSessionVoided] = useState(false)
 
-  const closeCallback = useCallback(() => {
-    conductor.reset()
-    loadProfile("/sign-in")
-  }, [conductor, loadProfile])
+  const closeCallback = useCallback(async () => {
+    await router.push("/sign-in")
+    void loadProfile()
+  }, [router, loadProfile])
 
   let currentPageSection = 4
   if (listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.length)

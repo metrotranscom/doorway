@@ -36,21 +36,11 @@ describe('User Controller Tests', () => {
 
   const mockSeSClient = mockClient(SESv2Client);
 
-  // const invitePartnerUserMock = jest.fn();
-  // const testEmailService = {
-  //   confirmation: jest.fn(),
-  //   welcome: jest.fn(),
-  //   invitePartnerUser: invitePartnerUserMock,
-  //   changeEmail: jest.fn(),
-  //   forgotPassword: jest.fn(),
-  //   sendMfaCode: jest.fn(),
-  // };
-
   beforeEach(() => {
     jest.resetAllMocks();
     mockSeSClient.reset();
     mockSeSClient.on(SendEmailCommand).resolves({
-      MessageId: 'morgan',
+      MessageId: randomUUID(),
       $metadata: {
         httpStatusCode: 200,
       },

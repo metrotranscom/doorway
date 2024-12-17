@@ -658,7 +658,7 @@ describe('Testing lottery service', () => {
 
     it.todo('should update status to errored');
 
-    it.only('should update status to releasedToPartners from ran and send email', async () => {
+    it('should update status to releasedToPartners from ran and send email', async () => {
       prisma.listings.findUnique = jest.fn().mockResolvedValue({
         id: 'example id',
         name: 'example name',

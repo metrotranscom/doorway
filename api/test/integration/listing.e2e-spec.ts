@@ -965,6 +965,11 @@ describe('Listing Controller Tests', () => {
           },
         },
       });
+      const emailEntries =
+        mockSeSClient.call(0).args[0].input['BulkEmailEntries'];
+      expect(emailEntries).not.toContain({
+        Destination: { ToAddresses: [wrongJurisAdmin.email] },
+      });
     });
 
     it('update status to listing approved and notify appropriate users', async () => {

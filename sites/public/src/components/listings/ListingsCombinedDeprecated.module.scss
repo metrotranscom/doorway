@@ -121,3 +121,10 @@
     margin-top: var(--seeds-s1);
   }
 }
+
+.listings-combined-deprecated {
+  @media (max-width: $screen-md) {
+    height: var(--listings-component-height-mobile);
+    max-height: var(--listings-component-height-mobile);
+  }
+}

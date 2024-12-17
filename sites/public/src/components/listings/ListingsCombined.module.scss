@@ -83,7 +83,7 @@
 
     @media (max-width: $screen-md) {
       display: block;
-      position: relative;
+      position: static;
       z-index: 1;
       overflow-y: auto;
       background-color: var(--background-color);

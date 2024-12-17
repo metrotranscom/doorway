@@ -702,8 +702,6 @@ describe('Lottery Controller Tests', () => {
       });
 
       expect(activityLogResult).not.toBeNull();
-
-      expect();
     });
   });
 

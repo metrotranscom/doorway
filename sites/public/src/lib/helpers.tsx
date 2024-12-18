@@ -290,3 +290,43 @@ export const getBoundsZoomLevel = (bounds: google.maps.LatLngBounds) => {
 
   return Math.min(latZoom, lngZoom, ZOOM_MAX)
 }
+
+export const isObject = (obj: any, key: string) => {
+  return (
+    obj[key] &&
+    typeof obj[key] === "object" &&
+    !Array.isArray(obj[key]) &&
+    !(Object.prototype.toString.call(obj[key]) === "[object Date]")
+  )
+}
+
+export const compareTypeEquality = (obj: any, compareObj: any): boolean => {
+  Object.keys(obj).forEach((key) => {
+    if (
+      obj[key] === null ||
+      obj[key] === undefined ||
+      compareObj[key] === null ||
+      compareObj[key] === undefined
+    )
+      return true
+    if (Object.prototype.toString.call(compareObj[key]) === "[object Date]") return true
+    if (isObject(obj, key) || typeof obj[key] === "object") {
+      if (key in compareObj && obj[key] !== null) {
+        return compareTypeEquality(obj[key], compareObj[key])
+      }
+    }
+
+    if (typeof obj[key] !== typeof compareObj[key]) {
+      // console.log(key)
+      // console.log(obj[key])
+      // console.log(typeof obj[key])
+      // console.log(compareObj[key])
+      // console.log(typeof compareObj[key])
+      // console.log("FALSE!")
+      return false
+    } else {
+      return true
+    }
+  })
+  return true
+}

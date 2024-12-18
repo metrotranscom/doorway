@@ -8,6 +8,7 @@ import {
   PageView,
   pushGtmEvent,
   AuthContext,
+  filledApplication,
 } from "@bloom-housing/shared-helpers"
 import FormsLayout from "../../../layouts/forms"
 import { useFormConductor } from "../../../lib/hooks"
@@ -18,6 +19,7 @@ import { Application } from "@bloom-housing/shared-helpers/src/types/backend-swa
 import ApplicationFormLayout from "../../../layouts/application-form"
 import { Button } from "@bloom-housing/ui-seeds"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
+import { compareTypeEquality } from "../../../lib/helpers"
 
 export default () => {
   const router = useRouter()
@@ -38,6 +40,7 @@ export default () => {
       // Necessary to avoid infinite rerenders
       setSubmitted(true)
       if (previousApplication && useDetails) {
+        //
         const withUpdatedLang = {
           ...JSON.parse(JSON.stringify(previousApplication)),
           language: router.locale,
@@ -73,9 +76,21 @@ export default () => {
             userId: profile.id,
           })
           .then((res) => {
-            if (res && res.applicant) {
+            console.log("compare type equality")
+            console.log({ res })
+            delete res.id
+            delete res.createdAt
+            delete res.updatedAt
+            delete res.deletedAt
+            delete res.submissionDate
+            delete res.receivedAt
+            delete res.receivedBy
+
+            if (res && res.applicant && compareTypeEquality(res, filledApplication)) {
+              console.log("passed")
               setPreviousApplication(new AutofillCleaner(res).clean())
             } else {
+              console.log("failed")
               onSubmit()
             }
           })

@@ -234,9 +234,6 @@ export const stagingSeed = async (
       data: amiChartFactory(8, additionalJurisdiction.id),
     });
   }
-  await prismaClient.amiChart.create({
-    data: amiChartFactory(8, additionalJurisdiction.id),
-  });
   // Create map layers
   await prismaClient.mapLayers.create({
     data: mapLayerFactory(jurisdiction.id, 'Redlined Districts', redlinedMap),

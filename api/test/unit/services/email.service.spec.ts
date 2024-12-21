@@ -483,17 +483,24 @@ describe('Testing email service', () => {
 
       const emailMock = govSendMock.mock.calls[0][0];
       expect(emailMock).toMatch(
-        'Rental opportunity at</span> <br />test listing',
-      );
-      expect(emailMock).toMatch('3200 Old Faithful Inn Rd');
-      expect(emailMock).toMatch('Applications Due');
-      expect(emailMock).toMatch(
-        dayjs(listing.applicationDueDate)
-          .tz(process.env.TIME_ZONE)
-          .format('MMMM D, YYYY [at] h:mma PST'),
+        '<span class="intro">Rental opportunity at</span> <br />test listing',
       );
       expect(emailMock).toMatch(
         'Please view listing for the most updated information',
+      );
+      expect(emailMock).toMatch(
+        /<td class="bold">\s*Applications Due\s*<\/td>/,
+      );
+      expect(emailMock).toMatch(
+        new RegExp(
+          `<td class="bold">\\s*${dayjs(listing.applicationDueDate)
+            .tz(process.env.TIME_ZONE)
+            .format('MMMM D, YYYY [at] h:mma PST')}\\s*</td>`,
+        ),
+      );
+      expect(emailMock).toMatch(/<td class="bold">\s*Address\s*<\/td>/);
+      expect(emailMock).toMatch(
+        /<td>\s*3200 Old Faithful Inn Rd, Yellowstone National Park WY 82190\s*<\/td>/,
       );
     });
   });

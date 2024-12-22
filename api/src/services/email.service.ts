@@ -199,10 +199,16 @@ export class EmailService {
       html: string;
       text?: string;
     },
-    useCase?: string,
+    useCase: string,
+    includeJurisdictionEmail = false,
   ) {
+    const siteEmail = this.configService.get('SITE_EMAIL');
+    const emailsToSendTo =
+      includeJurisdictionEmail && siteEmail
+        ? [siteEmail, ...mailOptions.emails]
+        : mailOptions.emails;
     const MAX_EMAIL_TO_SEND_IN_BULK = 50;
-    const emailsChunked = mailOptions.emails.reduce((all, one, i) => {
+    const emailsChunked = emailsToSendTo.reduce((all, one, i) => {
       const chunk = Math.floor(i / MAX_EMAIL_TO_SEND_IN_BULK);
       all[chunk] = [].concat(all[chunk] || [], one);
       return all;
@@ -564,14 +570,17 @@ export class EmailService {
       `Sending listing approved email for listing ${listingInfo.name} to ${emails.length} emails`,
     );
 
-    await this.sendBulkSES({
-      emails: emails,
-      subject: this.polyglot.t('listingApproved.header'),
-      html: this.template('listing-approved')({
-        appOptions: { listingName: listingInfo.name },
-        listingUrl: `${publicUrl}/listing/${listingInfo.id}`,
-      }),
-    });
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('listingApproved.header'),
+        html: this.template('listing-approved')({
+          appOptions: { listingName: listingInfo.name },
+          listingUrl: `${publicUrl}/listing/${listingInfo.id}`,
+        }),
+      },
+      'listingApproved',
+    );
   }
 
   public async listingOpportunity(listing: Listing) {
@@ -727,20 +736,28 @@ export class EmailService {
     emails: string[],
     appUrl: string,
   ) {
+    const jurisdiction = await this.getJurisdiction([
+      { id: listingInfo.juris },
+    ]);
+    void (await this.loadTranslations(jurisdiction));
     this.logger.log(
       `Sending lottery released email for listing ${listingInfo.name} to ${emails.length} emails`,
     );
-    await this.sendBulkSES({
-      emails: emails,
-      subject: this.polyglot.t('lotteryReleased.header', {
-        listingName: listingInfo.name,
-      }),
-      html: this.template('lottery-released')({
-        appOptions: { listingName: listingInfo.name },
-        appUrl: appUrl,
-        listingUrl: `${appUrl}/listings/${listingInfo.id}`,
-      }),
-    });
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('lotteryReleased.header', {
+          listingName: listingInfo.name,
+        }),
+        html: this.template('lottery-released')({
+          appOptions: { listingName: listingInfo.name },
+          appUrl: appUrl,
+          listingUrl: `${appUrl}/listings/${listingInfo.id}`,
+        }),
+      },
+      'lotteryReleased',
+      true,
+    );
   }
 
   public async lotteryPublishedAdmin(
@@ -755,15 +772,19 @@ export class EmailService {
     this.logger.log(
       `Sending lottery published admin email for listing ${listingInfo.name} to ${emails.length} emails`,
     );
-    await this.sendBulkSES({
-      emails: emails,
-      subject: this.polyglot.t('lotteryPublished.header', {
-        listingName: listingInfo.name,
-      }),
-      html: this.template('lottery-published-admin')({
-        appOptions: { listingName: listingInfo.name, appUrl: appUrl },
-      }),
-    });
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('lotteryPublished.header', {
+          listingName: listingInfo.name,
+        }),
+        html: this.template('lottery-published-admin')({
+          appOptions: { listingName: listingInfo.name, appUrl: appUrl },
+        }),
+      },
+      'lotteryPublishedAdmin',
+      true,
+    );
   }
 
   /**
@@ -802,6 +823,7 @@ export class EmailService {
           }),
         },
         'lotteryPublishedApplicant',
+        true,
       );
     }
   }

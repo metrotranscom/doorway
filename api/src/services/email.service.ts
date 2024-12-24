@@ -37,6 +37,8 @@ type listingInfo = {
   juris: string;
 };
 
+const SEND_FROM_EMAIL = 'Doorway <no-reply@housingbayarea.org>';
+
 @Injectable()
 export class EmailService {
   polyglot: Polyglot;
@@ -151,7 +153,7 @@ export class EmailService {
       html: string;
       text?: string;
     },
-    useCase?: string,
+    useCase: string,
   ) {
     if (Array.isArray(mailOptions.to) && mailOptions.to.length === 0) return;
     try {
@@ -159,7 +161,7 @@ export class EmailService {
         ? mailOptions.to
         : [mailOptions.to];
       const command = new aws.SendEmailCommand({
-        FromEmailAddress: 'Doorway <no-reply@housingbayarea.org>',
+        FromEmailAddress: SEND_FROM_EMAIL,
         Destination: { ToAddresses: toAddresses },
         Content: {
           Simple: {
@@ -182,7 +184,7 @@ export class EmailService {
       const response = await this.client.send(command);
       if (response.$metadata?.httpStatusCode !== 200) {
         this.logger.error(
-          `Email send fo ${useCase} email to ${mailOptions.to} did not return 200`,
+          `Email send for ${useCase} email to ${mailOptions.to} did not return 200`,
         );
       }
     } catch (e) {
@@ -216,7 +218,7 @@ export class EmailService {
     for (const emailList of emailsChunked) {
       try {
         const command = new aws.SendBulkEmailCommand({
-          FromEmailAddress: 'Doorway <no-reply@housingbayarea.org>',
+          FromEmailAddress: SEND_FROM_EMAIL,
           BulkEmailEntries: emailList.map((email) => {
             return {
               Destination: {
@@ -295,15 +297,18 @@ export class EmailService {
     const baseUrl = appUrl ? new URL(appUrl).origin : undefined;
     await this.loadTranslations(jurisdiction, user.language);
 
-    await this.sendSingleSES({
-      to: user.email,
-      subject: this.polyglot.t('register.welcome'),
-      html: this.template('register-email')({
-        user: user,
-        confirmationUrl: confirmationUrl,
-        appOptions: { appUrl: baseUrl },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('register.welcome'),
+        html: this.template('register-email')({
+          user: user,
+          confirmationUrl: confirmationUrl,
+          appOptions: { appUrl: baseUrl },
+        }),
+      },
+      'welcome',
+    );
   }
 
   /* Send invite email to partner users */
@@ -316,15 +321,18 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(jurisdictionIds);
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    await this.sendSingleSES({
-      to: user.email,
-      subject: this.polyglot.t('invite.hello'),
-      html: this.template('invite')({
-        user: user,
-        confirmationUrl: confirmationUrl,
-        appOptions: { appUrl },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('invite.hello'),
+        html: this.template('invite')({
+          user: user,
+          confirmationUrl: confirmationUrl,
+          appOptions: { appUrl },
+        }),
+      },
+      'invitePartnerUser',
+    );
   }
 
   /* send account update email */
@@ -336,14 +344,17 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(jurisdictionIds);
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    await this.sendSingleSES({
-      to: user.email,
-      subject: this.polyglot.t('invite.portalAccountUpdate'),
-      html: this.template('portal-account-update')({
-        user,
-        appUrl,
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('invite.portalAccountUpdate'),
+        html: this.template('portal-account-update')({
+          user,
+          appUrl,
+        }),
+      },
+      'portalAccountUpdate',
+    );
   }
 
   /* send change of email email */
@@ -357,15 +368,18 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(null, jurisdictionName);
     await this.loadTranslations(jurisdiction, user.language);
 
-    await this.sendSingleSES({
-      to: newEmail,
-      subject: 'Bloom email change request',
-      html: this.template('change-email')({
-        user: user,
-        confirmationUrl: confirmationUrl,
-        appOptions: { appUrl: appUrl },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: newEmail,
+        subject: 'Bloom email change request',
+        html: this.template('change-email')({
+          user: user,
+          confirmationUrl: confirmationUrl,
+          appOptions: { appUrl: appUrl },
+        }),
+      },
+      'changeEmail',
+    );
   }
 
   /* Send forgot password email */
@@ -399,15 +413,18 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(user.jurisdictions);
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    await this.sendSingleSES({
-      to: user.email,
-      subject: `${singleUseCode} is your secure Partners Portal account access token`,
-      text: 'Text version',
-      html: this.template('mfa-code')({
-        user: user,
-        mfaCodeOptions: { singleUseCode },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: `${singleUseCode} is your secure Partners Portal account access token`,
+        text: 'Text version',
+        html: this.template('mfa-code')({
+          user: user,
+          mfaCodeOptions: { singleUseCode },
+        }),
+      },
+      'sendMfaCode',
+    );
   }
 
   public async sendSingleUseCode(
@@ -421,18 +438,21 @@ export class EmailService {
     );
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    await this.sendSingleSES({
-      to: user.email,
-      subject: user.confirmedAt
-        ? `${singleUseCode} is your secure Doorway sign-in code`
-        : `${singleUseCode} is your secure Doorway verification code`,
-      html: this.template('single-use-code')({
-        user: user,
-        singleUseCodeOptions: {
-          singleUseCode,
-        },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: user.confirmedAt
+          ? `${singleUseCode} is your secure Doorway sign-in code`
+          : `${singleUseCode} is your secure Doorway verification code`,
+        html: this.template('single-use-code')({
+          user: user,
+          singleUseCodeOptions: {
+            singleUseCode,
+          },
+        }),
+      },
+      'sendSingleUseCode',
+    );
   }
 
   public async applicationConfirmation(
@@ -476,29 +496,32 @@ export class EmailService {
 
     const nextStepsUrl = this.polyglot.t('confirmation.nextStepsUrl');
 
-    await this.sendSingleSES({
-      to: application.applicant.emailAddress,
-      subject: this.polyglot.t('confirmation.subject'),
-      html: compiledTemplate({
+    await this.sendSingleSES(
+      {
+        to: application.applicant.emailAddress,
         subject: this.polyglot.t('confirmation.subject'),
-        header: {
-          logoTitle: this.polyglot.t('header.logoTitle'),
-          logoUrl: this.polyglot.t('header.logoUrl'),
-        },
-        listing,
-        listingUrl,
-        application,
-        preferenceText,
-        interviewText: this.polyglot.t('confirmation.interview'),
-        eligibleText,
-        duplicateText,
-        termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
-        contactText,
-        nextStepsUrl:
-          nextStepsUrl != 'confirmation.nextStepsUrl' ? nextStepsUrl : null,
-        user,
-      }),
-    });
+        html: compiledTemplate({
+          subject: this.polyglot.t('confirmation.subject'),
+          header: {
+            logoTitle: this.polyglot.t('header.logoTitle'),
+            logoUrl: this.polyglot.t('header.logoUrl'),
+          },
+          listing,
+          listingUrl,
+          application,
+          preferenceText,
+          interviewText: this.polyglot.t('confirmation.interview'),
+          eligibleText,
+          duplicateText,
+          termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
+          contactText,
+          nextStepsUrl:
+            nextStepsUrl != 'confirmation.nextStepsUrl' ? nextStepsUrl : null,
+          user,
+        }),
+      },
+      'applicationConfirmation',
+    );
   }
 
   public async requestApproval(
@@ -802,7 +825,7 @@ export class EmailService {
     for (const language in emails) {
       void (await this.loadTranslations(null, language as LanguagesEnum));
       this.logger.log(
-        `Sending lottery published ${language} email for listing ${listingInfo.name} to ${emails.length} emails`,
+        `Sending lottery published ${language} email for listing ${listingInfo.name} to ${emails[language]?.length} emails`,
       );
       await this.sendBulkSES(
         {

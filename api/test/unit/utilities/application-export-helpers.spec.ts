@@ -278,8 +278,8 @@ describe('Testing application export helpers', () => {
     });
 
     it('tests convertDemographicRaceToReadable with valid type and empty custom value', () => {
-      expect(convertDemographicRaceToReadable('otherMultiracial')).toBe(
-        'Other / Multiracial',
+      expect(convertDemographicRaceToReadable('black-otherBlack')).toBe(
+        'Black[Other Black]',
       );
     });
 

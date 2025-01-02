@@ -148,21 +148,17 @@ export class EmailService {
 
   public async sendSingleSES(
     mailOptions: {
-      to: string | string[];
+      to: string;
       subject: string;
       html: string;
       text?: string;
     },
     useCase: string,
   ) {
-    if (Array.isArray(mailOptions.to) && mailOptions.to.length === 0) return;
     try {
-      const toAddresses = Array.isArray(mailOptions.to)
-        ? mailOptions.to
-        : [mailOptions.to];
       const command = new aws.SendEmailCommand({
         FromEmailAddress: SEND_FROM_EMAIL,
-        Destination: { ToAddresses: toAddresses },
+        Destination: { ToAddresses: [mailOptions.to] },
         Content: {
           Simple: {
             Subject: {
@@ -417,7 +413,7 @@ export class EmailService {
       {
         to: user.email,
         subject: `${singleUseCode} is your secure Partners Portal account access token`,
-        text: 'Text version',
+        text: `${singleUseCode} is your secure Partners Portal account access token`,
         html: this.template('mfa-code')({
           user: user,
           mfaCodeOptions: { singleUseCode },

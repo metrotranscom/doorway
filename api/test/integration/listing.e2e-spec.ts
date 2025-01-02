@@ -1,3 +1,8 @@
+import {
+  SendBulkEmailCommand,
+  SendEmailCommand,
+  SESv2Client,
+} from '@aws-sdk/client-sesv2';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import {
@@ -11,6 +16,8 @@ import {
   UnitTypeEnum,
   UserRoleEnum,
 } from '@prisma/client';
+import { mockClient } from 'aws-sdk-client-mock';
+import 'aws-sdk-client-mock-jest';
 import { randomUUID } from 'crypto';
 import { stringify } from 'qs';
 import request from 'supertest';
@@ -46,13 +53,6 @@ import { addressFactory } from '../../prisma/seed-helpers/address-factory';
 import { AddressCreate } from '../../src/dtos/addresses/address-create.dto';
 import { EmailService } from '../../src/services/email.service';
 import { userFactory } from '../../prisma/seed-helpers/user-factory';
-import {
-  SendBulkEmailCommand,
-  SendEmailCommand,
-  SESv2Client,
-} from '@aws-sdk/client-sesv2';
-import { mockClient } from 'aws-sdk-client-mock';
-import 'aws-sdk-client-mock-jest';
 
 describe('Listing Controller Tests', () => {
   let app: INestApplication;

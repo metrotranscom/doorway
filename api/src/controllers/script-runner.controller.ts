@@ -262,4 +262,16 @@ export class ScirptRunnerController {
       req,
     );
   }
+
+  @Put('removeEmptyRaceInputs')
+  @ApiOperation({
+    summary: 'A script that removes empty race inputs',
+    operationId: 'removeEmptyRaceInputs',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async removeEmptyRaceInputs(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.removeEmptyRaceInputs(req);
+  }
 }

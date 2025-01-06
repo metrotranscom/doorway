@@ -1592,7 +1592,7 @@ export class ScriptRunnerService {
       return cleanedArr;
     }, []);
 
-    cleanedDemoData?.forEach(async (cleanedDemo) => {
+    cleanedDemoData.forEach(async (cleanedDemo) => {
       await this.prisma.demographics.update({
         where: {
           id: cleanedDemo.id,

@@ -2500,13 +2500,12 @@ export class ScriptRunnerService {
       axios(configs, resolve, reject)
     })
   }
-
   /**
-   * A script that updates household member relationships
+   * A script that adds existing feature flags into the feature flag table
    */
-  updatedHouseholdMemberRelationships(options: IRequestOptions = {}): Promise<SuccessDTO> {
+  addFeatureFlags(options: IRequestOptions = {}): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
-      let url = basePath + "/scriptRunner/updatedHouseholdMemberRelationships"
+      let url = basePath + "/scriptRunner/addFeatureFlags"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
@@ -2517,15 +2516,12 @@ export class ScriptRunnerService {
       axios(configs, resolve, reject)
     })
   }
-}
-
-export class LotteryService {
   /**
-   * A script that adds existing feature flags into the feature flag table
+   * A script that updates household member relationships
    */
-  addFeatureFlags(options: IRequestOptions = {}): Promise<SuccessDTO> {
+  updatedHouseholdMemberRelationships(options: IRequestOptions = {}): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
-      let url = basePath + "/scriptRunner/addFeatureFlags"
+      let url = basePath + "/scriptRunner/updatedHouseholdMemberRelationships"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 

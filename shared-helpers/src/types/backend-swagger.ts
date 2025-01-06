@@ -155,120 +155,15 @@ export class ListingsService {
    */
   list(
     params: {
-      /**  */
-      page?: number
-      /**  */
-      limit?: number | "all"
-      /**  */
-      $comparison: string
-      /**  */
-      name?: string
-      /**  */
-      status?: ListingsStatusEnum
-      /**  */
-      neighborhood?: string
-      /**  */
-      bedrooms?: number
-      /**  */
-      bathrooms?: number
-      /**  */
-      zipcode?: string
-      /**  */
-      leasingAgents?: string
-      /**  */
-      jurisdiction?: string
-      /**  */
-      isExternal?: boolean
-      /**  */
-      availability?: FilterAvailabilityEnum
-      /**  */
-      city?: string
-      /**  */
-      monthlyRent?: number
-      /**  */
-      counties?: []
-      /**  */
-      ids?: []
-      /**  */
-      view?: ListingViews
-      /**  */
-      orderBy?: ListingOrderByKeys[]
-      /**  */
-      orderDir?: OrderByEnum[]
-      /**  */
-      search?: string
+      /** requestBody */
+      body?: ListingsQueryParams
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<PaginatedListing> {
     return new Promise((resolve, reject) => {
-      let url = basePath + "/listings"
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-      configs.params = {
-        page: params["page"],
-        limit: params["limit"],
-        $comparison: params["$comparison"],
-        name: params["name"],
-        status: params["status"],
-        neighborhood: params["neighborhood"],
-        bedrooms: params["bedrooms"],
-        bathrooms: params["bathrooms"],
-        zipcode: params["zipcode"],
-        leasingAgents: params["leasingAgents"],
-        jurisdiction: params["jurisdiction"],
-        isExternal: params["isExternal"],
-        availability: params["availability"],
-        city: params["city"],
-        monthlyRent: params["monthlyRent"],
-        counties: params["counties"],
-        ids: params["ids"],
-        view: params["view"],
-        orderBy: params["orderBy"],
-        orderDir: params["orderDir"],
-        search: params["search"],
-      }
-
-      /** 适配ios13，get请求不允许带body */
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Create listing
-   */
-  create(
-    params: {
-      /** requestBody */
-      body?: ListingCreate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<Listing> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings"
+      let url = basePath + "/listings/list"
 
       const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Delete listing by id
-   */
-  delete(
-    params: {
-      /** requestBody */
-      body?: IdDTO
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/listings"
-
-      const configs: IRequestConfig = getConfigs("delete", "application/json", url, options)
 
       let data = params.body
 
@@ -351,6 +246,8 @@ export class ListingsService {
       id: string
       /**  */
       view?: ListingViews
+      /**  */
+      combined?: boolean
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<string> {
@@ -359,9 +256,53 @@ export class ListingsService {
       url = url.replace("{id}", params["id"] + "")
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-      configs.params = { view: params["view"] }
+      configs.params = { view: params["view"], combined: params["combined"] }
 
       /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Create listing
+   */
+  create(
+    params: {
+      /** requestBody */
+      body?: ListingCreate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<Listing> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings"
+
+      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Delete listing by id
+   */
+  delete(
+    params: {
+      /** requestBody */
+      body?: IdDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/listings"
+
+      const configs: IRequestConfig = getConfigs("delete", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
 
       axios(configs, resolve, reject)
     })
@@ -438,6 +379,8 @@ export class ListingsService {
       id: string
       /**  */
       view?: ListingViews
+      /**  */
+      combined?: boolean
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<Listing> {
@@ -446,7 +389,7 @@ export class ListingsService {
       url = url.replace("{id}", params["id"] + "")
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-      configs.params = { view: params["view"] }
+      configs.params = { view: params["view"], combined: params["combined"] }
 
       /** 适配ios13，get请求不允许带body */
 
@@ -2557,6 +2500,26 @@ export class ScriptRunnerService {
       axios(configs, resolve, reject)
     })
   }
+
+  /**
+   * A script that updates household member relationships
+   */
+  updatedHouseholdMemberRelationships(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/updatedHouseholdMemberRelationships"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+}
+
+export class LotteryService {
   /**
    * A script that adds existing feature flags into the feature flag table
    */
@@ -2950,6 +2913,9 @@ export interface ListingsQueryParams {
 export interface ListingsRetrieveParams {
   /**  */
   view?: ListingViews
+
+  /**  */
+  combined?: boolean
 }
 
 export interface PaginationAllowsAllQueryParams {
@@ -3889,6 +3855,15 @@ export interface Listing {
 
   /**  */
   applicationLotteryTotals: ApplicationLotteryTotal[]
+
+  /**  */
+  includeCommunityDisclaimer?: boolean
+
+  /**  */
+  communityDisclaimerTitle?: string
+
+  /**  */
+  communityDisclaimerDescription?: string
 }
 
 export interface PaginationMeta {
@@ -4355,6 +4330,15 @@ export interface ListingCreate {
   lotteryOptIn?: boolean
 
   /**  */
+  includeCommunityDisclaimer?: boolean
+
+  /**  */
+  communityDisclaimerTitle?: string
+
+  /**  */
+  communityDisclaimerDescription?: string
+
+  /**  */
   listingMultiselectQuestions?: IdDTO[]
 
   /**  */
@@ -4630,6 +4614,15 @@ export interface ListingUpdate {
 
   /**  */
   lotteryOptIn?: boolean
+
+  /**  */
+  includeCommunityDisclaimer?: boolean
+
+  /**  */
+  communityDisclaimerTitle?: string
+
+  /**  */
+  communityDisclaimerDescription?: string
 
   /**  */
   listingMultiselectQuestions?: IdDTO[]

@@ -403,6 +403,12 @@ export class ListingService implements OnModuleInit {
         jurisdictions: { some: { id: jurisId } },
       });
     }
+    if (userRoles.includes(UserRoleEnum.limitedJurisdictionAdmin)) {
+      userRolesWhere.push({
+        userRoles: { isLimitedJurisdictionalAdmin: true },
+        jurisdictions: { some: { id: jurisId } },
+      });
+    }
 
     const rawUsers = await this.prisma.userAccounts.findMany({
       select: {
@@ -445,7 +451,10 @@ export class ListingService implements OnModuleInit {
     previousStatus?: ListingsStatusEnum;
     jurisId: string;
   }) {
-    const nonApprovingRoles: UserRoleEnum[] = [UserRoleEnum.partner];
+    const nonApprovingRoles: UserRoleEnum[] = [
+      UserRoleEnum.limitedJurisdictionAdmin,
+      UserRoleEnum.partner,
+    ];
     if (!params.approvingRoles.includes(UserRoleEnum.jurisdictionAdmin))
       nonApprovingRoles.push(UserRoleEnum.jurisdictionAdmin);
     if (
@@ -650,8 +659,11 @@ export class ListingService implements OnModuleInit {
     listingId: string,
     lang: LanguagesEnum = LanguagesEnum.en,
     view: ListingViews = ListingViews.full,
+    combined?: boolean,
   ): Promise<Listing> {
-    const listingRaw = await this.findOrThrow(listingId, view);
+    const listingRaw = combined
+      ? await this.findOrThrowCombined(listingId)
+      : await this.findOrThrow(listingId, view);
 
     let result = mapTo(Listing, listingRaw);
 
@@ -1305,6 +1317,21 @@ export class ListingService implements OnModuleInit {
   async findOrThrow(id: string, view?: ListingViews) {
     const listing = await this.prisma.listings.findUnique({
       include: view ? views[view] : undefined,
+      where: {
+        id,
+      },
+    });
+
+    if (!listing) {
+      throw new NotFoundException(
+        `listingId ${id} was requested but not found`,
+      );
+    }
+    return listing;
+  }
+
+  async findOrThrowCombined(id: string) {
+    const listing = await this.prisma.combinedListings.findUnique({
       where: {
         id,
       },

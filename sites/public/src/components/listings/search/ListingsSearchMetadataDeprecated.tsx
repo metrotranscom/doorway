@@ -1,9 +1,9 @@
 import React from "react"
-import { MapIcon, ListBulletIcon, FunnelIcon } from "@heroicons/react/24/solid"
+import { FunnelIcon } from "@heroicons/react/24/solid"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { t } from "@bloom-housing/ui-components"
 import { Button, Icon } from "@bloom-housing/ui-seeds"
-import styles from "./ListingsSearch.module.scss"
+import styles from "./ListingsSearchDeprecated.module.scss"
 
 export interface ListingsSearchMetadataProps {
   loading: boolean
@@ -15,40 +15,32 @@ export interface ListingsSearchMetadataProps {
     lastPage: number
     totalItems: number
   }
-  setListView: React.Dispatch<React.SetStateAction<boolean>>
-  listView: boolean
 }
 
 export const ListingsSearchMetadata = ({
   setModalOpen,
   filterCount,
   searchResults,
-  setListView,
-  listView,
 }: ListingsSearchMetadataProps) => {
   return (
     <section role="contentinfo" aria-label="Listing filter bar">
       <div className={`${styles["search-filter-bar"]} ${styles["search-switch-container"]}`}>
         <>
-          <Button
-            size={"sm"}
-            onClick={() => setListView(!listView)}
-            variant="primary-outlined"
-            className={`results-bar-button ${styles["switch-view-button"]}`}
-            leadIcon={
-              listView ? (
-                <Icon>
-                  <MapIcon />
-                </Icon>
-              ) : (
-                <Icon>
-                  <ListBulletIcon />
-                </Icon>
-              )
-            }
-          >
-            {listView ? t("t.mapMapView") : t("t.mapListView")}
-          </Button>
+          <div className={`${styles["total-results-mobile"]}`}>
+            <span className={`${styles["search-total-results"]}`} data-testid={"map-total-results"}>
+              <strong>{t("search.totalResults")}</strong> {searchResults.totalItems}
+            </span>
+            {searchResults.lastPage > 0 && (
+              <span data-testid={"map-pagination"}>
+                (
+                {t("t.pageXofY", {
+                  current: searchResults.currentPage,
+                  total: searchResults.lastPage,
+                })}
+                )
+              </span>
+            )}
+          </div>
           <Button
             variant="primary-outlined"
             size="sm"
@@ -66,7 +58,7 @@ export const ListingsSearchMetadata = ({
           </Button>
         </>
       </div>
-      <div className={`${styles["search-filter-bar"]}`}>
+      <div className={`${styles["search-filter-bar"]} ${styles["search-filter-bar-mobile"]}`}>
         <div className={`${styles["total-results"]}`}>
           <span className={`${styles["search-total-results"]}`} data-testid={"map-total-results"}>
             <strong>{t("search.totalResults")}</strong> {searchResults.totalItems}

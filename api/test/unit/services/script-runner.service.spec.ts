@@ -12,10 +12,12 @@ import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
 import { Request as ExpressRequest } from 'express';
 import { mockDeep } from 'jest-mock-extended';
-import { ScriptRunnerService } from '../../../src/services/script-runner.service';
-import { PrismaService } from '../../../src/services/prisma.service';
 import { User } from '../../../src/dtos/users/user.dto';
 import { AmiChartService } from '../../../src/services/ami-chart.service';
+import { FeatureFlagService } from '../../../src/services/feature-flag.service';
+import { JurisdictionService } from '../../../src/services/jurisdiction.service';
+import { PrismaService } from '../../../src/services/prisma.service';
+import { ScriptRunnerService } from '../../../src/services/script-runner.service';
 
 const externalPrismaClient = mockDeep<PrismaClient>();
 
@@ -24,7 +26,13 @@ describe('Testing script runner service', () => {
   let prisma: PrismaService;
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ScriptRunnerService, PrismaService, AmiChartService],
+      providers: [
+        ScriptRunnerService,
+        PrismaService,
+        AmiChartService,
+        FeatureFlagService,
+        JurisdictionService,
+      ],
     }).compile();
 
     service = module.get<ScriptRunnerService>(ScriptRunnerService);
@@ -1922,6 +1930,45 @@ describe('Testing script runner service', () => {
     });
   });
 
+  it('should update household member relationships', async () => {
+    const id = randomUUID();
+    const scriptName = 'update household member relationships';
+
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.householdMember.updateMany = jest.fn().mockResolvedValue(null);
+
+    const res = await service.updateHouseholdMemberRelationships({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+  });
+
   it('should remove all working addresses', async () => {
     const id = randomUUID();
     const scriptName = 'remove work addresses';
@@ -1943,6 +1990,7 @@ describe('Testing script runner service', () => {
         id,
       } as unknown as User,
     } as unknown as ExpressRequest);
+
     expect(res.success).toEqual(true);
 
     expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
@@ -2018,6 +2066,46 @@ describe('Testing script runner service', () => {
       },
     });
     expect(prisma.address.deleteMany).toHaveBeenCalledTimes(2);
+  });
+
+  it('should create 16 feature flags', async () => {
+    const id = randomUUID();
+    const scriptName = 'add feature flags';
+
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.featureFlags.create = jest.fn().mockResolvedValue({ id: 'new id' });
+
+    const res = await service.addFeatureFlags({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.featureFlags.create).toHaveBeenCalledTimes(16);
   });
 
   // | ---------- HELPER TESTS BELOW ---------- | //

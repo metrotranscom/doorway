@@ -2516,6 +2516,164 @@ export class ScriptRunnerService {
       axios(configs, resolve, reject)
     })
   }
+  /**
+   * A script that adds existing feature flags into the feature flag table
+   */
+  addFeatureFlags(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/addFeatureFlags"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that updates household member relationships
+   */
+  updatedHouseholdMemberRelationships(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/updatedHouseholdMemberRelationships"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+}
+
+export class FeatureFlagsService {
+  /**
+   * List of feature flags
+   */
+  list(options: IRequestOptions = {}): Promise<FeatureFlag[]> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/featureFlags"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Create a feature flag
+   */
+  create(
+    params: {
+      /** requestBody */
+      body?: FeatureFlagCreate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<FeatureFlag> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/featureFlags"
+
+      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Update a feature flag
+   */
+  update(
+    params: {
+      /** requestBody */
+      body?: FeatureFlagUpdate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<FeatureFlag> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/featureFlags"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Delete a feature flag by id
+   */
+  delete(
+    params: {
+      /** requestBody */
+      body?: IdDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/featureFlags"
+
+      const configs: IRequestConfig = getConfigs("delete", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Associate and disassociate jurisdictions with a feature flag
+   */
+  associateJurisdictions(
+    params: {
+      /** requestBody */
+      body?: FeatureFlagAssociate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<FeatureFlag> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/featureFlags/associateJurisdictions"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Get a feature flag by id
+   */
+  retrieve(
+    params: {
+      /**  */
+      featureFlagId: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<FeatureFlag> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/featureFlags/{featureFlagId}"
+      url = url.replace("{featureFlagId}", params["featureFlagId"] + "")
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
 }
 
 export class LotteryService {
@@ -2679,132 +2837,6 @@ export class LotteryService {
     return new Promise((resolve, reject) => {
       let url = basePath + "/lottery/lotteryTotals/{id}"
       url = url.replace("{id}", params["id"] + "")
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-
-      /** 适配ios13，get请求不允许带body */
-
-      axios(configs, resolve, reject)
-    })
-  }
-}
-
-export class FeatureFlagsService {
-  /**
-   * List of feature flags
-   */
-  list(options: IRequestOptions = {}): Promise<FeatureFlag[]> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/featureFlags"
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-
-      /** 适配ios13，get请求不允许带body */
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Create a feature flag
-   */
-  create(
-    params: {
-      /** requestBody */
-      body?: FeatureFlagCreate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<FeatureFlag> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/featureFlags"
-
-      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Update a feature flag
-   */
-  update(
-    params: {
-      /** requestBody */
-      body?: FeatureFlagUpdate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<FeatureFlag> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/featureFlags"
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Delete a feature flag by id
-   */
-  delete(
-    params: {
-      /** requestBody */
-      body?: IdDTO
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<SuccessDTO> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/featureFlags"
-
-      const configs: IRequestConfig = getConfigs("delete", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Associate and disassociate jurisdictions with a feature flag
-   */
-  associateJurisdictions(
-    params: {
-      /** requestBody */
-      body?: FeatureFlagAssociate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<FeatureFlag> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/featureFlags/associateJurisdictions"
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Get a feature flag by id
-   */
-  retrieve(
-    params: {
-      /**  */
-      featureFlagId: string
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<FeatureFlag> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/featureFlags/{featureFlagId}"
-      url = url.replace("{featureFlagId}", params["featureFlagId"] + "")
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
 
@@ -3835,6 +3867,15 @@ export interface Listing {
 
   /**  */
   applicationLotteryTotals: ApplicationLotteryTotal[]
+
+  /**  */
+  includeCommunityDisclaimer?: boolean
+
+  /**  */
+  communityDisclaimerTitle?: string
+
+  /**  */
+  communityDisclaimerDescription?: string
 }
 
 export interface PaginationMeta {
@@ -4301,6 +4342,15 @@ export interface ListingCreate {
   lotteryOptIn?: boolean
 
   /**  */
+  includeCommunityDisclaimer?: boolean
+
+  /**  */
+  communityDisclaimerTitle?: string
+
+  /**  */
+  communityDisclaimerDescription?: string
+
+  /**  */
   listingMultiselectQuestions?: IdDTO[]
 
   /**  */
@@ -4576,6 +4626,15 @@ export interface ListingUpdate {
 
   /**  */
   lotteryOptIn?: boolean
+
+  /**  */
+  includeCommunityDisclaimer?: boolean
+
+  /**  */
+  communityDisclaimerTitle?: string
+
+  /**  */
+  communityDisclaimerDescription?: string
 
   /**  */
   listingMultiselectQuestions?: IdDTO[]
@@ -6385,6 +6444,39 @@ export interface CommunityTypeDTO {
   description?: string
 }
 
+export interface FeatureFlagAssociate {
+  /**  */
+  id: string
+
+  /**  */
+  associate: string[]
+
+  /**  */
+  remove: string[]
+}
+
+export interface FeatureFlagCreate {
+  /**  */
+  name: string
+
+  /**  */
+  description: string
+
+  /**  */
+  active: boolean
+}
+
+export interface FeatureFlagUpdate {
+  /**  */
+  id: string
+
+  /**  */
+  description: string
+
+  /**  */
+  active: boolean
+}
+
 export interface ApplicationCsvQueryParams {
   /**  */
   id: string
@@ -6429,42 +6521,6 @@ export interface PublicLotteryTotal {
 
   /**  */
   multiselectQuestionId?: string
-}
-
-export interface FeatureFlagAssociate {
-  /**  */
-  id: string
-
-  /**  */
-  associate: string[]
-
-  /**  */
-  remove: string[]
-}
-
-export interface FeatureFlagCreate {
-  /**  */
-  name: string
-
-  /**  */
-  description: string
-
-  /**  */
-  active: boolean
-}
-
-export interface FeatureFlagUpdate {
-  /**  */
-  id: string
-
-  /**  */
-  name: string
-
-  /**  */
-  description: string
-
-  /**  */
-  active: boolean
 }
 
 export enum ListingsStatusEnum {

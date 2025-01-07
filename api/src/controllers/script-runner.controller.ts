@@ -263,4 +263,29 @@ export class ScirptRunnerController {
       req,
     );
   }
+
+  @Put('addFeatureFlags')
+  @ApiOperation({
+    summary:
+      'A script that adds existing feature flags into the feature flag table',
+    operationId: 'addFeatureFlags',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async addFeatureFlags(@Request() req: ExpressRequest): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.addFeatureFlags(req);
+  }
+
+  @Put('updatedHouseholdMemberRelationships')
+  @ApiOperation({
+    summary: 'A script that updates household member relationships',
+    operationId: 'updatedHouseholdMemberRelationships',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async updatedHouseholdMemberRelationships(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.updateHouseholdMemberRelationships(
+      req,
+    );
+  }
 }

@@ -495,7 +495,7 @@ describe('Testing email service', () => {
         new RegExp(
           `<td class="bold">\\s*${dayjs(listing.applicationDueDate)
             .tz(process.env.TIME_ZONE)
-            .format('MMMM D, YYYY [at] h:mma PST')}\\s*</td>`,
+            .format('MMMM D, YYYY [at] h:mma z')}\\s*</td>`,
         ),
       );
       expect(emailMock).toMatch(/<td class="bold">\s*Address\s*<\/td>/);

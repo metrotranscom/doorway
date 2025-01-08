@@ -26,7 +26,9 @@ import {
 } from '@aws-sdk/client-sesv2';
 import 'aws-sdk-client-mock-jest';
 import { randomUUID } from 'crypto';
+import dayjs from 'dayjs';
 
+let govSendMock;
 const translationServiceMock = {
   getMergedTranslations: () => {
     return translationFactory().translations;
@@ -87,7 +89,9 @@ describe('Testing email service', () => {
         httpStatusCode: 200,
       },
     });
+    govSendMock = jest.fn();
     service = await module.resolve(EmailService);
+    service.govSend = govSendMock;
   });
 
   const user = {
@@ -169,18 +173,30 @@ describe('Testing email service', () => {
       Content: {
         Simple: {
           Subject: {
-            Data: 'Bloom email change request',
+            Data: 'Doorway email change request',
           },
           Body: {
             Html: {
-              Data: expect.stringMatching(
-                'An email address change has been requested for your account(\n|.)*To confirm the change to your email address, please click the link below:(\n|.)*<a href="http://localhost:3001/confirmation">Confirm email change</a>',
-              ),
+              Data: expect.anything(),
             },
           },
         },
       },
     });
+
+    const html =
+      mockSeSClient.call(0).args[0].input['Content']['Simple']['Body']['Html'][
+        'Data'
+      ];
+    expect(html).toContain(
+      'An email address change has been requested for your account.',
+    );
+    expect(html).toContain(
+      'To confirm the change to your email address, please click the link below:',
+    );
+    expect(html).toContain(
+      '<a href="http://localhost:3001/confirmation">Confirm email change</a>',
+    );
   });
 
   it('testing forgot password', async () => {

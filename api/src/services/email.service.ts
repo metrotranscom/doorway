@@ -681,11 +681,19 @@ export class EmailService {
         (event) => event.type === ListingEventsTypeEnum.publicLottery,
       );
       if (lotteryEvent && lotteryEvent.startDate) {
+        let lotteryDateTime = dayjs(lotteryEvent.startDate)
+          .tz(process.env.TIME_ZONE)
+          .format('MMMM D, YYYY');
+        if (lotteryEvent.startTime) {
+          lotteryDateTime =
+            lotteryDateTime +
+            `at ${dayjs(lotteryEvent.startTime)
+              .tz(process.env.TIME_ZONE)
+              .format('h:mma z')}`;
+        }
         tableRows.push({
           label: this.polyglot.t('rentalOpportunity.lottery'),
-          value: dayjs(lotteryEvent.startDate)
-            .tz(process.env.TIME_ZONE)
-            .format('MMMM D, YYYY [at] h:mma z'),
+          value: lotteryDateTime,
         });
       }
     }

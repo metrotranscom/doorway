@@ -374,20 +374,7 @@ export const constructMultiselectQuestionHeaders = (
             path: `${applicationSection}.${question.text}.address`,
             label: `${labelString} ${question.text} - ${option.text} - Address`,
             format: (val: ApplicationMultiselectQuestion): string => {
-              console.log(
-                `${labelString} ${question.text} - ${option.text} - Address`,
-                val,
-              );
-              const formatted = multiselectQuestionFormat(
-                val,
-                option.text,
-                'address',
-              );
-              console.log(
-                `${applicationSection}.${question.text}.address formatted`,
-                formatted,
-              );
-              return formatted;
+              return multiselectQuestionFormat(val, option.text, 'address');
             },
           });
           if (option.validationMethod) {
@@ -456,9 +443,7 @@ export const multiselectQuestionFormat = (
     return '';
   }
   if (key === 'address') {
-    const address = addressToString(extraData.value as Address);
-    console.log('address', address);
-    return address;
+    return addressToString(extraData.value as Address);
   }
   if (key === 'geocodingVerified') {
     return extraData.value === 'unknown'

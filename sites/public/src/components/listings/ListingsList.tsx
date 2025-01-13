@@ -1,9 +1,10 @@
 import * as React from "react"
-import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import { Heading } from "@bloom-housing/ui-seeds"
+import { useMap } from "@vis.gl/react-google-maps"
+import { Listing, ListingMapMarker } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { Heading, Button } from "@bloom-housing/ui-seeds"
 import { ZeroListingsItem } from "@bloom-housing/doorway-ui-components"
 import { LoadingOverlay, t, InfoCard, LinkButton } from "@bloom-housing/ui-components"
-import { getListings } from "../../lib/helpers"
+import { getBoundsZoomLevel, getListings } from "../../lib/helpers"
 import { Pagination } from "./Pagination"
 import styles from "./ListingsCombined.module.scss"
 
@@ -13,9 +14,14 @@ type ListingsListProps = {
   lastPage: number
   onPageChange: (page: number) => void
   loading: boolean
+  mapMarkers: ListingMapMarker[] | null
 }
 
 const ListingsList = (props: ListingsListProps) => {
+  const map = useMap()
+
+  if (!map) return null
+
   const listingsDiv = (
     <div id="listingsList">
       <Heading className={"sr-only"} priority={2}>
@@ -25,7 +31,28 @@ const ListingsList = (props: ListingsListProps) => {
         <div className={styles["listings-list-container"]}>{getListings(props.listings)}</div>
       ) : (
         <ZeroListingsItem title={t("t.noMatchingListings")} description={t("t.tryRemovingFilters")}>
-          {/* <Button>{t("t.clearAllFilters")}</Button> */}
+          {props.mapMarkers.length > 0 && (
+            <Button
+              onClick={() => {
+                const bounds = new window.google.maps.LatLngBounds()
+
+                if (!map) return
+                props.mapMarkers?.map((marker) => {
+                  bounds.extend({
+                    lat: marker.lat,
+                    lng: marker.lng,
+                  })
+                })
+                map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
+                if (props.mapMarkers.length === 1) {
+                  const zoomLevel = getBoundsZoomLevel(bounds)
+                  map.setZoom(zoomLevel - 7)
+                }
+              }}
+            >
+              Zoom out to more listings
+            </Button>
+          )}
         </ZeroListingsItem>
       )}
     </div>

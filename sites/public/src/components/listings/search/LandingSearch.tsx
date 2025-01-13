@@ -49,7 +49,6 @@ export function LandingSearch(props: LandingSearchProps) {
   const [openCountyMapModal, setOpenCountyMapModal] = useState(false)
 
   const createListingsUrl = (formValues: ListingSearchParams) => {
-    console.log(formValues)
     const searchUrl = buildSearchString(formValues)
     return "/listings?search=" + searchUrl
   }
@@ -60,7 +59,7 @@ export function LandingSearch(props: LandingSearchProps) {
     Object.assign(newValues, formValues)
     newValues[name] = value
     setFormValues(newValues)
-    console.log(`${name} has been set to ${value}`) // uncomment to debug
+    // console.log(`${name} has been set to ${value}`) // uncomment to debug
   }
 
   const updateValueMulti = (name: string, labels: string[]) => {

@@ -295,8 +295,6 @@ export class ListingService implements OnModuleInit {
 
         if (filter[ListingFilterKeys.name]) {
           const comparison = filter['$comparison'];
-          //remove most special characters and escape those that are allowed
-          //add FE validation to search fields to mantain working url, and some partners stuff too
           const cleanedValue = filter[ListingFilterKeys.name]
             .replace(/[^a-zA-Z0-9:"' -]/g, '')
             .replace(/[']/g, "''");
@@ -309,6 +307,7 @@ export class ListingService implements OnModuleInit {
 
     // Only return active listings
     whereClauseArray.push("combined.status = 'active'");
+
     const whereClause = whereClauseArray?.length
       ? `where ${whereClauseArray.join(' AND ')}`
       : '';

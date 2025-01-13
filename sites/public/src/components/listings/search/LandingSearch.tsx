@@ -177,7 +177,7 @@ export function LandingSearch(props: LandingSearchProps) {
           getValues={getValues}
           defaultValue={formValues.monthlyRent}
           placeholder="$"
-          className="doorway-field p-0 md:-mt-1"
+          className="doorway-field md:-mt-1"
           inputClassName="typed-input"
           labelClassName="input-label"
         />
@@ -192,7 +192,7 @@ export function LandingSearch(props: LandingSearchProps) {
           register={register}
           onChange={validateSearchInput}
           defaultValue={formValues.propertyName}
-          className="doorway-field p-0 md:-mt-1"
+          className="doorway-field md:-mt-1"
           inputClassName="typed-input"
           labelClassName="input-label"
         />

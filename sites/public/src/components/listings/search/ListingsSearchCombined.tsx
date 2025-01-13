@@ -97,7 +97,6 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     // Search the listings by both the filter & the visible markers - but search the markers by only the filter, so that you can scroll out of the currently searched view and still see the markers
     const listingIdsOnlyQb = generateSearchQuery(modifiedParams)
     const genericQb = generateSearchQuery(searchFilter)
-    console.log(genericQb)
 
     let newListings = null
     let newMeta

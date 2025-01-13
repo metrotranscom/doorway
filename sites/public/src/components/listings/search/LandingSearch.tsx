@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react"
-import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
+import React, { useState, useEffect, ChangeEvent } from "react"
+import { useForm } from "react-hook-form"
+import { propertySearchRegex } from "@bloom-housing/shared-helpers"
+import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
   ButtonGroup,
   FieldGroup,
@@ -9,13 +11,12 @@ import {
   Field,
   AppearanceSizeType,
 } from "@bloom-housing/doorway-ui-components"
-import { useForm } from "react-hook-form"
 import { LinkButton, t, Card } from "@bloom-housing/ui-components"
+import { Dialog } from "@bloom-housing/ui-seeds"
+import { numericSearchFieldGenerator } from "./helpers"
 import styles from "./LandingSearch.module.scss"
 import { FormOption } from "./ListingsSearchModal"
-import { numericSearchFieldGenerator } from "./helpers"
-import { Dialog } from "@bloom-housing/ui-seeds"
-import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
 
 type LandingSearchProps = {
   bedrooms: FormOption[]
@@ -121,6 +122,12 @@ export function LandingSearch(props: LandingSearchProps) {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, getValues, setValue, watch } = useForm()
 
+  const validateSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const cleanedValue = e.target.value.replace(propertySearchRegex, "")
+    setValue("propertyName", cleanedValue)
+    updateValue("propertyName", cleanedValue)
+  }
+
   // workaround to leverage UI-C's currency formatting without full refactor
   const monthlyRentFormatted = watch("monthlyRent")
   useEffect(() => {
@@ -131,14 +138,6 @@ export function LandingSearch(props: LandingSearchProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthlyRentFormatted])
-
-  const propertyName = watch("propertyName")
-  useEffect(() => {
-    if (propertyName) {
-      updateValue("propertyName", propertyName)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyName])
 
   return (
     <Card className="bg-accent-cool-light">
@@ -192,8 +191,7 @@ export function LandingSearch(props: LandingSearchProps) {
           name="propertyName"
           subNote={t("listings.popertyName.helper")}
           register={register}
-          setValue={setValue}
-          getValues={getValues}
+          onChange={validateSearchInput}
           defaultValue={formValues.propertyName}
           className="doorway-field p-0 md:-mt-1"
           inputClassName="typed-input"

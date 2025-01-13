@@ -465,6 +465,8 @@ export class ApplicationExporterService {
       forLottery,
     );
 
+    console.log('workBook', workbook.worksheets);
+
     if (forLottery) {
       const sortedPreferences = await this.sortPreferencesByOrdinal(
         multiSelectQuestions,
@@ -512,6 +514,7 @@ export class ApplicationExporterService {
       preference,
     );
     spreadsheet.columns = this.buildExportColumns(csvHeaders, preference);
+    console.log(`------${preference?.name}-------`);
 
     const filteredApplications = preference
       ? applications.filter((app) =>
@@ -603,6 +606,9 @@ export class ApplicationExporterService {
           let value = header.path.split('.').reduce((acc, curr) => {
             // return preference/program as value for the format function to accept
             if (multiselectQuestionValue) {
+              if (header.path === `preferences.Work in the city.address`) {
+                console.log('multiselectQuestionValue', acc);
+              }
               return acc;
             }
 
@@ -619,6 +625,9 @@ export class ApplicationExporterService {
                 (preference) => preference.key === curr,
               );
               multiselectQuestionValue = true;
+              if (header.path === `preferences.Work in the city.address`) {
+                console.log('isPreference', preference);
+              }
               return preference;
             } else if (parseProgram) {
               // curr should equal the preference id we're pulling from
@@ -655,13 +664,23 @@ export class ApplicationExporterService {
 
             return acc[curr];
           }, app);
+          if (header.path === `preferences.Work in the city.address`) {
+            console.log('after getting value', value);
+          }
           value = value === undefined ? '' : value === null ? '' : value;
           if (header.format) {
+            if (header.path === `preferences.Work in the city.address`) {
+              console.log('header.format', header.format(value));
+            }
             value = header.format(value);
+          }
+          if (header.path === `preferences.Work in the city.address`) {
+            console.log('value', value);
           }
 
           rowData[`${header.path}`] = value ? value.toString() : '';
         });
+        console.log('row', rowData);
         spreadsheet.addRow(rowData).commit();
       });
     }
@@ -721,7 +740,7 @@ export class ApplicationExporterService {
   }
 
   /**
-   * 
+   *
    * @param questions a collection of questions which can include more than preferences, the rest will be filtered out
    * @param listingId the id of the listing
    * @returns listing preferences sorted in ordinal order

@@ -294,7 +294,9 @@ export const getExportHeaders = (
         path: 'demographics.race',
         label: 'Race',
         format: (val: string[]): string =>
-          val.map((race) => convertDemographicRaceToReadable(race)).join(','),
+          val
+            ?.map((race) => convertDemographicRaceToReadable(race))
+            .join(',') || '',
       },
       {
         path: 'demographics.gender',
@@ -319,10 +321,10 @@ export const getExportHeaders = (
         label: 'How did you Hear?',
         format: (val: string[]): string =>
           val
-            .map((howDidYouHear) =>
+            ?.map((howDidYouHear) =>
               convertDemographicHowDidYouHearToReadable(howDidYouHear),
             )
-            .join(','),
+            .join(',') || '',
       },
     );
   }
@@ -372,7 +374,20 @@ export const constructMultiselectQuestionHeaders = (
             path: `${applicationSection}.${question.text}.address`,
             label: `${labelString} ${question.text} - ${option.text} - Address`,
             format: (val: ApplicationMultiselectQuestion): string => {
-              return multiselectQuestionFormat(val, option.text, 'address');
+              console.log(
+                `${labelString} ${question.text} - ${option.text} - Address`,
+                val,
+              );
+              const formatted = multiselectQuestionFormat(
+                val,
+                option.text,
+                'address',
+              );
+              console.log(
+                `${applicationSection}.${question.text}.address formatted`,
+                formatted,
+              );
+              return formatted;
             },
           });
           if (option.validationMethod) {
@@ -441,7 +456,9 @@ export const multiselectQuestionFormat = (
     return '';
   }
   if (key === 'address') {
-    return addressToString(extraData.value as Address);
+    const address = addressToString(extraData.value as Address);
+    console.log('address', address);
+    return address;
   }
   if (key === 'geocodingVerified') {
     return extraData.value === 'unknown'

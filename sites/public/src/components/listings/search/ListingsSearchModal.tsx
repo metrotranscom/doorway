@@ -47,7 +47,7 @@ const rentStyle: React.CSSProperties = {
 }
 
 const propertySearchTitle: React.CSSProperties = {
-  paddingBottom: "var(--seeds-s4)",
+  paddingBlock: "var(--seeds-s4)",
 }
 
 const clearButtonStyle: React.CSSProperties = {

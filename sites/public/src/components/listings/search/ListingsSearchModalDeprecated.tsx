@@ -86,6 +86,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     bathrooms: null,
     minRent: "",
     monthlyRent: "",
+    propertyName: "",
     counties: countyLabels,
     availability: null,
     ids: undefined,

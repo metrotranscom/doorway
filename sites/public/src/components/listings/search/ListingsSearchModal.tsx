@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react"
-import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
-import { t } from "@bloom-housing/ui-components"
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { propertySearchRegex } from "@bloom-housing/shared-helpers"
+import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
   ButtonGroup,
   ButtonGroupSpacing,
@@ -9,10 +10,10 @@ import {
   FieldGroup,
   FieldSingle,
 } from "@bloom-housing/doorway-ui-components"
+import { t } from "@bloom-housing/ui-components"
 import { Dialog } from "@bloom-housing/ui-seeds"
-import { useForm } from "react-hook-form"
 import { numericSearchFieldGenerator } from "./helpers"
-import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
 
 const inputSectionStyle: React.CSSProperties = {
   margin: "0px 15px",
@@ -43,6 +44,10 @@ const sectionTitleTopBorder: React.CSSProperties = {
 const rentStyle: React.CSSProperties = {
   margin: "0px 0px",
   display: "flex",
+}
+
+const propertySearchTitle: React.CSSProperties = {
+  paddingBottom: "var(--seeds-s4)",
 }
 
 const clearButtonStyle: React.CSSProperties = {
@@ -209,8 +214,13 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const { register, getValues, setValue, watch } = useForm()
   const monthlyRentFormatted = watch("monthlyRent")
   const minRentFormatted = watch("minRent")
-  const propertyName = watch("propertyName")
   const currencyFormatting = /,|\.\d{2}/g
+
+  const validateSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const cleanedValue = e.target.value.replace(propertySearchRegex, "")
+    setValue("propertyName", cleanedValue)
+    updateValue("propertyName", cleanedValue)
+  }
 
   // workarounds to leverage UI-C's currency formatting without full refactor
   useEffect(() => {
@@ -228,13 +238,6 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthlyRentFormatted])
-
-  useEffect(() => {
-    if (propertyName) {
-      updateValue("propertyName", propertyName)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyName])
 
   return (
     <Dialog
@@ -313,15 +316,16 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
           </div>
         </div>
         <div style={inputSectionStyle}>
-          <div style={sectionTitle}>{t("listings.propertyName")}</div>
+          <div style={{ ...sectionTitle, ...propertySearchTitle }}>
+            {t("listings.propertyName")}
+          </div>
           <Field
             type="text"
             id="propertyName"
             name="propertyName"
             subNote={t("listings.popertyName.helper")}
             register={register}
-            setValue={setValue}
-            getValues={getValues}
+            onChange={validateSearchInput}
             defaultValue={formValues.propertyName}
             className="doorway-field"
             inputClassName="typed-input"

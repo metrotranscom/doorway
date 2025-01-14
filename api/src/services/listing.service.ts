@@ -295,9 +295,10 @@ export class ListingService implements OnModuleInit {
 
         if (filter[ListingFilterKeys.name]) {
           const comparison = filter['$comparison'];
-          const cleanedValue = filter[ListingFilterKeys.name]
-            .replace(/[^a-zA-Z0-9:"' -]/g, '')
-            .replace(/[']/g, "''");
+          const cleanedValue = filter[ListingFilterKeys.name].replace(
+            /[']/g,
+            "''",
+          );
           whereClauseArray.push(
             `UPPER(combined.name) ${comparison} UPPER('%${cleanedValue}%')`,
           );

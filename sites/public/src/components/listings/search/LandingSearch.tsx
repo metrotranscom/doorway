@@ -1,6 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from "react"
 import { useForm } from "react-hook-form"
-import { propertySearchRegex } from "@bloom-housing/shared-helpers"
 import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
   ButtonGroup,
@@ -122,9 +121,9 @@ export function LandingSearch(props: LandingSearchProps) {
   const { register, getValues, setValue, watch } = useForm()
 
   const validateSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleanedValue = e.target.value.replace(propertySearchRegex, "")
-    setValue("propertyName", cleanedValue)
-    updateValue("propertyName", cleanedValue)
+    // handle semicolon by searching text before since removing could lead to missing exact match
+    const searchableValue = e.target.value.split(";")[0]
+    updateValue("propertyName", searchableValue)
   }
 
   // workaround to leverage UI-C's currency formatting without full refactor

@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { propertySearchRegex } from "@bloom-housing/shared-helpers"
 import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
   ButtonGroup,
@@ -26,8 +25,7 @@ const hyphenContainerStyle: React.CSSProperties = {
 const hyphenStyle: React.CSSProperties = {
   fontSize: "2rem",
   position: "relative",
-  bottom: "1px",
-  padding: ".7rem",
+  padding: "0.5rem .7rem",
   width: "100%",
 }
 
@@ -217,9 +215,9 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const currencyFormatting = /,|\.\d{2}/g
 
   const validateSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const cleanedValue = e.target.value.replace(propertySearchRegex, "")
-    setValue("propertyName", cleanedValue)
-    updateValue("propertyName", cleanedValue)
+    // handle semicolon by searching text before since removing could lead to missing exact match
+    const searchableValue = e.target.value.split(";")[0]
+    updateValue("propertyName", searchableValue)
   }
 
   // workarounds to leverage UI-C's currency formatting without full refactor
@@ -327,7 +325,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
             register={register}
             onChange={validateSearchInput}
             defaultValue={formValues.propertyName}
-            className="doorway-field"
+            className="doorway-field pb-4"
             inputClassName="typed-input"
             labelClassName="input-label"
           />

@@ -4,9 +4,10 @@ import { Listing, ListingMapMarker } from "@bloom-housing/shared-helpers/src/typ
 import { Heading, Button } from "@bloom-housing/ui-seeds"
 import { ZeroListingsItem } from "@bloom-housing/doorway-ui-components"
 import { LoadingOverlay, t, InfoCard, LinkButton } from "@bloom-housing/ui-components"
-import { getBoundsZoomLevel, getListings } from "../../lib/helpers"
+import { getListings } from "../../lib/helpers"
 import { Pagination } from "./Pagination"
 import styles from "./ListingsCombined.module.scss"
+import { fitBounds } from "./MapClusterer"
 
 type ListingsListProps = {
   listings: Listing[]
@@ -38,20 +39,17 @@ const ListingsList = (props: ListingsListProps) => {
           {moreMarkersOnMap && (
             <Button
               onClick={() => {
-                const bounds = new window.google.maps.LatLngBounds()
-
-                if (!map) return
-                props.mapMarkers?.map((marker) => {
-                  bounds.extend({
-                    lat: marker.lat,
-                    lng: marker.lng,
-                  })
-                })
-                map.fitBounds(bounds, document.getElementById("listings-map").clientWidth * 0.05)
-                if (props.mapMarkers.length === 1) {
-                  const zoomLevel = getBoundsZoomLevel(bounds)
-                  map.setZoom(zoomLevel - 7)
-                }
+                fitBounds(
+                  map,
+                  props.mapMarkers.map((marker, index) => {
+                    return {
+                      id: marker.id,
+                      key: index,
+                      coordinate: { lat: marker.lat, lng: marker.lng },
+                    }
+                  }),
+                  true
+                )
               }}
             >
               {t("t.recenterMap")}

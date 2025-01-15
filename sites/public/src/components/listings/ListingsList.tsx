@@ -22,6 +22,7 @@ const ListingsList = (props: ListingsListProps) => {
 
   if (!map) return null
 
+  const moreMarkersOnMap = props.mapMarkers.length > 0
   const listingsDiv = (
     <div id="listingsList">
       <Heading className={"sr-only"} priority={2}>
@@ -30,8 +31,11 @@ const ListingsList = (props: ListingsListProps) => {
       {props.listings.length > 0 || props.loading ? (
         <div className={styles["listings-list-container"]}>{getListings(props.listings)}</div>
       ) : (
-        <ZeroListingsItem title={t("t.noMatchingListings")} description={t("t.tryRemovingFilters")}>
-          {props.mapMarkers.length > 0 && (
+        <ZeroListingsItem
+          title={moreMarkersOnMap ? t("t.noVisibleListings") : t("t.noMatchingListings")}
+          description={moreMarkersOnMap ? t("t.tryChangingArea") : t("t.tryRemovingFilters")}
+        >
+          {moreMarkersOnMap && (
             <Button
               onClick={() => {
                 const bounds = new window.google.maps.LatLngBounds()
@@ -50,7 +54,7 @@ const ListingsList = (props: ListingsListProps) => {
                 }
               }}
             >
-              Zoom out to more listings
+              {t("t.recenterMap")}
             </Button>
           )}
         </ZeroListingsItem>

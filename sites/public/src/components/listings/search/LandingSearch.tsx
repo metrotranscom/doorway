@@ -187,7 +187,7 @@ export function LandingSearch(props: LandingSearchProps) {
           type="text"
           id="propertyName"
           name="propertyName"
-          subNote={t("listings.popertyName.helper")}
+          subNote={t("listings.propertyName.helper")}
           register={register}
           onChange={validateSearchInput}
           defaultValue={formValues.propertyName}

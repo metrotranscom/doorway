@@ -126,6 +126,9 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     document.querySelector("#monthlyRent").value = null
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    document.querySelector("#propertyName").value = null
   }
 
   const onSubmit = () => {
@@ -321,7 +324,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
             type="text"
             id="propertyName"
             name="propertyName"
-            subNote={t("listings.popertyName.helper")}
+            subNote={t("listings.propertyName.helper")}
             register={register}
             onChange={validateSearchInput}
             defaultValue={formValues.propertyName}

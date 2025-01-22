@@ -297,6 +297,7 @@ export class ListingService implements OnModuleInit {
         if (filter[ListingFilterKeys.name]) {
           const comparison = filter['$comparison'];
           nameSearchValue = filter[ListingFilterKeys.name];
+          // Parameterized to prevent sql injection while allowing all characters
           whereClauseArray.push(`UPPER(combined.name) ${comparison} UPPER($1)`);
         }
       });

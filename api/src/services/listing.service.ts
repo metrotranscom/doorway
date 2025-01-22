@@ -239,6 +239,7 @@ export class ListingService implements OnModuleInit {
   async buildListingsWhereClause(params: ListingsQueryParams) {
     const onlyLettersPattern = /^[A-Za-z ]+$/;
     const whereClauseArray = [];
+    let nameSearchValue;
     if (params?.filter?.length) {
       params.filter.forEach((filter) => {
         if (filter[ListingFilterKeys.counties]) {
@@ -295,13 +296,8 @@ export class ListingService implements OnModuleInit {
 
         if (filter[ListingFilterKeys.name]) {
           const comparison = filter['$comparison'];
-          const cleanedValue = filter[ListingFilterKeys.name].replace(
-            /[']/g,
-            "''",
-          );
-          whereClauseArray.push(
-            `UPPER(combined.name) ${comparison} UPPER('%${cleanedValue}%')`,
-          );
+          nameSearchValue = filter[ListingFilterKeys.name];
+          whereClauseArray.push(`UPPER(combined.name) ${comparison} UPPER($1)`);
         }
       });
     }
@@ -319,9 +315,9 @@ export class ListingService implements OnModuleInit {
     // The raw unsafe query is not ideal. But for the use case we have it is the only way
     // to do the constructed query. SQL injections are safeguarded by dto validation to type check
     // and the ones that are strings are checked to only be appropriate characters above
-    const listingIds: { id: string }[] = await this.prisma.$queryRawUnsafe(
-      rawQuery,
-    );
+    const listingIds: { id: string }[] = nameSearchValue
+      ? await this.prisma.$queryRawUnsafe(rawQuery, `%${nameSearchValue}%`)
+      : await this.prisma.$queryRawUnsafe(rawQuery);
     return listingIds;
   }
 

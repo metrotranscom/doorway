@@ -22,7 +22,7 @@ const MapRecenter = (props: MapRecenterProps) => {
     return null
 
   return (
-    <div aria-label={t("t.mapControls")} role="group" className={styles["map-recenter"]}>
+    <div className={styles["map-recenter"]}>
       <Button
         onClick={() => {
           if (map) {

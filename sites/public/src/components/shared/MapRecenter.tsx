@@ -25,19 +25,17 @@ const MapRecenter = (props: MapRecenterProps) => {
     <div className={styles["map-recenter"]}>
       <Button
         onClick={() => {
-          if (map) {
-            fitBounds(
-              map,
-              props.mapMarkers.map((marker, index) => {
-                return {
-                  id: marker.id,
-                  key: index,
-                  coordinate: { lat: marker.lat, lng: marker.lng },
-                }
-              }),
-              true
-            )
-          }
+          fitBounds(
+            map,
+            props.mapMarkers.map((marker, index) => {
+              return {
+                id: marker.id,
+                key: index,
+                coordinate: { lat: marker.lat, lng: marker.lng },
+              }
+            }),
+            true
+          )
         }}
         size={"sm"}
       >

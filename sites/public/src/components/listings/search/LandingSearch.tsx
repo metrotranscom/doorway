@@ -137,6 +137,8 @@ export function LandingSearch(props: LandingSearchProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthlyRentFormatted])
 
+  console.log("JABKO", createListingsUrl(formValues))
+
   return (
     <Card className="bg-accent-cool-light">
       <div className={styles["input-section"]}>

@@ -16,6 +16,7 @@ type ListingsListProps = {
   onPageChange: (page: number) => void
   loading: boolean
   mapMarkers: ListingMapMarker[] | null
+  isDesktop: boolean
 }
 
 const ListingsList = (props: ListingsListProps) => {
@@ -34,7 +35,7 @@ const ListingsList = (props: ListingsListProps) => {
           title={moreMarkersOnMap ? t("t.noVisibleListings") : t("t.noMatchingListings")}
           description={moreMarkersOnMap ? t("t.tryChangingArea") : t("t.tryRemovingFilters")}
         >
-          {moreMarkersOnMap && (
+          {props.isDesktop && moreMarkersOnMap && (
             <Button
               onClick={() => {
                 if (map) {

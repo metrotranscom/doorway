@@ -21,8 +21,6 @@ type ListingsListProps = {
 const ListingsList = (props: ListingsListProps) => {
   const map = useMap()
 
-  if (!map) return null
-
   const moreMarkersOnMap = props.mapMarkers.length > 0
   const listingsDiv = (
     <div id="listingsList">
@@ -39,17 +37,19 @@ const ListingsList = (props: ListingsListProps) => {
           {moreMarkersOnMap && (
             <Button
               onClick={() => {
-                fitBounds(
-                  map,
-                  props.mapMarkers.map((marker, index) => {
-                    return {
-                      id: marker.id,
-                      key: index,
-                      coordinate: { lat: marker.lat, lng: marker.lng },
-                    }
-                  }),
-                  true
-                )
+                if (map) {
+                  fitBounds(
+                    map,
+                    props.mapMarkers.map((marker, index) => {
+                      return {
+                        id: marker.id,
+                        key: index,
+                        coordinate: { lat: marker.lat, lng: marker.lng },
+                      }
+                    }),
+                    true
+                  )
+                }
               }}
             >
               {t("t.recenterMap")}

@@ -25,7 +25,6 @@ const hyphenContainerStyle: React.CSSProperties = {
 const hyphenStyle: React.CSSProperties = {
   fontSize: "2rem",
   position: "relative",
-  bottom: "1px",
   padding: "0.5rem .7rem",
   width: "100%",
 }

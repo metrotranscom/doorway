@@ -101,6 +101,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
             isFirstBoundsLoad={props.isFirstBoundsLoad}
             setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
             isDesktop={props.isDesktop}
+            isLoading={props.loading}
           />
         </div>
       </div>
@@ -132,6 +133,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
               isFirstBoundsLoad={props.isFirstBoundsLoad}
               setIsFirstBoundsLoad={props.setIsFirstBoundsLoad}
               isDesktop={props.isDesktop}
+              isLoading={props.loading}
             />
           </div>
           <div id="listings-outer-container" className={styles["listings-outer-container"]}>

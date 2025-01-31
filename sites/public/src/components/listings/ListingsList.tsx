@@ -6,6 +6,7 @@ import { LoadingOverlay, t, InfoCard, LinkButton } from "@bloom-housing/ui-compo
 import { getListings } from "../../lib/helpers"
 import { Pagination } from "./Pagination"
 import styles from "./ListingsCombined.module.scss"
+import { MapMarkerData } from "./ListingsMap"
 
 type ListingsListProps = {
   listings: Listing[]
@@ -14,6 +15,7 @@ type ListingsListProps = {
   onPageChange: (page: number) => void
   loading: boolean
   mapMarkers: ListingMapMarker[] | null
+  visibleMarkers: MapMarkerData[]
 }
 
 const ListingsList = (props: ListingsListProps) => {
@@ -23,12 +25,18 @@ const ListingsList = (props: ListingsListProps) => {
       <Heading className={"sr-only"} priority={2}>
         {t("t.listingsList")}
       </Heading>
-      {props.listings.length > 0 || props.loading ? (
+      {props.listings.length > 0 || props.loading || props.visibleMarkers.length > 0 ? (
         <div className={styles["listings-list-container"]}>{getListings(props.listings)}</div>
       ) : (
         <ZeroListingsItem
-          title={moreMarkersOnMap ? t("t.noVisibleListings") : t("t.noMatchingListings")}
-          description={moreMarkersOnMap ? t("t.tryChangingArea") : t("t.tryRemovingFilters")}
+          title={
+            moreMarkersOnMap && !props.loading
+              ? t("t.noVisibleListings")
+              : t("t.noMatchingListings")
+          }
+          description={
+            moreMarkersOnMap && !props.loading ? t("t.tryChangingArea") : t("t.tryRemovingFilters")
+          }
         />
       )}
     </div>

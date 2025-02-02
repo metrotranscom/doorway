@@ -210,7 +210,7 @@ export const MapClusterer = ({
     fitBounds(map, mapMarkers, false, setIsFirstBoundsLoad)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clusterer, markers, currentMapMarkers])
+  }, [clusterer, markers, currentMapMarkers, map])
 
   // Keeps track of the markers on the map, passed to each marker
   const setMarkerRef = useCallback(

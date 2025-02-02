@@ -138,7 +138,7 @@ export const MapClusterer = ({
       resetVisibleMarkers()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapMarkers])
+  }, [mapMarkers, map])
 
   const fetchInfoWindow = async (listingId: string) => {
     try {

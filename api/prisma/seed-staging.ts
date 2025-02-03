@@ -1337,16 +1337,6 @@ export const stagingSeed = async (
       }
     },
   );
-  await prismaClient.userAccounts.create({
-    data: await userFactory({
-      roles: { isAdmin: true },
-      email: `admin@example.com`,
-      confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
-      acceptedTerms: true,
-      password: 'abcdef',
-    }),
-  });
   const adminAccounts: number = process.env.ADMIN_ACCOUNTS != undefined ? Number(process.env.ADMIN_ACCOUNTS) : 1
   for (let i = 0; i < adminAccounts; i++) {
     await prismaClient.userAccounts.create({

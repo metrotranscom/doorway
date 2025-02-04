@@ -1337,7 +1337,11 @@ export const stagingSeed = async (
       }
     },
   );
-  const adminAccounts: number = process.env.ADMIN_ACCOUNTS != undefined ? Number(process.env.ADMIN_ACCOUNTS) : 1
+  // Creating a bunch of admin accounts if the environment variable is set to do load testing
+  const adminAccounts: number =
+    process.env.ADMIN_ACCOUNTS != undefined
+      ? Number(process.env.ADMIN_ACCOUNTS)
+      : 1;
   for (let i = 0; i < adminAccounts; i++) {
     await prismaClient.userAccounts.create({
       data: await userFactory({

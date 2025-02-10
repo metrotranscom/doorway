@@ -2116,7 +2116,7 @@ export class ScriptRunnerService {
         },
         t: {
           hello: 'Hola',
-          seeListing: 'See Listing',
+          seeListing: 'Ver listado',
           editListing: 'Edit Listing',
           viewListing: 'View Listing',
           reviewListing: 'Review Listing',
@@ -2255,6 +2255,7 @@ export class ScriptRunnerService {
         },
         t: {
           hello: 'Chào',
+          seeListing: 'Xem danh sách',
         },
       },
       true,
@@ -2371,6 +2372,7 @@ export class ScriptRunnerService {
         },
         t: {
           hello: '你好',
+          seeListing: '查看房源',
         },
       },
       true,
@@ -2508,6 +2510,7 @@ export class ScriptRunnerService {
         },
         t: {
           hello: 'Kamusta',
+          seeListing: 'Tingnan ang listahan',
         },
       },
       true,

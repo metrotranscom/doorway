@@ -2054,6 +2054,8 @@ export class ScriptRunnerService {
             'Para confirmar el cambio de su dirección de correo electrónico, haga clic en el enlace a continuación',
         },
         footer: {
+          line1:
+            'Doorway Housing Portal es un programa de Bay Area Housing Finance Authority (BAHFA)',
           footer:
             'Autoridad de Finanzas de Vivienda del Área de la Bahía (BAHFA)',
           thankYou: 'Gracias',
@@ -2128,8 +2130,7 @@ export class ScriptRunnerService {
       'vi',
       {
         changeEmail: {
-          message:
-            'An email address change has been requested for your account.',
+          message: 'Đã có yêu cầu thay đổi địa chỉ email cho tài khoản của bạn',
           changeMyEmail: 'Xác nhận thay đổi email',
           onChangeEmailMessage:
             'Để xác nhận thay đổi địa chỉ email của bạn, vui lòng nhấp vào liên kết bên dưới',
@@ -2195,6 +2196,8 @@ export class ScriptRunnerService {
         },
         footer: {
           footer: 'Cơ quan Tài chính Nhà ở Khu Vực Vịnh (BAHFA)',
+          line1:
+            'Doorway Housing Portal là một chương trình của Bay Area Housing Finance Authority (BAHFA)',
           thankYou: 'Cảm ơn bạn',
         },
         forgotPassword: {
@@ -2314,6 +2317,8 @@ export class ScriptRunnerService {
         },
         footer: {
           footer: '海灣區住房金融管理局（BAHFA）',
+          line1:
+            'Doorway Housing Portal 是 Bay Area Housing Finance Authority（BAHFA）的一個項目',
           thankYou: '謝謝',
         },
         forgotPassword: {
@@ -2442,7 +2447,7 @@ export class ScriptRunnerService {
         },
         footer: {
           line1:
-            'Doorway Housing Portal is a program of the Bay Area Housing Finance Authority (BAHFA)',
+            'Ang Doorway Housing Portal ay isang programa ng Bay Area Housing Finance Authority (BAHFA)',
           line2: '',
           footer: 'Bay Area Housing Finance Authority (BAHFA)',
           thankYou: 'Salamat',

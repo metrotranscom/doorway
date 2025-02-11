@@ -750,7 +750,9 @@ export class ScriptRunnerService {
   ): Promise<SuccessDTO> {
     const requestingUser = mapTo(User, req['user']);
     await this.markScriptAsRunStart(
-      `data transfer public users and applications ${dataTransferDTO.jurisdiction}`,
+      `data transfer public users and applications ${
+        dataTransferDTO.jurisdiction
+      } page ${dataTransferDTO.page || 1}`,
       requestingUser,
     );
 
@@ -916,7 +918,9 @@ export class ScriptRunnerService {
 
     // script runner standard spin down
     await this.markScriptAsComplete(
-      `data transfer public users and applications ${dataTransferDTO.jurisdiction}`,
+      `data transfer public users and applications ${
+        dataTransferDTO.jurisdiction
+      } page ${dataTransferDTO.page || 1}`,
       requestingUser,
     );
 

@@ -3,6 +3,7 @@ import ReactDOMServer from "react-dom/server"
 import Markdown from "markdown-to-jsx"
 import {
   AdditionalFees,
+  ApplicationStatus,
   Description,
   ExpandableText,
   Heading,
@@ -38,12 +39,15 @@ import {
   IMAGE_FALLBACK_URL,
   pdfUrlFromListingEvents,
   AuthContext,
-  CustomIconMap,
 } from "@bloom-housing/shared-helpers"
 import dayjs from "dayjs"
 import { ErrorPage } from "../../pages/_error"
-import { useGetApplicationStatusProps } from "../../lib/hooks"
-import { getGenericAddress, isFeatureFlagOn, openInFuture } from "../../lib/helpers"
+import {
+  getGenericAddress,
+  getListingApplicationStatus,
+  openInFuture,
+  isFeatureFlagOn,
+} from "../../lib/helpers"
 import { GetApplication } from "./GetApplication"
 import { SubmitApplication } from "./SubmitApplication"
 import { ListingGoogleMap } from "./ListingGoogleMap"
@@ -103,8 +107,8 @@ export const ListingView = (props: ListingProps) => {
   const { initialStateLoaded, profile } = useContext(AuthContext)
   let buildingSelectionCriteria, preferencesSection, programsSection
   const { listing } = props
-  const { content: appStatusContent, subContent: appStatusSubContent } =
-    useGetApplicationStatusProps(listing)
+
+  const statusContent = getListingApplicationStatus(listing)
 
   const appOpenInFuture = openInFuture(listing)
   const hasNonReferralMethods = listing?.applicationMethods
@@ -617,31 +621,6 @@ export const ListingView = (props: ListingProps) => {
     return footerContent
   }
 
-  const getApplicationStatus = () => {
-    if (appStatusContent || appStatusSubContent) {
-      return (
-        <Message
-          className="doorway-message application-status"
-          fullwidth
-          customIcon={
-            <Icon size="md" outlined>
-              {CustomIconMap.clock}
-            </Icon>
-          }
-        >
-          {appStatusContent}
-          {appStatusSubContent && (
-            <>
-              <br />
-              {appStatusSubContent}
-            </>
-          )}
-        </Message>
-      )
-    }
-    return null
-  }
-
   return (
     <article className="flex flex-wrap relative max-w-5xl m-auto md:mt-8">
       <header className="image-card--leader">
@@ -746,7 +725,10 @@ export const ListingView = (props: ListingProps) => {
         </div>
       </div>
       <div className="w-full md:w-2/3 md:mt-3 md:hidden md:mx-3 border-gray-400 border-b">
-        {getApplicationStatus()}
+        <ApplicationStatus
+          content={statusContent?.content}
+          subContent={statusContent?.subContent}
+        />
         <div className="mx-4">
           <DownloadLotteryResults
             resultsDate={dayjs(lotteryResults?.startTime).format("MMMM D, YYYY")}
@@ -898,7 +880,10 @@ export const ListingView = (props: ListingProps) => {
         >
           <aside className="w-full static md:absolute md:right-0 md:w-1/3 md:top-0 sm:w-2/3 md:ml-2 h-full md:border border-gray-400 bg-white">
             <div className="hidden md:block">
-              {getApplicationStatus()}
+              <ApplicationStatus
+                content={statusContent?.content}
+                subContent={statusContent?.subContent}
+              />
               <DownloadLotteryResults
                 resultsDate={dayjs(lotteryResults?.startTime).format("MMMM D, YYYY")}
                 pdfURL={pdfUrlFromListingEvents(

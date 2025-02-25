@@ -12,8 +12,8 @@ import { randomInt } from 'crypto';
 import { randomName } from './word-generator';
 import { addressFactory } from './address-factory';
 import { unitFactoryMany } from './unit-factory';
-import { reservedCommunityTypeFactoryGet } from './reserved-community-type-factory';
 import { randomBoolean } from './boolean-generator';
+import { reservedCommunityTypeFactoryGet } from './reserved-community-type-factory';
 
 const cloudinaryIds = [
   'dev/blake-wheeler-zBHU08hdzhY-unsplash_swqash',

@@ -52,9 +52,9 @@
   },
   "dependencies": {
     "@bloom-housing/ui-components": "12.4.0",
-    "ag-grid-community": "^26.0.0",
-    "markdown-to-jsx": "7.1.8",
-    "nanoid": "^3.3.6",
+    "ag-grid-community": "^33.1.1",
+    "markdown-to-jsx": "7.4.0",
+    "nanoid": "^5.1.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-focus-lock": "^2.9.4",

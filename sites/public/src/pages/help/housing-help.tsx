@@ -9,6 +9,7 @@ import {
   housingHelpLinkableCards,
 } from "../../tsx_content/housing-help-cards"
 import { DoorwayLinkableCardGroup } from "../../components/shared/DoorwayLinkableCardGroup"
+import { PageHeaderLayout } from "../../patterns/PageHeaderLayout"
 
 const HousingHelp = () => {
   const { profile } = useContext(AuthContext)
@@ -25,13 +26,12 @@ const HousingHelp = () => {
 
   return (
     <Layout>
-      <PageHeader title={t("pageTitle.housingHelp")} />
-      <MetaTags title={t("pageTitle.housingHelp")} description={metaDescription} />
-      <div className="lg:my-14">
+      <PageHeaderLayout heading={t("pageTitle.housingHelp")}>
+        <MetaTags title={t("pageTitle.housingHelp")} description={metaDescription} />
         <DoorwayLinkableCardGroup cards={housingHelpLinkableCards()} className="m-auto">
           {housingHelpCardIntro()}
         </DoorwayLinkableCardGroup>
-      </div>
+      </PageHeaderLayout>
     </Layout>
   )
 }

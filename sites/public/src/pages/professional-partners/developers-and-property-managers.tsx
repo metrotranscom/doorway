@@ -6,6 +6,7 @@ import Layout from "../../layouts/application"
 import { MetaTags } from "../../components/shared/MetaTags"
 import { professionalsPartnersDevelopersCards } from "../../tsx_content/professional-partners-developers-cards"
 import { DoorwayLinkableCardGroup } from "../../components/shared/DoorwayLinkableCardGroup"
+import { PageHeaderLayout } from "../../patterns/PageHeaderLayout"
 
 const DevelopersAndPropertyManagers = () => {
   const { profile } = useContext(AuthContext)
@@ -22,17 +23,16 @@ const DevelopersAndPropertyManagers = () => {
 
   return (
     <Layout>
-      <PageHeader title={t("pageTitle.developersAndPropertyManagers")} />
-      <MetaTags
-        title={t("pageTitle.developersAndPropertyManagers")}
-        description={metaDescription}
-      />
-      <div className="lg:my-14">
+      <PageHeaderLayout heading={t("pageTitle.developersAndPropertyManagers")}>
+        <MetaTags
+          title={t("pageTitle.developersAndPropertyManagers")}
+          description={metaDescription}
+        />
         <DoorwayLinkableCardGroup
           cards={professionalsPartnersDevelopersCards()}
           className="m-auto"
         ></DoorwayLinkableCardGroup>
-      </div>
+      </PageHeaderLayout>
     </Layout>
   )
 }

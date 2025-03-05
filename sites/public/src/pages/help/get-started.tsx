@@ -1,11 +1,12 @@
 import React, { useEffect, useContext } from "react"
-import { t, PageHeader } from "@bloom-housing/ui-components"
+import { t } from "@bloom-housing/ui-components"
 import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
 import { getStartedLinkableCards } from "../../tsx_content/get-started-cards"
 import { MetaTags } from "../../components/shared/MetaTags"
 import { DoorwayLinkableCardGroup } from "../../components/shared/DoorwayLinkableCardGroup"
+import { PageHeaderLayout } from "../../patterns/PageHeaderLayout"
 
 const GetStarted = () => {
   const { profile } = useContext(AuthContext)
@@ -22,14 +23,13 @@ const GetStarted = () => {
 
   return (
     <Layout>
-      <PageHeader title={t("pageTitle.getStarted")} />
-      <MetaTags title={t("pageTitle.getStarted")} description={metaDescription} />
-      <div className="lg:my-14">
+      <PageHeaderLayout heading={t("pageTitle.getStarted")}>
+        <MetaTags title={t("pageTitle.getStarted")} description={metaDescription} />
         <DoorwayLinkableCardGroup
           cards={getStartedLinkableCards()}
           className="m-auto"
         ></DoorwayLinkableCardGroup>
-      </div>
+      </PageHeaderLayout>
     </Layout>
   )
 }

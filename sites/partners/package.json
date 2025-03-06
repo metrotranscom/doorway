@@ -67,7 +67,7 @@
     "@next/bundle-analyzer": "^10.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "5.17.0",
-    "@testing-library/react": "14.0.0",
+    "@testing-library/react": "15.0.7",
     "@testing-library/user-event": "^14.4.3",
     "@types/mapbox__mapbox-sdk": "^0.13.2",
     "@types/markdown-to-jsx": "^6.11.2",

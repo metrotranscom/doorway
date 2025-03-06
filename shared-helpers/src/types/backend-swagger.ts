@@ -153,10 +153,10 @@ export class ListingsService {
   /**
    * Get a paginated set of listings
    */
-  list(
+  filterableList(
     params: {
       /** requestBody */
-      body?: ListingsQueryParams
+      body?: ListingsQueryBody
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<PaginatedListing> {
@@ -1876,49 +1876,6 @@ export class UserService {
     })
   }
   /**
-   * Get user by id
-   */
-  retrieve(
-    params: {
-      /**  */
-      id: string
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<User> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/user/{id}"
-      url = url.replace("{id}", params["id"] + "")
-
-      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
-
-      /** 适配ios13，get请求不允许带body */
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Update user
-   */
-  update(
-    params: {
-      /** requestBody */
-      body?: UserUpdate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<User> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/user/{id}"
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
    * Forgot Password
    */
   forgotPassword(
@@ -2046,6 +2003,71 @@ export class UserService {
       let data = params.body
 
       configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Add or remove a listing from user favorites
+   */
+  modifyFavoriteListings(
+    params: {
+      /** requestBody */
+      body?: UserFavoriteListing
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<UserFavoriteListing> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/modifyFavoriteListings"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Update user
+   */
+  update(
+    params: {
+      /** requestBody */
+      body?: UserUpdate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<User> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/{id}"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Get user by id
+   */
+  retrieve(
+    params: {
+      /**  */
+      id: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<User> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/{id}"
+      url = url.replace("{id}", params["id"] + "")
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      /** 适配ios13，get请求不允许带body */
 
       axios(configs, resolve, reject)
     })
@@ -2905,46 +2927,84 @@ export interface ListingFilterParams {
   $comparison: EnumListingFilterParamsComparison
 
   /**  */
-  name?: string
-
-  /**  */
-  status?: ListingsStatusEnum
-
-  /**  */
-  neighborhood?: string
-
-  /**  */
-  bedrooms?: number
+  availability?: FilterAvailabilityEnum
 
   /**  */
   bathrooms?: number
 
   /**  */
-  zipcode?: string
-
-  /**  */
-  leasingAgents?: string
-
-  /**  */
-  jurisdiction?: string
-
-  /**  */
-  isExternal?: boolean
-
-  /**  */
-  availability?: FilterAvailabilityEnum
+  bedrooms?: number
 
   /**  */
   city?: string
 
   /**  */
-  monthlyRent?: number
-
-  /**  */
   counties?: string[]
 
   /**  */
+  homeTypes?: HomeTypeEnum[]
+
+  /**  */
   ids?: string[]
+
+  /**  */
+  isVerified?: boolean
+
+  /**  */
+  jurisdiction?: string
+
+  /**  */
+  leasingAgent?: string
+
+  /**  */
+  listingFeatures?: string[]
+
+  /**  */
+  monthlyRent?: number
+
+  /**  */
+  name?: string
+
+  /**  */
+  neighborhood?: string
+
+  /**  */
+  regions?: RegionEnum[]
+
+  /**  */
+  reservedCommunityTypes?: string[]
+
+  /**  */
+  section8Acceptance?: boolean
+
+  /**  */
+  status?: ListingsStatusEnum
+
+  /**  */
+  zipCode?: string
+}
+
+export interface ListingsQueryBody {
+  /**  */
+  page?: number
+
+  /**  */
+  limit?: number | "all"
+
+  /**  */
+  filter?: ListingFilterParams[]
+
+  /**  */
+  view?: ListingViews
+
+  /**  */
+  orderBy?: ListingOrderByKeys[]
+
+  /**  */
+  orderDir?: OrderByEnum[]
+
+  /**  */
+  search?: string
 }
 
 export interface ListingsQueryParams {
@@ -6345,6 +6405,9 @@ export interface User {
 
   /**  */
   activeRefreshToken?: string
+
+  /**  */
+  favoriteListings?: IdDTO[]
 }
 
 export interface UserFilterParams {
@@ -6358,56 +6421,6 @@ export interface PaginatedUser {
 
   /**  */
   meta: PaginationMeta
-}
-
-export interface UserUpdate {
-  /**  */
-  id: string
-
-  /**  */
-  firstName: string
-
-  /**  */
-  middleName?: string
-
-  /**  */
-  lastName: string
-
-  /**  */
-  dob?: Date
-
-  /**  */
-  phoneNumber?: string
-
-  /**  */
-  listings: IdDTO[]
-
-  /**  */
-  userRoles?: UserRole
-
-  /**  */
-  language?: LanguagesEnum
-
-  /**  */
-  agreedToTermsOfService: boolean
-
-  /**  */
-  email?: string
-
-  /**  */
-  newEmail?: string
-
-  /**  */
-  password?: string
-
-  /**  */
-  currentPassword?: string
-
-  /**  */
-  appUrl?: string
-
-  /**  */
-  jurisdictions?: IdDTO[]
 }
 
 export interface UserCreate {
@@ -6434,6 +6447,9 @@ export interface UserCreate {
 
   /**  */
   agreedToTermsOfService: boolean
+
+  /**  */
+  favoriteListings?: IdDTO[]
 
   /**  */
   newEmail?: string
@@ -6483,6 +6499,9 @@ export interface UserInvite {
   language?: LanguagesEnum
 
   /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
   newEmail?: string
 
   /**  */
@@ -6503,6 +6522,67 @@ export interface RequestSingleUseCode {
 export interface ConfirmationRequest {
   /**  */
   token: string
+}
+
+export interface UserFavoriteListing {
+  /**  */
+  id: string
+
+  /**  */
+  action: ModificationEnum
+}
+
+export interface UserUpdate {
+  /**  */
+  id: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  dob?: Date
+
+  /**  */
+  phoneNumber?: string
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  userRoles?: UserRole
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
+  email?: string
+
+  /**  */
+  newEmail?: string
+
+  /**  */
+  password?: string
+
+  /**  */
+  currentPassword?: string
+
+  /**  */
+  appUrl?: string
+
+  /**  */
+  jurisdictions?: IdDTO[]
 }
 
 export interface Login {
@@ -6714,17 +6794,31 @@ export interface PublicLotteryTotal {
   multiselectQuestionId?: string
 }
 
+export enum FilterAvailabilityEnum {
+  "waitlistOpen" = "waitlistOpen",
+  "unitsAvailable" = "unitsAvailable",
+}
+
+export enum HomeTypeEnum {
+  "apartment" = "apartment",
+  "duplex" = "duplex",
+  "house" = "house",
+  "townhome" = "townhome",
+}
+
+export enum RegionEnum {
+  "Greater_Downtown" = "Greater_Downtown",
+  "Eastside" = "Eastside",
+  "Southwest" = "Southwest",
+  "Westside" = "Westside",
+}
+
 export enum ListingsStatusEnum {
   "active" = "active",
   "pending" = "pending",
   "closed" = "closed",
   "pendingReview" = "pendingReview",
   "changesRequested" = "changesRequested",
-}
-
-export enum FilterAvailabilityEnum {
-  "waitlistOpen" = "waitlistOpen",
-  "unitsAvailable" = "unitsAvailable",
 }
 export enum EnumListingFilterParamsComparison {
   "=" = "=",
@@ -6958,6 +7052,11 @@ export enum ApplicationsFilterEnum {
   "lottery" = "lottery",
   "closed" = "closed",
   "open" = "open",
+}
+
+export enum ModificationEnum {
+  "add" = "add",
+  "remove" = "remove",
 }
 
 export enum MfaType {

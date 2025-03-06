@@ -24,7 +24,7 @@ ARG LOTTERY_DAYS_TILL_EXPIRY
 ARG LIMIT_CLOSED_LISTING_ACTIONS
 
 # The base image will contain all the source code needed for our site
-FROM node:18.14-alpine AS base
+FROM node:23.9-alpine AS base
 
 # https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
 RUN apk add --no-cache libc6-compat
@@ -187,7 +187,7 @@ RUN yarn install --frozen-lockfile --only=production
 #####################
 
 # The run stage is used to run our optimized app
-FROM node:18.14-alpine AS run
+FROM node:23.9-alpine AS run
 
 ARG SITE
 

@@ -2279,6 +2279,28 @@ export class ScriptRunnerService {
     })
   }
   /**
+   * A script that pulls listing asset data from one source into the current db
+   */
+  transferListingAssetData(
+    params: {
+      /** requestBody */
+      body?: AssetTransferDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/transferListingAssetData"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * A script that pulls partner user data from one source into the current db
    */
   transferJurisdictionPartnerUserData(
@@ -6454,6 +6476,20 @@ export interface DataTransferDTO {
 
   /**  */
   page?: number
+}
+
+export interface AssetTransferDTO {
+  /**  */
+  connectionString: string
+
+  /**  */
+  jurisdiction: string
+
+  /**  */
+  page?: number
+
+  /**  */
+  cloudinaryName: string
 }
 
 export interface AmiChartImportDTO {

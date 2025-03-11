@@ -45,6 +45,7 @@ module.exports = withBundleAnalyzer({
     showPublicLottery: process.env.SHOW_PUBLIC_LOTTERY === "TRUE",
     showMandatedAccounts: process.env.SHOW_MANDATED_ACCOUNTS === "TRUE",
     showPwdless: process.env.SHOW_PWDLESS === "TRUE",
+    showNewSeedsDesigns: process.env.SHOW_NEW_SEEDS_DESIGNS === "TRUE",
     notificationsSignUpUrl: process.env.NOTIFICATIONS_SIGN_UP_URL || null,
     maintenanceWindow: process.env.MAINTENANCE_WINDOW,
     mtcDataUrl: process.env.MTC_DATA_URL,

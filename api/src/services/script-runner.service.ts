@@ -694,7 +694,8 @@ export class ScriptRunnerService {
             label
         FROM listing_images li
             JOIN assets a ON a.id = li.image_id
-        WHERE li.listing_id = ${listingTransferMap[i].oldId} :: UUID`;
+        WHERE li.listing_id = ${listingTransferMap[i].oldId} :: UUID
+          AND a.file_id IS NOT NULL`;
       console.log(
         `moving ${oldAssetInfo.length || 0} assets for listing: ${
           listingTransferMap[i].oldId

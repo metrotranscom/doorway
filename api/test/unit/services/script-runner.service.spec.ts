@@ -18,6 +18,8 @@ import { FeatureFlagService } from '../../../src/services/feature-flag.service';
 import { JurisdictionService } from '../../../src/services/jurisdiction.service';
 import { PrismaService } from '../../../src/services/prisma.service';
 import { ScriptRunnerService } from '../../../src/services/script-runner.service';
+import { AssetModule } from '../../../src/modules/asset.module';
+import { PrismaModule } from '../../../src/modules/prisma.module';
 
 const externalPrismaClient = mockDeep<PrismaClient>();
 
@@ -28,11 +30,11 @@ describe('Testing script runner service', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ScriptRunnerService,
-        PrismaService,
         AmiChartService,
         FeatureFlagService,
         JurisdictionService,
       ],
+      imports: [AssetModule, PrismaModule],
     }).compile();
 
     service = module.get<ScriptRunnerService>(ScriptRunnerService);

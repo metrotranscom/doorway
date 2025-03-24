@@ -878,7 +878,6 @@ export class ListingService implements OnModuleInit {
 
     // because we don't need auto translations on the public site map pin pop ups
     // we skip the translation step
-    // this should fix an issue where if auto translations are not recent the pop ups were blanks and we got an error
     if (!combined && lang && lang !== LanguagesEnum.en) {
       result = await this.translationService.translateListing(result, lang);
     }

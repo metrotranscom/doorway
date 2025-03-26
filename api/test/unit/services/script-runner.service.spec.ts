@@ -381,6 +381,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);
@@ -636,6 +637,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);
@@ -803,6 +805,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       const doorwayPriorityTypeId = randomUUID();
       const priorityTypeId = randomUUID();
       prisma.unitAccessibilityPriorityTypes.findMany = jest
@@ -1000,6 +1003,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);
@@ -1097,6 +1101,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);

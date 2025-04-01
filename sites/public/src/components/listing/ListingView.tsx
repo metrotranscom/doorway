@@ -728,6 +728,7 @@ export const ListingView = (props: ListingProps) => {
         <ApplicationStatus
           content={statusContent?.content}
           subContent={statusContent?.subContent}
+          className="doorway-message application-status"
         />
         <div className="mx-4">
           <DownloadLotteryResults
@@ -883,6 +884,7 @@ export const ListingView = (props: ListingProps) => {
               <ApplicationStatus
                 content={statusContent?.content}
                 subContent={statusContent?.subContent}
+                className="doorway-message application-status"
               />
               <DownloadLotteryResults
                 resultsDate={dayjs(lotteryResults?.startTime).format("MMMM D, YYYY")}

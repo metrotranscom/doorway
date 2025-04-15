@@ -631,7 +631,9 @@ export class ScriptRunnerService {
     // script runner standard start up
     const requestingUser = mapTo(User, req['user']);
     await this.markScriptAsRunStart(
-      `data transfer assets ${dataTransferDTO.jurisdiction}`,
+      `data transfer assets ${dataTransferDTO.jurisdiction} page: ${
+        dataTransferDTO.page || 1
+      }`,
       requestingUser,
     );
 
@@ -710,10 +712,9 @@ export class ScriptRunnerService {
             responseType: 'arraybuffer',
           },
         );
-        const newFileId = (oldAssetInfo[j].file_id as string).replace(
-          'housingbayarea/',
-          '',
-        );
+        const newFileId = (oldAssetInfo[j].file_id as string)
+          .replace('housingbayarea/', '')
+          .replace('dev/', '');
 
         // upload image to s3
         const res = await this.assetService.upload(newFileId, {

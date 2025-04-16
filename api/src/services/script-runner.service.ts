@@ -757,7 +757,9 @@ export class ScriptRunnerService {
 
     // script runner standard spin down
     await this.markScriptAsComplete(
-      `data transfer assets ${dataTransferDTO.jurisdiction}`,
+      `data transfer assets ${dataTransferDTO.jurisdiction} page: ${
+        dataTransferDTO.page || 1
+      }`,
       requestingUser,
     );
     return { success: true };

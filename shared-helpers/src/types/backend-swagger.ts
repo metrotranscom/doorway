@@ -3754,7 +3754,7 @@ export interface UnitsSummarized {
 
 export interface UnitGroupSummary {
   /**  */
-  unitTypes?: string[]
+  unitTypes?: UnitType[]
 
   /**  */
   rentAsPercentIncomeRange?: MinMax

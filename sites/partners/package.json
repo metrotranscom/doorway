@@ -70,7 +70,7 @@
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/mapbox__mapbox-sdk": "^0.13.2",
-    "@types/markdown-to-jsx": "^6.11.2",
+    "@types/markdown-to-jsx": "^7.0.0",
     "@types/node": "^12.12.67",
     "@types/react": "^18.0.34",
     "babel-loader": "^9.1.2",

@@ -24,7 +24,7 @@ import { calculateSkip, calculateTake } from '../utilities/pagination-helpers';
 import axios from 'axios';
 import { AssetTransferDTO } from '../dtos/script-runner/asset-transfer.dto';
 import { AssetService } from './asset.service';
-import { OrderByEnum } from 'src/enums/shared/order-by-enum';
+import { OrderByEnum } from '../enums/shared/order-by-enum';
 
 /**
   this is the service for running scripts

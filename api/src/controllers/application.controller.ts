@@ -3,14 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   Param,
   Post,
   Put,
   Query,
   Request,
   Res,
-  StreamableFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -115,13 +113,13 @@ export class ApplicationController {
     summary: 'Get applications as csv',
     operationId: 'listAsCsv',
   })
-  @Header('Content-Type', 'application/zip')
   @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
   async listAsCsv(
     @Request() req: ExpressRequest,
     @Query(new ValidationPipe(defaultValidationPipeOptions))
     queryParams: ApplicationCsvQueryParams,
-  ): Promise<StreamableFile> {
+  ): Promise<string> {
     return await this.applicationExportService.exporter(
       req,
       queryParams,
@@ -135,14 +133,14 @@ export class ApplicationController {
     summary: 'Get applications as spreadsheet',
     operationId: 'listAsSpreadsheet',
   })
-  @Header('Content-Type', 'application/zip')
   @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
   async spreadsheetExport(
     @Request() req: ExpressRequest,
     @Res({ passthrough: true }) res: Response,
     @Query(new ValidationPipe(defaultValidationPipeOptions))
     queryParams: ApplicationCsvQueryParams,
-  ): Promise<StreamableFile> {
+  ): Promise<string> {
     return await this.applicationExportService.exporter(
       req,
       queryParams,

@@ -56,9 +56,14 @@ export class AmazonS3FileService
     this.urlFormat = config.url_format;
   }
 
-  private async _generateUrl(region: string, bucket: string, key: string) {
+  private async _generateUrl(
+    region: string,
+    bucket: string,
+    key: string,
+    urlFormat: string,
+  ) {
     // if it's supposed to be private, return a signed url
-    if (this.urlFormat == UrlFormats.private) {
+    if (urlFormat == UrlFormats.private) {
       return getSignedUrl(
         this.client,
         new GetObjectCommand({
@@ -78,13 +83,20 @@ export class AmazonS3FileService
     return ['s3', this.region, this.bucket, path].join(':');
   }
 
-  async putFile(prefix: string, key: string, file: FileUpload) {
-    const bucket = this.bucket;
+  async putFile(
+    prefix: string,
+    key: string,
+    file: FileUpload,
+    optionalBucket?: string,
+    optionalUrlFormat?: string,
+  ) {
+    const bucket = optionalBucket || this.bucket;
+    const urlFormat = optionalUrlFormat || this.urlFormat;
     const rand = Math.round(Math.random() * 1000000);
     const path = `${prefix}/${rand}/${key}/${file.name}`;
 
     const request: PutObjectCommandInput = {
-      Bucket: this.bucket,
+      Bucket: bucket,
       Key: path,
       Body: file.contents,
       ContentLength: file.size,
@@ -98,7 +110,7 @@ export class AmazonS3FileService
     // We don't need the response
     await this.client.send(new PutObjectCommand(request));
 
-    const url = await this._generateUrl(this.region, bucket, path);
+    const url = await this._generateUrl(this.region, bucket, path, urlFormat);
 
     return {
       id: this._generateId(path),
@@ -114,6 +126,6 @@ export class AmazonS3FileService
     const bucket = parts[2];
     const path = parts[3];
 
-    return this._generateUrl(region, bucket, path);
+    return this._generateUrl(region, bucket, path, this.urlFormat);
   }
 }

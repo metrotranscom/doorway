@@ -2,14 +2,12 @@ import {
   Body,
   Controller,
   Get,
-  Header,
   Param,
   ParseUUIDPipe,
   Put,
   Query,
   Request,
   Res,
-  StreamableFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -76,14 +74,14 @@ export class LotteryController {
     summary: 'Get applications lottery results',
     operationId: 'lotteryResults',
   })
-  @Header('Content-Type', 'application/zip')
   @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
   async lotteryExport(
     @Request() req: ExpressRequest,
     @Res({ passthrough: true }) res: Response,
     @Query(new ValidationPipe(defaultValidationPipeOptions))
     queryParams: ApplicationCsvQueryParams,
-  ): Promise<StreamableFile> {
+  ): Promise<string> {
     return await this.applicationExporterService.exporter(
       req,
       queryParams,

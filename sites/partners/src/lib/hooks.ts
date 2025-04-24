@@ -528,28 +528,29 @@ export const useZipExport = (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let content: any
       if (isLottery) {
-        content = await lotteryService.lotteryResults(
-          { id: listingId, includeDemographics, timeZone: dayjs.tz.guess() },
-          { responseType: "arraybuffer" }
-        )
+        content = await lotteryService.lotteryResults({
+          id: listingId,
+          includeDemographics,
+          timeZone: dayjs.tz.guess(),
+        })
       } else {
         if (isSpreadsheet) {
-          content = await applicationsService.listAsSpreadsheet(
-            { id: listingId, includeDemographics, timeZone: dayjs.tz.guess() },
-            { responseType: "arraybuffer" }
-          )
+          content = await applicationsService.listAsSpreadsheet({
+            id: listingId,
+            includeDemographics,
+            timeZone: dayjs.tz.guess(),
+          })
         } else {
-          content = await applicationsService.listAsCsv(
-            { id: listingId, includeDemographics, timeZone: dayjs.tz.guess() },
-            { responseType: "arraybuffer" }
-          )
+          content = await applicationsService.listAsCsv({
+            id: listingId,
+            includeDemographics,
+            timeZone: dayjs.tz.guess(),
+          })
         }
       }
 
-      const blob = new Blob([new Uint8Array(content)], { type: "application/zip" })
-      const url = window.URL.createObjectURL(blob)
       const link = document.createElement("a")
-      link.href = url
+      link.href = content
       link.setAttribute(
         "download",
         `${isLottery ? "lottery" : "applications"}-${listingId}-${createDateStringFromNow(

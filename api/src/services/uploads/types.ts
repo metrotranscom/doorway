@@ -8,6 +8,8 @@ export interface FileService {
     prefix: string,
     key: string,
     file: FileUpload,
+    optionalBucket?: string,
+    optionalUrlFormat?: string,
   ): Promise<FileUploadResult>;
   generateDownloadUrl(id: string): Promise<string>;
 }

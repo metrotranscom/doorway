@@ -23,7 +23,12 @@ export class AssetService {
     await this.prismaService.assets.create({ data: assetCreateDto });
   }
 
-  async upload(label: string, file: Express.Multer.File) {
+  async upload(
+    label: string,
+    file: Express.Multer.File,
+    optionalBucket?: string,
+    optionalUrlFormat?: string,
+  ) {
     const fileService = this.fileServiceProvider.activeFileService;
 
     // convert the express File type to a package-specific interface
@@ -37,7 +42,13 @@ export class AssetService {
         : fs.createReadStream(file.path),
     };
 
-    const result = await fileService.putFile('assets', label, fileUpload);
+    const result = await fileService.putFile(
+      'assets',
+      label,
+      fileUpload,
+      optionalBucket,
+      optionalUrlFormat,
+    );
     return result;
 
     /*

@@ -1523,7 +1523,7 @@ export class ApplicationsService {
       timeZone?: string
     } = {} as any,
     options: IRequestOptions = {}
-  ): Promise<any> {
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/applications/csv"
 
@@ -1552,7 +1552,7 @@ export class ApplicationsService {
       timeZone?: string
     } = {} as any,
     options: IRequestOptions = {}
-  ): Promise<any> {
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/applications/spreadsheet"
 
@@ -2804,7 +2804,7 @@ export class LotteryService {
       timeZone?: string
     } = {} as any,
     options: IRequestOptions = {}
-  ): Promise<any> {
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/lottery/getLotteryResults"
 
@@ -6961,12 +6961,6 @@ export enum UnitRentTypeEnum {
 export enum EnumUnitGroupAmiLevelMonthlyRentDeterminationType {
   "flatRent" = "flatRent",
   "percentageOfIncome" = "percentageOfIncome",
-}
-export enum HomeTypeEnum {
-  "apartment" = "apartment",
-  "duplex" = "duplex",
-  "house" = "house",
-  "townhome" = "townhome",
 }
 export enum EnumUnitGroupAmiLevelCreateMonthlyRentDeterminationType {
   "flatRent" = "flatRent",

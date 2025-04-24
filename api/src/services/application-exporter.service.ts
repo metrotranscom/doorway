@@ -1,9 +1,9 @@
-import { ForbiddenException, Injectable, StreamableFile } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { MultiselectQuestionsApplicationSectionEnum } from '@prisma/client';
 import dayjs from 'dayjs';
 import Excel, { Column } from 'exceljs';
 import { Request as ExpressRequest } from 'express';
-import fs, { createReadStream, ReadStream } from 'fs';
+import fs, { createReadStream, ReadStream, statSync } from 'fs';
 import { join } from 'path';
 import { view } from './application.service';
 import { Application } from '../dtos/applications/application.dto';
@@ -22,6 +22,7 @@ import { CsvHeader } from '../types/CsvExportInterface';
 import { getExportHeaders } from '../utilities/application-export-helpers';
 import { mapTo } from '../utilities/mapTo';
 import { zipExport } from '../utilities/zip-export';
+import { AssetService } from './asset.service';
 
 view.csv = {
   ...view.details,
@@ -42,6 +43,7 @@ export class ApplicationExporterService {
     private multiselectQuestionService: MultiselectQuestionService,
     private listingService: ListingService,
     private permissionService: PermissionService,
+    private assetService: AssetService,
   ) {}
 
   /**
@@ -57,7 +59,7 @@ export class ApplicationExporterService {
     queryParams: QueryParams,
     isLottery: boolean,
     isSpreadsheet: boolean,
-  ): Promise<StreamableFile> {
+  ): Promise<string> {
     const user = mapTo(User, req['user']);
     await this.authorizeExport(user, queryParams.id);
 
@@ -84,7 +86,36 @@ export class ApplicationExporterService {
       filename = `applications-${queryParams.id}-${dateString}`;
     }
 
-    return await zipExport(readStream, zipFilename, filename, isSpreadsheet);
+    const zipFile = await zipExport(
+      readStream,
+      zipFilename,
+      filename,
+      isSpreadsheet,
+    );
+
+    const zipStream = createReadStream(zipFile);
+    const file = zipStream.read();
+
+    const stats = statSync(zipFile);
+
+    const res = await this.assetService.upload(
+      'export',
+      {
+        filename: `${zipFilename}.zip`,
+        encoding: null,
+        mimetype: 'application/zip',
+        destination: null,
+        path: zipFile,
+        stream: zipStream,
+        fieldname: '',
+        originalname: '',
+        size: stats.size,
+        buffer: file,
+      },
+      process.env.ASSET_FS_PRIVATE_CONFIG_s3_BUCKET,
+      process.env.ASSET_FS_PRIVATE_CONFIG_s3_URL_FORMAT,
+    );
+    return res.url;
   }
 
   // csv export functions

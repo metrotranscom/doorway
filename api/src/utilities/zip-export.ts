@@ -1,6 +1,5 @@
-import { StreamableFile } from '@nestjs/common';
 import archiver from 'archiver';
-import fs, { createReadStream, ReadStream } from 'fs';
+import fs, { ReadStream } from 'fs';
 import { join } from 'path';
 
 /**
@@ -16,7 +15,7 @@ export const zipExport = (
   zipFilename: string,
   filename: string,
   isSpreadsheet: boolean,
-): Promise<StreamableFile> => {
+): Promise<string> => {
   const zipFilePath = join(process.cwd(), `src/temp/${zipFilename}.zip`);
 
   return new Promise((resolve) => {
@@ -26,8 +25,7 @@ export const zipExport = (
       zlib: { level: 9 },
     });
     output.on('close', () => {
-      const zipFile = createReadStream(zipFilePath);
-      resolve(new StreamableFile(zipFile));
+      resolve(zipFilePath);
     });
 
     archive.pipe(output);

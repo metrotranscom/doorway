@@ -89,6 +89,23 @@ export class ScirptRunnerController {
     );
   }
 
+  @Put('transferListingBuildingSelectionCriteriaAssetsData')
+  @ApiOperation({
+    summary:
+      'A script that pulls listing asset data from one source into the current db',
+    operationId: 'transferListingBuildingSelectionCriteriaAssetsData',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async transferListingBuildingSelectionCriteriaAssetsData(
+    @Body() dataTransferDTO: AssetTransferDTO,
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.transferListingBuildingSelectionCriteriaAssetsData(
+      req,
+      dataTransferDTO,
+    );
+  }
+
   @Put('transferJurisdictionPartnerUserData')
   @ApiOperation({
     summary:

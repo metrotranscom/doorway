@@ -172,6 +172,8 @@ views.details = {
 };
 
 const LISTING_CRON_JOB_NAME = 'LISTING_CRON_JOB';
+// Number of counties that Doorway supports
+const TOTAL_COUNTY_COUNT = 9;
 /*
   this is the service for listings
   it handles all the backend's business logic for reading in listing(s)
@@ -272,7 +274,8 @@ export class ListingService implements OnModuleInit {
     const onlyLettersPattern = /^[A-Za-z ]+$/;
     const whereClauseArray = [];
     const queryParameters = [];
-    if (params?.filter?.length) {
+    let includeUnitFiltering = false;
+    if (params?.filter?.length && this.findIfThereAreAnyFilters(params)) {
       params.filter.forEach((filter) => {
         if (filter[ListingFilterKeys.counties]) {
           const countyArray = [];
@@ -293,6 +296,7 @@ export class ListingService implements OnModuleInit {
           whereClauseArray.push(`combined.id in (${listingsArray})`);
         }
         if (filter[ListingFilterKeys.bedrooms]) {
+          includeUnitFiltering = true;
           whereClauseArray.push(
             `(combined_units->>'numBedrooms') =  '${Math.floor(
               filter[ListingFilterKeys.bedrooms],
@@ -300,6 +304,7 @@ export class ListingService implements OnModuleInit {
           );
         }
         if (filter[ListingFilterKeys.bathrooms]) {
+          includeUnitFiltering = true;
           whereClauseArray.push(
             `(combined_units->>'numBathrooms') =  '${Math.floor(
               filter[ListingFilterKeys.bathrooms],
@@ -345,8 +350,14 @@ export class ListingService implements OnModuleInit {
     const whereClause = whereClauseArray?.length
       ? `where ${whereClauseArray.join(' AND ')}`
       : '';
+
+    // If we do not need to query on the units remove if from the "from" to optimize the query
     const rawQuery = `select DISTINCT combined.id AS id
-    From combined_listings combined, jsonb_array_elements(combined.units) combined_units
+    From combined_listings combined ${
+      includeUnitFiltering
+        ? 'jsonb_array_elements(combined.units) combined_units'
+        : ''
+    }
     ${whereClause}`;
 
     // The raw unsafe query is not ideal. But for the use case we have it is the only way
@@ -368,9 +379,10 @@ export class ListingService implements OnModuleInit {
       totalPages: number;
     };
   }> {
+    console.log('listCombined');
     const listingIds = await this.buildListingsWhereClause(params);
     const count = listingIds?.length;
-
+    console.log('listCombined length', count);
     // if passed in page and limit would result in no results because there aren't that many listings
     // revert back to the first page
     let page = params.page;
@@ -384,9 +396,13 @@ export class ListingService implements OnModuleInit {
       skip: calculateSkip(params.limit, page),
       take: calculateTake(params.limit),
       where: {
-        id: {
-          in: listingIds.map((listing) => listing.id),
-        },
+        status: ListingsStatusEnum.active,
+        // Only filter by id if there are no filters
+        id: this.findIfThereAreAnyFilters(params)
+          ? {
+              in: listingIds.map((listing) => listing.id),
+            }
+          : undefined,
       },
       orderBy: buildOrderByForListings(
         [ListingOrderByKeys.mostRecentlyPublished],
@@ -2556,8 +2572,27 @@ export class ListingService implements OnModuleInit {
     return listing.jurisdictionId;
   }
 
+  // When only filtering on county we don't actually need to filter if the county count is all of them we support
+  findIfThereAreAnyFilters(params: ListingsQueryParams): boolean {
+    params.filter?.forEach((filter) => {
+      if (filter[ListingFilterKeys.counties]) {
+        if (filter[ListingFilterKeys.counties].length !== TOTAL_COUNTY_COUNT)
+          return true;
+      } else {
+        return true;
+      }
+    });
+    return false;
+  }
+
   async mapMarkers(params: ListingsQueryParams): Promise<ListingMapMarker[]> {
-    const listingIds = await this.buildListingsWhereClause(params);
+    let listingIds = [];
+    const areThereAnyFilters = this.findIfThereAreAnyFilters(params);
+
+    if (areThereAnyFilters) {
+      console.log('mapMarkers buildwhereclause');
+      listingIds = await this.buildListingsWhereClause(params);
+    }
 
     const listingsRaw = await this.prisma.combinedListings.findMany({
       select: {
@@ -2566,9 +2601,11 @@ export class ListingService implements OnModuleInit {
       },
       where: {
         status: ListingsStatusEnum.active,
-        id: {
-          in: listingIds.map((listing) => listing.id),
-        },
+        id: areThereAnyFilters
+          ? {
+              in: listingIds.map((listing) => listing.id),
+            }
+          : undefined,
       },
     });
 

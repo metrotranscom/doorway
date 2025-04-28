@@ -40,6 +40,7 @@ import { unitTypeFactoryAll } from './seed-helpers/unit-type-factory';
 import { userFactory } from './seed-helpers/user-factory';
 import { featureFlagFactory } from './seed-helpers/feature-flag-factory';
 import { FeatureFlagEnum } from '../src/enums/feature-flags/feature-flags-enum';
+import { randomInt } from 'node:crypto';
 
 export const stagingSeed = async (
   prismaClient: PrismaClient,
@@ -1420,6 +1421,7 @@ export const stagingSeed = async (
         prismaClient,
         {
           amiChart: amiChart,
+          // numberOfUnits: randomInt(4, 175),
           numberOfUnits: 4,
           digitalApp: !!(index % 2),
           address: addr,

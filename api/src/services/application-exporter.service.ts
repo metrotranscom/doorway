@@ -136,20 +136,16 @@ export class ApplicationExporterService {
     );
 
     await uploadToS3(
-      process.env.S3_ACCESS_TOKEN,
-      process.env.S3_BUCKET,
+      process.env.ASSET_FS_PRIVATE_CONFIG_s3_BUCKET,
       `${isLottery ? 'lottery' : 'applications'}_export_${now.getTime()}.zip`,
       path,
-      process.env.S3_REGION,
-      process.env.S3_SECRET_TOKEN,
+      process.env.ASSET_FS_CONFIG_s3_REGION,
     );
 
     return await generatePresignedGetURL(
-      process.env.S3_ACCESS_TOKEN,
-      process.env.S3_BUCKET,
+      process.env.ASSET_FS_PRIVATE_CONFIG_s3_BUCKET,
       `${isLottery ? 'lottery' : 'applications'}_export_${now.getTime()}.zip`,
-      process.env.S3_REGION,
-      process.env.S3_SECRET_TOKEN,
+      process.env.ASSET_FS_CONFIG_s3_REGION,
     );
   }
 

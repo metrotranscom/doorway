@@ -157,6 +157,7 @@ export class ApplicationController {
     operationId: 'listAsCsvSecure',
   })
   @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
   async listAsCsvSecure(
     @Request() req: ExpressRequest,
     @Query(new ValidationPipe(defaultValidationPipeOptions))
@@ -176,6 +177,7 @@ export class ApplicationController {
     operationId: 'listAsSpreadsheetSecure',
   })
   @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
   async spreadsheetExportSecure(
     @Request() req: ExpressRequest,
     @Res({ passthrough: true }) res: Response,

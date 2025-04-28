@@ -98,6 +98,7 @@ export class LotteryController {
     operationId: 'lotteryResultsSecure',
   })
   @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
   async lotteryExportSecure(
     @Request() req: ExpressRequest,
     @Res({ passthrough: true }) res: Response,

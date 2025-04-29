@@ -1108,9 +1108,7 @@ export class ScriptRunnerService {
     // script runner standard start up
     const requestingUser = mapTo(User, req['user']);
     await this.markScriptAsRunStart(
-      `data transfer building selection criteria ${
-        dataTransferDTO.jurisdiction
-      } page: ${dataTransferDTO.page || 1}`,
+      `data transfer building selection criteria ${dataTransferDTO.jurisdiction}`,
       requestingUser,
     );
 
@@ -1145,21 +1143,12 @@ export class ScriptRunnerService {
         `${dataTransferDTO.jurisdiction} county doesn't exist in foreign database`,
       );
     }
-
-    const take = calculateTake(40);
-    const skip = calculateSkip(take, dataTransferDTO.page || 1);
     const listingTransferMap = await this.prisma.listingTransferMap.findMany({
-      take,
-      skip,
       orderBy: {
         listingId: OrderByEnum.ASC,
       },
     });
-    console.log(
-      `Found ${listingTransferMap.length} listings on page ${
-        dataTransferDTO.page || 1
-      } out of a possible 40 for this page`,
-    );
+    console.log(`Found ${listingTransferMap.length} listings`);
     // loop over each new listing id <-> old listing id relation
     for (let i = 0; i < listingTransferMap.length; i++) {
       const oldAssetInfo: {
@@ -1230,9 +1219,7 @@ export class ScriptRunnerService {
 
     // script runner standard spin down
     await this.markScriptAsComplete(
-      `data transfer building selection criteria ${
-        dataTransferDTO.jurisdiction
-      } page: ${dataTransferDTO.page || 1}`,
+      `data transfer building selection criteria ${dataTransferDTO.jurisdiction}`,
       requestingUser,
     );
     return { success: true };

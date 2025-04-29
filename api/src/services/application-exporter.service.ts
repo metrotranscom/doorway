@@ -135,17 +135,21 @@ export class ApplicationExporterService {
       isSpreadsheet,
     );
 
+    const key = `${isLottery ? 'lottery' : 'applications'}_export_${dayjs(
+      now,
+    ).format('YYYY_MM_DD_HH_mm')}.zip`;
     await uploadToS3(
       process.env.ASSET_FS_PRIVATE_CONFIG_s3_BUCKET,
-      `${isLottery ? 'lottery' : 'applications'}_export_${now.getTime()}.zip`,
+      key,
       path,
       process.env.ASSET_FS_CONFIG_s3_REGION,
     );
 
     return await generatePresignedGetURL(
       process.env.ASSET_FS_PRIVATE_CONFIG_s3_BUCKET,
-      `${isLottery ? 'lottery' : 'applications'}_export_${now.getTime()}.zip`,
+      key,
       process.env.ASSET_FS_CONFIG_s3_REGION,
+      Number(process.env.TTL_SECURE_FILES || '0'),
     );
   }
 

@@ -24,6 +24,7 @@ export const generatePresignedGetURL = async (
   bucket: string,
   key: string,
   region: string,
+  expiresIn?: number,
 ): Promise<string> => {
   checkArgs({
     bucket,
@@ -41,7 +42,7 @@ export const generatePresignedGetURL = async (
       Key: key,
     }),
     {
-      expiresIn: 1000 * 60 * 5, // expires 5 minutes after generation
+      expiresIn: expiresIn || 1000 * 60 * 5, // expires 5 minutes after generation
     },
   );
 

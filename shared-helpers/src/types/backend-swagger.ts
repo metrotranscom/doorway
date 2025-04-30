@@ -2381,6 +2381,28 @@ export class ScriptRunnerService {
     })
   }
   /**
+   * A script that pulls listing asset data from one source into the current db
+   */
+  transferListingBuildingSelectionCriteriaAssetsData(
+    params: {
+      /** requestBody */
+      body?: AssetTransferDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/transferListingBuildingSelectionCriteriaAssetsData"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * A script that pulls partner user data from one source into the current db
    */
   transferJurisdictionPartnerUserData(

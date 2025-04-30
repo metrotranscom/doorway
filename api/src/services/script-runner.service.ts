@@ -1095,6 +1095,138 @@ export class ScriptRunnerService {
 
   /**
    *
+   * @param req incoming request object
+   * @param dataTransferDTO data transfer endpoint args. Should contain foreign db connection string
+   * @returns successDTO
+   * @description transfers building selection criteria assets for listings in the specified space into the new space
+   */
+  async transferListingBuildingSelectionCriteriaAssetsData(
+    req: ExpressRequest,
+    dataTransferDTO: AssetTransferDTO,
+    prisma?: PrismaClient,
+  ): Promise<SuccessDTO> {
+    // script runner standard start up
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      `data transfer building selection criteria ${dataTransferDTO.jurisdiction}`,
+      requestingUser,
+    );
+
+    // connect to foreign db based on incoming connection string
+    const client =
+      prisma ||
+      new PrismaClient({
+        datasources: {
+          db: {
+            url: dataTransferDTO.connectionString,
+          },
+        },
+      });
+    await client.$connect();
+
+    const doorwayJurisdiction = await this.prisma.jurisdictions.findFirst({
+      where: { name: dataTransferDTO.jurisdiction },
+    });
+
+    if (!doorwayJurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in Doorway database`,
+      );
+    }
+
+    // get jurisdiction
+    const jurisdiction: { id: string }[] =
+      await client.$queryRaw`SELECT id, name FROM jurisdictions WHERE name = ${dataTransferDTO.jurisdiction}`;
+
+    if (!jurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in foreign database`,
+      );
+    }
+    const listingTransferMap = await this.prisma.listingTransferMap.findMany({
+      orderBy: {
+        listingId: OrderByEnum.ASC,
+      },
+    });
+    console.log(`Found ${listingTransferMap.length} listings`);
+    // loop over each new listing id <-> old listing id relation
+    for (let i = 0; i < listingTransferMap.length; i++) {
+      const oldAssetInfo: {
+        created_at: Date;
+        updated_at: Date;
+        file_id: string;
+        label: string;
+      }[] = await client.$queryRaw`SELECT
+            a.created_at,
+            a.updated_at,
+            a.file_id,
+            a.label
+        FROM listings l
+            JOIN assets a ON a.id = l.building_selection_criteria_file_id
+        WHERE l.id = ${listingTransferMap[i].oldId} :: UUID
+          AND l.building_selection_criteria_file_id IS NOT NULL`;
+      console.log(
+        `moving ${oldAssetInfo.length || 0} assets for listing: ${
+          listingTransferMap[i].oldId
+        }:`,
+      );
+      // loop over each listing image on the old listing
+      for (let j = 0; j < oldAssetInfo.length; j++) {
+        // pull down image from cloudinary
+        const image = await axios.get(
+          `https://res.cloudinary.com/${dataTransferDTO.cloudinaryName}/image/upload/${oldAssetInfo[j].file_id}.pdf`,
+          {
+            responseType: 'arraybuffer',
+          },
+        );
+        const newFileId = (oldAssetInfo[j].file_id as string)
+          .replace('housingbayarea/', '')
+          .replace('dev/', '');
+
+        // upload image to s3
+        const res = await this.assetService.upload(newFileId, {
+          filename: null,
+          buffer: image.data,
+          fieldname: null,
+          originalname: `${newFileId}.pdf`,
+          encoding: null,
+          mimetype: 'application/pdf',
+          size: image.data.length,
+          destination: null,
+          path: null,
+          stream: null,
+        });
+
+        // update new listing with these assets
+        await this.prisma.listings.update({
+          where: {
+            id: listingTransferMap[i].listingId,
+          },
+          data: {
+            listingsBuildingSelectionCriteriaFile: {
+              create: {
+                fileId: res.url,
+                label: 'cloudinaryPDF',
+              },
+            },
+          },
+        });
+      }
+    }
+
+    // disconnect from foreign db
+    await client.$disconnect();
+
+    // script runner standard spin down
+    await this.markScriptAsComplete(
+      `data transfer building selection criteria ${dataTransferDTO.jurisdiction}`,
+      requestingUser,
+    );
+    return { success: true };
+  }
+
+  /**
+   *
    * @param amiChartImportDTO this is a string in a very specific format like:
    * percentOfAmiValue_1 householdSize_1_income_value householdSize_2_income_value \n percentOfAmiValue_2 householdSize_1_income_value householdSize_2_income_value
    * @returns successDTO

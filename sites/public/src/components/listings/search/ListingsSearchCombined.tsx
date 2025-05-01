@@ -74,7 +74,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   // The search function expects a string
   // This can be changed later if needed
-  const pageSize = 5
+  const pageSize = 25
 
   const map = useMap()
 

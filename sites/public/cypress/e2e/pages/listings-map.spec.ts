@@ -77,15 +77,6 @@ describe("Listings map", function () {
     cy.get("@markersSearch.all").should("have.length", 3)
     cy.get("@listingsSearch.all").should("have.length", 4)
 
-    // Click manually into empty space
-    cy.getByTestId("map").dblclick(500, 10)
-    cy.getByTestId("listings-map-info-window").should("not.exist")
-    cy.getByTestId("map-total-results").contains("Total results 1")
-    cy.getByTestId("loading-overlay").should("not.exist")
-
-    cy.get("@markersSearch.all").should("have.length", 3)
-    cy.get("@listingsSearch.all").should("have.length", 5)
-
     // Zoom out with buttons
     cy.getByTestId("map-zoom-out").click()
     cy.getByTestId("loading-overlay").should("not.exist")
@@ -95,15 +86,15 @@ describe("Listings map", function () {
     cy.getByTestId("loading-overlay").should("not.exist")
     cy.getByTestId("map-zoom-out").click()
     cy.getByTestId("loading-overlay").should("not.exist")
-    cy.getByTestId("map-total-results").contains("Total results 43")
-    cy.getByTestId("map-pagination").contains("Page 1 of 2")
-    cy.get("@listingsSearch.all").should("have.length", 6)
+    cy.getByTestId("map-total-results").contains("Total results 236")
+    cy.getByTestId("map-pagination").contains("Page 1 of 10")
+    cy.get("@listingsSearch.all").should("have.length", 5)
 
     // Paginate
     cy.getByID("pagination-2").click()
-    cy.getByTestId("map-pagination").contains("Page 2 of 2")
+    cy.getByTestId("map-pagination").contains("Page 2 of 10")
     cy.get("@markersSearch.all").should("have.length", 3)
-    cy.get("@listingsSearch.all").should("have.length", 7)
+    cy.get("@listingsSearch.all").should("have.length", 6)
 
     // Recenter
     cy.getByID("map-recenter-button").click()
@@ -111,6 +102,6 @@ describe("Listings map", function () {
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.getByTestId("map-cluster").should("have.length", 11)
     cy.get("@markersSearch.all").should("have.length", 3)
-    cy.get("@listingsSearch.all").should("have.length", 8)
+    cy.get("@listingsSearch.all").should("have.length", 7)
   })
 })

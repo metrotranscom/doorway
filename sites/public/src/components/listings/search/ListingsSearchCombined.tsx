@@ -37,7 +37,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
   const [listView, setListView] = useState<boolean>(true)
   const [visibleMarkers, setVisibleMarkers] = useState<MapMarkerData[]>(null)
   const [currentMarkers, setCurrentMarkers] = useState<MapMarkerData[]>(null)
-  const [isDesktop, setIsDesktop] = useState(true)
+  const [isDesktop, setIsDesktop] = useState(undefined)
   const [isLoading, setIsLoading] = useState(true)
   const [isFirstBoundsLoad, setIsFirstBoundsLoad] = useState<boolean>(true)
 
@@ -74,13 +74,13 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
 
   // The search function expects a string
   // This can be changed later if needed
-  const pageSize = 25
+  const pageSize = 5
 
   const map = useMap()
 
   const search = async (page: number, changingFilter?: boolean) => {
     // If a user pans over empty space, reset the listings to empty instead of refetching
-
+    if (isDesktop === undefined) return
     const oldMarkersSearch = JSON.stringify(
       currentMarkers?.sort((a, b) => a.coordinate.lat - b.coordinate.lat)
     )
@@ -210,9 +210,8 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
     async function searchListings() {
       await search(1, true)
     }
-    if (!isDesktop) {
-      void searchListings()
-    }
+
+    void searchListings()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDesktop])
 

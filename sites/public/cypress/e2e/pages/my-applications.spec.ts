@@ -1,4 +1,4 @@
-describe.skip("My applications page", function () {
+describe("My applications page", function () {
   it("renders the my applications page", function () {
     cy.visit("/sign-in")
     cy.signIn()

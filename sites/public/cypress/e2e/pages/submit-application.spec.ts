@@ -1,6 +1,6 @@
 import { ElmVillageApplication, minimalDataApplication } from "../../mockData/applicationData"
 
-describe.skip("Submit", function () {
+describe("Submit", function () {
   it("should submit an application for the Elm Village listing", function () {
     cy.intercept("GET", "/geocoding/v5/**", { fixture: "address" })
     // Interceptor for the address in the preference

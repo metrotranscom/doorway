@@ -119,7 +119,7 @@ function ListingsSearchCombined(props: ListingsSearchCombinedProps) {
       // Mobile view doesn't rely on the map
       !isDesktop ||
       // A page change should still fetch listings as the map markers won't change
-      page !== searchResults.currentPage ||
+      (searchResults.currentPage !== 0 && page !== searchResults.currentPage) ||
       (!isFirstBoundsLoad &&
         !!map &&
         oldMarkersSearch !== newMarkersSearch &&

@@ -15,6 +15,7 @@ import {
 import dayjs from 'dayjs';
 import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
 import {
+  realBayAreaPlaces,
   rockyMountainAddress,
   stagingRealisticAddresses,
   yosemiteAddress,
@@ -39,6 +40,8 @@ import { unitAccessibilityPriorityTypeFactoryAll } from './seed-helpers/unit-acc
 import { unitTypeFactoryAll } from './seed-helpers/unit-type-factory';
 import { userFactory } from './seed-helpers/user-factory';
 import { featureFlagFactory } from './seed-helpers/feature-flag-factory';
+import { randomInt } from 'node:crypto';
+import { randomBoolean } from './seed-helpers/boolean-generator';
 
 export const stagingSeed = async (
   prismaClient: PrismaClient,
@@ -1387,10 +1390,35 @@ export const stagingSeed = async (
         prismaClient,
         {
           amiChart: amiChart,
-          numberOfUnits: 4,
+          // most listings are under 10 units but there are some that get up to 175. This simulates that spread
+          numberOfUnits:
+            Math.random() < 0.9 ? randomInt(1, 10) : randomInt(10, 200),
           digitalApp: !!(index % 2),
+          status: ListingsStatusEnum.active,
           address: addr,
           publishedAt: dayjs(new Date()).subtract(5, 'days').toDate(),
+        },
+      );
+      await prismaClient.listings.create({
+        data: listing,
+      });
+    });
+
+    // Add closed and pending listings
+    Object.values(realBayAreaPlaces).forEach(async (addr, index) => {
+      const listing = await listingFactory(
+        jurisdictionNameMap[addr.county],
+        prismaClient,
+        {
+          amiChart: amiChart,
+          // most listings are under 10 units but there are some that get up to 175. This simulates that spread
+          numberOfUnits:
+            Math.random() < 0.9 ? randomInt(1, 10) : randomInt(10, 200),
+          digitalApp: !!(index % 2),
+          status: randomBoolean()
+            ? ListingsStatusEnum.pending
+            : ListingsStatusEnum.closed,
+          address: addr,
         },
       );
       await prismaClient.listings.create({

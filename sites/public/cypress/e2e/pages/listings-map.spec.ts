@@ -89,6 +89,7 @@ describe("Listings map", function () {
     cy.getByTestId("loading-overlay").should("not.exist")
     cy.getByTestId("map-zoom-out").click()
     cy.getByTestId("loading-overlay").should("not.exist")
+    // Total results will be roughly 236 but can fluctuate so just checking the first two digits
     cy.getByTestId("map-total-results").contains("Total results 236")
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.get("@listingsSearch.all").should("have.length", 5)

@@ -13,6 +13,7 @@ import {
   UserRoleEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
+import { randomInt } from 'node:crypto';
 import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
 import {
   realBayAreaPlaces,
@@ -22,6 +23,7 @@ import {
 } from './seed-helpers/address-factory';
 import { amiChartFactory } from './seed-helpers/ami-chart-factory';
 import { applicationFactory } from './seed-helpers/application-factory';
+import { randomBoolean } from './seed-helpers/boolean-generator';
 import { householdMemberFactorySingle } from './seed-helpers/household-member-factory';
 import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import {
@@ -40,8 +42,6 @@ import { unitAccessibilityPriorityTypeFactoryAll } from './seed-helpers/unit-acc
 import { unitTypeFactoryAll } from './seed-helpers/unit-type-factory';
 import { userFactory } from './seed-helpers/user-factory';
 import { featureFlagFactory } from './seed-helpers/feature-flag-factory';
-import { randomInt } from 'node:crypto';
-import { randomBoolean } from './seed-helpers/boolean-generator';
 
 export const stagingSeed = async (
   prismaClient: PrismaClient,

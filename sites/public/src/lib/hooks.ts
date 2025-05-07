@@ -1,12 +1,10 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect } from "react"
 import axios from "axios"
 //import qs from "qs"
 import { useRouter } from "next/router"
-import { ApplicationStatusProps } from "@bloom-housing/ui-components"
 import {
   // EnumListingFilterParamsComparison,
   Jurisdiction,
-  Listing,
   // ListingFilterParams,
   // ListingOrderByKeys,
   // ListingsStatusEnum,
@@ -14,7 +12,6 @@ import {
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ParsedUrlQuery } from "querystring"
 import { AppSubmissionContext } from "./applications/AppSubmissionContext"
-import { getListingApplicationStatus } from "./helpers"
 import { useRequireLoggedInUser, isInternalLink } from "@bloom-housing/shared-helpers"
 
 export const useRedirectToPrevPage = (defaultPath = "/") => {
@@ -45,114 +42,99 @@ export const useFormConductor = (stepName: string) => {
   return context
 }
 
-export const useGetApplicationStatusProps = (listing: Listing): ApplicationStatusProps => {
-  const [props, setProps] = useState({ content: "", subContent: "" })
+// export async function fetchBaseListingData(
+//   {
+//     additionalFilters,
+//     orderBy,
+//     orderDir,
+//     limit,
+//   }: {
+//     additionalFilters?: ListingFilterParams[]
+//     orderBy?: ListingOrderByKeys[]
+//     orderDir?: OrderByEnum[]
+//     limit?: string
+//   },
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   req: any
+// ) {
+//   let listings = []
+//   try {
+//     let filter: ListingFilterParams[] = []
 
-  useEffect(() => {
-    if (!listing) return
+//     if (additionalFilters) {
+//       filter = filter.concat(additionalFilters)
+//     }
+//     const params: {
+//       view: string
+//       limit: string
+//       filter: ListingFilterParams[]
+//       orderBy?: ListingOrderByKeys[]
+//       orderDir?: OrderByEnum[]
+//     } = {
+//       view: "base",
+//       limit: limit || "all",
+//       filter,
+//     }
+//     if (orderBy) {
+//       params.orderBy = orderBy
+//     }
+//     if (orderDir) {
+//       params.orderDir = orderDir
+//     }
 
-    const { content, subContent } = getListingApplicationStatus(listing)
+//     const response = await axios.get(getListingServiceUrl(), {
+//       params,
+//       paramsSerializer: (params) => {
+//         return qs.stringify(params)
+//       },
+//       headers: {
+//         passkey: process.env.API_PASS_KEY,
+//         "x-forwarded-for": req.headers["x-forwarded-for"] ?? req.socket.remoteAddress,
+//       },
+//     })
 
-    setProps({ content, subContent })
-  }, [listing])
+//     listings = response.data?.items
+//   } catch (e) {
+//     console.log("fetchBaseListingData error: ", e)
+//   }
 
-  return props
-}
+//   return listings
+// }
 
-// These functions were sparsely used and/or completely ignored, so I'm commenting
-// them out.  If it turns out they are needed later then it should be easy to add
-// them back by uncommenting, but make sure the logic still matches expectations.
-/*
-export async function fetchBaseListingData({
-  additionalFilters,
-  orderBy,
-  orderDir,
-  limit,
-}: {
-  additionalFilters?: ListingFilterParams[]
-  orderBy?: ListingOrderByKeys[]
-  orderDir?: OrderByEnum[]
-  limit?: string
-}) {
-  let listings = []
-  try {
-    let filter: ListingFilterParams[] = []
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// export async function fetchOpenListings(req: any) {
+//   return await fetchBaseListingData(
+//     {
+//       additionalFilters: [
+//         {
+//           $comparison: EnumListingFilterParamsComparison["="],
+//           status: ListingsStatusEnum.active,
+//         },
+//       ],
+//       orderBy: [ListingOrderByKeys.mostRecentlyPublished],
+//       orderDir: [OrderByEnum.desc],
+//     },
+//     req
+//   )
+// }
 
-    if (additionalFilters) {
-      filter = filter.concat(additionalFilters)
-    }
-    const params: {
-      view: string
-      limit: string
-      filter: ListingFilterParams[]
-      orderBy?: ListingOrderByKeys[]
-      orderDir?: OrderByEnum[]
-    } = {
-      view: "base",
-      limit: limit || "all",
-      filter,
-    }
-    if (orderBy) {
-      params.orderBy = orderBy
-    }
-    if (orderDir) {
-      params.orderDir = orderDir
-    }
-
-    const response = await axios.get(getListingServiceUrl(), {
-      params,
-      paramsSerializer: (params) => {
-        return qs.stringify(params)
-      },
-      headers: {
-        passkey: process.env.API_PASS_KEY,
-        "x-forwarded-for": req.headers["x-forwarded-for"] ?? req.socket.remoteAddress,
-      },
-    })
-
-    listings = response.data?.items
-  } catch (e) {
-    console.log("fetchBaseListingData error: ", e)
-  }
-
-  return listings
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function fetchOpenListings(req: any) {
-  return await fetchBaseListingData(
-    {
-      additionalFilters: [
-        {
-          $comparison: EnumListingFilterParamsComparison["="],
-          status: ListingsStatusEnum.active,
-        },
-      ],
-      orderBy: [ListingOrderByKeys.mostRecentlyPublished],
-      orderDir: [OrderByEnum.desc],
-    },
-    req
-  )
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function fetchClosedListings(req: any) {
-  return await fetchBaseListingData(
-    {
-      additionalFilters: [
-        {
-          $comparison: EnumListingFilterParamsComparison["="],
-          status: ListingsStatusEnum.closed,
-        },
-      ],
-      orderBy: [ListingOrderByKeys.mostRecentlyClosed],
-      orderDir: [OrderByEnum.desc],
-      limit: process.env.maxClosedListings,
-    },
-    req
-  )
-}
-*/
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// export async function fetchClosedListings(req: any) {
+//   return await fetchBaseListingData(
+//     {
+//       additionalFilters: [
+//         {
+//           $comparison: EnumListingFilterParamsComparison["="],
+//           status: ListingsStatusEnum.closed,
+//         },
+//       ],
+//       orderBy: [ListingOrderByKeys.mostRecentlyClosed],
+//       orderDir: [OrderByEnum.desc],
+//       limit: process.env.maxClosedListings,
+//     },
+//     req
+//   )
+// }
 
 let jurisdiction: Jurisdiction | null = null
 

@@ -15,6 +15,7 @@ import {
   LanguagesEnum,
   ListingsStatusEnum,
   ListingsService,
+  JurisdictionsService,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { Heading, Icon, Button, Message } from "@bloom-housing/ui-seeds"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
@@ -36,17 +37,26 @@ const loadListing = async (
   context,
   language,
   listingsService: ListingsService,
+  jurisdictionsService: JurisdictionsService,
   isPreview
 ) => {
-  const response = await listingsService.retrieve(
+  const listingResponse = await listingsService.retrieve(
     { id: listingId },
     {
       headers: { language },
     }
   )
-  conductor.listing = response
+
+  const jurisdictionResponse = await jurisdictionsService.retrieve({
+    jurisdictionId: listingResponse.jurisdictions.id,
+  })
+
+  conductor.listing = listingResponse
   const applicationConfig = retrieveApplicationConfig(conductor.listing, isPreview) // TODO: load from backend
-  conductor.config = applicationConfig
+  conductor.config = {
+    ...applicationConfig,
+    languages: jurisdictionResponse.languages,
+  }
   stateFunction(conductor.listing)
   context.syncListing(conductor.listing)
 }
@@ -59,7 +69,8 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
   const router = useRouter()
   const [listing, setListing] = useState(null)
   const context = useContext(AppSubmissionContext)
-  const { initialStateLoaded, profile, listingsService } = useContext(AuthContext)
+  const { initialStateLoaded, profile, listingsService, jurisdictionsService } =
+    useContext(AuthContext)
   const toastyRef = useToastyRef()
   const { conductor } = context
 
@@ -86,7 +97,16 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
       }
     }
     if (!context.listing || context.listing.id !== listingId) {
-      void loadListing(listingId, setListing, conductor, context, "en", listingsService, isPreview)
+      void loadListing(
+        listingId,
+        setListing,
+        conductor,
+        context,
+        "en",
+        listingsService,
+        jurisdictionsService,
+        isPreview
+      )
     } else {
       conductor.listing = context.listing
       setListing(context.listing)
@@ -99,6 +119,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
     initialStateLoaded,
     profile,
     listingsService,
+    jurisdictionsService,
     isPreview,
     props,
   ])
@@ -135,12 +156,13 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
         context,
         language,
         listingsService,
+        jurisdictionsService,
         isPreview
       ).then(() => {
         void router.push(conductor.determineNextUrl(), null, { locale: language })
       })
     },
-    [conductor, context, listingId, router, listingsService, isPreview]
+    [conductor, context, listingId, router, listingsService, jurisdictionsService, isPreview]
   )
 
   const statusContent = getListingApplicationStatus(listing)

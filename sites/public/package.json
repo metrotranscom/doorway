@@ -71,7 +71,7 @@
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/markdown-to-jsx": "^6.11.2",
-    "@types/node": "^12.12.67",
+    "@types/node": "^22.15.29",
     "@types/react": "^18.0.34",
     "babel-loader": "^9.2.1",
     "concurrently": "^5.3.0",

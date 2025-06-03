@@ -200,7 +200,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
 
         {initialStateLoaded && !profile && (
           <>
-            <CardSection divider={"flush"} className={"bg-primary-lighter"}>
+            <CardSection divider={"flush"} className={styles["application-form-action-footer"]}>
               <Heading priority={2} size={"2xl"} className={"pb-4"}>
                 {t("account.haveAnAccount")}
               </Heading>
@@ -214,7 +214,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
                 {t("nav.signIn")}
               </Button>
             </CardSection>
-            <CardSection divider={"flush"} className={"bg-primary-lighter"}>
+            <CardSection divider={"flush"} className={styles["application-form-action-footer"]}>
               <Heading priority={2} size={"2xl"} className={"pb-4"}>
                 {t("authentication.createAccount.noAccount")}
               </Heading>

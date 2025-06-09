@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/router"
-import { GetStaticPaths, GetStaticProps } from "next"
 import dayjs from "dayjs"
 import { ImageCard, t } from "@bloom-housing/ui-components"
 import {
@@ -28,7 +27,6 @@ import { UserStatus } from "../../../lib/constants"
 import ApplicationFormLayout from "../../../layouts/application-form"
 import { getListingApplicationStatus } from "../../../lib/helpers"
 import styles from "../../../layouts/application-form.module.scss"
-import { runtimeConfig } from "../../../lib/runtime-config"
 
 const loadListing = async (
   listingId,
@@ -52,11 +50,7 @@ const loadListing = async (
   context.syncListing(conductor.listing)
 }
 
-type ChooseLanguageProps = {
-  backendApiBase: string
-}
-
-const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
+const ApplicationChooseLanguage = () => {
   const router = useRouter()
   const [listing, setListing] = useState(null)
   const context = useContext(AppSubmissionContext)
@@ -101,7 +95,6 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
     profile,
     listingsService,
     isPreview,
-    props,
   ])
 
   useEffect(() => {
@@ -236,16 +229,3 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
 }
 
 export default ApplicationChooseLanguage
-
-export const getStaticPaths: GetStaticPaths = () => {
-  return { paths: [], fallback: "blocking" }
-}
-
-export const getStaticProps: GetStaticProps = () => {
-  const backendApiBase = runtimeConfig.getBackendApiBase()
-
-  return {
-    props: { backendApiBase: backendApiBase },
-    revalidate: Number(process.env.cacheRevalidate),
-  }
-}

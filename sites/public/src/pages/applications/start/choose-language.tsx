@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/router"
+import { GetStaticPaths, GetStaticProps } from "next"
 import dayjs from "dayjs"
 import { ImageCard, t } from "@bloom-housing/ui-components"
 import {
@@ -236,10 +237,15 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
 
 export default ApplicationChooseLanguage
 
-export function getServerSideProps() {
+export const getStaticPaths: GetStaticPaths = () => {
+  return { paths: [], fallback: "blocking" }
+}
+
+export const getStaticProps: GetStaticProps = () => {
   const backendApiBase = runtimeConfig.getBackendApiBase()
 
   return {
     props: { backendApiBase: backendApiBase },
+    revalidate: Number(process.env.cacheRevalidate),
   }
 }

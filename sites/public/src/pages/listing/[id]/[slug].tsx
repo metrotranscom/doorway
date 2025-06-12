@@ -107,6 +107,7 @@ export const getStaticProps: GetStaticProps = async (context: {
       },
     })
   } catch (e) {
+    console.error("slug notFound Error:", e)
     return { notFound: true }
   }
   return {

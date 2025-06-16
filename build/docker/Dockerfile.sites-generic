@@ -26,7 +26,7 @@ ARG LIMIT_CLOSED_LISTING_ACTIONS
 ARG USE_SECURE_DOWNLOAD_PATHWAY
 
 # The base image will contain all the source code needed for our site
-FROM node:18.14-alpine AS base
+FROM node:24.2-alpine AS base
 
 # https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
 RUN apk add --no-cache libc6-compat
@@ -193,7 +193,7 @@ RUN yarn install --frozen-lockfile --only=production
 #####################
 
 # The run stage is used to run our optimized app
-FROM node:18.14-alpine AS run
+FROM node:24.2-alpine AS run
 
 ARG SITE
 

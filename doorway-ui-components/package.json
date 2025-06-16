@@ -54,7 +54,7 @@
     "@bloom-housing/ui-components": "12.4.0",
     "@bloom-housing/ui-seeds": "1.19.1",
     "ag-grid-community": "^26.0.0",
-    "markdown-to-jsx": "7.1.8",
+    "markdown-to-jsx": "7.7.7",
     "nanoid": "^3.3.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",

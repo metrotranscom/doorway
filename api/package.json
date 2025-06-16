@@ -92,7 +92,7 @@
     "swagger-axios-codegen": "~0.15.12",
     "ts-node": "^10.0.0",
     "twilio": "^4.15.0",
-    "winston": "^3.13.0"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.5",

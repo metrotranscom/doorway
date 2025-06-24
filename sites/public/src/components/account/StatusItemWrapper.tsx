@@ -34,6 +34,7 @@ const StatusItemWrapper = (props: StatusItemWrapperProps) => {
         lotteryLastPublishedAt && dayjs(lotteryLastPublishedAt).format("MMM D, YYYY")
       }
       lotteryResults={
+        // NOTE: Allowing expired lotteries to show temporarily
         (props.application?.listings?.lotteryStatus === LotteryStatusEnum.expired ||
           props.application?.listings?.lotteryStatus === LotteryStatusEnum.publishedToPublic) &&
         !!props.application?.applicationLotteryPositions?.length

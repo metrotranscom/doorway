@@ -1,5 +1,6 @@
 import React, { useEffect, useContext } from "react"
 import Head from "next/head"
+import { GetStaticPaths, GetStaticProps } from "next"
 import axios from "axios"
 import { t } from "@bloom-housing/ui-components"
 import {
@@ -16,6 +17,7 @@ import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
 import { runtimeConfig } from "../../../lib/runtime-config"
 import { Jurisdiction, Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { ListingViewSeeds } from "../../../components/listing/ListingViewSeeds"
 
 interface ListingProps {
   listing: Listing
@@ -71,81 +73,42 @@ export default function ListingPage(props: ListingProps) {
         <title>{pageTitle}</title>
       </Head>
       <MetaTags title={listing.name} image={metaImage} description={metaDescription} />
-      <ListingView
-        listing={listing as ListingViewListing}
-        jurisdiction={props.jurisdiction}
-        googleMapsApiKey={props.googleMapsApiKey}
-        googleMapsMapId={props.googleMapsMapId}
-        isExternal={false}
-      />
+      {process.env.showNewSeedsDesigns ? (
+        <ListingViewSeeds listing={listing} profile={profile} jurisdiction={props.jurisdiction} />
+      ) : (
+        <ListingView
+          listing={listing as ListingViewListing}
+          jurisdiction={props.jurisdiction}
+          googleMapsApiKey={props.googleMapsApiKey}
+          googleMapsMapId={props.googleMapsMapId}
+          isExternal={false}
+        />
+      )}
     </Layout>
   )
 }
-/**
- *
- * getStaticPaths and getStaticProps with revalidation isn't actually working on netflify, so we have to use getServerSideProps until it does
- */
-/* export async function getStaticPaths(context: { locales: Array<string> }) {
-  try {
-    const response = await axios.get(process.env.listingServiceUrl, {
-      params: {
-        view: "base",
-        limit: "all",
-        filter: [
-          {
-            $comparison: "<>",
-            status: "pending",
-          },
-        ],
-      },
-      paramsSerializer: (params) => {
-        return qs.stringify(params)
-      },
-    })
 
-    return {
-      paths: response?.data?.items
-        ? context.locales.flatMap((locale: string) =>
-            response.data.items.map((listing) => ({
-              params: { id: listing.id, slug: listing.urlSlug },
-              locale: locale,
-            }))
-          )
-        : [],
-      fallback: "blocking",
-    }
-  } catch (error) {
-    console.error("listings getStaticPaths error = ", error)
-    return {
-      paths: [],
-      fallback: "blocking",
-    }
-  }
-} */
+export const getStaticPaths: GetStaticPaths = () => {
+  return { paths: [], fallback: "blocking" }
+}
 
-export async function getServerSideProps(context: {
+export const getStaticProps: GetStaticProps = async (context: {
   params: Record<string, string>
   locale: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  req: any
-}) {
+}) => {
   let response
   const listingServiceUrl = runtimeConfig.getListingServiceUrl()
 
   try {
-    const headers: Record<string, string> = {
-      "x-forwarded-for": context.req.headers["x-forwarded-for"] ?? context.req.socket.remoteAddress,
-      language: context.locale,
-    }
-
-    if (process.env.API_PASS_KEY) {
-      headers.passkey = process.env.API_PASS_KEY
-    }
     response = await axios.get(`${listingServiceUrl}/${context.params.id}`, {
-      headers,
+      headers: {
+        language: context.locale,
+        passkey: process.env.API_PASS_KEY,
+      },
     })
   } catch (e) {
-    return { notFound: true }
+    console.error("slug notFound Error:", e)
+    return { notFound: true, revalidate: Number(process.env.cacheRevalidate) }
   }
   return {
     props: {
@@ -154,5 +117,6 @@ export async function getServerSideProps(context: {
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey() || null,
       googleMapsMapId: runtimeConfig.getGoogleMapsMapId() || null,
     },
+    revalidate: Number(process.env.cacheRevalidate),
   }
 }

@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   ApplicationReviewStatusEnum,
@@ -33,6 +34,7 @@ describe('Testing script runner service', () => {
         AmiChartService,
         FeatureFlagService,
         JurisdictionService,
+        Logger,
       ],
       imports: [AssetModule, PrismaModule],
     }).compile();
@@ -2109,7 +2111,51 @@ describe('Testing script runner service', () => {
         scriptName,
       },
     });
-    expect(prisma.featureFlags.create).toHaveBeenCalledTimes(16);
+    expect(prisma.featureFlags.create).toHaveBeenCalledTimes(17);
+  });
+
+  it('should add translations for lottery opportunity email', async () => {
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.findFirst = jest
+      .fn()
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
+    prisma.translations.update = jest.fn().mockResolvedValue(null);
+
+    const id = randomUUID();
+    const scriptName = 'update forgot email translations';
+
+    const res = await service.updateForgotEmailTranslations({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.translations.findFirst).toHaveBeenCalledTimes(5);
+    expect(prisma.translations.update).toHaveBeenCalledTimes(5);
   });
 
   // | ---------- HELPER TESTS BELOW ---------- | //

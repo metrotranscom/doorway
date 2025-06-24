@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/router"
+import dayjs from "dayjs"
 import { ImageCard, t } from "@bloom-housing/ui-components"
 import {
   imageUrlFromListing,
@@ -22,12 +23,10 @@ import {
   AppSubmissionContext,
   retrieveApplicationConfig,
 } from "../../../lib/applications/AppSubmissionContext"
-import { useGetApplicationStatusProps } from "../../../lib/hooks"
 import { UserStatus } from "../../../lib/constants"
 import ApplicationFormLayout from "../../../layouts/application-form"
+import { getListingApplicationStatus } from "../../../lib/helpers"
 import styles from "../../../layouts/application-form.module.scss"
-import { runtimeConfig } from "../../../lib/runtime-config"
-import dayjs from "dayjs"
 
 const loadListing = async (
   listingId,
@@ -51,11 +50,7 @@ const loadListing = async (
   context.syncListing(conductor.listing)
 }
 
-type ChooseLanguageProps = {
-  backendApiBase: string
-}
-
-const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
+const ApplicationChooseLanguage = () => {
   const router = useRouter()
   const [listing, setListing] = useState(null)
   const context = useContext(AppSubmissionContext)
@@ -100,7 +95,6 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
     profile,
     listingsService,
     isPreview,
-    props,
   ])
 
   useEffect(() => {
@@ -141,7 +135,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
     [conductor, context, listingId, router, listingsService, isPreview]
   )
 
-  const { content: appStatusContent } = useGetApplicationStatusProps(listing)
+  const statusContent = getListingApplicationStatus(listing)
 
   return (
     <FormsLayout>
@@ -168,7 +162,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
               }
               fullwidth
             >
-              {appStatusContent}
+              {statusContent?.content}
             </Message>
           </CardSection>
         )}
@@ -235,11 +229,3 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
 }
 
 export default ApplicationChooseLanguage
-
-export function getServerSideProps() {
-  const backendApiBase = runtimeConfig.getBackendApiBase()
-
-  return {
-    props: { backendApiBase: backendApiBase },
-  }
-}

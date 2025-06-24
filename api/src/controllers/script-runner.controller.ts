@@ -25,7 +25,7 @@ import { AssetTransferDTO } from '../dtos/script-runner/asset-transfer.dto';
 @ApiTags('scriptRunner')
 @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
 @UseGuards(ApiKeyGuard, OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
-export class ScirptRunnerController {
+export class ScriptRunnerController {
   constructor(private readonly scriptRunnerService: ScriptRunnerService) {}
 
   @Put('exampleScript')
@@ -343,5 +343,17 @@ export class ScirptRunnerController {
     @Request() req: ExpressRequest,
   ): Promise<SuccessDTO> {
     return await this.scriptRunnerService.resetMissingTranslations(req);
+  }
+
+  @Put('updateForgotEmailTranslations')
+  @ApiOperation({
+    summary: 'Script to update the forgot email translations',
+    operationId: 'updateForgotEmailTranslations',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async updateForgotEmailTranslations(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.updateForgotEmailTranslations(req);
   }
 }

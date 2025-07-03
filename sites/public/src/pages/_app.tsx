@@ -25,6 +25,8 @@ import LinkComponent from "../components/core/LinkComponent"
 
 import "../../styles/overrides.scss"
 
+const rtlLocales = process.env.rtlLanguages.split(",")
+
 function BloomApp({ Component, router, pageProps }: AppProps) {
   const { locale } = router
   //  const initialized = useState(true)
@@ -70,28 +72,33 @@ function BloomApp({ Component, router, pageProps }: AppProps) {
 
       document.body.dataset.customScriptsLoaded = "true"
     }
-  })
 
-  // Investigating performance issues in #3051
-  // useEffect(() => {
-  //   if (process.env.NODE_ENV !== "production") {
-  //     // eslint-disable-next-line @typescript-eslint/no-var-requires
-  //     const axe = require("@axe-core/react")
-  //     void axe(React, ReactDOM, 5000)
-  //   }
-  // }, [])
+    if (rtlLocales.includes(locale)) {
+      if (document.documentElement.getAttribute("dir") !== "rtl") {
+        document.documentElement.setAttribute("dir", "rtl")
+      }
+    } else {
+      document.documentElement.setAttribute("dir", "ltr")
+    }
+  }, [locale, router.events])
 
-  // HACK ALERT: we need to add the Next link context to both doorway uic and
-  // uic in order for routing to work
   // NOTE: Seeds and UI-Components both use a NavigationContext to help internal links use Next's
   // routing system, so we'll include both here until UIC is no longer in use.
+
+  const jurisdictionClassname = process.env.jurisdictionName.replace(" ", "-").toLowerCase()
 
   const pageContent = (
     <ConfigProvider apiUrl={process.env.backendApiBase}>
       <AuthProvider>
         <MessageProvider>
           <LoggedInUserIdleTimeout onTimeout={() => conductor.reset()} />
-          {hasMounted && <Component {...pageProps} />}
+          {hasMounted && (
+            <div
+              className={`${process.env.NODE_ENV !== "production" ? jurisdictionClassname : ""}`}
+            >
+              <Component {...pageProps} />
+            </div>
+          )}
         </MessageProvider>
       </AuthProvider>
     </ConfigProvider>

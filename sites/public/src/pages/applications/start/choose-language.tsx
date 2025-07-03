@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/router"
+import dayjs from "dayjs"
 import { ImageCard, t } from "@bloom-housing/ui-components"
 import {
   imageUrlFromListing,
@@ -7,13 +8,14 @@ import {
   PageView,
   pushGtmEvent,
   AuthContext,
-  MessageContext,
+  useToastyRef,
   CustomIconMap,
 } from "@bloom-housing/shared-helpers"
 import {
   LanguagesEnum,
   ListingsStatusEnum,
   ListingsService,
+  JurisdictionsService,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { Heading, Icon, Button, Message } from "@bloom-housing/ui-seeds"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
@@ -22,12 +24,10 @@ import {
   AppSubmissionContext,
   retrieveApplicationConfig,
 } from "../../../lib/applications/AppSubmissionContext"
-import { useGetApplicationStatusProps } from "../../../lib/hooks"
 import { UserStatus } from "../../../lib/constants"
 import ApplicationFormLayout from "../../../layouts/application-form"
+import { getListingApplicationStatus } from "../../../lib/helpers"
 import styles from "../../../layouts/application-form.module.scss"
-import { runtimeConfig } from "../../../lib/runtime-config"
-import dayjs from "dayjs"
 
 const loadListing = async (
   listingId,
@@ -36,31 +36,37 @@ const loadListing = async (
   context,
   language,
   listingsService: ListingsService,
+  jurisdictionsService: JurisdictionsService,
   isPreview
 ) => {
-  const response = await listingsService.retrieve(
+  const listingResponse = await listingsService.retrieve(
     { id: listingId },
     {
       headers: { language },
     }
   )
-  conductor.listing = response
+
+  const jurisdictionResponse = await jurisdictionsService.retrieve({
+    jurisdictionId: listingResponse.jurisdictions.id,
+  })
+  conductor.listing = listingResponse
   const applicationConfig = retrieveApplicationConfig(conductor.listing, isPreview) // TODO: load from backend
-  conductor.config = applicationConfig
+  conductor.config = {
+    ...applicationConfig,
+    languages: jurisdictionResponse.languages,
+    featureFlags: jurisdictionResponse.featureFlags,
+  }
   stateFunction(conductor.listing)
   context.syncListing(conductor.listing)
 }
 
-type ChooseLanguageProps = {
-  backendApiBase: string
-}
-
-const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
+const ApplicationChooseLanguage = () => {
   const router = useRouter()
   const [listing, setListing] = useState(null)
   const context = useContext(AppSubmissionContext)
-  const { initialStateLoaded, profile, listingsService } = useContext(AuthContext)
-  const { addToast } = useContext(MessageContext)
+  const { initialStateLoaded, profile, listingsService, jurisdictionsService } =
+    useContext(AuthContext)
+  const toastyRef = useToastyRef()
   const { conductor } = context
 
   const listingId = router.query.listingId
@@ -86,7 +92,16 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
       }
     }
     if (!context.listing || context.listing.id !== listingId) {
-      void loadListing(listingId, setListing, conductor, context, "en", listingsService, isPreview)
+      void loadListing(
+        listingId,
+        setListing,
+        conductor,
+        context,
+        "en",
+        listingsService,
+        jurisdictionsService,
+        isPreview
+      )
     } else {
       conductor.listing = context.listing
       setListing(context.listing)
@@ -99,11 +114,13 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
     initialStateLoaded,
     profile,
     listingsService,
+    jurisdictionsService,
     isPreview,
-    props,
   ])
 
   useEffect(() => {
+    const { addToast } = toastyRef.current
+
     if (listing && router.isReady) {
       const currentDate = dayjs()
       if (
@@ -111,11 +128,11 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
         (!isPreview && listing?.status !== ListingsStatusEnum.active) ||
         (listing?.applicationDueDate && currentDate > dayjs(listing.applicationDueDate))
       ) {
-        // addToast(t("listings.applicationsClosedRedirect"), { variant: "alert" })
+        addToast(t("listings.applicationsClosedRedirect"), { variant: "alert" })
         void router.push(`/${router.locale}/listing/${listing?.id}/${listing?.urlSlug}`)
       }
     }
-  }, [isPreview, listing, router, addToast])
+  }, [isPreview, listing, router, toastyRef])
 
   const imageUrl = listing?.assets
     ? imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize))[0]
@@ -133,15 +150,16 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
         context,
         language,
         listingsService,
+        jurisdictionsService,
         isPreview
       ).then(() => {
         void router.push(conductor.determineNextUrl(), null, { locale: language })
       })
     },
-    [conductor, context, listingId, router, listingsService, isPreview]
+    [conductor, context, listingId, router, listingsService, jurisdictionsService, isPreview]
   )
 
-  const { content: appStatusContent } = useGetApplicationStatusProps(listing)
+  const statusContent = getListingApplicationStatus(listing)
 
   return (
     <FormsLayout>
@@ -168,7 +186,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
               }
               fullwidth
             >
-              {appStatusContent}
+              {statusContent?.content}
             </Message>
           </CardSection>
         )}
@@ -200,7 +218,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
 
         {initialStateLoaded && !profile && (
           <>
-            <CardSection divider={"flush"} className={"bg-primary-lighter"}>
+            <CardSection divider={"flush"} className={styles["application-form-action-footer"]}>
               <Heading priority={2} size={"2xl"} className={"pb-4"}>
                 {t("account.haveAnAccount")}
               </Heading>
@@ -214,7 +232,7 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
                 {t("nav.signIn")}
               </Button>
             </CardSection>
-            <CardSection divider={"flush"} className={"bg-primary-lighter"}>
+            <CardSection divider={"flush"} className={styles["application-form-action-footer"]}>
               <Heading priority={2} size={"2xl"} className={"pb-4"}>
                 {t("authentication.createAccount.noAccount")}
               </Heading>
@@ -235,11 +253,3 @@ const ApplicationChooseLanguage = (props: ChooseLanguageProps) => {
 }
 
 export default ApplicationChooseLanguage
-
-export function getServerSideProps() {
-  const backendApiBase = runtimeConfig.getBackendApiBase()
-
-  return {
-    props: { backendApiBase: backendApiBase },
-  }
-}

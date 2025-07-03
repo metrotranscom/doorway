@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import Markdown from "markdown-to-jsx"
 import { useRouter } from "next/router"
 import Head from "next/head"
@@ -17,6 +17,14 @@ const Layout = (props: LayoutProps) => {
   const { profile, signOut } = useContext(AuthContext)
   const { toastMessagesRef, addToast } = useContext(MessageContext)
   const router = useRouter()
+
+  const [showFavorites, setShowFavorites] = useState(false)
+  const [showApplications, setShowApplications] = useState(true)
+
+  useEffect(() => {
+    setShowFavorites(window.localStorage.getItem("bloom-show-favorites-menu-item") === "true")
+    setShowApplications(window.localStorage.getItem("bloom-hide-applications-menu-item") !== "true")
+  }, [setShowFavorites, setShowApplications])
 
   const languages =
     router?.locales?.map((item) => ({
@@ -83,10 +91,22 @@ const Layout = (props: LayoutProps) => {
             title: t("nav.myDashboard"),
             href: "/account/dashboard",
           },
-          {
-            title: t("account.myApplications"),
-            href: "/account/applications",
-          },
+          ...(showApplications
+            ? [
+                {
+                  title: t("account.myApplications"),
+                  href: "/account/applications",
+                },
+              ]
+            : []),
+          ...(showFavorites
+            ? [
+                {
+                  title: t("account.myFavorites"),
+                  href: "/account/favorites",
+                },
+              ]
+            : []),
           {
             title: t("account.accountSettings"),
             href: "/account/edit",
@@ -128,7 +148,7 @@ const Layout = (props: LayoutProps) => {
           logoSrc="/images/doorway-logo.png"
           homeURL="/"
           mainContentId="main-content"
-          languages={languages.map((lang) => {
+          languages={languages?.map((lang) => {
             return {
               label: lang.label,
               onClick: () =>
@@ -149,7 +169,7 @@ const Layout = (props: LayoutProps) => {
           strings={{ skipToMainContent: t("t.skipToMainContent") }}
         />
         <main id="main-content" className="md:overflow-x-hidden relative">
-          {toastMessagesRef.current.map((toastMessage) => (
+          {toastMessagesRef.current?.map((toastMessage) => (
             <Toast {...toastMessage.props} testId="toast-alert" key={toastMessage.timestamp}>
               {toastMessage.message}
             </Toast>

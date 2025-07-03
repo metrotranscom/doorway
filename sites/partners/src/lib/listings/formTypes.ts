@@ -8,6 +8,8 @@ import {
   PaperApplication,
   PaperApplicationCreate,
   Unit,
+  UnitGroup,
+  UnitGroupAmiLevel,
   User,
   YesNoEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -47,6 +49,7 @@ export type FormListing = Omit<Listing, "countyCode"> & {
   referralOpportunityChoice?: YesNoEnum
   criteriaAttachType?: string
   includeCommunityDisclaimerQuestion?: YesNoEnum
+  listingSection8Acceptance?: YesNoEnum
   communityDisclaimerTitle?: string
   communityDisclaimerDescription?: string
   lotteryDate?: {
@@ -70,6 +73,7 @@ export type FormListing = Omit<Listing, "countyCode"> & {
     day: string
     year: string
   }
+  marketingStartDate?: number
   reviewOrderQuestion?: string
   lotteryOptInQuestion?: YesNoEnum
   listingAvailabilityQuestion?: string
@@ -119,6 +123,7 @@ export const formDefaults: FormListing = {
   listingEvents: [],
   listingImages: [],
   listingFeatures: null,
+  listingNeighborhoodAmenities: null,
   listingUtilities: null,
   listingsLeasingAgentAddress: null,
   leasingAgentEmail: null,
@@ -126,6 +131,7 @@ export const formDefaults: FormListing = {
   leasingAgentOfficeHours: "",
   leasingAgentPhone: null,
   leasingAgentTitle: "",
+  managementWebsite: "",
   name: null,
   postMarkDate: null,
   postmarkedApplicationsReceivedByDate: null,
@@ -149,7 +155,8 @@ export const formDefaults: FormListing = {
   developer: null,
   householdSizeMax: 0,
   householdSizeMin: 0,
-  neighborhood: "",
+  neighborhood: undefined,
+  region: undefined,
   petPolicy: "",
   smokingPolicy: "",
   unitsAvailable: 0,
@@ -174,6 +181,15 @@ export type TempUnit = Unit & {
   maxIncomeHouseholdSize8?: string
 }
 
+export type TempAmiLevel = UnitGroupAmiLevel & {
+  tempId?: number
+}
+
+export type TempUnitGroup = Omit<UnitGroup, "unitGroupAmiLevels"> & {
+  tempId?: number
+  unitGroupAmiLevels: TempAmiLevel[]
+}
+
 export type TempEvent = ListingEvent & {
   tempId?: string
 }
@@ -184,8 +200,10 @@ export type FormMetadata = {
   preferences: MultiselectQuestion[]
   programs: MultiselectQuestion[]
   units: TempUnit[]
+  unitGroups: TempUnitGroup[]
   openHouseEvents: TempEvent[]
   profile: User
   latLong: LatitudeLongitude
   customMapPositionChosen: boolean
+  enableUnitGroups: boolean
 }

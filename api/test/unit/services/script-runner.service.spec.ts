@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   ApplicationReviewStatusEnum,
@@ -26,6 +27,11 @@ const externalPrismaClient = mockDeep<PrismaClient>();
 describe('Testing script runner service', () => {
   let service: ScriptRunnerService;
   let prisma: PrismaService;
+  let mockConsoleLog;
+
+  beforeEach(() => {
+    mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
+  });
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -33,12 +39,17 @@ describe('Testing script runner service', () => {
         AmiChartService,
         FeatureFlagService,
         JurisdictionService,
+        Logger,
       ],
       imports: [AssetModule, PrismaModule],
     }).compile();
 
     service = module.get<ScriptRunnerService>(ScriptRunnerService);
     prisma = module.get<PrismaService>(PrismaService);
+  });
+
+  afterEach(() => {
+    mockConsoleLog.mockRestore();
   });
 
   describe('transferJurisdictionData', () => {
@@ -1885,6 +1896,9 @@ describe('Testing script runner service', () => {
         lotteryOptIn: null,
       },
     });
+    expect(mockConsoleLog).toHaveBeenCalledWith(
+      'updated lottery opt in for 1 listings',
+    );
   });
 
   it('should hide programs from listing detail page', async () => {
@@ -2109,7 +2123,54 @@ describe('Testing script runner service', () => {
         scriptName,
       },
     });
-    expect(prisma.featureFlags.create).toHaveBeenCalledTimes(16);
+    expect(prisma.featureFlags.create).toHaveBeenCalledTimes(17);
+    expect(mockConsoleLog).toHaveBeenCalledWith(
+      'Number of feature flags created: 17',
+    );
+  });
+
+  it('should add translations for lottery opportunity email', async () => {
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.findFirst = jest
+      .fn()
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
+    prisma.translations.update = jest.fn().mockResolvedValue(null);
+
+    const id = randomUUID();
+    const scriptName = 'update forgot email translations';
+
+    const res = await service.updateForgotEmailTranslations({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.translations.findFirst).toHaveBeenCalledTimes(5);
+    expect(prisma.translations.update).toHaveBeenCalledTimes(5);
   });
 
   // | ---------- HELPER TESTS BELOW ---------- | //

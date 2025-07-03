@@ -3,12 +3,16 @@ import { randomName } from './word-generator';
 
 export const jurisdictionFactory = (
   jurisdictionName = randomName(),
-  listingApprovalPermissions?: UserRoleEnum[],
-  duplicateListingPermissions?: UserRoleEnum[],
+  optionalFields?: {
+    listingApprovalPermissions?: UserRoleEnum[];
+    duplicateListingPermissions?: UserRoleEnum[];
+    featureFlags?: string[];
+    languages?: LanguagesEnum[];
+  },
 ): Prisma.JurisdictionsCreateInput => ({
   name: jurisdictionName,
   notificationsSignUpUrl: 'https://www.exygy.com',
-  languages: [LanguagesEnum.en],
+  languages: optionalFields?.languages || [LanguagesEnum.en, LanguagesEnum.es],
   partnerTerms: 'Example Terms',
   publicUrl: 'http://localhost:3000',
   emailFromAddress: 'Bloom <bloom-no-reply@exygy.dev>',
@@ -19,9 +23,16 @@ export const jurisdictionFactory = (
   enableGeocodingPreferences: true,
   enableListingOpportunity: false,
   enableGeocodingRadiusMethod: false,
-  listingApprovalPermissions: listingApprovalPermissions || [],
-  duplicateListingPermissions: duplicateListingPermissions || [
+  listingApprovalPermissions: optionalFields?.listingApprovalPermissions || [],
+  duplicateListingPermissions: optionalFields?.duplicateListingPermissions || [
     UserRoleEnum.admin,
     UserRoleEnum.jurisdictionAdmin,
   ],
+  featureFlags: optionalFields?.featureFlags
+    ? {
+        connect: optionalFields.featureFlags.map((flag) => {
+          return { name: flag };
+        }),
+      }
+    : undefined,
 });

@@ -356,4 +356,32 @@ export class ScriptRunnerController {
   ): Promise<SuccessDTO> {
     return await this.scriptRunnerService.updateForgotEmailTranslations(req);
   }
+
+  @Put('migrateDetroitToMultiselectQuestions')
+  @ApiOperation({
+    summary:
+      'A script that moves preferences and programs to multiselect questions in Detroit db',
+    operationId: 'migrateDetroitToMultiselectQuestions',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async migrateDetroitToMultiselectQuestions(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.migrateDetroitToMultiselectQuestions(
+      req,
+    );
+  }
+
+  @Put('markTransferedData')
+  @ApiOperation({
+    summary:
+      'A script that marks transferred data in Doorway as externally created',
+    operationId: 'markTransferedData',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async markTransferedData(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.markTransferedData(req);
+  }
 }

@@ -78,7 +78,7 @@ Running `yarn dev:all` from root runs 3 processes for both apps and the backend 
 
 You can also run each process individually from separate terminals with the following command in each directory: `yarn dev`.
 
-We have a number of default users seeded for local development, the most basic of which being (email: `admin@example.com`, password: `abcdef`) which will login to both the public and partners sites, but you can view other default seeded users and their permissions by checking out the user section of the [seed file](https://github.com/bloom-housing/bloom/blob/aed77bf06525be359ef9205044fabbea2ab2576d/api/prisma/seed-staging.ts#L67).
+We have a number of default users seeded for local development, the most basic of which being (email: `admin@example.com`, password: `abcdef`) which will login to both the public and partners sites, but you can view other default seeded users and their permissions by checking out the user section of the [seed file](https://github.com/metrotranscom/doorway/blob/e3efdf29712cdf02ab9f0156406e0bb8d16f25d2/api/prisma/seed-staging.ts#L237).
 
 ### Bloom UIC development
 

@@ -4,7 +4,7 @@ ARG ECR_REGION
 FROM --platform=linux/amd64 node:16.3.0
 
 # The source stage will contain only the necessary source code
-FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/node:18.20-alpine AS source
+FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:18.20-alpine AS source
 
 RUN ln -s /usr/lib/libssl.so.3 /lib/libssl.so.3
 

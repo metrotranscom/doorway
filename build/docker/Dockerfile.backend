@@ -138,6 +138,9 @@ CMD yarn start:prod
 #####################
 
 # The run stage contains an optimized image for running the application
+# Re-declare ARGs to make them available in this stage
+ARG ECR_ACCOUNT_ID
+ARG ECR_REGION
 FROM run AS migrate
 
 ENV SKIP_MIGRATIONS=TRUE

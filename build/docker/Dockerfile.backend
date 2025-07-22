@@ -1,10 +1,10 @@
 ARG ECR_ACCOUNT_ID
 ARG ECR_REGION
 
-FROM --platform=linux/amd64 ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/node:16.3.0
+FROM --platform=linux/amd64 ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:16.3.0
 
 # The source stage will contain only the necessary source code
-FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/node:18.20-alpine AS source
+FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:18.20-alpine AS source
 
 RUN ln -s /usr/lib/libssl.so.3 /lib/libssl.so.3
 
@@ -51,7 +51,7 @@ CMD yarn test
 #####################
 
 # The build stage builds the code using the dependencies from the deps stage
-FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/node:18.20-alpine AS build
+FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:18.20-alpine AS build
 
 RUN ln -s /usr/lib/libssl.so.3 /lib/libssl.so.3
 
@@ -73,7 +73,7 @@ RUN yarn build
 #####################
 
 # The optimize stage contains only dependencies needed to run the service
-FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/node:18.20-alpine AS optimize
+FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:18.20-alpine AS optimize
 
 RUN ln -s /usr/lib/libssl.so.3 /lib/libssl.so.3
 
@@ -102,7 +102,7 @@ RUN yarn prisma generate
 #####################
 
 # The run stage contains an optimized image for running the application
-FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/node:18.20-alpine AS run
+FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:18.20-alpine AS run
 
 RUN ln -s /usr/lib/libssl.so.3 /lib/libssl.so.3
 

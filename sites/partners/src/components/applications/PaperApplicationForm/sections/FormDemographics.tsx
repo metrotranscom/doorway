@@ -86,7 +86,6 @@ const FormDemographics = ({ formValues }: FormDemographicsProps) => {
                 id="application.demographics.spokenLanguageNotListed"
                 name="application.demographics.spokenLanguageNotListed"
                 label={t("application.review.demographics.spokenLanguageSpecify")}
-                validation={{ required: true }}
                 register={register}
               />
             )}

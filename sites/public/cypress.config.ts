@@ -20,6 +20,20 @@ export default defineConfig({
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
+      on("before:browser:launch", (browser = {}, launchOptions) => {
+        if (browser.family === "chromium" && browser.name !== "electron") {
+          launchOptions.args.push("--start-fullscreen")
+
+          return launchOptions
+        }
+
+        if (browser.name === "electron") {
+          launchOptions.preferences.fullscreen = true
+
+          return launchOptions
+        }
+      })
+
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       return require("./cypress/plugins/index.js")(on, config)
     },

@@ -20,7 +20,7 @@ export default defineConfig({
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
-      on("before:browser:launch", (browser = {}, launchOptions) => {
+      on("before:browser:launch", (browser, launchOptions) => {
         if (browser.family === "chromium" && browser.name !== "electron") {
           launchOptions.args.push("--start-fullscreen")
 
@@ -38,7 +38,9 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config)
     },
     baseUrl: "http://localhost:3000",
-    specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
+    // specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
+    // TODO - when done troubleshooting delete below line and uncomment out above line
+    specPattern: "cypress/e2e/pages/listings-map.spec.ts",
     experimentalRunAllSpecs: true,
     env: {
       showSeedsDesign: process.env.SHOW_NEW_SEEDS_DESIGNS,

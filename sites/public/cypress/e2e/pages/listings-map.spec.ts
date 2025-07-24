@@ -18,6 +18,14 @@ describe("Listings map", function () {
 
     // Initial map load
     cy.getByTestId("map-total-results").contains("Total results 249")
+
+    // Troubleshooting Log out what map-total-results actually contains
+    cy.getByTestId("map-total-results")
+      .invoke("text")
+      .then((innerTextValue) => {
+        cy.log("MAP RESULTS EQUAL: ", innerTextValue)
+      })
+
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.getByTestId("map-cluster").should("have.length", 11)
 
@@ -90,6 +98,14 @@ describe("Listings map", function () {
     cy.getByTestId("map-zoom-out").click()
     cy.getByTestId("loading-overlay").should("not.exist")
     cy.getByTestId("map-total-results").contains("Total results 236")
+
+    // Troubleshooting Log out what map-total-results actually contains
+    cy.getByTestId("map-total-results")
+      .invoke("text")
+      .then((innerTextValue) => {
+        cy.log("MAP RESULTS EQUAL: ", innerTextValue)
+      })
+
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.get("@listingsSearch.all").should("have.length", 5)
 

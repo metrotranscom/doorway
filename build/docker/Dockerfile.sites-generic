@@ -196,7 +196,7 @@ RUN yarn install --frozen-lockfile --only=production
 ARG ECR_ACCOUNT_ID
 ARG ECR_REGION
 # The run stage is used to run our optimized app
-FROM {ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:18.14-alpine AS run
+FROM ${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/docker-hub/library/node:18.14-alpine AS run
 
 ARG SITE
 

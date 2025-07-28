@@ -32,8 +32,11 @@ import { PermissionAction } from '../decorators/permission-action.decorator';
 import { PermissionTypeDecorator } from '../decorators/permission-type.decorator';
 import Listing from '../dtos/listings/listing.dto';
 import { ListingCreate } from '../dtos/listings/listing-create.dto';
+import { ListingDuplicate } from '../dtos/listings/listing-duplicate.dto';
 import { ListingCsvQueryParams } from '../dtos/listings/listing-csv-query-params.dto';
 import { ListingFilterParams } from '../dtos/listings/listings-filter-params.dto';
+import { ListingMapMarker } from '../dtos/listings/listing-map-marker.dto';
+import { ListingsQueryBody } from '../dtos/listings/listings-query-body.dto';
 import { ListingsQueryParams } from '../dtos/listings/listings-query-params.dto';
 import { ListingsRetrieveParams } from '../dtos/listings/listings-retrieve-params.dto';
 import { ListingUpdate } from '../dtos/listings/listing-update.dto';
@@ -54,17 +57,20 @@ import { ListingCsvExporterService } from '../services/listing-csv-export.servic
 import { defaultValidationPipeOptions } from '../utilities/default-validation-pipe-options';
 import { mapTo } from '../utilities/mapTo';
 import { ListingCreateUpdateValidationPipe } from '../validation-pipes/listing-create-update-pipe';
+import { ListingFilterKeyDTO } from '../dtos/listings/listing-filter-key.dto';
 
 @Controller('listings')
 @ApiTags('listings')
 @ApiExtraModels(
+  ListingsQueryBody,
   ListingsQueryParams,
   ListingFilterParams,
+  ListingFilterKeyDTO,
   ListingsRetrieveParams,
   PaginationAllowsAllQueryParams,
   IdDTO,
 )
-@UseGuards(ApiKeyGuard, OptionalAuthGuard)
+@UseGuards(OptionalAuthGuard)
 @PermissionTypeDecorator('listing')
 @ActivityLogMetadata([{ targetPropertyName: 'status', propertyPath: 'status' }])
 @UseInterceptors(ActivityLogInterceptor)
@@ -74,33 +80,34 @@ export class ListingController {
     private readonly listingCsvExportService: ListingCsvExporterService,
   ) {}
 
-  @Get()
+  @Post('list')
   @ApiOperation({
     summary: 'Get a paginated set of listings',
-    operationId: 'list',
+    operationId: 'filterableList',
   })
+  @PermissionAction(permissionActions.read)
   @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: PaginatedListingDto })
-  public async getPaginatedSet(@Query() queryParams: ListingsQueryParams) {
+  public async getFilterablePaginatedSet(
+    @Body() queryParams: ListingsQueryBody,
+  ) {
     return await this.listingService.list(queryParams);
   }
 
   // REMOVE_WHEN_EXTERNAL_NOT_NEEDED
-  @Get('combined')
+  @Post('combined')
   // @ApiExtraModels(CombinedListingFilterParams, CombinedListingsQueryParams)
   @ApiOperation({
     summary: 'List all local and external listings',
     operationId: 'listCombined',
   })
+  @PermissionAction(permissionActions.read)
   @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
   public async getCombined(
-    @Query() queryParams: ListingsQueryParams,
+    @Body() queryParams: ListingsQueryParams,
   ): Promise<PaginatedListingDto> {
-    mapTo(ListingsQueryParams, queryParams, {
-      excludeExtraneousValues: true,
-    });
     const list = await this.listingService.listCombined(queryParams);
     return mapTo(PaginatedListingDto, list);
   }
@@ -111,7 +118,7 @@ export class ListingController {
     operationId: 'listAsCsv',
   })
   @Header('Content-Type', 'application/zip')
-  @UseGuards(OptionalAuthGuard, PermissionGuard)
+  @UseGuards(ApiKeyGuard, OptionalAuthGuard, PermissionGuard)
   @UseInterceptors(ExportLogInterceptor)
   async listAsCsv(
     @Request() req: ExpressRequest,
@@ -120,6 +127,21 @@ export class ListingController {
     queryParams: ListingCsvQueryParams,
   ): Promise<StreamableFile> {
     return await this.listingCsvExportService.exportFile(req, res, queryParams);
+  }
+
+  @Post('mapMarkers')
+  @ApiOperation({
+    summary: 'Get listing map markers',
+    operationId: 'mapMarkers',
+  })
+  @PermissionAction(permissionActions.read)
+  @ApiOkResponse({ type: ListingMapMarker, isArray: true })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  async mapMarkers(
+    @Body() queryParams: ListingsQueryParams,
+  ): Promise<ListingMapMarker[]> {
+    return await this.listingService.mapMarkers(queryParams);
   }
 
   @Get(`external/:id`)
@@ -142,28 +164,12 @@ export class ListingController {
     );
   }
 
-  @Get(`:id`)
-  @ApiOperation({ summary: 'Get listing by id', operationId: 'retrieve' })
-  @UseInterceptors(ClassSerializerInterceptor)
-  @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
-  @ApiOkResponse({ type: Listing })
-  async retrieve(
-    @Headers('language') language: LanguagesEnum,
-    @Param('id', new ParseUUIDPipe({ version: '4' })) listingId: string,
-    @Query() queryParams: ListingsRetrieveParams,
-  ) {
-    return await this.listingService.findOne(
-      listingId,
-      language,
-      queryParams.view,
-    );
-  }
-
   @Post()
   @ApiOperation({ summary: 'Create listing', operationId: 'create' })
   @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(new ListingCreateUpdateValidationPipe(defaultValidationPipeOptions))
   @ApiOkResponse({ type: Listing })
+  @UseGuards(ApiKeyGuard)
   async create(
     @Request() req: ExpressRequest,
     @Body() listingDto: ListingCreate,
@@ -174,9 +180,23 @@ export class ListingController {
     );
   }
 
+  @Post('duplicate')
+  @ApiOperation({ summary: 'Duplicate listing', operationId: 'duplicate' })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(new ListingCreateUpdateValidationPipe(defaultValidationPipeOptions))
+  @ApiOkResponse({ type: Listing })
+  @UseGuards(ApiKeyGuard)
+  async duplicate(
+    @Request() req: ExpressRequest,
+    @Body() dto: ListingDuplicate,
+  ): Promise<Listing> {
+    return await this.listingService.duplicate(dto, mapTo(User, req['user']));
+  }
+
   @Delete()
   @ApiOperation({ summary: 'Delete listing by id', operationId: 'delete' })
   @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  @UseGuards(ApiKeyGuard)
   async delete(
     @Body() dto: IdDTO,
     @Request() req: ExpressRequest,
@@ -221,6 +241,24 @@ export class ListingController {
   ) {
     return await this.listingService.findListingsWithMultiSelectQuestion(
       multiselectQuestionId,
+    );
+  }
+
+  @Get(`:id`)
+  @ApiOperation({ summary: 'Get listing by id', operationId: 'retrieve' })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+  @ApiOkResponse({ type: Listing })
+  async retrieve(
+    @Headers('language') language: LanguagesEnum,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) listingId: string,
+    @Query() queryParams: ListingsRetrieveParams,
+  ) {
+    return await this.listingService.findOne(
+      listingId,
+      language,
+      queryParams.view,
+      queryParams.combined,
     );
   }
 }

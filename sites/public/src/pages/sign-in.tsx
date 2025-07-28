@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useRef, useState, useCallback } from "react"
-import { useForm } from "react-hook-form"
-import { GoogleReCaptcha } from "react-google-recaptcha-v3"
-import { t, useMutate } from "@bloom-housing/ui-components"
+import { isAxiosError } from "axios"
 import { useRouter } from "next/router"
-import FormsLayout from "../layouts/forms"
-import { useRedirectToPrevPage } from "../lib/hooks"
+import { GoogleReCaptcha } from "react-google-recaptcha-v3"
+import { useForm } from "react-hook-form"
 import {
   PageView,
   pushGtmEvent,
@@ -18,13 +16,26 @@ import {
   FormSignInDefault,
   FormSignInPwdless,
 } from "@bloom-housing/shared-helpers"
+import { t, useMutate } from "@bloom-housing/ui-components"
+import {
+  FeatureFlagEnum,
+  Jurisdiction,
+  SuccessDTO,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { UserStatus } from "../lib/constants"
-import { SuccessDTO } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { fetchJurisdictionByName, useRedirectToPrevPage } from "../lib/hooks"
 import SignUpBenefits from "../components/account/SignUpBenefits"
-import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
+import { FormSignInValues, TermsModal } from "../components/shared/TermsModal"
+import FormsLayout from "../layouts/forms"
+import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
+import { setFeatureFlagLocalStorage } from "../lib/helpers"
 
-const SignIn = () => {
+interface SignInProps {
+  jurisdiction: Jurisdiction
+}
+
+const SignIn = (props: SignInProps) => {
   const { addToast } = useContext(MessageContext)
   const router = useRouter()
 
@@ -56,6 +67,8 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false)
   const [reCaptchaToken, setReCaptchaToken] = useState(null)
   const [refreshReCaptcha, setRefreshReCaptcha] = useState(false)
+  const [openTermsModal, setOpenTermsModal] = useState<boolean>(false)
+  const [notChecked, setChecked] = useState(true)
 
   const {
     mutate: mutateResendConfirmation,
@@ -69,7 +82,34 @@ const SignIn = () => {
       pageTitle: "Sign In",
       status: UserStatus.NotLoggedIn,
     })
+    if (props.jurisdiction) {
+      setFeatureFlagLocalStorage(
+        props.jurisdiction,
+        FeatureFlagEnum.enableListingFavoriting,
+        "show-favorites-menu-item"
+      )
+      setFeatureFlagLocalStorage(
+        props.jurisdiction,
+        FeatureFlagEnum.disableCommonApplication,
+        "hide-applications-menu-item"
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    setFeatureFlagLocalStorage(
+      props.jurisdiction,
+      FeatureFlagEnum.enableListingFavoriting,
+      "show-favorites-menu-item"
+    )
+    setFeatureFlagLocalStorage(
+      props.jurisdiction,
+      FeatureFlagEnum.disableCommonApplication,
+      "hide-applications-menu-item"
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.jurisdiction])
 
   const onVerify = useCallback((token) => {
     setReCaptchaToken(token)
@@ -119,7 +159,8 @@ const SignIn = () => {
         undefined,
         undefined,
         undefined,
-        reCaptchaEnabled ? reCaptchaToken : undefined
+        reCaptchaEnabled ? reCaptchaToken : undefined,
+        !notChecked ? true : undefined
       )
       await redirectToPage()
       addToast(t(`authentication.signIn.success`, { name: user.firstName }), { variant: "success" })
@@ -129,7 +170,12 @@ const SignIn = () => {
         await singleUseCodeFlow(email, true)
       }
       const { status } = error.response || {}
-      determineNetworkError(status, error)
+      const responseMessage = isAxiosError(error) ? error.response?.data.message : ""
+      if (status === 400 && responseMessage?.includes("has not accepted the terms of service")) {
+        setOpenTermsModal(true)
+      } else {
+        determineNetworkError(status, error)
+      }
       setRefreshReCaptcha(!refreshReCaptcha)
     }
   }
@@ -148,7 +194,8 @@ const SignIn = () => {
           undefined,
           undefined,
           undefined,
-          reCaptchaEnabled ? reCaptchaToken : undefined
+          reCaptchaEnabled ? reCaptchaToken : undefined,
+          !notChecked ? true : undefined
         )
         addToast(t(`authentication.signIn.success`, { name: user.firstName }), {
           variant: "success",
@@ -156,11 +203,18 @@ const SignIn = () => {
         await redirectToPage()
       } catch (error) {
         setLoading(false)
+        setOpenTermsModal(false)
+        setChecked(true)
         if (sendToReCaptchaFlow(error.response.data.name)) {
           await singleUseCodeFlow(email, true)
         }
         const { status } = error.response || {}
-        determineNetworkError(status, error)
+        const responseMessage = isAxiosError(error) ? error.response?.data.message : ""
+        if (status === 400 && responseMessage?.includes("has not accepted the terms of service")) {
+          setOpenTermsModal(true)
+        } else {
+          determineNetworkError(status, error)
+        }
         setRefreshReCaptcha(!refreshReCaptcha)
       }
     }
@@ -297,8 +351,25 @@ const SignIn = () => {
       {reCaptchaEnabled && (
         <GoogleReCaptcha onVerify={onVerify} refreshReCaptcha={refreshReCaptcha} action={"login"} />
       )}
+      <TermsModal
+        control={{ register, errors, handleSubmit }}
+        onSubmit={(data) => void onSubmitPwdless(data as FormSignInValues)}
+        notChecked={notChecked}
+        setChecked={setChecked}
+        openTermsModal={openTermsModal}
+        setOpenTermsModal={setOpenTermsModal}
+      />
     </>
   )
 }
 
 export { SignIn as default, SignIn }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getStaticProps() {
+  const jurisdiction = await fetchJurisdictionByName()
+
+  return {
+    props: { jurisdiction },
+  }
+}

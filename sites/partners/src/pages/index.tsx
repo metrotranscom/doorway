@@ -104,6 +104,24 @@ export default function ListingsList() {
         minWidth: 180,
       },
       {
+        headerName: t("listings.createdDate"),
+        field: "createdAt",
+        sortable: false,
+        filter: false,
+        resizable: true,
+        valueFormatter: ({ value }) => (value ? dayjs(value).format("MM/DD/YYYY") : t("t.none")),
+        minWidth: 130,
+      },
+      {
+        headerName: t("listings.publishedDate"),
+        field: "publishedAt",
+        sortable: false,
+        filter: false,
+        resizable: true,
+        valueFormatter: ({ value }) => (value ? dayjs(value).format("MM/DD/YYYY") : t("t.none")),
+        minWidth: 130,
+      },
+      {
         headerName: t("listings.applicationDeadline"),
         field: "applicationDueDate",
         sortable: false,
@@ -140,7 +158,7 @@ export default function ListingsList() {
     userId: profile?.id,
     sort: tableOptions.sort.sortOptions,
     roles: profile?.userRoles,
-    userJurisidctionIds: profile?.jurisdictions?.map((jurisdiction) => jurisdiction.id),
+    userJurisdictionIds: profile?.jurisdictions?.map((jurisdiction) => jurisdiction.id),
   })
 
   return (

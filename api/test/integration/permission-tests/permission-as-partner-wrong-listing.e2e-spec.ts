@@ -108,7 +108,10 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     app.use(cookieParser());
     await app.init();
 
-    jurisId = await generateJurisdiction(prisma, 'permission juris 35');
+    jurisId = await generateJurisdiction(
+      prisma,
+      'wrong partner permission juris',
+    );
     await reservedCommunityTypeFactoryAll(jurisId, prisma);
     await unitAccessibilityPriorityTypeFactoryAll(prisma);
 
@@ -257,7 +260,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
   describe('Testing application endpoints', () => {
     beforeAll(async () => {
       await unitTypeFactoryAll(prisma);
-      await await prisma.translations.create({
+      await prisma.translations.create({
         data: translationFactory(),
       });
     });
@@ -500,16 +503,16 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
 
     it('should error as forbidden for delete endpoint', async () => {
-      const jurisdictionA = await generateJurisdiction(
+      const jurisdictionDeleteId = await generateJurisdiction(
         prisma,
-        'permission juris 36',
+        'wrong partner permission juris delete',
       );
 
       await request(app.getHttpServer())
         .delete(`/jurisdictions`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
-          id: jurisdictionA,
+          id: jurisdictionDeleteId,
         } as IdDTO)
         .set('Cookie', cookies)
         .expect(403);
@@ -961,7 +964,10 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
 
     it('should succeed for public create endpoint', async () => {
-      const juris = await generateJurisdiction(prisma, 'permission juris 37');
+      const juris = await generateJurisdiction(
+        prisma,
+        'wrong partner permission juris create success',
+      );
 
       const data = await applicationFactory();
       data.applicant.create.emailAddress = 'publicuser@email.com';
@@ -978,7 +984,10 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
 
     it('should error as forbidden for partner create endpoint', async () => {
-      const juris = await generateJurisdiction(prisma, 'permission juris 38');
+      const juris = await generateJurisdiction(
+        prisma,
+        'wrong partner permission juris create error',
+      );
 
       await request(app.getHttpServer())
         .post(`/user/invite`)
@@ -1000,10 +1009,18 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
   describe('Testing listing endpoints', () => {
     it('should succeed for list endpoint', async () => {
       await request(app.getHttpServer())
-        .get(`/listings?`)
+        .post(`/listings/list`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(200);
+        .expect(201);
+    });
+
+    it('should succeed for filterableList endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/listings/list`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(201);
     });
 
     it('should succeed for retrieveListings endpoint', async () => {
@@ -1055,30 +1072,30 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
         .expect(403);
     });
 
+    it('should error as forbidden for duplicate endpoint', async () => {
+      const listingData = await listingFactory(jurisId, prisma);
+      const listing = await prisma.listings.create({
+        data: listingData,
+      });
+
+      await request(app.getHttpServer())
+        .post('/listings/duplicate')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          includeUnits: true,
+          name: 'name',
+          storedListing: {
+            id: listing.id,
+          },
+        })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
     it('should error as forbidden for process endpoint', async () => {
       await request(app.getHttpServer())
         .put(`/listings/closeListings`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
-        .set('Cookie', cookies)
-        .expect(403);
-    });
-
-    it('should error as forbidden for expireLotteries endpoint', async () => {
-      await request(app.getHttpServer())
-        .put(`/lottery/expireLotteries`)
-        .set({ passkey: process.env.API_PASS_KEY || '' })
-        .set('Cookie', cookies)
-        .expect(403);
-    });
-
-    it('should error as forbidden for lottery status endpoint', async () => {
-      await request(app.getHttpServer())
-        .put('/lottery/lotteryStatus')
-        .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send({
-          id: listingId,
-          lotteryStatus: 'publishedToPublic',
-        })
         .set('Cookie', cookies)
         .expect(403);
     });
@@ -1089,6 +1106,14 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
+    });
+
+    it('should succeed for mapMarkers endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/listings/mapMarkers`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(201);
     });
   });
 
@@ -1217,6 +1242,82 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
+    });
+  });
+
+  describe('Testing lottery endpoints', () => {
+    it('should error as forbidden for expireLotteries endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/lottery/expireLotteries`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for lottery status endpoint', async () => {
+      await request(app.getHttpServer())
+        .put('/lottery/lotteryStatus')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          id: listingId,
+          lotteryStatus: 'publishedToPublic',
+        })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+  });
+
+  describe('Testing feature flag endpoints', () => {
+    it('should error as forbidden for list endpoint', async () => {
+      await request(app.getHttpServer())
+        .get(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for create endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for update endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for delete endpoint', async () => {
+      await request(app.getHttpServer())
+        .delete(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for associate jurisdictions endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/featureFlags/associateJurisdictions`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for retrieve endpoint', async () => {
+      await request(app.getHttpServer())
+        .get(`/featureFlags/example`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
     });
   });
 });

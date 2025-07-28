@@ -1,4 +1,4 @@
-import { AbstractDTO } from '../shared/abstract.dto';
+import { Expose, Type } from 'class-transformer';
 import {
   IsString,
   MaxLength,
@@ -9,11 +9,12 @@ import {
   ValidateNested,
   IsBoolean,
 } from 'class-validator';
-import { ValidationsGroupsEnum } from '../../enums/shared/validation-groups-enum';
-import { LanguagesEnum, UserRoleEnum } from '@prisma/client';
-import { Expose, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { LanguagesEnum, UserRoleEnum } from '@prisma/client';
+import { FeatureFlag } from '../feature-flags/feature-flag.dto';
+import { AbstractDTO } from '../shared/abstract.dto';
 import { IdDTO } from '../shared/id.dto';
+import { ValidationsGroupsEnum } from '../../enums/shared/validation-groups-enum';
 
 export class Jurisdiction extends AbstractDTO {
   @Expose()
@@ -102,18 +103,6 @@ export class Jurisdiction extends AbstractDTO {
   @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
   @IsDefined({ groups: [ValidationsGroupsEnum.default] })
   @ApiProperty()
-  enableAccessibilityFeatures: boolean;
-
-  @Expose()
-  @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
-  @IsDefined({ groups: [ValidationsGroupsEnum.default] })
-  @ApiProperty()
-  enableUtilitiesIncluded: boolean;
-
-  @Expose()
-  @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
-  @IsDefined({ groups: [ValidationsGroupsEnum.default] })
-  @ApiProperty()
   allowSingleUseCodeLogin: boolean;
 
   @Expose()
@@ -125,8 +114,31 @@ export class Jurisdiction extends AbstractDTO {
   @IsDefined({ groups: [ValidationsGroupsEnum.default] })
   @ApiProperty({
     enum: UserRoleEnum,
+    enumName: 'UserRoleEnum',
     example: [UserRoleEnum.admin],
     isArray: true,
   })
   listingApprovalPermissions: UserRoleEnum[];
+
+  @Expose()
+  @IsArray({ groups: [ValidationsGroupsEnum.default] })
+  @IsEnum(UserRoleEnum, {
+    groups: [ValidationsGroupsEnum.default],
+    each: true,
+  })
+  @IsDefined({ groups: [ValidationsGroupsEnum.default] })
+  @ApiProperty({
+    enum: UserRoleEnum,
+    enumName: 'UserRoleEnum',
+    example: [UserRoleEnum.admin],
+    isArray: true,
+  })
+  duplicateListingPermissions: UserRoleEnum[];
+
+  @Expose()
+  @ValidateNested({ groups: [ValidationsGroupsEnum.default] })
+  @Type(() => FeatureFlag)
+  @IsDefined({ groups: [ValidationsGroupsEnum.default] })
+  @ApiProperty({ type: FeatureFlag, isArray: true })
+  featureFlags: FeatureFlag[];
 }

@@ -10,10 +10,15 @@ import { Prisma } from '@prisma/client';
 export const buildOrderByForListings = (
   orderBy?: string[],
   orderDir?: OrderByEnum[],
-): Prisma.ListingsOrderByWithRelationInput[] => {
+):
+  | Prisma.ListingsOrderByWithRelationInput[]
+  | Prisma.CombinedListingsOrderByWithRelationInput[] => {
   if (!orderBy?.length || orderBy.length !== orderDir?.length) {
     return undefined;
   }
+
+  orderBy.push(ListingOrderByKeys.name);
+  orderDir.push(OrderByEnum.ASC);
 
   return orderBy.map((param, index) => {
     switch (param) {
@@ -43,7 +48,7 @@ export const buildOrderByForListings = (
         // and applicationOpenDate) if no orderBy param is specified.
         return { applicationDueDate: orderDir[index] };
     }
-  }) as Prisma.ListingsOrderByWithRelationInput[];
+  });
 };
 
 /* 

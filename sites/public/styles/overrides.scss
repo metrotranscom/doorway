@@ -1,15 +1,17 @@
 @import "./colors.scss";
 
 :root {
+  --seeds-font-alt-sans: "Metropolis", Helvetica, Arial, Verdana, sans-serif;
+
   .site-header {
     --logo-content-padding: 0;
     --logo-desktop-height: var(--base-height);
     --logo-desktop-padding: 0;
-    --logo-tablet-padding: 0 0 0 var(--bloom-s6);
+    --logo-tablet-padding: var(--bloom-s4);
     --logo-image-desktop-max-height: 3rem;
     --link-align-items: center;
     --link-padding-wrapped: var(--bloom-s2) var(--bloom-s4);
-    --link-padding-inline: var(--bloom-s4) var(--bloom-s4) var(--bloom-s3) var(--bloom-s4);
+    --link-padding-inline: var(--bloom-s4) var(--bloom-s3) var(--bloom-s3) var(--bloom-s3);
     --link-bottom-border: 0;
     --link-font-size: var(--bloom-font-size-sm);
     --link-font-weight: 500;
@@ -20,6 +22,10 @@
     --mobile-menu-font-size: var(--bloom-font-size-s);
     --navbar-menu-desktop-margin: inherit;
     --navbar-menu-min-width: 110px;
+
+    @media (min-width: $screen-lg) {
+      --link-padding-inline: var(--bloom-s4) var(--bloom-s4) var(--bloom-s3) var(--bloom-s4);
+    }
   }
 
   .doorway-message {
@@ -119,6 +125,84 @@
     top: 0.35rem;
     height: 3px;
   }
+  .main-container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .styled-stacked-table {
+    // Temporary until we have Seeds tables to manipulate UIC StackedTable component
+    [class*="stacked-table"] {
+      --bloom-font-size-base: var(--seeds-type-label-size);
+      .stacked-table-subtext {
+        color: var(--seeds-text-color);
+      }
+      tr {
+        background-color: var(--seeds-bg-color-muted);
+        margin-bottom: 0;
+      }
+      tr:nth-of-type(even) {
+        background-color: var(--seeds-color-white);
+      }
+      tr:first-child {
+        margin-block-end: 0;
+      }
+      @media (min-width: theme("screens.md")) {
+        td:last-child {
+          text-align: left;
+          > div {
+            text-align: left;
+          }
+        }
+        th:last-child {
+          text-align: left;
+        }
+      }
+
+      th {
+        background-color: white;
+        padding-block: var(--seeds-s1);
+        padding-inline: var(--seeds-s2);
+        letter-spacing: normal;
+        text-transform: capitalize;
+      }
+      ::before {
+        text-transform: capitalize;
+      }
+      td {
+        padding: var(--seeds-s2);
+      }
+      td,
+      th {
+        font-size: var(--seeds-type-caption-size);
+      }
+    }
+  }
+
+  .listing-multiselect-card {
+    --card-border-width: 0;
+    --card-content-padding-inline: var(--seeds-s6);
+    --card-header-padding-inline: var(--seeds-s6);
+    --card-content-padding-block: var(--seeds-s3);
+    padding-block-end: var(--seeds-s4);
+    margin-inline: var(--seeds-s3);
+    margin-block-end: var(--seeds-s4);
+    color: var(--seeds-text-color);
+    font-size: var(--seeds-type-caption-size);
+    background-color: var(--seeds-color-primary-lighter);
+    header {
+      .text-heading-sm {
+        font-family: var(--seeds-font-serif);
+        color: var(--seeds-text-color-dark);
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 0.025rem;
+        // TODO: determine if we need this in Doorway
+        font-size: var(--seeds-font-size-xs);
+      }
+    }
+  }
 
   #seeds-toast-stack {
     --toast-stack-inset-top: calc(var(--seeds-s40) + var(--seeds-s2));
@@ -151,6 +235,11 @@
     h1 {
       font-family: var(--seeds-font-serif);
     }
+  }
+
+  .seeds-dialog {
+    max-height: 100dvh;
+    --overlay-footer-background-color: var(--seeds-color-blue-100);
   }
 
   .seeds-dialog.listings-search-dialog {
@@ -214,5 +303,94 @@
 
   .image-card-tag__wrapper {
     z-index: calc(var(--seeds-z-index-overlay) - 2);
+  }
+
+  .seeds-tag {
+    &[data-variant="primary"] {
+      background-color: var(--seeds-color-primary-lighter);
+    }
+    &[data-variant="secondary"] {
+      color: var(--seeds-color-accent-cool-darker);
+    }
+  }
+
+  .seeds-button {
+    --button-font-weight: var(--seeds-font-weight-semibold);
+    &[data-variant="secondary"] {
+      color: var(--doorway-color-blue-1300);
+    }
+    line-height: normal;
+  }
+
+  .alert-box {
+    --notice-background-color: var(--bloom-color-blue-300);
+  }
+
+  .info-window {
+    .listings-row {
+      flex-direction: row;
+      --inter-row-gap: 0;
+      padding-top: 0;
+      padding-bottom: var(--seeds-s2);
+      @media (max-width: $screen-lg) {
+        flex-direction: column;
+        padding-bottom: 0;
+        .listings-row_figure {
+          margin-bottom: var(--seeds-s2);
+          width: 100%;
+          .image-card {
+            width: 100%;
+            img {
+              max-height: 125px;
+            }
+          }
+        }
+        .listings-row_content {
+          padding-left: 0;
+        }
+      }
+      .listings-row_footer_container {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .listings-row {
+    scroll-margin-top: 35px;
+    --inter-row-gap: var(--seeds-s3_5);
+  }
+
+  .results-bar-button {
+    --button-interior-gap: var(--seeds-s1_5);
+    line-height: var(--seeds-line-height-4);
+    @media (max-width: $screen-md) {
+      --button-icon-side-padding: var(--seeds-s2);
+      --button-border-width: 0;
+      --button-padding-sm: var(--seeds-s2);
+      margin-inline-end: calc(0px - var(--seeds-s2));
+    }
+  }
+
+  .pagination-button-group {
+    --padding-inline-desktop: var(--seeds-s6);
+    --padding-block: var(--seeds-s2) var(--seeds-s6);
+    .doorway-button {
+      padding: var(--seeds-s3) var(--seeds-s4);
+    }
+  }
+
+  // Used in core for theming testing purposes only
+  .lakeview {
+    --seeds-color-primary-darker: #4e2169;
+    --seeds-color-primary-dark: #6e2598;
+    --seeds-color-primary: #773e98;
+    --seeds-color-primary-light: #f2daff;
+    --seeds-color-primary-lighter: #f9f4fa;
+    --seeds-bg-color-surface-primary: var(--seeds-color-primary-lighter);
+    --seeds-bg-color-surface-primary-inverse: var(--seeds-color-primary-darker);
+    .seeds-button {
+      --button-border-radius-sm: var(--seeds-rounded-3xl);
+      --button-border-radius-md: var(--seeds-rounded-3xl);
+    }
   }
 }

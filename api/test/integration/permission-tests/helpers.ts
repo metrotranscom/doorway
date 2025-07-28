@@ -107,10 +107,9 @@ export const buildJurisdictionCreateMock = (
     emailFromAddress: `emailFromAddress: 10`,
     rentalAssistanceDefault: `rentalAssistanceDefault: 10`,
     enablePartnerSettings: true,
-    enableAccessibilityFeatures: true,
-    enableUtilitiesIncluded: true,
     allowSingleUseCodeLogin: true,
     listingApprovalPermissions: [],
+    duplicateListingPermissions: [],
   };
 };
 
@@ -128,10 +127,9 @@ export const buildJurisdictionUpdateMock = (
     emailFromAddress: `emailFromAddress: 10`,
     rentalAssistanceDefault: `rentalAssistanceDefault: 10`,
     enablePartnerSettings: true,
-    enableAccessibilityFeatures: true,
-    enableUtilitiesIncluded: true,
     allowSingleUseCodeLogin: true,
     listingApprovalPermissions: [],
+    duplicateListingPermissions: [],
   };
 };
 
@@ -712,6 +710,11 @@ export const constructFullListingData = async (
       hearing: true,
       visual: false,
       mobility: true,
+      barrierFreeUnitEntrance: false,
+      loweredLightSwitch: true,
+      barrierFreeBathroom: false,
+      wideDoorways: true,
+      loweredCabinets: false,
     },
     listingUtilities: {
       water: false,

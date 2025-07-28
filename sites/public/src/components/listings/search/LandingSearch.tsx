@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from "react"
-import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
+import React, { useState, useEffect, ChangeEvent } from "react"
+import { useForm } from "react-hook-form"
+import { Button, Dialog } from "@bloom-housing/ui-seeds"
+import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
-  Modal,
   ButtonGroup,
   FieldGroup,
   FieldSingle,
-  Card,
-  Button,
   ButtonGroupSpacing,
   Field,
-  AppearanceSizeType,
 } from "@bloom-housing/doorway-ui-components"
-import { useForm } from "react-hook-form"
-import { LinkButton, t } from "@bloom-housing/ui-components"
+import { t, Card } from "@bloom-housing/ui-components"
+import { numericSearchFieldGenerator } from "./helpers"
 import styles from "./LandingSearch.module.scss"
 import { FormOption } from "./ListingsSearchModal"
-import { numericSearchFieldGenerator } from "./helpers"
-import { Dialog } from "@bloom-housing/ui-seeds"
-import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { ListingSearchParams, buildSearchString } from "../../../lib/listings/search"
 
 type LandingSearchProps = {
   bedrooms: FormOption[]
@@ -41,7 +37,9 @@ export function LandingSearch(props: LandingSearchProps) {
     availability: null,
     minRent: "",
     monthlyRent: "",
+    propertyName: "",
     counties: countyLabels,
+    ids: null,
   }
   const initialState = nullState
   const [formValues, setFormValues] = useState(initialState)
@@ -120,6 +118,12 @@ export function LandingSearch(props: LandingSearchProps) {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, getValues, setValue, watch } = useForm()
 
+  const validateSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
+    // handle semicolon by searching text before since removing could lead to missing exact match
+    const searchableValue = e.target.value.split(";")[0]
+    updateValue("propertyName", searchableValue)
+  }
+
   // workaround to leverage UI-C's currency formatting without full refactor
   const monthlyRentFormatted = watch("monthlyRent")
   useEffect(() => {
@@ -170,8 +174,23 @@ export function LandingSearch(props: LandingSearchProps) {
           getValues={getValues}
           defaultValue={formValues.monthlyRent}
           placeholder="$"
-          className="doorway-field p-0 md:-mt-1"
-          inputClassName="rent-input"
+          className="doorway-field md:-mt-1"
+          inputClassName="typed-input"
+          labelClassName="input-label"
+        />
+      </div>
+      <div className={styles["input-section"]}>
+        <div className={styles["input-section_title"]}>{t("listings.propertyName")}</div>
+        <Field
+          type="text"
+          id="propertyName"
+          name="propertyName"
+          subNote={t("listings.propertyName.helper")}
+          register={register}
+          onChange={validateSearchInput}
+          defaultValue={formValues.propertyName}
+          className="doorway-field md:-mt-1"
+          inputClassName="typed-input"
           labelClassName="input-label"
         />
       </div>
@@ -189,20 +208,16 @@ export function LandingSearch(props: LandingSearchProps) {
       </div>
 
       <div className="flex justify-start p-2">
-        <LinkButton
-          href={createListingsUrl(formValues)}
-          className="is-primary is-borderless bg-primary-dark text-3xs md:text-xs text-white mr-8"
-          size={AppearanceSizeType.small}
-        >
+        <Button href={createListingsUrl(formValues)} className="mr-8">
           {t("nav.viewListings")}
-        </LinkButton>
+        </Button>
 
         <Button
-          className="is-borderless is-inline is-unstyled underline text-primary uppercase tracking-widest text-3xs md:text-xs"
-          size={AppearanceSizeType.small}
+          className="uppercase tracking-widest text-3xs md:text-xs mt-3"
           onClick={() => {
             setOpenCountyMapModal(!openCountyMapModal)
           }}
+          variant={"text"}
         >
           {t("welcome.viewCountyMap")}
         </Button>

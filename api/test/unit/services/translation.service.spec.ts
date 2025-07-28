@@ -42,8 +42,6 @@ const mockListing = (): Listing => {
       publicUrl: '',
       emailFromAddress: '',
       rentalAssistanceDefault: '',
-      enableAccessibilityFeatures: true,
-      enableUtilitiesIncluded: true,
     },
     units: [],
     unitsSummarized: undefined,
@@ -101,6 +99,10 @@ const mockListing = (): Listing => {
         },
       },
     ],
+    includeCommunityDisclaimer: true,
+    communityDisclaimerTitle: 'untranslated community disclaimer title',
+    communityDisclaimerDescription:
+      'untranslated community disclaimer description',
   };
 };
 
@@ -133,18 +135,22 @@ const translatedStrings = [
   'translated multiselect description',
   'translated multiselect subtext',
   'translated multiselect opt out text',
+  'translated community disclaimer title',
+  'translated community disclaimer description',
 ];
 
 describe('Testing translations service', () => {
   let service: TranslationService;
   let prisma: PrismaService;
   let googleTranslateServiceMock;
+  let mockConsoleWarn;
 
   beforeEach(async () => {
     googleTranslateServiceMock = {
       isConfigured: () => true,
       fetch: jest.fn(),
     };
+    mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TranslationService,
@@ -158,6 +164,10 @@ describe('Testing translations service', () => {
 
     service = module.get<TranslationService>(TranslationService);
     prisma = module.get<PrismaService>(PrismaService);
+  });
+
+  afterEach(() => {
+    mockConsoleWarn.mockRestore();
   });
 
   it('Should fall back to english if language does not exist', async () => {
@@ -187,6 +197,9 @@ describe('Testing translations service', () => {
 
     expect(prisma.translations.findFirst).toHaveBeenCalledTimes(2);
     expect(result).toEqual(translations);
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+      `Fetching translations for es failed on jurisdiction ${jurisdictionId}, defaulting to english.`,
+    );
   });
 
   it('Should get unique translations by language and jurisdiction', async () => {
@@ -233,6 +246,7 @@ describe('Testing translations service', () => {
     expect(prisma.generatedListingTranslations.findFirst).toHaveBeenCalledTimes(
       1,
     );
+    expect(prisma.generatedListingTranslations.create).toHaveBeenCalledTimes(1);
     validateTranslatedFields(result);
   });
 
@@ -395,4 +409,10 @@ const validateTranslatedFields = (listing: Listing) => {
   expect(
     listing.listingMultiselectQuestions[0].multiselectQuestions.optOutText,
   ).toEqual('translated multiselect opt out text');
+  expect(listing.communityDisclaimerTitle).toEqual(
+    'translated community disclaimer title',
+  );
+  expect(listing.communityDisclaimerDescription).toEqual(
+    'translated community disclaimer description',
+  );
 };

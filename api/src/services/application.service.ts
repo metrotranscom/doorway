@@ -6,7 +6,13 @@ import {
 } from '@nestjs/common';
 import crypto from 'crypto';
 import { Request as ExpressRequest } from 'express';
-import { Prisma, YesNoEnum } from '@prisma/client';
+import {
+  ListingEventsTypeEnum,
+  ListingsStatusEnum,
+  LotteryStatusEnum,
+  Prisma,
+  YesNoEnum,
+} from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import { Application } from '../dtos/applications/application.dto';
 import { mapTo } from '../utilities/mapTo';
@@ -27,6 +33,9 @@ import { User } from '../dtos/users/user.dto';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import { GeocodingService } from './geocoding.service';
 import { MostRecentApplicationQueryParams } from '../dtos/applications/most-recent-application-query-params.dto';
+import { PublicAppsViewQueryParams } from '../dtos/applications/public-apps-view-params.dto';
+import { ApplicationsFilterEnum } from '../enums/applications/filter-enum';
+import { PublicAppsViewResponse } from '../dtos/applications/public-apps-view-response.dto';
 
 export const view: Partial<
   Record<ApplicationViews, Prisma.ApplicationsInclude>
@@ -159,6 +168,13 @@ export const view: Partial<
         id: true,
       },
     },
+    preferredUnitTypes: {
+      select: {
+        id: true,
+        name: true,
+        numBedrooms: true,
+      },
+    },
   },
 };
 
@@ -175,13 +191,6 @@ view.base = {
       howDidYouHear: true,
       race: true,
       spokenLanguage: true,
-    },
-  },
-  preferredUnitTypes: {
-    select: {
-      id: true,
-      name: true,
-      numBedrooms: true,
     },
   },
   listings: {
@@ -348,6 +357,98 @@ export class ApplicationService {
     }
 
     return await this.findOne(rawApplication.id, req);
+  }
+
+  /*
+    this will get the required app/associated listing information for the public account display
+    it will only show applications matching the status passed in via params
+  */
+  async publicAppsView(
+    params: PublicAppsViewQueryParams,
+    req: ExpressRequest,
+  ): Promise<PublicAppsViewResponse> {
+    const user = mapTo(User, req['user']);
+    if (!user) {
+      throw new ForbiddenException();
+    }
+    const whereClause = this.buildWhereClause(params);
+    const rawApps = await this.prisma.applications.findMany({
+      select: {
+        id: true,
+        userId: true,
+        confirmationCode: true,
+        updatedAt: true,
+        listings: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            lotteryLastPublishedAt: true,
+            lotteryStatus: true,
+            applicationDueDate: true,
+            listingEvents: {
+              select: {
+                startDate: true,
+              },
+              where: { type: ListingEventsTypeEnum.publicLottery },
+            },
+          },
+        },
+        applicationLotteryPositions: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      where: whereClause,
+    });
+
+    await Promise.all(
+      rawApps.map(async (application) => {
+        await this.authorizeAction(
+          user,
+          application.listings?.id,
+          permissionActions.read,
+          application.userId,
+        );
+      }),
+    );
+
+    //filter for display applications and status counts
+    let displayApplications = [];
+    const total = rawApps.length ?? 0;
+    let lottery = 0,
+      closed = 0,
+      open = 0;
+    rawApps.forEach((app) => {
+      if (app.listings.status === ListingsStatusEnum.active) {
+        open++;
+        if (params.filterType === ApplicationsFilterEnum.open)
+          displayApplications.push(app);
+      } else if (
+        // NOTE: Allowing expired lotteries to show temporarily
+        (app.listings?.lotteryStatus === LotteryStatusEnum.publishedToPublic ||
+          app.listings?.lotteryStatus === LotteryStatusEnum.expired) &&
+        params.includeLotteryApps
+      ) {
+        lottery++;
+        if (params.filterType === ApplicationsFilterEnum.lottery) {
+          displayApplications.push(app);
+        }
+      } else {
+        closed++;
+        if (params.filterType === ApplicationsFilterEnum.closed)
+          displayApplications.push(app);
+      }
+    });
+
+    if (params.filterType === ApplicationsFilterEnum.all)
+      displayApplications = rawApps;
+
+    return mapTo(PublicAppsViewResponse, {
+      displayApplications,
+      applicationsCount: { total, lottery, closed, open },
+    });
   }
 
   /*
@@ -542,6 +643,7 @@ export class ApplicationService {
       data: {
         ...dto,
         confirmationCode: this.generateConfirmationCode(),
+        contactPreferences: [],
         applicant: dto.applicant
           ? {
               create: {
@@ -551,11 +653,15 @@ export class ApplicationService {
                     ...dto.applicant.applicantAddress,
                   },
                 },
-                applicantWorkAddress: {
-                  create: {
-                    ...dto.applicant.applicantWorkAddress,
-                  },
-                },
+                //explicitly set to undefined since it is otherwise an empty object which errors on Address's required fields
+                //field is currently dependent on the 'work in region' question which has been removed
+                applicantWorkAddress: dto.applicant.applicantWorkAddress?.street
+                  ? {
+                      create: {
+                        ...dto.applicant.applicantWorkAddress,
+                      },
+                    }
+                  : undefined,
                 firstName: dto.applicant.firstName?.trim(),
                 lastName: dto.applicant.lastName?.trim(),
                 birthDay: dto.applicant.birthDay
@@ -629,17 +735,19 @@ export class ApplicationService {
               create: dto.householdMember.map((member) => ({
                 ...member,
                 sameAddress: member.sameAddress || YesNoEnum.no,
-                workInRegion: member.workInRegion || YesNoEnum.no,
                 householdMemberAddress: {
                   create: {
                     ...member.householdMemberAddress,
                   },
                 },
-                householdMemberWorkAddress: {
-                  create: {
-                    ...member.householdMemberWorkAddress,
-                  },
-                },
+                householdMemberWorkAddress: member.householdMemberWorkAddress
+                  ?.street
+                  ? {
+                      create: {
+                        ...member.householdMemberWorkAddress,
+                      },
+                    }
+                  : undefined,
                 firstName: member.firstName?.trim(),
                 lastName: member.lastName?.trim(),
                 birthDay: member.birthDay ? Number(member.birthDay) : undefined,
@@ -734,11 +842,13 @@ export class ApplicationService {
                     ...dto.applicant.applicantAddress,
                   },
                 },
-                applicantWorkAddress: {
-                  create: {
-                    ...dto.applicant.applicantWorkAddress,
-                  },
-                },
+                applicantWorkAddress: dto.applicant.applicantAddress?.street
+                  ? {
+                      create: {
+                        ...dto.applicant.applicantAddress,
+                      },
+                    }
+                  : undefined,
                 firstName: dto.applicant.firstName?.trim(),
                 lastName: dto.applicant.lastName?.trim(),
                 birthDay: dto.applicant.birthDay
@@ -812,17 +922,19 @@ export class ApplicationService {
               create: dto.householdMember.map((member) => ({
                 ...member,
                 sameAddress: member.sameAddress || YesNoEnum.no,
-                workInRegion: member.workInRegion || YesNoEnum.no,
                 householdMemberAddress: {
                   create: {
                     ...member.householdMemberAddress,
                   },
                 },
-                householdMemberWorkAddress: {
-                  create: {
-                    ...member.householdMemberWorkAddress,
-                  },
-                },
+                householdMemberWorkAddress: member.householdMemberWorkAddress
+                  ?.street
+                  ? {
+                      create: {
+                        ...member.householdMemberWorkAddress,
+                      },
+                    }
+                  : undefined,
                 firstName: member.firstName?.trim(),
                 lastName: member.lastName?.trim(),
                 birthDay: member.birthDay ? Number(member.birthDay) : undefined,
@@ -841,8 +953,13 @@ export class ApplicationService {
     });
 
     const listing = await this.prisma.listings.findFirst({
-      where: { id: dto.id },
-      include: { jurisdictions: true },
+      where: { id: dto.listings.id },
+      include: {
+        jurisdictions: true,
+        listingMultiselectQuestions: {
+          include: { multiselectQuestions: true },
+        },
+      },
     });
     const application = mapTo(Application, res);
 

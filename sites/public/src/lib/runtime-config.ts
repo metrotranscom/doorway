@@ -35,9 +35,15 @@ export const runtimeConfig = {
   */
 
   getGoogleMapsApiKey() {
-    //console.log(this.env)
-    //console.log(`GOOGLE_MAPS_API_KEY = ${this.env.GOOGLE_MAPS_API_KEY}`)
     return this.env.GOOGLE_MAPS_API_KEY
+  },
+
+  getGoogleMapsMapId() {
+    return this.env.GOOGLE_MAPS_MAP_ID
+  },
+
+  getShowAllMapPins() {
+    return this.env.SHOW_ALL_MAP_PINS
   },
 
   getBackendApiBase() {

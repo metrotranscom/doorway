@@ -17,8 +17,10 @@ import { GoogleTranslateService } from '../../../src/services/google-translate.s
 import { User } from '../../../src/dtos/users/user.dto';
 import { PermissionService } from '../../../src/services/permission.service';
 import { permissionActions } from '../../../src/enums/permissions/permission-actions-enum';
+import { ModificationEnum } from '../../../src/enums/shared/modification-enum';
 import { OrderByEnum } from '../../../src/enums/shared/order-by-enum';
 import { UserViews } from '../../../src/enums/user/view-enum';
+import { Logger } from '@nestjs/common';
 
 describe('Testing user service', () => {
   let service: UserService;
@@ -90,6 +92,7 @@ describe('Testing user service', () => {
         ConfigService,
         TranslationService,
         JurisdictionService,
+        Logger,
         {
           provide: HttpService,
           useValue: httpServiceMock,
@@ -139,6 +142,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
         skip: 0,
@@ -184,6 +193,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
         skip: 5,
@@ -193,16 +208,36 @@ describe('Testing user service', () => {
             {
               OR: [
                 {
-                  firstName: {
-                    contains: 'search value',
-                    mode: 'insensitive',
-                  },
+                  OR: [
+                    {
+                      firstName: {
+                        contains: 'search',
+                        mode: 'insensitive',
+                      },
+                    },
+                    {
+                      lastName: {
+                        contains: 'search',
+                        mode: 'insensitive',
+                      },
+                    },
+                  ],
                 },
                 {
-                  lastName: {
-                    contains: 'search value',
-                    mode: 'insensitive',
-                  },
+                  OR: [
+                    {
+                      firstName: {
+                        contains: 'value',
+                        mode: 'insensitive',
+                      },
+                    },
+                    {
+                      lastName: {
+                        contains: 'value',
+                        mode: 'insensitive',
+                      },
+                    },
+                  ],
                 },
                 {
                   email: {
@@ -215,6 +250,79 @@ describe('Testing user service', () => {
                     some: {
                       name: {
                         contains: 'search value',
+                        mode: 'insensitive',
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      });
+    });
+
+    it("shouldn't return users from list() when single characters are used", async () => {
+      const date = new Date();
+      const mockedValue = mockUserSet(0, date);
+      prisma.userAccounts.findMany = jest.fn().mockResolvedValue(mockedValue);
+      prisma.userAccounts.count = jest.fn().mockResolvedValue(0);
+
+      expect(
+        await service.list(
+          {
+            search: 'a b',
+            page: 1,
+            limit: 5,
+            filter: [
+              {
+                isPortalUser: true,
+              },
+            ],
+          },
+          null,
+        ),
+      ).toEqual({
+        items: mockedValue,
+        meta: {
+          currentPage: 1,
+          itemCount: 0,
+          itemsPerPage: 5,
+          totalItems: 0,
+          totalPages: 0,
+        },
+      });
+
+      expect(prisma.userAccounts.findMany).toHaveBeenCalledWith({
+        include: {
+          jurisdictions: true,
+          listings: true,
+          userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
+        skip: 0,
+        take: 5,
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  email: {
+                    contains: 'a b',
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  listings: {
+                    some: {
+                      name: {
+                        contains: 'a b',
                         mode: 'insensitive',
                       },
                     },
@@ -257,6 +365,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
         skip: 0,
@@ -278,9 +392,15 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
-          listings: true,
           jurisdictions: true,
+          listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id: 'example Id',
@@ -297,9 +417,15 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
-          listings: true,
           jurisdictions: true,
+          listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id: 'example Id',
@@ -310,10 +436,11 @@ describe('Testing user service', () => {
 
   describe('createConfirmationToken', () => {
     it('should encode a confirmation token correctly', () => {
+      process.env.APP_SECRET = 'SOME-LONG-SECRET-KEY';
       const id = randomUUID();
       const res = service.createConfirmationToken(id, 'example@email.com');
       expect(res).not.toBeNull();
-      const decoded = verify(res, process.env.APP_SECRET) as IdDTO;
+      const decoded = verify(res, 'SOME-LONG-SECRET-KEY') as IdDTO;
       expect(decoded.id).toEqual(id);
     });
   });
@@ -384,6 +511,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -424,6 +557,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -693,6 +832,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -733,6 +878,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -765,6 +916,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -804,6 +961,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -829,6 +992,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -862,6 +1031,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -900,6 +1075,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -937,6 +1118,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -962,6 +1149,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email,
@@ -1084,6 +1277,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1102,6 +1301,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1155,6 +1360,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1175,6 +1386,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1230,6 +1447,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1289,6 +1512,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1342,6 +1571,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1361,6 +1596,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1416,6 +1657,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1462,6 +1709,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1509,6 +1762,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           id,
@@ -1560,6 +1819,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email: 'partnerUser@email.com',
@@ -1635,6 +1900,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email: 'partnerUser@email.com',
@@ -1645,6 +1916,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         data: {
           confirmedAt: null,
@@ -1719,6 +1996,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email: 'partnerUser@email.com',
@@ -1783,6 +2066,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         where: {
           email: 'publicUser@email.com',
@@ -1812,6 +2101,12 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         data: {
           confirmationToken: expect.anything(),
@@ -1856,170 +2151,363 @@ describe('Testing user service', () => {
     });
   });
 
-  it('should request single use code but user does not exist', async () => {
-    const id = randomUUID();
-    emailService.sendSingleUseCode = jest.fn();
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue(null);
-    prisma.userAccounts.update = jest.fn().mockResolvedValue({
-      id,
-    });
-
-    const res = await service.requestSingleUseCode(
-      {
-        email: 'example@exygy.com',
-      },
-      { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
-    );
-
-    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
-      where: {
-        email: 'example@exygy.com',
-      },
-      include: {
-        jurisdictions: true,
-      },
-    });
-    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
-    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
-    expect(res).toEqual({
-      success: true,
-    });
-  });
-
-  it('should request single use code but jurisdiction does not exist', async () => {
-    const id = randomUUID();
-    emailService.sendSingleUseCode = jest.fn();
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
-      id,
-    });
-    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue(null);
-    prisma.userAccounts.update = jest.fn().mockResolvedValue({
-      id,
-    });
-
-    await expect(
-      async () =>
-        await service.requestSingleUseCode(
-          {
-            email: 'example@exygy.com',
-          },
-          { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
-        ),
-    ).rejects.toThrowError('Jurisidiction juris 1 does not exists');
-
-    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
-      where: {
-        email: 'example@exygy.com',
-      },
-      include: {
-        jurisdictions: true,
-      },
-    });
-    expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
-      select: {
-        id: true,
-        allowSingleUseCodeLogin: true,
-      },
-      where: {
-        name: 'juris 1',
-      },
-      orderBy: {
-        allowSingleUseCodeLogin: OrderByEnum.DESC,
-      },
-    });
-    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
-    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
-  });
-
-  it('should request single use code but jurisdictionname was not sent', async () => {
-    const id = randomUUID();
-    emailService.sendSingleUseCode = jest.fn();
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
-      id,
-    });
-    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
-      id,
-    });
-    prisma.userAccounts.update = jest.fn().mockResolvedValue({
-      id,
-    });
-
-    await expect(
-      async () =>
-        await service.requestSingleUseCode(
-          {
-            email: 'example@exygy.com',
-          },
-          {} as unknown as Request,
-        ),
-    ).rejects.toThrowError(
-      'jurisdictionname is missing from the request headers',
-    );
-
-    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
-      where: {
-        email: 'example@exygy.com',
-      },
-      include: {
-        jurisdictions: true,
-      },
-    });
-    expect(prisma.jurisdictions.findFirst).not.toHaveBeenCalled();
-    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
-    expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
-  });
-
-  it('should successfully request single use code', async () => {
-    const id = randomUUID();
-    emailService.sendSingleUseCode = jest.fn();
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
-      id,
-    });
-    prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
-      id,
-      allowSingleUseCodeLogin: true,
-    });
-    prisma.userAccounts.update = jest.fn().mockResolvedValue({
-      id,
-    });
-
-    const res = await service.requestSingleUseCode(
-      {
-        email: 'example@exygy.com',
-      },
-      { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
-    );
-
-    expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
-      where: {
-        email: 'example@exygy.com',
-      },
-      include: {
-        jurisdictions: true,
-      },
-    });
-    expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
-      select: {
-        id: true,
-        allowSingleUseCodeLogin: true,
-      },
-      where: {
-        name: 'juris 1',
-      },
-      orderBy: {
-        allowSingleUseCodeLogin: OrderByEnum.DESC,
-      },
-    });
-    expect(prisma.userAccounts.update).toHaveBeenCalledWith({
-      data: {
-        singleUseCode: expect.anything(),
-        singleUseCodeUpdatedAt: expect.anything(),
-      },
-      where: {
+  describe('requestSingleUseCode', () => {
+    it('should request single use code but user does not exist', async () => {
+      const id = randomUUID();
+      emailService.sendSingleUseCode = jest.fn();
+      prisma.userAccounts.findFirst = jest.fn().mockResolvedValue(null);
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
         id,
-      },
+      });
+
+      const res = await service.requestSingleUseCode(
+        {
+          email: 'example@exygy.com',
+        },
+        { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+      );
+
+      expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+        where: {
+          email: 'example@exygy.com',
+        },
+        include: {
+          jurisdictions: true,
+        },
+      });
+      expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+      expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+      expect(res).toEqual({
+        success: true,
+      });
     });
-    expect(emailService.sendSingleUseCode).toHaveBeenCalled();
-    expect(res.success).toEqual(true);
+
+    it('should request single use code but jurisdiction does not exist', async () => {
+      const id = randomUUID();
+      emailService.sendSingleUseCode = jest.fn();
+      prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+        id,
+      });
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue(null);
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        id,
+      });
+
+      await expect(
+        async () =>
+          await service.requestSingleUseCode(
+            {
+              email: 'example@exygy.com',
+            },
+            { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+          ),
+      ).rejects.toThrowError('Jurisidiction juris 1 does not exists');
+
+      expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+        where: {
+          email: 'example@exygy.com',
+        },
+        include: {
+          jurisdictions: true,
+        },
+      });
+      expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
+        select: {
+          id: true,
+          allowSingleUseCodeLogin: true,
+        },
+        where: {
+          name: 'juris 1',
+        },
+        orderBy: {
+          allowSingleUseCodeLogin: OrderByEnum.DESC,
+        },
+      });
+      expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+      expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+    });
+
+    it('should request single use code but jurisdictionname was not sent', async () => {
+      const id = randomUUID();
+      emailService.sendSingleUseCode = jest.fn();
+      prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+        id,
+      });
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+        id,
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        id,
+      });
+
+      await expect(
+        async () =>
+          await service.requestSingleUseCode(
+            {
+              email: 'example@exygy.com',
+            },
+            {} as unknown as Request,
+          ),
+      ).rejects.toThrowError(
+        'jurisdictionname is missing from the request headers',
+      );
+
+      expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+        where: {
+          email: 'example@exygy.com',
+        },
+        include: {
+          jurisdictions: true,
+        },
+      });
+      expect(prisma.jurisdictions.findFirst).not.toHaveBeenCalled();
+      expect(prisma.userAccounts.update).not.toHaveBeenCalled();
+      expect(emailService.sendSingleUseCode).not.toHaveBeenCalled();
+    });
+
+    it('should successfully request single use code when previous code is still valid', async () => {
+      process.env.MFA_CODE_LENGTH = '5';
+      process.env.MFA_CODE_VALID = '60000';
+      const id = randomUUID();
+      emailService.sendSingleUseCode = jest.fn();
+      prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+        id,
+        singleUseCode: '00000',
+        singleUseCodeUpdatedAt: new Date(),
+      });
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+        id,
+        allowSingleUseCodeLogin: true,
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        id,
+      });
+
+      const res = await service.requestSingleUseCode(
+        {
+          email: 'example@exygy.com',
+        },
+        { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+      );
+
+      expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+        where: {
+          email: 'example@exygy.com',
+        },
+        include: {
+          jurisdictions: true,
+        },
+      });
+      expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
+        select: {
+          id: true,
+          allowSingleUseCodeLogin: true,
+        },
+        where: {
+          name: 'juris 1',
+        },
+        orderBy: {
+          allowSingleUseCodeLogin: OrderByEnum.DESC,
+        },
+      });
+      expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+        data: {
+          singleUseCode: '00000',
+          singleUseCodeUpdatedAt: expect.anything(),
+        },
+        where: {
+          id,
+        },
+      });
+      expect(emailService.sendSingleUseCode).toHaveBeenCalled();
+      expect(res.success).toEqual(true);
+    });
+    it('should successfully request single use code when previous code is outdated', async () => {
+      const id = randomUUID();
+      emailService.sendSingleUseCode = jest.fn();
+      prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+        id,
+        singleUseCode: '00000',
+        singleUseCodeUpdatedAt: new Date(
+          new Date().getTime() - Number(process.env.MFA_CODE_VALUE) * 2,
+        ),
+      });
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+        id,
+        allowSingleUseCodeLogin: true,
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        id,
+      });
+
+      const res = await service.requestSingleUseCode(
+        {
+          email: 'example@exygy.com',
+        },
+        { headers: { jurisdictionname: 'juris 1' } } as unknown as Request,
+      );
+
+      expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+        where: {
+          email: 'example@exygy.com',
+        },
+        include: {
+          jurisdictions: true,
+        },
+      });
+      expect(prisma.jurisdictions.findFirst).toHaveBeenCalledWith({
+        select: {
+          id: true,
+          allowSingleUseCodeLogin: true,
+        },
+        where: {
+          name: 'juris 1',
+        },
+        orderBy: {
+          allowSingleUseCodeLogin: OrderByEnum.DESC,
+        },
+      });
+      expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+        data: {
+          singleUseCode: expect.not.stringMatching('00000'),
+          singleUseCodeUpdatedAt: expect.anything(),
+        },
+        where: {
+          id,
+        },
+      });
+      expect(emailService.sendSingleUseCode).toHaveBeenCalled();
+      expect(res.success).toEqual(true);
+    });
+  });
+
+  describe('modifyFavoriteListings', () => {
+    it('should add a listing to favorite listings', async () => {
+      const userId = randomUUID();
+      const listingId = randomUUID();
+
+      prisma.listings.findUnique = jest.fn().mockResolvedValue({
+        listingId,
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        userId,
+      });
+
+      await service.modifyFavoriteListings(
+        {
+          id: listingId,
+          action: ModificationEnum.add,
+        },
+        {
+          id: userId,
+        } as unknown as User,
+      );
+
+      expect(prisma.listings.findUnique).toHaveBeenCalledWith({
+        where: {
+          id: listingId,
+        },
+      });
+      expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+        data: {
+          favoriteListings: {
+            connect: { id: listingId },
+          },
+        },
+        include: {
+          jurisdictions: true,
+          listings: true,
+          userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        where: {
+          id: userId,
+        },
+      });
+    });
+
+    it('should remove a listing from favorite listings', async () => {
+      const userId = randomUUID();
+      const listingId = randomUUID();
+
+      prisma.listings.findUnique = jest.fn().mockResolvedValue({
+        listingId,
+      });
+      prisma.userAccounts.update = jest.fn().mockResolvedValue({
+        userId,
+      });
+
+      await service.modifyFavoriteListings(
+        {
+          id: listingId,
+          action: ModificationEnum.remove,
+        },
+        {
+          id: userId,
+        } as unknown as User,
+      );
+
+      expect(prisma.listings.findUnique).toHaveBeenCalledWith({
+        where: {
+          id: listingId,
+        },
+      });
+      expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+        data: {
+          favoriteListings: {
+            disconnect: { id: listingId },
+          },
+        },
+        include: {
+          jurisdictions: true,
+          listings: true,
+          userRoles: true,
+          favoriteListings: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        where: {
+          id: userId,
+        },
+      });
+    });
+
+    it('should throw a not found error when listing does not exist', async () => {
+      const userId = randomUUID();
+      const listingId = randomUUID();
+
+      prisma.listings.findUnique = jest.fn().mockResolvedValue(null);
+      prisma.userAccounts.update = jest.fn().mockResolvedValue(null);
+
+      await expect(
+        async () =>
+          await service.modifyFavoriteListings(
+            {
+              id: listingId,
+              action: ModificationEnum.add,
+            },
+            {
+              id: userId,
+            } as unknown as User,
+          ),
+      ).rejects.toThrowError(
+        `listingId ${listingId} was requested but not found`,
+      );
+
+      expect(prisma.listings.findUnique).toHaveBeenCalledWith({
+        where: {
+          id: listingId,
+        },
+      });
+      expect(prisma.userAccounts.update).not.toHaveBeenCalledWith();
+    });
   });
 });

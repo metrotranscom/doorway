@@ -1,18 +1,19 @@
 import React from "react"
 import { t, Heading } from "@bloom-housing/ui-components"
-import { CardProps, Card, DoorwayCollapsibleSection } from "@bloom-housing/doorway-ui-components"
+import { CardProps, Card } from "@bloom-housing/doorway-ui-components"
+import { DoorwayCollapsibleSection } from "../components/shared/DoorwayCollapsibleSection"
 
 // These are static, however they need to be exported as a function and
 // not a const due to a race condition around translations.
 export function questionsLinkableCards(): React.ReactElement<CardProps>[] {
-  return [
+  const questions = [
     <Card
       className="border-0"
       key="preparation"
       jumplinkData={{ title: t("help.faq.processPreparation") }}
     >
       <Card.Header>
-        <Heading priority={2} className={"text-primary-lighter font-semibold"}>
+        <Heading priority={2} className={"text-primary-lighter font-bold"}>
           {t("help.faq.processPreparation")}
         </Heading>
       </Card.Header>
@@ -139,7 +140,7 @@ export function questionsLinkableCards(): React.ReactElement<CardProps>[] {
       jumplinkData={{ title: t("help.faq.whatsNextHeader") }}
     >
       <Card.Header>
-        <Heading priority={2} className={"text-primary-lighter font-semibold"}>
+        <Heading priority={2} className={"text-primary-lighter font-bold"}>
           {t("help.faq.whatsNextHeader")}
         </Heading>
       </Card.Header>
@@ -201,7 +202,7 @@ export function questionsLinkableCards(): React.ReactElement<CardProps>[] {
       jumplinkData={{ title: t("help.faq.whatElseToKnowHeader") }}
     >
       <Card.Header>
-        <Heading priority={2} className={"text-primary-lighter font-semibold"}>
+        <Heading priority={2} className={"text-primary-lighter font-bold"}>
           {t("help.faq.whatElseToKnowHeader")}
         </Heading>
       </Card.Header>
@@ -275,4 +276,55 @@ export function questionsLinkableCards(): React.ReactElement<CardProps>[] {
       </Card.Section>
     </Card>,
   ]
+  if (process.env.showPublicLottery) {
+    questions.push(
+      <Card
+        className="border-0"
+        key="lotteryResults"
+        jumplinkData={{ title: t("help.faq.lotteryResults") }}
+      >
+        <Card.Header>
+          <Heading priority={2} className={"text-primary-lighter font-bold"}>
+            {t("help.faq.lotteryResults")}
+          </Heading>
+        </Card.Header>
+        <Card.Section>
+          <DoorwayCollapsibleSection title={t("help.faq.lotteryResults.rawRank")}>
+            <span>{t("help.faq.lotteryResults.rawRankResp1")}</span>
+          </DoorwayCollapsibleSection>
+          <DoorwayCollapsibleSection title={t("help.faq.lotteryResults.preferences")}>
+            <span>
+              {t("help.faq.lotteryResults.preferencesResp1")}
+              <br />
+              <br />
+              {t("help.faq.lotteryResults.preferencesResp2")}
+            </span>
+          </DoorwayCollapsibleSection>
+          <DoorwayCollapsibleSection title={t("help.faq.lotteryResults.order")}>
+            <span>
+              {t("help.faq.lotteryResults.orderResp1")}
+              <br />
+              <br />
+              {t("help.faq.lotteryResults.orderResp2")}
+              <ul className="text__medium-normal list-disc ml-5">
+                <li>{t("help.faq.lotteryResults.orderList1")}</li>
+                <li>{t("help.faq.lotteryResults.orderList2")}</li>
+                <li>{t("help.faq.lotteryResults.orderList3")}</li>
+              </ul>
+            </span>
+          </DoorwayCollapsibleSection>
+          <DoorwayCollapsibleSection title={t("help.faq.lotteryResults.additionalQuestions")}>
+            <span>
+              {t("help.faq.lotteryResults.additionalQuestionsResp1")}{" "}
+              <a href={`mailto:doorway@housingbayarea.org`}>
+                {t("help.faq.lotteryResults.additionalQuestionsResp2")}
+              </a>{" "}
+              {t("help.faq.lotteryResults.additionalQuestionsResp3")}
+            </span>
+          </DoorwayCollapsibleSection>
+        </Card.Section>
+      </Card>
+    )
+  }
+  return questions
 }

@@ -1,14 +1,24 @@
 import React, { useContext } from "react"
 import { t, MinimalTable, StandardTableData } from "@bloom-housing/ui-components"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
-import { ApplicationMethodsTypeEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import {
+  ApplicationMethodsTypeEnum,
+  FeatureFlagEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingContext } from "../../ListingContext"
 import { getDetailBoolean } from "./helpers"
 import { pdfFileNameFromFileId } from "../../../../lib/helpers"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
+import { AuthContext } from "@bloom-housing/shared-helpers"
 
 const DetailApplicationTypes = () => {
   const listing = useContext(ListingContext)
+  const { doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
+
+  const disableCommonApplication = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.disableCommonApplication,
+    listing?.jurisdictions?.id
+  )
 
   const digitalMethod = listing.applicationMethods.find(
     (method) =>
@@ -38,11 +48,14 @@ const DetailApplicationTypes = () => {
   return (
     <SectionWithGrid heading={t("listings.sections.applicationTypesTitle")} inset>
       <Grid.Row columns={2}>
-        <FieldValue id="digitalApplication" label={"Online Applications"}>
+        <FieldValue id="digitalApplication" label={t("listings.applicationType.onlineApplication")}>
           {getDetailBoolean(listing.digitalApplication)}
         </FieldValue>
-        {digitalMethod && (
-          <FieldValue id="digitalMethod.type" label={"Common Digital Application"}>
+        {!disableCommonApplication && digitalMethod && (
+          <FieldValue
+            id="digitalMethod.type"
+            label={t("listings.applicationType.digitalApplication")}
+          >
             {digitalMethod?.type === ApplicationMethodsTypeEnum.ExternalLink
               ? t("t.no")
               : t("t.yes")}
@@ -58,13 +71,13 @@ const DetailApplicationTypes = () => {
         )}
       </Grid.Row>
       <Grid.Row>
-        <FieldValue id="paperApplication" label={"Paper Applications"}>
+        <FieldValue id="paperApplication" label={t("listings.applicationType.paperApplication")}>
           {getDetailBoolean(listing.paperApplication)}
         </FieldValue>
       </Grid.Row>
       {paperApplicationsTableRows.length > 0 && (
         <Grid.Row>
-          <FieldValue label={"Paper Applications"}>
+          <FieldValue label={t("listings.applicationType.paperApplication")}>
             <MinimalTable
               id="paperApplicationTable"
               headers={paperApplicationsTableHeaders}

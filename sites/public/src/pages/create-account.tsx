@@ -1,10 +1,9 @@
 import React, { useEffect, useContext, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
-import { Field, Form, emailRegex, t, DOBField, AlertBox } from "@bloom-housing/ui-components"
+import { Field, Form, t, DOBField, AlertBox } from "@bloom-housing/ui-components"
 import { Button, Dialog, Heading } from "@bloom-housing/ui-seeds"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import dayjs from "dayjs"
-import Markdown from "markdown-to-jsx"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 dayjs.extend(customParseFormat)
 import { useRouter } from "next/router"
@@ -14,6 +13,7 @@ import {
   AuthContext,
   BloomCard,
   passwordRegex,
+  emailRegex,
 } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../lib/constants"
 import FormsLayout from "../layouts/forms"
@@ -22,9 +22,10 @@ import accountStyles from "../../styles/create-account.module.scss"
 import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
 import SignUpBenefits from "../components/account/SignUpBenefits"
 import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHeadingGroup"
+import { TermsModal } from "../components/shared/TermsModal"
 import { LanguagesEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
-export default () => {
+const CreateAccount = () => {
   const { createUser, resendConfirmation } = useContext(AuthContext)
   const [confirmationResent, setConfirmationResent] = useState<boolean>(false)
   const signUpCopy = process.env.showMandatedAccounts
@@ -102,18 +103,18 @@ export default () => {
   }
 
   return (
-    <FormsLayout className={signUpCopy && "sm:max-w-lg md:max-w-full"}>
-      <div className={signUpCopy && signUpBenefitsStyles["benefits-container"]}>
+    <FormsLayout className={signUpCopy ? "sm:max-w-lg md:max-w-full" : undefined}>
+      <div className={signUpCopy ? signUpBenefitsStyles["benefits-container"] : undefined}>
         {signUpCopy && (
           <div className={signUpBenefitsStyles["benefits-display-hide"]}>
             <SignUpBenefitsHeadingGroup mobileView={true} />
           </div>
         )}
-        <div className={signUpCopy && signUpBenefitsStyles["benefits-form-container"]}>
+        <div className={signUpCopy ? signUpBenefitsStyles["benefits-form-container"] : undefined}>
           <BloomCard customIcon="profile" title={t("account.createAccount")} headingPriority={1}>
             <>
               {requestError && (
-                <AlertBox className="" onClose={() => setRequestError(undefined)} type="alert">
+                <AlertBox onClose={() => setRequestError(undefined)} type="alert">
                   {requestError}
                 </AlertBox>
               )}
@@ -122,53 +123,55 @@ export default () => {
                   divider={"inset"}
                   className={BloomCardStyles["account-card-settings-section"]}
                 >
-                  <label className={accountStyles["create-account-header"]} htmlFor="firstName">
-                    {t("application.name.yourName")}
-                  </label>
+                  <fieldset id="userName">
+                    <legend className={accountStyles["create-account-header"]}>
+                      {t("application.name.yourName")}
+                    </legend>
 
-                  <label className={accountStyles["create-account-field"]} htmlFor="firstName">
-                    {t("application.name.firstOrGivenName")}
-                  </label>
-                  <Field
-                    controlClassName={accountStyles["create-account-input"]}
-                    name="firstName"
-                    validation={{ required: true, maxLength: 64 }}
-                    error={errors.givenName}
-                    errorMessage={
-                      errors.givenName?.type === "maxLength"
-                        ? t("errors.maxLength", { length: 64 })
-                        : t("errors.firstNameError")
-                    }
-                    register={register}
-                  />
+                    <label className={accountStyles["create-account-field"]} htmlFor="firstName">
+                      {t("application.name.firstOrGivenName")}
+                    </label>
+                    <Field
+                      controlClassName={accountStyles["create-account-input"]}
+                      name="firstName"
+                      validation={{ required: true, maxLength: 64 }}
+                      error={errors.firstName}
+                      errorMessage={
+                        errors.firstName?.type === "maxLength"
+                          ? t("errors.maxLength", { length: 64 })
+                          : t("errors.firstNameError")
+                      }
+                      register={register}
+                    />
 
-                  <label className={accountStyles["create-account-field"]} htmlFor="middleName">
-                    {t("application.name.middleNameOptional")}
-                  </label>
-                  <Field
-                    name="middleName"
-                    register={register}
-                    error={errors.middleName}
-                    validation={{ maxLength: 64 }}
-                    errorMessage={t("errors.maxLength", { length: 64 })}
-                    controlClassName={accountStyles["create-account-input"]}
-                  />
+                    <label className={accountStyles["create-account-field"]} htmlFor="middleName">
+                      {t("application.name.middleNameOptional")}
+                    </label>
+                    <Field
+                      name="middleName"
+                      register={register}
+                      error={errors.middleName}
+                      validation={{ maxLength: 64 }}
+                      errorMessage={t("errors.maxLength", { length: 64 })}
+                      controlClassName={accountStyles["create-account-input"]}
+                    />
 
-                  <label className={accountStyles["create-account-field"]} htmlFor="lastName">
-                    {t("application.name.lastOrFamilyName")}
-                  </label>
-                  <Field
-                    name="lastName"
-                    validation={{ required: true, maxLength: 64 }}
-                    error={errors.lastName}
-                    register={register}
-                    errorMessage={
-                      errors.lastName?.type === "maxLength"
-                        ? t("errors.maxLength", { length: 64 })
-                        : t("errors.lastNameError")
-                    }
-                    controlClassName={accountStyles["create-account-input"]}
-                  />
+                    <label className={accountStyles["create-account-field"]} htmlFor="lastName">
+                      {t("application.name.lastOrFamilyName")}
+                    </label>
+                    <Field
+                      name="lastName"
+                      validation={{ required: true, maxLength: 64 }}
+                      error={errors.lastName}
+                      register={register}
+                      errorMessage={
+                        errors.lastName?.type === "maxLength"
+                          ? t("errors.maxLength", { length: 64 })
+                          : t("errors.lastNameError")
+                      }
+                      controlClassName={accountStyles["create-account-input"]}
+                    />
+                  </fieldset>
                 </CardSection>
                 <CardSection
                   divider={"inset"}
@@ -287,55 +290,15 @@ export default () => {
                   </Button>
                 </CardSection>
                 {/* Terms disclaimer modal */}
-                <Dialog
-                  isOpen={openTermsModal}
-                  onClose={() => {
-                    setOpenTermsModal(false)
-                  }}
-                >
-                  <Dialog.Header>{t("authentication.terms.reviewTou")}</Dialog.Header>
-                  <Dialog.Content>
-                    <>
-                      <p>{t("authentication.terms.publicAccept")}</p>
-                      <Heading
-                        size="lg"
-                        priority={2}
-                        className={accountStyles["create-account-modal-subheader"]}
-                      >
-                        {t("authentication.terms.termsOfUse")}
-                      </Heading>
-                      <Markdown>{t("authentication.terms.publicTerms")}</Markdown>
-                      <Field
-                        id="agreedToTermsOfService"
-                        name="agreedToTermsOfService"
-                        type="checkbox"
-                        label={t(`authentication.terms.acceptExtended`)}
-                        register={register}
-                        validation={{ required: true }}
-                        error={!!errors.agree}
-                        errorMessage={t("errors.agreeError")}
-                        dataTestId="agree"
-                        onChange={() => setChecked(!notChecked)}
-                        className={accountStyles["create-account-terms-checkbox"]}
-                        labelClassName={accountStyles["create-account-terms-label"]}
-                        inputProps={{
-                          defaultChecked: !notChecked,
-                        }}
-                      />
-                    </>
-                  </Dialog.Content>
-                  <Dialog.Footer>
-                    <Button
-                      disabled={notChecked}
-                      type="submit"
-                      variant="primary"
-                      onClick={handleSubmit(onSubmit)}
-                      loadingMessage={isTermsLoading ? t("t.loading") : undefined}
-                    >
-                      {t("t.finish")}
-                    </Button>
-                  </Dialog.Footer>
-                </Dialog>
+                <TermsModal
+                  control={{ register, errors, handleSubmit }}
+                  onSubmit={onSubmit}
+                  notChecked={notChecked}
+                  setChecked={setChecked}
+                  openTermsModal={openTermsModal}
+                  setOpenTermsModal={setOpenTermsModal}
+                  isTermsLoading={isTermsLoading}
+                />
               </Form>
             </>
           </BloomCard>
@@ -399,3 +362,5 @@ export default () => {
     </FormsLayout>
   )
 }
+
+export default CreateAccount

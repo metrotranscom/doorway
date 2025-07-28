@@ -2,12 +2,12 @@ import React, { useState, useContext, useMemo } from "react"
 import Head from "next/head"
 import axios from "axios"
 import dayjs from "dayjs"
+import Markdown from "markdown-to-jsx"
 import { useRouter } from "next/router"
 import advancedFormat from "dayjs/plugin/advancedFormat"
 import Ticket from "@heroicons/react/24/solid/TicketIcon"
 import Download from "@heroicons/react/24/solid/ArrowDownTrayIcon"
 import ExclamationCirleIcon from "@heroicons/react/24/solid/ExclamationCircleIcon"
-import Markdown from "markdown-to-jsx"
 import { t, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
 import { Button, Card, Dialog, Heading, Icon, Message } from "@bloom-housing/ui-seeds"
 import { CardHeader, CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
@@ -21,17 +21,14 @@ import {
   ReviewOrderTypeEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import Layout from "../../../layouts"
+import { ExportTermsDialog } from "../../../components/shared/ExportTermsDialog"
 import { ListingContext } from "../../../components/listings/ListingContext"
 import { MetaTags } from "../../../components/shared/MetaTags"
 import ListingGuard from "../../../components/shared/ListingGuard"
 import { NavigationHeader } from "../../../components/shared/NavigationHeader"
 import { ListingStatusBar } from "../../../components/listings/ListingStatusBar"
 import { logger } from "../../../logger"
-import {
-  useFlaggedApplicationsMeta,
-  useLotteryActivityLog,
-  useLotteryExport,
-} from "../../../lib/hooks"
+import { useFlaggedApplicationsMeta, useLotteryActivityLog, useZipExport } from "../../../lib/hooks"
 dayjs.extend(advancedFormat)
 
 import styles from "../../../../styles/lottery.module.scss"
@@ -64,12 +61,15 @@ const Lottery = (props: { listing: Listing | undefined }) => {
   const includeDemographicsPartner =
     profile?.userRoles?.isPartner && listingJurisdiction?.enablePartnerDemographics
 
-  const { onExport, exportLoading } = useLotteryExport(
+  const { onExport, exportLoading } = useZipExport(
     listing?.id,
     (profile?.userRoles?.isAdmin ||
       profile?.userRoles?.isJurisdictionalAdmin ||
       includeDemographicsPartner) ??
-      false
+      false,
+    true,
+    false,
+    !!process.env.useSecureDownloadPathway
   )
   const { data } = useFlaggedApplicationsMeta(listing?.id)
   const { lotteryActivityLogData } = useLotteryActivityLog(listing?.id)
@@ -80,7 +80,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
       Number(process.env.lotteryDaysTillExpiry),
       "day"
     )
-    formattedExpiryDate = expiryDate.format("MMMM D, YYYY")
+    formattedExpiryDate = expiryDate.format("MM/DD/YYYY")
   }
 
   const eventMap = {
@@ -140,7 +140,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
         <Icon size="xl">
           <Download />
         </Icon>
-        <Heading priority={2} size={"2xl"}>
+        <Heading priority={2} size={"2xl"} id={"lottery-heading"}>
           {t("listings.lottery.export")}
         </Heading>
         <div className={styles["card-description"]}>
@@ -186,6 +186,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                   setRunModal(true)
                 }}
                 disabled={loading || exportLoading}
+                id={"lottery-run-button"}
               >
                 {t("listings.lottery.runLottery")}
               </Button>
@@ -198,6 +199,10 @@ const Lottery = (props: { listing: Listing | undefined }) => {
         (event) => event.type === ListingEventsTypeEnum.publicLottery
       )
       if (listing.lotteryStatus === LotteryStatusEnum.releasedToPartners) {
+        // reverse array to find most recent release date
+        const lotteryReleaseDate = lotteryActivityLogData
+          ?.reverse()
+          ?.find((logItem) => logItem.status === LotteryStatusEnum.releasedToPartners)?.logDate
         return (
           <CardSection>
             <Icon size="xl">
@@ -211,8 +216,8 @@ const Lottery = (props: { listing: Listing | undefined }) => {
               <p>
                 {t("listings.lottery.partnerPublishTimestamp", {
                   adminName: t("listings.lottery.partnerPublishTimestampAdmin"),
-                  date: "DATE",
-                  time: "TIME",
+                  date: dayjs(lotteryReleaseDate).format("MM/DD/YYYY"),
+                  time: dayjs(lotteryReleaseDate).format("h:mm a"),
                   portal: t("listings.lottery.partnerPublishTimestampPortal"),
                 })}
               </p>
@@ -222,6 +227,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 onClick={() => {
                   setPublishModal(true)
                 }}
+                id={"lottery-publish-button"}
               >
                 {t("listings.actions.publish")}
               </Button>
@@ -285,6 +291,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 className={styles["action"]}
                 onClick={() => setReRunModal(true)}
                 variant={"primary-outlined"}
+                id={"lottery-rerun-button"}
               >
                 {t("listings.lottery.reRun")}
               </Button>
@@ -300,6 +307,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                   }
                 }}
                 variant={"primary-outlined"}
+                id={"lottery-release-button"}
               >
                 {t("listings.lottery.release")}
               </Button>
@@ -310,6 +318,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 className={styles["action"]}
                 onClick={() => setRetractModal(true)}
                 variant={"alert-outlined"}
+                id={"lottery-retract-button"}
               >
                 {t("listings.lottery.retract")}
               </Button>
@@ -446,6 +455,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 }}
                 size="sm"
                 loadingMessage={loading || exportLoading ? t("t.loading") : undefined}
+                id={"lottery-run-modal-button"}
               >
                 {duplicatesExist
                   ? t("listings.lottery.runLotteryDuplicates")
@@ -513,6 +523,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 }}
                 size="sm"
                 loadingMessage={loading ? t("t.loading") : null}
+                id={"lottery-rerun-modal-button"}
               >
                 {t("listings.lottery.reRunUnderstand")}
               </Button>
@@ -562,6 +573,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 }}
                 loadingMessage={loading ? t("t.loading") : null}
                 size="sm"
+                id={"lottery-release-modal-button"}
               >
                 {t("listings.lottery.releaseButton")}
               </Button>
@@ -641,6 +653,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 }}
                 loadingMessage={loading ? t("t.loading") : null}
                 size="sm"
+                id={"lottery-retract-modal-button"}
               >
                 {t("listings.lottery.retract")}
               </Button>
@@ -705,61 +718,39 @@ const Lottery = (props: { listing: Listing | undefined }) => {
               </Button>
             </Dialog.Footer>
           </Dialog>
-          <Dialog
+          <ExportTermsDialog
+            dialogHeader={t("listings.lottery.export")}
+            id="partner-lottery"
             isOpen={!!termsExportModal}
-            ariaLabelledBy="terms-export-lottery-modal-header"
-            ariaDescribedBy="terms-export-lottery-modal-content"
             onClose={() => setTermsExportModal(false)}
+            onSubmit={async () => {
+              setLoading(true)
+              try {
+                await onExport()
+                setLoading(false)
+                setTermsExportModal(false)
+              } catch {
+                setLoading(false)
+                addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
+              }
+            }}
+            loadingState={loading || exportLoading}
           >
-            <Dialog.Header id="terms-export-lottery-modal-header">
-              {t("listings.lottery.export")}
-            </Dialog.Header>
-            <Dialog.Content id="terms-export-lottery-modal-content">
-              <p>
-                {listing.listingMultiselectQuestions.length
-                  ? t("listings.lottery.exportFile")
-                  : t("listings.lottery.exportFileNoPreferences")}{" "}
-                {t("listings.lottery.exportContentTimestamp", {
-                  date: dayjs(listing.lotteryLastRunAt).format("MM/DD/YYYY"),
-                  time: dayjs(listing.lotteryLastRunAt).format("h:mm a"),
-                })}
-              </p>
-              <p>{t("listings.lottery.termsAccept")}</p>
-              <h2 className={styles["terms-of-use-header"]}>
-                {t("authentication.terms.termsOfUse")}
-              </h2>
-              <Markdown>{t("listings.lottery.terms")}</Markdown>
-            </Dialog.Content>
-            <Dialog.Footer>
-              <Button
-                variant="primary"
-                onClick={async () => {
-                  setLoading(true)
-                  try {
-                    await onExport()
-                    setLoading(false)
-                    setTermsExportModal(false)
-                  } catch {
-                    setLoading(false)
-                    addToast(t("account.settings.alerts.genericError"), { variant: "alert" })
-                  }
-                }}
-                size="sm"
-                loadingMessage={loading || exportLoading ? t("t.loading") : undefined}
-              >
-                {t("t.export")}
-              </Button>
-              <Button
-                variant="primary-outlined"
-                onClick={() => {
-                  setTermsExportModal(false)
-                }}
-                size="sm"
-              >
-                {t("t.cancel")}
-              </Button>
-            </Dialog.Footer>
-          </Dialog>
+            <p>
+              {listing.listingMultiselectQuestions.length
+                ? t("listings.lottery.exportFile")
+                : t("listings.lottery.exportFileNoPreferences")}{" "}
+              {t("listings.lottery.exportContentTimestamp", {
+                date: dayjs(listing.lotteryLastRunAt).format("MM/DD/YYYY"),
+                time: dayjs(listing.lotteryLastRunAt).format("h:mm a"),
+              })}
+            </p>
+            <p>{t("listings.lottery.termsAccept")}</p>
+            <h2 className={styles["terms-of-use-header"]}>
+              {t("authentication.terms.termsOfUse")}
+            </h2>
+            <Markdown>{t("listings.lottery.terms")}</Markdown>
+          </ExportTermsDialog>
           <Dialog
             isOpen={!!publishModal}
             ariaLabelledBy="publish-lottery-modal-header"
@@ -797,6 +788,7 @@ const Lottery = (props: { listing: Listing | undefined }) => {
                 }}
                 loadingMessage={loading ? t("t.loading") : null}
                 size="sm"
+                id={"lottery-publish-modal-button"}
               >
                 {t("listings.lottery.publishLottery")}
               </Button>

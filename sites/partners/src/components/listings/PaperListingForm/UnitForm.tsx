@@ -130,7 +130,7 @@ const UnitForm = ({ onSubmit, onClose, defaultUnit, nextId, draft }: UnitFormPro
   useEffect(() => {
     void resetDefaultValues()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [amiCharts])
 
   const fetchAmiChart = async (defaultChartID?: string) => {
     try {
@@ -519,15 +519,15 @@ const UnitForm = ({ onSubmit, onClose, defaultUnit, nextId, draft }: UnitFormPro
                       errorMessage={t("errors.requiredFieldError")}
                       validation={{ required: true }}
                       inputProps={{
-                        onChange: () => {
+                        onChange: (value) => {
                           setValue("amiPercentage", undefined)
                           clearErrors("amiPercentage")
                           clearErrors("amiChart.id")
                           ;[...Array(maxAmiHouseholdSize)].forEach((_, index) => {
                             setValue(`maxIncomeHouseholdSize${index + 1}`, undefined)
                           })
-                          if (amiChartID && !loading && amiChartsOptions) {
-                            void fetchAmiChart()
+                          if (value?.target?.value && !loading && amiChartsOptions) {
+                            void fetchAmiChart(value.target?.value)
                             setIsAmiPercentageDirty(true)
                           }
                         },

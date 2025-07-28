@@ -49,7 +49,8 @@ type UseListingsDataProps = PaginationProps & {
   search?: string
   sort?: ColumnOrder[]
   roles?: UserRole
-  userJurisidctionIds?: string[]
+  userJurisdictionIds?: string[]
+  view?: ListingViews
 }
 
 export function useSingleListingData(listingId: string) {
@@ -72,14 +73,16 @@ export function useListingsData({
   search = "",
   sort,
   roles,
-  userJurisidctionIds,
+  userJurisdictionIds,
+  view,
 }: UseListingsDataProps) {
   const params = {
     page,
     limit,
     filter: [],
     search,
-    view: ListingViews.base,
+    $comparison: null,
+    view: view ?? ListingViews.base,
   }
 
   if (sort) {
@@ -95,12 +98,12 @@ export function useListingsData({
   if (roles?.isPartner) {
     params.filter.push({
       $comparison: EnumListingFilterParamsComparison["="],
-      leasingAgents: userId,
+      leasingAgent: userId,
     })
   } else if (roles?.isJurisdictionalAdmin || roles?.isLimitedJurisdictionalAdmin) {
     params.filter.push({
       $comparison: EnumListingFilterParamsComparison.IN,
-      jurisdiction: userJurisidctionIds[0],
+      jurisdiction: userJurisdictionIds[0],
     })
   }
 
@@ -112,7 +115,7 @@ export function useListingsData({
 
   const { listingsService } = useContext(AuthContext)
 
-  const fetcher = () => listingsService.list(params)
+  const fetcher = () => listingsService.filterableList({ body: { ...params } })
 
   const paramsString = qs.stringify(params)
 
@@ -240,7 +243,7 @@ export function useApplicationsData(
   }
 
   if (orderBy) {
-    Object.assign(params, { orderBy, order: order || OrderByEnum.asc })
+    Object.assign(params, { orderBy, order: order || "asc" })
   }
 
   const paramsString = qs.stringify(params)
@@ -511,39 +514,76 @@ export const createDateStringFromNow = (format = "YYYY-MM-DD_HH:mm:ss"): string 
   return dayjs(now).format(format)
 }
 
-export const useApplicationsExport = (listingId: string, includeDemographics: boolean) => {
-  const { applicationsService } = useContext(AuthContext)
-
-  return useCsvExport(
-    () =>
-      applicationsService.listAsCsv({
-        id: listingId,
-        includeDemographics,
-        timeZone: dayjs.tz.guess(),
-      }),
-    `applications-${listingId}-${createDateStringFromNow()}.csv`
-  )
-}
-
-export const useLotteryExport = (listingId: string, includeDemographics: boolean) => {
-  const { lotteryService } = useContext(AuthContext)
+export const useZipExport = (
+  listingId: string,
+  includeDemographics: boolean,
+  isLottery: boolean,
+  isSpreadsheet = false,
+  useSecurePathway = false
+) => {
+  const { applicationsService, lotteryService } = useContext(AuthContext)
   const [exportLoading, setExportLoading] = useState(false)
   const { addToast } = useContext(MessageContext)
 
   const onExport = useCallback(async () => {
     setExportLoading(true)
     try {
-      const content = await lotteryService.lotteryResults(
-        { id: listingId, includeDemographics },
-        { responseType: "arraybuffer" }
-      )
-      const blob = new Blob([new Uint8Array(content)], { type: "application/zip" })
-      const url = window.URL.createObjectURL(blob)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let content: any
+      if (isLottery) {
+        content = useSecurePathway
+          ? await lotteryService.lotteryResultsSecure({
+              id: listingId,
+              includeDemographics,
+              timeZone: dayjs.tz.guess(),
+            })
+          : await lotteryService.lotteryResults(
+              { id: listingId, includeDemographics, timeZone: dayjs.tz.guess() },
+              { responseType: "arraybuffer" }
+            )
+      } else {
+        if (isSpreadsheet) {
+          content = useSecurePathway
+            ? await applicationsService.listAsSpreadsheetSecure({
+                id: listingId,
+                includeDemographics,
+                timeZone: dayjs.tz.guess(),
+              })
+            : await applicationsService.listAsSpreadsheet(
+                { id: listingId, includeDemographics, timeZone: dayjs.tz.guess() },
+                { responseType: "arraybuffer" }
+              )
+        } else {
+          content = useSecurePathway
+            ? await applicationsService.listAsCsvSecure({
+                id: listingId,
+                includeDemographics,
+                timeZone: dayjs.tz.guess(),
+              })
+            : await applicationsService.listAsCsv(
+                { id: listingId, includeDemographics, timeZone: dayjs.tz.guess() },
+                { responseType: "arraybuffer" }
+              )
+        }
+      }
+
+      let url: string
+
+      if (useSecurePathway) {
+        url = content
+      } else {
+        const blob = new Blob([new Uint8Array(content)], { type: "application/zip" })
+        url = window.URL.createObjectURL(blob)
+      }
+
       const link = document.createElement("a")
       link.href = url
-      const now = new Date()
-      const dateString = dayjs(now).format("YYYY-MM-DD_HH-mm")
-      link.setAttribute("download", `${listingId}-${dateString}-test.zip`)
+      link.setAttribute(
+        "download",
+        `${isLottery ? "lottery" : "applications"}-${listingId}-${createDateStringFromNow(
+          "YYYY-MM-DD_HH-mm"
+        )}.zip`
+      )
       document.body.appendChild(link)
       link.click()
       link.parentNode.removeChild(link)

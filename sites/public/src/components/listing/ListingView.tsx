@@ -24,7 +24,7 @@ import {
   StandardTable,
   ImageCard,
 } from "@bloom-housing/ui-components"
-import { Icon, Message } from "@bloom-housing/ui-seeds"
+import { Card, Heading as SeedsHeading, Icon, Message } from "@bloom-housing/ui-seeds"
 import {
   getOccupancyDescription,
   imageUrlFromListing,
@@ -42,8 +42,12 @@ import {
 } from "@bloom-housing/shared-helpers"
 import dayjs from "dayjs"
 import { ErrorPage } from "../../pages/_error"
-import { useGetApplicationStatusProps } from "../../lib/hooks"
-import { getGenericAddress, openInFuture } from "../../lib/helpers"
+import {
+  getGenericAddress,
+  getListingApplicationStatus,
+  openInFuture,
+  isFeatureFlagOn,
+} from "../../lib/helpers"
 import { GetApplication } from "./GetApplication"
 import { SubmitApplication } from "./SubmitApplication"
 import { ListingGoogleMap } from "./ListingGoogleMap"
@@ -54,11 +58,13 @@ import {
   ApplicationAddressTypeEnum,
   ApplicationMethod,
   ApplicationMethodsTypeEnum,
+  FeatureFlagEnum,
   Jurisdiction,
   Listing,
   ListingEvent,
   ListingEventCreate,
   ListingEventsTypeEnum,
+  ListingMultiselectQuestion,
   ListingsStatusEnum,
   MultiselectQuestionsApplicationSectionEnum,
   ReviewOrderTypeEnum,
@@ -82,15 +88,32 @@ interface ListingProps {
   preview?: boolean
   jurisdiction?: Jurisdiction
   googleMapsApiKey: string
+  googleMapsMapId: string
   isExternal?: boolean
 }
 
+const getUnhiddenMultiselectQuestions = (
+  arrayToSeach: ListingMultiselectQuestion[],
+  section: MultiselectQuestionsApplicationSectionEnum
+): ListingMultiselectQuestion[] => {
+  return arrayToSeach.filter(
+    (elem) =>
+      elem.multiselectQuestions.applicationSection === section &&
+      !elem.multiselectQuestions.hideFromListing
+  )
+}
+
 export const ListingView = (props: ListingProps) => {
-  const { initialStateLoaded, profile } = useContext(AuthContext)
-  let buildingSelectionCriteria, preferencesSection
+  const { initialStateLoaded, profile, doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
+  let buildingSelectionCriteria, preferencesSection, programsSection
   const { listing } = props
-  const { content: appStatusContent, subContent: appStatusSubContent } =
-    useGetApplicationStatusProps(listing)
+
+  const statusContent = getListingApplicationStatus(listing)
+
+  const disableListingPreferences = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.disableListingPreferences,
+    listing?.jurisdictions?.id
+  )
 
   const appOpenInFuture = openInFuture(listing)
   const hasNonReferralMethods = listing?.applicationMethods
@@ -191,32 +214,76 @@ export const ListingView = (props: ListingProps) => {
     )
   }
 
-  const listingPreferences = listing?.listingMultiselectQuestions.filter(
-    (listingPref) =>
-      listingPref.multiselectQuestions.applicationSection ===
-        MultiselectQuestionsApplicationSectionEnum.preferences &&
-      !listingPref.multiselectQuestions.hideFromListing
+  const listingPreferences = getUnhiddenMultiselectQuestions(
+    listing?.listingMultiselectQuestions || [],
+    MultiselectQuestionsApplicationSectionEnum.preferences
   )
 
-  const getPreferenceData = () => {
-    return listingPreferences.map((listingPref, index) => {
+  const listingPrograms = getUnhiddenMultiselectQuestions(
+    listing?.listingMultiselectQuestions || [],
+    MultiselectQuestionsApplicationSectionEnum.programs
+  )
+
+  const getMultiselectQuestionData = (section: MultiselectQuestionsApplicationSectionEnum) => {
+    let multiselectQuestionSet: ListingMultiselectQuestion[] = []
+
+    if (section === MultiselectQuestionsApplicationSectionEnum.programs) {
+      multiselectQuestionSet = listingPrograms
+    } else {
+      multiselectQuestionSet = listingPreferences
+    }
+    return multiselectQuestionSet.map((listingMultiselectQuestion, index) => {
       return {
         ordinal: index + 1,
-        links: listingPref?.multiselectQuestions?.links,
-        title: listingPref?.multiselectQuestions?.text,
-        description: listingPref?.multiselectQuestions?.description,
+        links: listingMultiselectQuestion?.multiselectQuestions?.links,
+        title: listingMultiselectQuestion?.multiselectQuestions?.text,
+        description: listingMultiselectQuestion?.multiselectQuestions?.description,
       }
     })
   }
 
-  if (listingPreferences && listingPreferences?.length > 0) {
+  if (listingPrograms && listingPrograms?.length > 0) {
+    programsSection = (
+      <ListSection
+        title={t("listings.sections.housingProgramsTitle")}
+        subtitle={t("listings.sections.housingProgramsSubtitle")}
+      >
+        <>
+          {getMultiselectQuestionData(MultiselectQuestionsApplicationSectionEnum.programs).map(
+            (msq) => {
+              return (
+                <Card spacing="md" className="listing-multiselect-card">
+                  <Card.Header>
+                    <SeedsHeading size="sm" priority={4}>
+                      {msq.title}
+                    </SeedsHeading>
+                  </Card.Header>
+
+                  <Card.Section>
+                    <p>{msq.description}</p>
+                  </Card.Section>
+                </Card>
+              )
+            }
+          )}
+          <p className="text-gray-750 text-sm">{t("listings.remainingUnitsAfterPrograms")}</p>
+        </>
+      </ListSection>
+    )
+  }
+
+  if (listingPreferences && listingPreferences?.length > 0 && !disableListingPreferences) {
     preferencesSection = (
       <ListSection
         title={t("listings.sections.housingPreferencesTitle")}
         subtitle={t("listings.sections.housingPreferencesSubtitle")}
       >
         <>
-          <PreferencesList listingPreferences={getPreferenceData()} />
+          <PreferencesList
+            listingPreferences={getMultiselectQuestionData(
+              MultiselectQuestionsApplicationSectionEnum.preferences
+            )}
+          />
           <p className="text-gray-750 text-sm">
             {t("listings.remainingUnitsAfterPreferenceConsideration")}
           </p>
@@ -508,7 +575,11 @@ export const ListingView = (props: ListingProps) => {
     return featuresExist ? <ul>{features}</ul> : null
   }
 
-  const accessibilityFeatures = getAccessibilityFeatures()
+  const enableAccessibilityFeatures = isFeatureFlagOn(
+    props.jurisdiction,
+    FeatureFlagEnum.enableAccessibilityFeatures
+  )
+  const accessibilityFeatures = enableAccessibilityFeatures ? getAccessibilityFeatures() : null
 
   const getUtilitiesIncluded = () => {
     let utilitiesExist = false
@@ -543,7 +614,11 @@ export const ListingView = (props: ListingProps) => {
 
   const getFooterContent = () => {
     const footerContent: (string | React.ReactNode)[] = []
-    if (props.jurisdiction.enableUtilitiesIncluded) {
+    const enableUtilitiesIncluded = isFeatureFlagOn(
+      props.jurisdiction,
+      FeatureFlagEnum.enableUtilitiesIncluded
+    )
+    if (enableUtilitiesIncluded) {
       const utilitiesDisplay = getUtilitiesIncluded()
       if (utilitiesDisplay) footerContent.push(utilitiesDisplay)
     }
@@ -552,7 +627,7 @@ export const ListingView = (props: ListingProps) => {
   }
 
   const getApplicationStatus = () => {
-    if (appStatusContent || appStatusSubContent) {
+    if (statusContent?.content || statusContent?.subContent) {
       return (
         <Message
           className="doorway-message application-status"
@@ -563,11 +638,11 @@ export const ListingView = (props: ListingProps) => {
             </Icon>
           }
         >
-          {appStatusContent}
-          {appStatusSubContent && (
+          {statusContent?.content}
+          {statusContent?.subContent && (
             <>
               <br />
-              {appStatusSubContent}
+              {statusContent?.subContent}
             </>
           )}
         </Message>
@@ -677,10 +752,21 @@ export const ListingView = (props: ListingProps) => {
               responsiveCollapse={true}
             />
           )}
+          {listing.section8Acceptance && (
+            <div className="my-2">
+              <Markdown className="custom-counter__subtitle">
+                {t("listings.section8VoucherInfo")}
+              </Markdown>
+            </div>
+          )}
         </div>
       </div>
       <div className="w-full md:w-2/3 md:mt-3 md:hidden md:mx-3 border-gray-400 border-b">
         {getApplicationStatus()}
+        {/* <ApplicationStatus
+          content={statusContent?.content}
+          subContent={statusContent?.subContent}
+        /> */}
         <div className="mx-4">
           <DownloadLotteryResults
             resultsDate={dayjs(lotteryResults?.startTime).format("MMMM D, YYYY")}
@@ -731,7 +817,18 @@ export const ListingView = (props: ListingProps) => {
 
             <ListSection
               title={t("listings.householdMaximumIncome")}
-              subtitle={householdMaximumIncomeSubheader}
+              subtitle={
+                <div>
+                  {householdMaximumIncomeSubheader}
+                  {listing.section8Acceptance && (
+                    <>
+                      <br />
+                      <br />
+                      <Markdown>{t("listings.section8VoucherInfo")}</Markdown>
+                    </>
+                  )}
+                </div>
+              }
             >
               <StandardTable
                 className="table-container"
@@ -758,6 +855,7 @@ export const ListingView = (props: ListingProps) => {
               />
             )}
 
+            {programsSection}
             {preferencesSection}
 
             {(listing.creditHistory ||
@@ -832,6 +930,10 @@ export const ListingView = (props: ListingProps) => {
           <aside className="w-full static md:absolute md:right-0 md:w-1/3 md:top-0 sm:w-2/3 md:ml-2 h-full md:border border-gray-400 bg-white">
             <div className="hidden md:block">
               {getApplicationStatus()}
+              {/* <ApplicationStatus
+                content={statusContent?.content}
+                subContent={statusContent?.subContent}
+              /> */}
               <DownloadLotteryResults
                 resultsDate={dayjs(lotteryResults?.startTime).format("MMMM D, YYYY")}
                 pdfURL={pdfUrlFromListingEvents(
@@ -904,6 +1006,12 @@ export const ListingView = (props: ListingProps) => {
                 contactPhoneNumber={`${t("t.call")} ${listing.leasingAgentPhone}`}
                 contactPhoneNumberNote={t("leasingAgent.dueToHighCallVolume")}
                 contactTitle={listing.leasingAgentTitle}
+                contactCompany={{
+                  name: "",
+                  website: isFeatureFlagOn(props.jurisdiction, FeatureFlagEnum.enableCompanyWebsite)
+                    ? listing.managementWebsite
+                    : undefined,
+                }}
                 strings={{
                   email: t("t.email"),
                   website: t("t.website"),
@@ -943,7 +1051,7 @@ export const ListingView = (props: ListingProps) => {
               {listing.servicesOffered && (
                 <Description term={t("t.servicesOffered")} description={listing.servicesOffered} />
               )}
-              {accessibilityFeatures && props.jurisdiction?.enableAccessibilityFeatures && (
+              {accessibilityFeatures && (
                 <Description term={t("t.accessibility")} description={accessibilityFeatures} />
               )}
               {listing.accessibility && (
@@ -993,6 +1101,7 @@ export const ListingView = (props: ListingProps) => {
               listing={listing}
               googleMapsHref={googleMapsHref}
               googleMapsApiKey={props.googleMapsApiKey}
+              googleMapsMapId={props.googleMapsMapId}
             />
           </div>
         </ListingDetailItem>

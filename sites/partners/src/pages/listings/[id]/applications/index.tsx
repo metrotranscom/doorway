@@ -19,7 +19,7 @@ import {
   useSingleListingData,
   useFlaggedApplicationsList,
   useApplicationsData,
-  useApplicationsExport,
+  useZipExport,
 } from "../../../../lib/hooks"
 import { ListingStatusBar } from "../../../../components/listings/ListingStatusBar"
 import Layout from "../../../../layouts"
@@ -50,17 +50,19 @@ const ApplicationsList = () => {
   )
   const includeDemographicsPartner =
     profile?.userRoles?.isPartner && listingJurisdiction?.enablePartnerDemographics
-  const { onExport, csvExportLoading } = useApplicationsExport(
+  const { onExport, exportLoading } = useZipExport(
     listingId,
     (profile?.userRoles?.isAdmin ||
       profile?.userRoles?.isJurisdictionalAdmin ||
       includeDemographicsPartner) ??
-      false
+      false,
+    false,
+    !!process.env.applicationExportAsSpreadsheet,
+    !!process.env.useSecureDownloadPathway
   )
 
   const shouldExpireData = !profile?.userRoles?.isAdmin
 
-  const countyCode = listingDto?.jurisdictions?.name
   const listingName = listingDto?.name
   const isListingOpen = listingDto?.status === "active"
   const allowNewApps = listingDto?.status !== "closed" || profile?.userRoles?.isAdmin
@@ -113,8 +115,8 @@ const ApplicationsList = () => {
   }, [applications])
 
   const columnDefs = useMemo(() => {
-    return getColDefs(maxHouseholdSize, countyCode)
-  }, [maxHouseholdSize, countyCode])
+    return getColDefs(maxHouseholdSize)
+  }, [maxHouseholdSize])
 
   const gridComponents = {
     formatLinkCell,
@@ -273,7 +275,7 @@ const ApplicationsList = () => {
                           size="sm"
                           className={pageStyles["table-action"]}
                           onClick={() => setIsTermsOpen(true)}
-                          loadingMessage={csvExportLoading && t("t.formSubmitted")}
+                          loadingMessage={exportLoading && t("t.formSubmitted")}
                         >
                           {t("t.export")}
                         </Button>
@@ -284,11 +286,14 @@ const ApplicationsList = () => {
 
                 <ExportTermsDialog
                   dialogHeader={t("applications.export.dialogHeader")}
+                  id="applications"
                   isOpen={isTermsOpen}
                   onClose={() => setIsTermsOpen(false)}
                   onSubmit={onSubmit}
                 >
-                  <p>{t("applications.export.dialogAlert", { date: formattedExpiryDate })}</p>
+                  {listingDto?.closedAt && (
+                    <p>{t("applications.export.dialogAlert", { date: formattedExpiryDate })}</p>
+                  )}
                   <p>{t("applications.export.dialogSubheader")}</p>
                   <h2 className={styles["terms-of-use-text"]}>
                     {t("applications.export.termsOfUse")}

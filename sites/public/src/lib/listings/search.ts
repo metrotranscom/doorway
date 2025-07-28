@@ -6,8 +6,10 @@ export type ListingSearchParams = {
   bathrooms: string
   minRent: string
   monthlyRent: string
+  propertyName: string
   counties: string[]
   availability: FilterAvailabilityEnum
+  ids: string[]
 }
 
 /**
@@ -42,14 +44,8 @@ export function parseSearchString<T extends object>(search: string, format: T): 
     }
 
     const parts = input.split(":")
-
-    // There can only be two parts: name and value
-    if (parts.length > 2) {
-      console.log(`Invalid search input [${input}]; too many components`)
-      return
-    }
-
     const name = parts[0]
+    let value
 
     // Make sure it's allowed
     if (!(name in format)) {
@@ -57,8 +53,17 @@ export function parseSearchString<T extends object>(search: string, format: T): 
       return
     }
 
-    // Check the values
-    const value = parts[1]
+    // Handle colon as possible input for text fields
+    if (name === "propertyName") {
+      value = parts.slice(1, parts.length).join(":")
+    } else {
+      // Otherwise there can only be two parts: name and value
+      if (parts.length > 2) {
+        console.log(`Invalid search input [${input}]; too many components`)
+        return
+      }
+      value = parts[1]
+    }
 
     // If it is supposed to be an array, treat it like one
     if (Array.isArray(results[name])) {
@@ -83,7 +88,7 @@ export function parseSearchString<T extends object>(search: string, format: T): 
 export function buildSearchString(input: ListingSearchParams) {
   // For each non-null key in the input, return a serialized value, then join all together
   return Object.entries(input)
-    .filter(([key, value]) => {
+    .filter(([_, value]) => {
       return value !== null && value != ""
     })
     .map(([key, value]) => {
@@ -120,10 +125,18 @@ export function generateSearchQuery(params: ListingSearchParams) {
   if (params.monthlyRent && params.monthlyRent != "") {
     qb.whereLessThanEqual("monthlyRent", params.monthlyRent)
   }
+  if (params.propertyName && params.propertyName != "") {
+    qb.whereLike("name", params.propertyName)
+  }
 
   // Find listings in these counties
   if (Array.isArray(params.counties) && params.counties.length > 0) {
     qb.whereIn("counties", params.counties)
+  }
+
+  // Find listings with these ids
+  if (Array.isArray(params.ids) && params.ids.length > 0) {
+    qb.whereIn("ids", params.ids)
   }
 
   if (params.availability) {

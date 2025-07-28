@@ -1,9 +1,9 @@
-import { IsString, Matches, MaxLength } from 'class-validator';
+import { IsBoolean, IsString, Matches, MaxLength } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { ValidationsGroupsEnum } from '../../enums/shared/validation-groups-enum';
 import { passwordRegex } from '../../utilities/password-regex';
 import { Match } from '../../decorators/match-decorator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdatePassword {
   @Expose()
@@ -25,6 +25,10 @@ export class UpdatePassword {
   @Expose()
   @ApiProperty()
   @IsString({ groups: [ValidationsGroupsEnum.default] })
-  @MaxLength(256, { groups: [ValidationsGroupsEnum.default] })
   token: string;
+
+  @Expose()
+  @IsBoolean({ groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional()
+  agreedToTermsOfService?: boolean;
 }

@@ -42,7 +42,6 @@ module.exports = withBundleAnalyzer(
       backendProxyBase: BACKEND_PROXY_BASE,
       listingServiceUrl: BACKEND_API_BASE + LISTINGS_QUERY,
       idleTimeout: process.env.IDLE_TIMEOUT,
-      showDuplicates: process.env.SHOW_DUPLICATES === "TRUE",
       showSmsMfa: (process.env.SHOW_SMS_MFA || "FALSE") === "TRUE", // SMS off by default
       cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
       cloudinaryKey: process.env.CLOUDINARY_KEY,
@@ -53,11 +52,13 @@ module.exports = withBundleAnalyzer(
       awsSecretKey: process.env.AWS_SECRET_KEY,
       awsRegion: process.env.AWS_REGION,
       fileService: process.env.FILE_SERVICE,
-      featureListingsApproval: process.env.FEATURE_LISTINGS_APPROVAL,
       maintenanceWindow: process.env.MAINTENANCE_WINDOW,
       reCaptchaKey: process.env.RECAPTCHA_KEY,
       showLottery: process.env.SHOW_LOTTERY === "TRUE",
       lotteryDaysTillExpiry: process.env.LOTTERY_DAYS_TILL_EXPIRY,
+      applicationExportAsSpreadsheet: process.env.APPLICATION_EXPORT_AS_SPREADSHEET === "TRUE",
+      useSecureDownloadPathway: process.env.USE_SECURE_DOWNLOAD_PATHWAY === "TRUE",
+      limitClosedListingActions: process.env.LIMIT_CLOSED_LISTING_ACTIONS === "TRUE",
     },
     i18n: {
       locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],

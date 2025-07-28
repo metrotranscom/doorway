@@ -265,17 +265,6 @@ const FormSummaryDetails = ({
             <MultiLineAddress address={reformatAddress(application.applicationsMailingAddress)} />
           </FieldValue>
         )}
-
-        {application.contactPreferences && (
-          <FieldValue
-            testId={"app-summary-contact-preference-type"}
-            id="applicantPreferredContactType"
-            label={t("application.contact.preferredContactType")}
-            className={styles["summary-value"]}
-          >
-            {application.contactPreferences?.map((item) => t(`t.${item}`)).join(", ")}
-          </FieldValue>
-        )}
       </Card.Section>
       {application.alternateContact.type && application.alternateContact.type !== "noContact" && (
         <>
@@ -343,10 +332,10 @@ const FormSummaryDetails = ({
         <>
           <Card.Header className={styles["summary-header"]}>
             <Heading priority={3} size="xl" className="font-serif font-normal">
-              {t("application.review.householdDetails")}
+              {t("application.household.householdMembers")}
             </Heading>
             {editMode && !validationError && (
-              <Link href="/applications/household/preferred-units">{t("t.edit")}</Link>
+              <Link href="/applications/household/add-members">{t("t.edit")}</Link>
             )}
           </Card.Header>
 

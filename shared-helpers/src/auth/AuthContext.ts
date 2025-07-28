@@ -1,4 +1,4 @@
-import { GenericRouter, NavigationContext } from "@bloom-housing/ui-components"
+import { GenericRouter } from "@bloom-housing/ui-components"
 import {
   createContext,
   createElement,
@@ -33,8 +33,11 @@ import {
   serviceOptions,
   SuccessDTO,
   LotteryService,
+  LanguagesEnum,
+  FeatureFlagsService,
 } from "../types/backend-swagger"
 import { getListingRedirectUrl } from "../utilities/getListingRedirectUrl"
+import { useRouter } from "next/router"
 
 type ContextProps = {
   amiChartsService: AmiChartsService
@@ -46,6 +49,7 @@ type ContextProps = {
   authService: AuthService
   multiselectQuestionsService: MultiselectQuestionsService
   unitTypesService: UnitTypesService
+  featureFlagService: FeatureFlagsService
   reservedCommunityTypeService: ReservedCommunityTypesService
   unitPriorityService: UnitAccessibilityPriorityTypesService
   mapLayersService: MapLayersService
@@ -57,12 +61,14 @@ type ContextProps = {
     mfaCode?: string,
     mfaType?: MfaType,
     forPartners?: boolean,
-    reCaptchaToken?: string
+    reCaptchaToken?: string,
+    agreedToTermsOfService?: boolean
   ) => Promise<User | undefined>
   resetPassword: (
     token: string,
     password: string,
-    passwordConfirmation: string
+    passwordConfirmation: string,
+    agreedToTermsOfService?: boolean
   ) => Promise<User | undefined>
   signOut: () => Promise<void>
   confirmAccount: (token: string) => Promise<User | undefined>
@@ -79,7 +85,17 @@ type ContextProps = {
     phoneNumber?: string
   ) => Promise<RequestMfaCodeResponse | undefined>
   requestSingleUseCode: (email: string) => Promise<SuccessDTO | undefined>
-  loginViaSingleUseCode: (email: string, singleUseCode: string) => Promise<User | undefined>
+  loginViaSingleUseCode: (
+    email: string,
+    singleUseCode: string,
+    agreedToTermsOfService?: boolean
+  ) => Promise<User | undefined>
+  doJurisdictionsHaveFeatureFlagOn: (
+    featureFlag: string,
+    jurisdiction?: string,
+    onlyIfAllJurisdictionsHaveItEnabled?: boolean
+  ) => boolean
+  getJurisdictionLanguages: (jurisdictionId: string) => LanguagesEnum[]
 }
 
 // Internal Provider State
@@ -135,7 +151,7 @@ const axiosConfig = (router: GenericRouter) => {
 export const AuthContext = createContext<Partial<ContextProps>>({})
 export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ children }) => {
   const { apiUrl } = useContext(ConfigContext)
-  const { router } = useContext(NavigationContext)
+  const router = useRouter()
   const [state, dispatch] = useReducer(reducer, {
     loading: false,
     initialStateLoaded: false,
@@ -194,7 +210,7 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
         dispatch(stopLoading())
 
         if (redirect) {
-          router.push(redirect)
+          await router.push(redirect)
         }
       }
     },
@@ -222,6 +238,7 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
     reservedCommunityTypeService: new ReservedCommunityTypesService(),
     unitPriorityService: new UnitAccessibilityPriorityTypesService(),
     unitTypesService: new UnitTypesService(),
+    featureFlagService: new FeatureFlagsService(),
     loading: state.loading,
     initialStateLoaded: state.initialStateLoaded,
     profile: state.profile,
@@ -232,12 +249,13 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
       mfaCode: string | undefined = undefined,
       mfaType: MfaType | undefined = undefined,
       forPartners: boolean | undefined = undefined,
-      reCaptchaToken: string | undefined = undefined
+      reCaptchaToken: string | undefined = undefined,
+      agreedToTermsOfService: boolean | undefined = undefined
     ) => {
       dispatch(startLoading())
       try {
         const response = await authService?.login({
-          body: { email, password, mfaCode, mfaType, reCaptchaToken },
+          body: { email, password, mfaCode, mfaType, reCaptchaToken, agreedToTermsOfService },
         })
         if (response) {
           const profile = await userService?.profile()
@@ -260,11 +278,11 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
         dispatch(stopLoading())
       }
     },
-    loginViaSingleUseCode: async (email, singleUseCode) => {
+    loginViaSingleUseCode: async (email, singleUseCode, agreedToTermsOfService) => {
       dispatch(startLoading())
       try {
         const response = await authService?.loginViaASingleUseCode({
-          body: { email, singleUseCode },
+          body: { email, singleUseCode, agreedToTermsOfService },
         })
         if (response) {
           const profile = await userService?.profile()
@@ -283,7 +301,7 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
       dispatch(saveProfile(null))
       dispatch(signOut())
     },
-    resetPassword: async (token, password, passwordConfirmation) => {
+    resetPassword: async (token, password, passwordConfirmation, agreedToTermsOfService) => {
       dispatch(startLoading())
       try {
         const response = await authService?.updatePassword({
@@ -291,6 +309,7 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
             token,
             password,
             passwordConfirmation,
+            agreedToTermsOfService,
           },
         })
         if (response) {
@@ -379,6 +398,30 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
       } finally {
         dispatch(stopLoading())
       }
+    },
+    doJurisdictionsHaveFeatureFlagOn: (
+      featureFlag: string,
+      jurisdictionId?: string,
+      onlyIfAllJurisdictionsHaveItEnabled?: boolean
+    ) => {
+      let jurisdictions = state.profile?.jurisdictions || []
+      if (jurisdictionId) {
+        jurisdictions = jurisdictions?.filter((j) => j.id === jurisdictionId)
+      }
+      // Return true only if all jurisdictions have the flag turned on
+      if (onlyIfAllJurisdictionsHaveItEnabled) {
+        return jurisdictions.every(
+          (j) => j.featureFlags.find((flag) => flag.name === featureFlag)?.active || false
+        )
+      }
+      // Otherwise return true if at least one jurisdiction has the flag turned on
+      return jurisdictions.some(
+        (j) => j.featureFlags.find((flag) => flag.name === featureFlag)?.active || false
+      )
+    },
+    getJurisdictionLanguages: (jurisdictionId: string) => {
+      const jurisdictions = state.profile?.jurisdictions || []
+      return jurisdictions.find((j) => j.id === jurisdictionId)?.languages || []
     },
   }
   return createElement(AuthContext.Provider, { value: contextValues }, children)

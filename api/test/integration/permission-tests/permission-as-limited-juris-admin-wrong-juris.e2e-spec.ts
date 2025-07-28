@@ -323,7 +323,7 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
       });
 
       const exampleAddress = addressFactory() as AddressCreate;
-      const res = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post(`/applications/`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(
@@ -989,10 +989,10 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
   describe('Testing listing endpoints', () => {
     it('should succeed for list endpoint', async () => {
       await request(app.getHttpServer())
-        .get(`/listings?`)
+        .post(`/listings/list`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(200);
+        .expect(201);
     });
 
     it('should succeed for retrieveListings endpoint', async () => {
@@ -1079,6 +1079,32 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
         .expect(403);
     });
 
+    it('should error as forbidden for duplicate endpoint', async () => {
+      const jurisdictionA = await generateJurisdiction(
+        prisma,
+        'permission juris 188',
+      );
+      await reservedCommunityTypeFactoryAll(jurisdictionA, prisma);
+
+      const listingData = await listingFactory(jurisdictionA, prisma);
+      const listing = await prisma.listings.create({
+        data: listingData,
+      });
+
+      await request(app.getHttpServer())
+        .post('/listings/duplicate')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          includeUnits: true,
+          name: 'name',
+          storedListing: {
+            id: listing.id,
+          },
+        })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
     it('should error as forbidden for process endpoint', async () => {
       await request(app.getHttpServer())
         .put(`/listings/closeListings`)
@@ -1129,6 +1155,12 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
       });
 
       expect(activityLogResult).not.toBeNull();
+    });
+
+    it('should succeed for mapMarkers endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/listings/mapMarkers`)
+        .expect(201);
     });
   });
 
@@ -1256,6 +1288,60 @@ describe('Testing Permissioning of endpoints as Limited Jurisdictional Admin in 
       applicationFlaggedSetService.process = jest.fn();
       await request(app.getHttpServer())
         .put(`/applicationFlaggedSets/process`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+  });
+
+  describe('Testing feature flag endpoints', () => {
+    it('should error as forbidden for list endpoint', async () => {
+      await request(app.getHttpServer())
+        .get(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for create endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for update endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for delete endpoint', async () => {
+      await request(app.getHttpServer())
+        .delete(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for associate jurisdictions endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/featureFlags/associateJurisdictions`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for retrieve endpoint', async () => {
+      await request(app.getHttpServer())
+        .get(`/featureFlags/example`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(403);

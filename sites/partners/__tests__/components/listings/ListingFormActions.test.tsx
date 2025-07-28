@@ -1,5 +1,5 @@
 import React from "react"
-import { cleanup } from "@testing-library/react"
+import { cleanup, screen } from "@testing-library/react"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import { listing } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
 import { ListingContext } from "../../../src/components/listings/ListingContext"
@@ -8,12 +8,13 @@ import ListingFormActions, {
 } from "../../../src/components/listings/ListingFormActions"
 import { mockNextRouter, render } from "../../testUtils"
 import {
-  EnumJurisdictionListingApprovalPermissions,
+  UserRoleEnum,
   Jurisdiction,
   LanguagesEnum,
   ListingsStatusEnum,
   User,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import userEvent from "@testing-library/user-event"
 
 afterEach(cleanup)
 
@@ -29,25 +30,36 @@ const mockBaseJurisdiction: Jurisdiction = {
   rentalAssistanceDefault:
     "Housing Choice Vouchers, Section 8 and other valid rental assistance programs will be considered for this property. In the case of a valid rental subsidy, the required minimum income will be based on the portion of the rent that the tenant pays after use of the subsidy.",
   enablePartnerSettings: true,
-  enableAccessibilityFeatures: false,
-  enableUtilitiesIncluded: true,
   listingApprovalPermissions: [],
+  duplicateListingPermissions: [],
   enableGeocodingPreferences: false,
   enableListingOpportunity: false,
   allowSingleUseCodeLogin: false,
 }
 
-const mockAdminOnlyJurisdiction: Jurisdiction = {
+const mockAdminOnlyApprovalJurisdiction: Jurisdiction = {
   ...mockBaseJurisdiction,
-  listingApprovalPermissions: [EnumJurisdictionListingApprovalPermissions.admin],
+  listingApprovalPermissions: [UserRoleEnum.admin],
 }
 
-const mockAdminJurisAdminJurisdiction: Jurisdiction = {
+const mockAdminJurisAdminApprovalJurisdiction: Jurisdiction = {
   ...mockBaseJurisdiction,
-  listingApprovalPermissions: [
-    EnumJurisdictionListingApprovalPermissions.admin,
-    EnumJurisdictionListingApprovalPermissions.jurisdictionAdmin,
+  listingApprovalPermissions: [UserRoleEnum.admin, UserRoleEnum.jurisdictionAdmin],
+}
+
+const mockAllUserCopyJurisdiction: Jurisdiction = {
+  ...mockBaseJurisdiction,
+  duplicateListingPermissions: [
+    UserRoleEnum.admin,
+    UserRoleEnum.jurisdictionAdmin,
+    UserRoleEnum.limitedJurisdictionAdmin,
+    UserRoleEnum.partner,
   ],
+}
+
+const mockOnlyAdminAndJurisAdminCopyJurisdiction: Jurisdiction = {
+  ...mockBaseJurisdiction,
+  duplicateListingPermissions: [UserRoleEnum.admin, UserRoleEnum.jurisdictionAdmin],
 }
 
 const mockUser: User = {
@@ -76,9 +88,47 @@ let jurisdictionAdminUser = {
   userRoles: { isJurisdictionalAdmin: true },
 }
 
+let limitedJurisdictionAdminUser = {
+  ...mockUser,
+  userRoles: { isLimitedJurisdictionalAdmin: true },
+}
+
 let partnerUser: User = {
   ...mockUser,
   userRoles: { isPartner: true },
+}
+
+let doJurisdictionsHaveFeatureFlagOn = () => {
+  return false
+}
+
+const ListingFormActionsComponent = ({
+  user,
+  listingStatus,
+  formActionType,
+  lotteryOptIn,
+  submitFormWithStatus,
+}: {
+  user: User
+  listingStatus: ListingsStatusEnum
+  formActionType: ListingFormActionsType
+  lotteryOptIn?: boolean
+  submitFormWithStatus?: () => void
+}) => {
+  return (
+    <AuthContext.Provider
+      value={{
+        profile: user,
+        doJurisdictionsHaveFeatureFlagOn,
+      }}
+    >
+      <ListingContext.Provider
+        value={{ ...listing, status: listingStatus, lotteryOptIn: lotteryOptIn, listingEvents: [] }}
+      >
+        <ListingFormActions type={formActionType} submitFormWithStatus={submitFormWithStatus} />
+      </ListingContext.Provider>
+    </AuthContext.Provider>
+  )
 }
 
 describe("<ListingFormActions>", () => {
@@ -87,95 +137,302 @@ describe("<ListingFormActions>", () => {
   })
 
   describe("with listings approval off", () => {
-    beforeAll(() => (adminUser = { ...adminUser, jurisdictions: [mockBaseJurisdiction] }))
-    it("renders correct buttons in a new listing edit state", () => {
-      const { getByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-            <ListingFormActions type={ListingFormActionsType.add} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
-      )
-      expect(getByText("Save as Draft")).toBeTruthy()
-      expect(getByText("Publish")).toBeTruthy()
-      expect(getByText("Exit")).toBeTruthy()
+    describe("as an admin", () => {
+      beforeAll(() => (adminUser = { ...adminUser, jurisdictions: [mockBaseJurisdiction] }))
+      it("renders correct buttons in a new listing edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.add}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a draft edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in an open detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in an open edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
     })
 
-    it("renders correct buttons in a draft detail state", () => {
-      const { getByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-            <ListingFormActions type={ListingFormActionsType.details} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
+    describe("as a jurisdictionalAdmin", () => {
+      beforeAll(
+        () =>
+          (jurisdictionAdminUser = {
+            ...jurisdictionAdminUser,
+            jurisdictions: [mockBaseJurisdiction],
+          })
       )
-      expect(getByText("Edit")).toBeTruthy()
-      expect(getByText("Preview")).toBeTruthy()
+      it("renders correct buttons in a new listing edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.add}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a draft edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in an open detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in an open edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
     })
 
-    it("renders correct buttons in a draft edit state", () => {
-      const { getByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-            <ListingFormActions type={ListingFormActionsType.edit} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
+    describe("as a partner", () => {
+      beforeAll(
+        () =>
+          (partnerUser = {
+            ...partnerUser,
+            jurisdictions: [mockBaseJurisdiction],
+          })
       )
-      expect(getByText("Save")).toBeTruthy()
-      expect(getByText("Publish")).toBeTruthy()
-      expect(getByText("Exit")).toBeTruthy()
-    })
+      it("renders correct buttons in a new listing edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.add}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
 
-    it("renders correct buttons in an open detail state", () => {
-      const { getByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-            <ListingFormActions type={ListingFormActionsType.details} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
-      )
-      expect(getByText("Edit")).toBeTruthy()
-      expect(getByText("Preview")).toBeTruthy()
-    })
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        // expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
 
-    it("renders correct buttons in an open edit state", () => {
-      const { getByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-            <ListingFormActions type={ListingFormActionsType.edit} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
-      )
-      expect(getByText("Save")).toBeTruthy()
-      expect(getByText("Close")).toBeTruthy()
-      expect(getByText("Unpublish")).toBeTruthy()
-      expect(getByText("Exit")).toBeTruthy()
-    })
+      it("renders correct buttons in a draft edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
 
-    it("renders correct buttons in a closed detail state", () => {
-      const { getByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-            <ListingFormActions type={ListingFormActionsType.details} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
-      )
-      expect(getByText("Edit")).toBeTruthy()
-      expect(getByText("Preview")).toBeTruthy()
-    })
+      it("renders correct buttons in an open detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        // expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
 
-    it("renders correct buttons in a closed edit state", () => {
-      const { getByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-            <ListingFormActions type={ListingFormActionsType.edit} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
-      )
-      expect(getByText("Reopen")).toBeTruthy()
-      expect(getByText("Save")).toBeTruthy()
-      expect(getByText("Unpublish")).toBeTruthy()
-      expect(getByText("Exit")).toBeTruthy()
+      it("renders correct buttons in an open edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        // expect(screen.getByRole("link", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        // Disabled for Doorway
+        // expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
     })
   })
 
@@ -185,157 +442,172 @@ describe("<ListingFormActions>", () => {
     })
 
     describe("as an admin", () => {
-      beforeAll(() => (adminUser = { ...adminUser, jurisdictions: [mockAdminOnlyJurisdiction] }))
+      beforeAll(
+        () => (adminUser = { ...adminUser, jurisdictions: [mockAdminOnlyApprovalJurisdiction] })
+      )
       it("renders correct buttons in a new listing edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.add} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.add}
+          />
         )
-        expect(getByText("Publish")).toBeTruthy()
-        expect(getByText("Save as Draft")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pendingReview}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
-            >
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pendingReview}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Request Changes")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Request Changes" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
       it("renders correct buttons in an open detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Close")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Reopen")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
+
+        expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
         // Disabled for Doorway
-        // expect(getByText("Post Results")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        // expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+
+      it("click approve and publish in edit mode", async () => {
+        const submitMock = jest.fn()
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.pendingReview}
+            formActionType={ListingFormActionsType.edit}
+            submitFormWithStatus={submitMock}
+          />
+        )
+
+        await userEvent.click(screen.getByRole("button", { name: "Approve & Publish" }))
+        expect(submitMock).toBeCalledWith("redirect", ListingsStatusEnum.active)
       })
     })
     describe("as a jurisdictional admin", () => {
@@ -343,282 +615,276 @@ describe("<ListingFormActions>", () => {
         () =>
           (jurisdictionAdminUser = {
             ...jurisdictionAdminUser,
-            jurisdictions: [mockAdminOnlyJurisdiction],
+            jurisdictions: [mockAdminOnlyApprovalJurisdiction],
           })
       )
       it("renders correct buttons in a new listing edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.add} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.add}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save as Draft")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval detail state", () => {
-        const { getByText, queryByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pendingReview}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Preview")).toBeTruthy()
-        expect(queryByText("Edit")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+        expect(screen.queryByText("Edit")).toBeFalsy()
       })
 
       it("renders correct buttons in a changes requested detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Close")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed edit state", () => {
-        const { getByText, queryByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(queryByText("Reopen")).toBeFalsy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
+        expect(screen.queryByText("Reopen")).toBeFalsy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
         // Disabled for Doorway
-        // expect(getByText("Post Results")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        // expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
     })
 
     describe("as a partner", () => {
       beforeAll(
-        () => (partnerUser = { ...partnerUser, jurisdictions: [mockAdminOnlyJurisdiction] })
+        () => (partnerUser = { ...partnerUser, jurisdictions: [mockAdminOnlyApprovalJurisdiction] })
       )
       it("renders correct buttons in a new listing edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.add} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.add}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save as Draft")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval detail state", () => {
-        const { getByText, queryByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pendingReview}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Preview")).toBeTruthy()
-        expect(queryByText("Edit")).toBeFalsy()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+        expect(screen.queryByText("Edit")).toBeFalsy()
       })
 
       it("renders correct buttons in a changes requested detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Close")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed edit state", () => {
-        const { getByText, queryByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(queryByText("Reopen")).toBeFalsy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
+
+        expect(screen.queryByText("Reopen")).toBeFalsy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
         // Disabled for Doorway
-        // expect(getByText("Post Results")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        // expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
     })
   })
@@ -630,49 +896,71 @@ describe("<ListingFormActions>", () => {
 
     describe("as an admin", () => {
       beforeAll(
-        () => (adminUser = { ...adminUser, jurisdictions: [mockAdminJurisAdminJurisdiction] })
+        () =>
+          (adminUser = { ...adminUser, jurisdictions: [mockAdminJurisAdminApprovalJurisdiction] })
       )
       it("renders correct buttons in a new listing edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
               <ListingFormActions type={ListingFormActionsType.add} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Publish")).toBeTruthy()
-        expect(getByText("Save as Draft")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
               <ListingFormActions type={ListingFormActionsType.details} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
               <ListingFormActions type={ListingFormActionsType.edit} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
             >
@@ -680,14 +968,20 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
             >
@@ -695,15 +989,20 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Request Changes")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Request Changes" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
             >
@@ -711,14 +1010,20 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
             >
@@ -726,76 +1031,78 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
       it("renders correct buttons in an open detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
               <ListingFormActions type={ListingFormActionsType.details} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
               <ListingFormActions type={ListingFormActionsType.edit} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Close")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
               <ListingFormActions type={ListingFormActionsType.details} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed edit state", () => {
-        const { getByText, queryAllByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Reopen")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
-        expect(queryAllByText("Post Results")).toHaveLength(0)
-        expect(getByText("Exit")).toBeTruthy()
-      })
-      it("renders correct buttons in a closed edit state if lottery is turned on", () => {
-        process.env.showLottery = "TRUE"
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: adminUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
-        )
-        expect(getByText("Reopen")).toBeInTheDocument()
-        expect(getByText("Save")).toBeInTheDocument()
-        expect(getByText("Unpublish")).toBeInTheDocument()
-        expect(getByText("Post Results")).toBeInTheDocument()
-        expect(getByText("Exit")).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.queryAllByRole("button", { name: "Post Results" })).toHaveLength(0)
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
     })
     describe("as a jurisdictional admin", () => {
@@ -803,50 +1110,70 @@ describe("<ListingFormActions>", () => {
         () =>
           (jurisdictionAdminUser = {
             ...jurisdictionAdminUser,
-            jurisdictions: [mockAdminJurisAdminJurisdiction],
+            jurisdictions: [mockAdminJurisAdminApprovalJurisdiction],
           })
       )
       it("renders correct buttons in a new listing edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
               <ListingFormActions type={ListingFormActionsType.add} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Publish")).toBeTruthy()
-        expect(getByText("Save as Draft")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
               <ListingFormActions type={ListingFormActionsType.details} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
               <ListingFormActions type={ListingFormActionsType.edit} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
             >
@@ -854,14 +1181,19 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
             >
@@ -869,15 +1201,20 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Request Changes")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Request Changes" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
             >
@@ -885,14 +1222,19 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider
               value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
             >
@@ -900,202 +1242,240 @@ describe("<ListingFormActions>", () => {
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Approve & Publish")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Approve & Publish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
       it("renders correct buttons in an open detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
               <ListingFormActions type={ListingFormActionsType.details} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
               <ListingFormActions type={ListingFormActionsType.edit} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Close")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
               <ListingFormActions type={ListingFormActionsType.details} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: jurisdictionAdminUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
               <ListingFormActions type={ListingFormActionsType.edit} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Reopen")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
         // Disabled for Doorway
-        // expect(getByText("Post Results")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        // expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
     })
 
     describe("as a partner", () => {
       beforeAll(
-        () => (partnerUser = { ...partnerUser, jurisdictions: [mockAdminOnlyJurisdiction] })
+        () => (partnerUser = { ...partnerUser, jurisdictions: [mockAdminOnlyApprovalJurisdiction] })
       )
       it("renders correct buttons in a new listing edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: partnerUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
             <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
               <ListingFormActions type={ListingFormActionsType.add} />
             </ListingContext.Provider>
           </AuthContext.Provider>
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save as Draft")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save as Draft" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a draft edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a pending approval detail state", () => {
-        const { getByText, queryByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.pendingReview }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pendingReview}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Preview")).toBeTruthy()
-        expect(queryByText("Edit")).toBeFalsy()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+        expect(screen.queryByText("Edit")).toBeFalsy()
+      })
+
+      it("renders correct buttons in a pending approval edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pendingReview}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a changes requested edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider
-              value={{ ...listing, status: ListingsStatusEnum.changesRequested }}
-            >
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.changesRequested}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Submit")).toBeTruthy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in an open edit state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Close")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed detail state", () => {
-        const { getByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.details} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
         )
-        expect(getByText("Edit")).toBeTruthy()
-        expect(getByText("Preview")).toBeTruthy()
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
       })
 
       it("renders correct buttons in a closed edit state", () => {
-        const { getByText, queryByText } = render(
-          <AuthContext.Provider value={{ profile: partnerUser }}>
-            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
-              <ListingFormActions type={ListingFormActionsType.edit} />
-            </ListingContext.Provider>
-          </AuthContext.Provider>
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
         )
-        expect(queryByText("Reopen")).toBeFalsy()
-        expect(getByText("Save")).toBeTruthy()
-        expect(getByText("Unpublish")).toBeTruthy()
+
+        expect(screen.queryByText("Reopen")).toBeFalsy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
         // Disabled for Doorway
-        // expect(getByText("Post Results")).toBeTruthy()
-        expect(getByText("Exit")).toBeTruthy()
+        // expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
       })
     })
   })
@@ -1107,40 +1487,471 @@ describe("<ListingFormActions>", () => {
     })
 
     it("renders correct buttons in a closed edit state with lottery opted in", () => {
-      const { queryByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider
-            value={{
-              ...listing,
-              status: ListingsStatusEnum.closed,
-              lotteryOptIn: true,
-              listingEvents: [],
-            }}
-          >
-            <ListingFormActions type={ListingFormActionsType.edit} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
+      render(
+        <ListingFormActionsComponent
+          user={adminUser}
+          listingStatus={ListingsStatusEnum.closed}
+          formActionType={ListingFormActionsType.edit}
+          lotteryOptIn={true}
+        />
       )
-      expect(queryByText("Post Results")).not.toBeInTheDocument()
+      expect(screen.queryByText("Post Results")).not.toBeInTheDocument()
     })
 
-    fit("renders correct buttons in a closed edit state with lottery opted out", () => {
-      const { queryByText } = render(
-        <AuthContext.Provider value={{ profile: adminUser }}>
-          <ListingContext.Provider
+    it("renders correct buttons in a closed edit state with lottery opted out", () => {
+      render(
+        <ListingFormActionsComponent
+          user={adminUser}
+          listingStatus={ListingsStatusEnum.closed}
+          formActionType={ListingFormActionsType.edit}
+          lotteryOptIn={false}
+        />
+      )
+      expect(screen.queryByText("Post Results")).toBeInTheDocument()
+    })
+  })
+
+  describe("with all users able to copy", () => {
+    describe("as an admin", () => {
+      beforeAll(() => {
+        adminUser = { ...adminUser, jurisdictions: [mockAllUserCopyJurisdiction] }
+      })
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <AuthContext.Provider
             value={{
-              ...listing,
-              status: ListingsStatusEnum.closed,
-              lotteryOptIn: false,
-              listingEvents: [],
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
             }}
           >
-            <ListingFormActions type={ListingFormActionsType.edit} />
-          </ListingContext.Provider>
-        </AuthContext.Provider>
-      )
+            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
+              <ListingFormActions type={ListingFormActionsType.details} />
+            </ListingContext.Provider>
+          </AuthContext.Provider>
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
 
-      expect(queryByText("Post Results")).toBeTruthy()
+      it("renders correct buttons in a detail state", () => {
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
+            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
+              <ListingFormActions type={ListingFormActionsType.details} />
+            </ListingContext.Provider>
+          </AuthContext.Provider>
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: adminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
+            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
+              <ListingFormActions type={ListingFormActionsType.details} />
+            </ListingContext.Provider>
+          </AuthContext.Provider>
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+    })
+
+    describe("as a jurisdictional admin", () => {
+      beforeAll(() => {
+        jurisdictionAdminUser = {
+          ...jurisdictionAdminUser,
+          jurisdictions: [mockAllUserCopyJurisdiction],
+        }
+      })
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
+            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.pending }}>
+              <ListingFormActions type={ListingFormActionsType.details} />
+            </ListingContext.Provider>
+          </AuthContext.Provider>
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a detail state", () => {
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
+            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.active }}>
+              <ListingFormActions type={ListingFormActionsType.details} />
+            </ListingContext.Provider>
+          </AuthContext.Provider>
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <AuthContext.Provider
+            value={{
+              profile: jurisdictionAdminUser,
+              doJurisdictionsHaveFeatureFlagOn,
+            }}
+          >
+            <ListingContext.Provider value={{ ...listing, status: ListingsStatusEnum.closed }}>
+              <ListingFormActions type={ListingFormActionsType.details} />
+            </ListingContext.Provider>
+          </AuthContext.Provider>
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+    })
+
+    describe("as a limited jurisdictional admin", () => {
+      beforeAll(() => {
+        limitedJurisdictionAdminUser = {
+          ...limitedJurisdictionAdminUser,
+          jurisdictions: [mockAllUserCopyJurisdiction],
+        }
+      })
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={limitedJurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={limitedJurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={limitedJurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+    })
+
+    describe("as a partner", () => {
+      beforeAll(() => {
+        partnerUser = { ...partnerUser, jurisdictions: [mockAllUserCopyJurisdiction] }
+      })
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe("with partners not able to copy", () => {
+    describe("as a partner", () => {
+      beforeAll(() => {
+        partnerUser = {
+          ...partnerUser,
+          jurisdictions: [mockOnlyAdminAndJurisAdminCopyJurisdiction],
+        }
+      })
+      it("renders correct buttons in a draft detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.pending}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryAllByRole("button", { name: "Copy" })).toHaveLength(0)
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryAllByRole("button", { name: "Copy" })).toHaveLength(0)
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.queryAllByRole("button", { name: "Copy" })).toHaveLength(0)
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe("with limit closed listing actions flag enabled", () => {
+    beforeAll(() => {
+      process.env.limitClosedListingActions = "TRUE"
+    })
+    describe("as an admin", () => {
+      beforeAll(() => {
+        adminUser = { ...adminUser, jurisdictions: [mockBaseJurisdiction] }
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.queryByText("Reopen")).toBeFalsy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+    })
+
+    describe("as a jurisdictional admin", () => {
+      beforeAll(() => {
+        jurisdictionAdminUser = {
+          ...jurisdictionAdminUser,
+          jurisdictions: [mockBaseJurisdiction],
+        }
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.queryByText("Edit")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.queryByText("Reopen")).toBeFalsy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+    })
+
+    describe("as a limited jurisdictional admin", () => {
+      beforeAll(() => {
+        limitedJurisdictionAdminUser = {
+          ...limitedJurisdictionAdminUser,
+          jurisdictions: [mockBaseJurisdiction],
+        }
+      })
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={limitedJurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+        expect(screen.queryAllByRole("link", { name: "Edit" })).toHaveLength(0)
+        expect(screen.queryAllByRole("button", { name: "Copy" })).toHaveLength(0)
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={limitedJurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.queryAllByRole("button", { name: "Reopen" })).toHaveLength(0)
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+    })
+
+    describe("as a partner", () => {
+      beforeAll(() => {
+        partnerUser = { ...partnerUser, jurisdictions: [mockBaseJurisdiction] }
+      })
+
+      it("renders correct buttons in a closed detail state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.details}
+          />
+        )
+
+        expect(screen.queryByText("Copy")).toBeFalsy()
+        expect(screen.queryByText("Edit")).toBeFalsy()
+        expect(screen.getByRole("link", { name: "Preview" })).toBeInTheDocument()
+      })
+
+      it("renders correct buttons in a closed edit state", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.closed}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.queryByText("Reopen")).toBeFalsy()
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Unpublish" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Post Results" })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: "Exit" })).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe("with hideCloseListingButton flag enabled", () => {
+    beforeAll(() => {
+      doJurisdictionsHaveFeatureFlagOn = () => true
+    })
+    describe("as admin", () => {
+      it("should not render the close button", () => {
+        render(
+          <ListingFormActionsComponent
+            user={adminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.queryByText("Close")).toBeFalsy()
+      })
+    })
+    describe("as partner", () => {
+      it("should not render the close button", () => {
+        render(
+          <ListingFormActionsComponent
+            user={partnerUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.queryByText("Close")).toBeFalsy()
+      })
+    })
+    describe("as jurisdiction admin", () => {
+      it("should not render the close button", () => {
+        render(
+          <ListingFormActionsComponent
+            user={jurisdictionAdminUser}
+            listingStatus={ListingsStatusEnum.active}
+            formActionType={ListingFormActionsType.edit}
+          />
+        )
+        expect(screen.queryByText("Close")).toBeFalsy()
+      })
     })
   })
 })

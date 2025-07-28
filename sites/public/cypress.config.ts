@@ -1,11 +1,12 @@
 import { defineConfig } from "cypress"
+import dotenv from "dotenv"
+dotenv.config()
 
 export default defineConfig({
-  defaultCommandTimeout: 100000,
+  defaultCommandTimeout: 60000,
   projectId: "f32m8f",
   pageLoadTimeout: 100000,
   video: true,
-  videoUploadOnPasses: false,
   numTestsKeptInMemory: 0,
   scrollBehavior: "center",
   viewportHeight: 1500,
@@ -25,6 +26,9 @@ export default defineConfig({
     baseUrl: "http://localhost:3000",
     specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
     experimentalRunAllSpecs: true,
+    env: {
+      showSeedsDesign: process.env.SHOW_NEW_SEEDS_DESIGNS,
+    },
   },
 
   component: {

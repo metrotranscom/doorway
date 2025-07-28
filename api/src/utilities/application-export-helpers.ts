@@ -117,10 +117,6 @@ export const getExportHeaders = (
         label: 'Primary Applicant Additional Phone Number',
       },
       {
-        path: 'contactPreferences',
-        label: 'Primary Applicant Preferred Contact Type',
-      },
-      {
         path: 'applicant.applicantAddress.street',
         label: `Primary Applicant Street`,
       },
@@ -159,26 +155,6 @@ export const getExportHeaders = (
       {
         path: 'applicationsMailingAddress.zipCode',
         label: `Primary Applicant Mailing Zip Code`,
-      },
-      {
-        path: 'applicant.applicantWorkAddress.street',
-        label: `Primary Applicant Work Street`,
-      },
-      {
-        path: 'applicant.applicantWorkAddress.street2',
-        label: `Primary Applicant Work Street 2`,
-      },
-      {
-        path: 'applicant.applicantWorkAddress.city',
-        label: `Primary Applicant Work City`,
-      },
-      {
-        path: 'applicant.applicantWorkAddress.state',
-        label: `Primary Applicant Work State`,
-      },
-      {
-        path: 'applicant.applicantWorkAddress.zipCode',
-        label: `Primary Applicant Work Zip Code`,
       },
       {
         path: 'alternateContact.firstName',
@@ -318,7 +294,9 @@ export const getExportHeaders = (
         path: 'demographics.race',
         label: 'Race',
         format: (val: string[]): string =>
-          val.map((race) => convertDemographicRaceToReadable(race)).join(','),
+          val
+            ?.map((race) => convertDemographicRaceToReadable(race))
+            .join(',') || '',
       },
       {
         path: 'demographics.gender',
@@ -343,10 +321,10 @@ export const getExportHeaders = (
         label: 'How did you Hear?',
         format: (val: string[]): string =>
           val
-            .map((howDidYouHear) =>
+            ?.map((howDidYouHear) =>
               convertDemographicHowDidYouHearToReadable(howDidYouHear),
             )
-            .join(','),
+            .join(',') || '',
       },
     );
   }
@@ -371,11 +349,13 @@ export const constructMultiselectQuestionHeaders = (
     .filter((question) => question.applicationSection === applicationSection)
     .forEach((question) => {
       headers.push({
-        path: `${applicationSection}.${question.text}.claimed`,
+        path: `${applicationSection}.${question.id}.claimed`,
         label: `${labelString} ${question.text}`,
         format: (val: any): string => {
           const claimedString: string[] = [];
           val?.options?.forEach((option) => {
+            // Note: the option can be the opt out text so if it is checked
+            // the opt out text will appear. That is intended behavior
             if (option.checked) {
               claimedString.push(option.key);
             }
@@ -391,7 +371,10 @@ export const constructMultiselectQuestionHeaders = (
         ?.filter((option) => option.collectAddress)
         .forEach((option) => {
           headers.push({
-            path: `${applicationSection}.${question.text}.address`,
+            path: `${applicationSection}.${question.id}.${option.text.replace(
+              '.',
+              '',
+            )}.address`,
             label: `${labelString} ${question.text} - ${option.text} - Address`,
             format: (val: ApplicationMultiselectQuestion): string => {
               return multiselectQuestionFormat(val, option.text, 'address');
@@ -399,7 +382,10 @@ export const constructMultiselectQuestionHeaders = (
           });
           if (option.validationMethod) {
             headers.push({
-              path: `${applicationSection}.${question.text}.geocodingVerified`,
+              path: `${applicationSection}.${question.id}.${option.text.replace(
+                '.',
+                '',
+              )}.geocodingVerified`,
               label: `${labelString} ${question.text} - ${option.text} - Passed Address Check`,
               format: (val: ApplicationMultiselectQuestion): string => {
                 return multiselectQuestionFormat(
@@ -412,7 +398,10 @@ export const constructMultiselectQuestionHeaders = (
           }
           if (option.collectName) {
             headers.push({
-              path: `${applicationSection}.${question.text}.addressHolderName`,
+              path: `${applicationSection}.${question.id}.${option.text.replace(
+                '.',
+                '',
+              )}.addressHolderName`,
               label: `${labelString} ${question.text} - ${option.text} - Name of Address Holder`,
               format: (val: ApplicationMultiselectQuestion): string => {
                 return multiselectQuestionFormat(
@@ -425,7 +414,10 @@ export const constructMultiselectQuestionHeaders = (
           }
           if (option.collectRelationship) {
             headers.push({
-              path: `${applicationSection}.${question.text}.addressHolderRelationship`,
+              path: `${applicationSection}.${question.id}.${option.text.replace(
+                '.',
+                '',
+              )}.addressHolderRelationship`,
               label: `${labelString} ${question.text} - ${option.text} - Relationship to Address Holder`,
               format: (val: ApplicationMultiselectQuestion): string => {
                 return multiselectQuestionFormat(
@@ -458,7 +450,7 @@ export const multiselectQuestionFormat = (
   const selectedOption = question.options.find(
     (option) => option.key === optionText,
   );
-  const extraData = selectedOption?.extraData.find((data) => data.key === key);
+  const extraData = selectedOption?.extraData?.find((data) => data.key === key);
   if (!extraData) {
     return '';
   }
@@ -533,10 +525,6 @@ export const getHouseholdCsvHeaders = (
         label: `Household Member (${j}) Relationship`,
       },
       {
-        path: `householdMember.${i}.workInRegion`,
-        label: `Household Member (${j}) Work in Region`,
-      },
-      {
         path: `householdMember.${i}.householdMemberAddress.street`,
         label: `Household Member (${j}) Street`,
       },
@@ -569,6 +557,8 @@ export const getHouseholdCsvHeaders = (
  */
 export const convertDemographicRaceToReadable = (type: string): string => {
   const [rootKey, customValue = ''] = type.split(':');
+  //only show colon if user entered a custom value
+  const customValueFormatted = customValue ? `:${customValue}` : '';
   const typeMap = {
     asian: 'Asian',
     'asian-chinese': 'Asian[Chinese]',
@@ -580,39 +570,39 @@ export const convertDemographicRaceToReadable = (type: string): string => {
     'asian-centralAsian': 'Asian[Central Asian]',
     'asian-southAsian': 'Asian[South Asian]',
     'asian-southeastAsian': 'Asian[Southeast Asian]',
-    'asian-otherAsian': `Asian[Other Asian:${customValue}]`,
+    'asian-otherAsian': `Asian[Other Asian${customValueFormatted}]`,
     black: 'Black',
     'black-african': 'Black[African]',
     'black-africanAmerican': 'Black[African American]',
     'black-caribbeanCentralSouthAmericanMexican':
       'Black[Caribbean, Central American, South American or Mexican]',
-    'black-otherBlack': `Black[Other Black:${customValue}]`,
+    'black-otherBlack': `Black[Other Black${customValueFormatted}]`,
     indigenous: 'Indigenous',
     'indigenous-alaskanNative': 'Indigenous[Alaskan Native]',
     'indigenous-nativeAmerican': 'Indigenous[American Indian/Native American]',
     'indigenous-indigenousFromMexicoCaribbeanCentralSouthAmerica':
       'Indigenous[Indigenous from Mexico, the Caribbean, Central America, or South America]',
-    'indigenous-otherIndigenous': `Indigenous[Other Indigenous:${customValue}]`,
+    'indigenous-otherIndigenous': `Indigenous[Other Indigenous${customValueFormatted}]`,
     latino: 'Latino',
     'latino-caribbean': 'Latino[Caribbean]',
     'latino-centralAmerican': 'Latino[Central American]',
     'latino-mexican': 'Latino[Mexican]',
     'latino-southAmerican': 'Latino[South American]',
-    'latino-otherLatino': `Latino[Other Latino:${customValue}]`,
+    'latino-otherLatino': `Latino[Other Latino${customValueFormatted}]`,
     middleEasternOrAfrican: 'Middle Eastern, West African or North African',
     'middleEasternOrAfrican-northAfrican':
       'Middle Eastern, West African or North African[North African]',
     'middleEasternOrAfrican-westAsian':
       'Middle Eastern, West African or North African[West Asian]',
-    'middleEasternOrAfrican-otherMiddleEasternNorthAfrican': `Middle Eastern, West African or North African[Other Middle Eastern or North African:${customValue}]`,
+    'middleEasternOrAfrican-otherMiddleEasternNorthAfrican': `Middle Eastern, West African or North African[Other Middle Eastern or North African${customValueFormatted}]`,
     pacificIslander: 'Pacific Islander',
     'pacificIslander-chamorro': 'Pacific Islander[Chamorro]',
     'pacificIslander-nativeHawaiian': 'Pacific Islander[Native Hawaiian]',
     'pacificIslander-samoan': 'Pacific Islander[Samoan]',
-    'pacificIslander-otherPacificIslander': `Pacific Islander[Other Pacific Islander:${customValue}]`,
+    'pacificIslander-otherPacificIslander': `Pacific Islander[Other Pacific Islander${customValueFormatted}]`,
     white: 'White',
     'white-european': 'White[European]',
-    'white-otherWhite': `White[Other White:${customValue}]`,
+    'white-otherWhite': `White[Other White${customValueFormatted}]`,
   };
   return typeMap[rootKey] ?? rootKey;
 };

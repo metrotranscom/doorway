@@ -10,10 +10,18 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
   ReviewOrderTypeEnum,
   UnitTypeEnum,
+  UnitTypes,
 } from '@prisma/client';
+import {
+  SESv2Client,
+  SendEmailCommand,
+  SendBulkEmailCommand,
+} from '@aws-sdk/client-sesv2';
+import { mockClient } from 'aws-sdk-client-mock';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { randomUUID } from 'crypto';
+import dayjs from 'dayjs';
 import { Request as ExpressRequest, Response } from 'express';
 import { stringify } from 'qs';
 import { AppModule } from '../../src/modules/app.module';
@@ -32,9 +40,8 @@ import { multiselectQuestionFactory } from '../../prisma/seed-helpers/multiselec
 import { reservedCommunityTypeFactoryAll } from '../../prisma/seed-helpers/reserved-community-type-factory';
 import { LotteryService } from '../../src/services/lottery.service';
 import { ApplicationCsvQueryParams } from '../../src/dtos/applications/application-csv-query-params.dto';
-import { EmailService } from '../../src/services/email.service';
 import { permissionActions } from '../../src/enums/permissions/permission-actions-enum';
-import dayjs from 'dayjs';
+import 'aws-sdk-client-mock-jest';
 
 describe('Lottery Controller Tests', () => {
   let app: INestApplication;
@@ -42,23 +49,10 @@ describe('Lottery Controller Tests', () => {
   let lotteryService: LotteryService;
   let cookies = '';
   let adminAccessToken: string;
+  let jurisdictionAId: string;
+  let unitTypeA: UnitTypes;
 
-  const testEmailService = {
-    /* eslint-disable @typescript-eslint/no-empty-function */
-    lotteryReleased: async () => {},
-    lotteryPublishedAdmin: async () => {},
-    lotteryPublishedApplicant: async () => {},
-  };
-
-  const mockLotteryReleased = jest.spyOn(testEmailService, 'lotteryReleased');
-  const mockLotteryPublishedAdmin = jest.spyOn(
-    testEmailService,
-    'lotteryPublishedAdmin',
-  );
-  const mockLotteryPublishedApplicant = jest.spyOn(
-    testEmailService,
-    'lotteryPublishedApplicant',
-  );
+  const mockSeSClient = mockClient(SESv2Client);
 
   const createMultiselectQuestion = async (
     jurisdictionId: string,
@@ -81,22 +75,44 @@ describe('Lottery Controller Tests', () => {
     return res.id;
   };
 
+  beforeEach(() => {
+    mockSeSClient.reset();
+    mockSeSClient.on(SendEmailCommand).resolves({
+      MessageId: randomUUID(),
+      $metadata: {
+        httpStatusCode: 200,
+      },
+    });
+    mockSeSClient.on(SendBulkEmailCommand).resolves({
+      BulkEmailEntryResults: [],
+      $metadata: {
+        httpStatusCode: 200,
+      },
+    });
+  });
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    })
-      .overrideProvider(EmailService)
-      .useValue(testEmailService)
-      .compile();
+    }).compile();
 
     app = moduleFixture.createNestApplication();
     prisma = moduleFixture.get<PrismaService>(PrismaService);
     lotteryService = moduleFixture.get<LotteryService>(LotteryService);
     app.use(cookieParser());
     await app.init();
+    const jurisdiction = await prisma.jurisdictions.create({
+      data: jurisdictionFactory(),
+    });
+    jurisdictionAId = jurisdiction.id;
+    await reservedCommunityTypeFactoryAll(jurisdictionAId, prisma);
     await unitTypeFactoryAll(prisma);
-    await await prisma.translations.create({
+    unitTypeA = await unitTypeFactorySingle(prisma, UnitTypeEnum.oneBdrm);
+    await prisma.translations.create({
       data: translationFactory(),
+    });
+    await prisma.translations.create({
+      data: translationFactory(undefined, undefined, LanguagesEnum.es),
     });
 
     const storedUser = await prisma.userAccounts.create({
@@ -129,15 +145,7 @@ describe('Lottery Controller Tests', () => {
 
   describe('generateLotteryResults endpoint', () => {
     it('should generate results when no previous attempt to run lotteries has happened (no preferences)', async () => {
-      const unitTypeA = await unitTypeFactorySingle(
-        prisma,
-        UnitTypeEnum.oneBdrm,
-      );
-      const jurisdiction = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdiction.id, prisma);
-      const listing1 = await listingFactory(jurisdiction.id, prisma, {
+      const listing1 = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
       });
       const listing1Created = await prisma.listings.create({
@@ -226,15 +234,7 @@ describe('Lottery Controller Tests', () => {
     });
 
     it('should generate results when no previous attempt to run lotteries has happened (with preferences)', async () => {
-      const unitTypeA = await unitTypeFactorySingle(
-        prisma,
-        UnitTypeEnum.oneBdrm,
-      );
-      const jurisdiction = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdiction.id, prisma);
-      const listing1 = await listingFactory(jurisdiction.id, prisma, {
+      const listing1 = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
       });
       const listing1Created = await prisma.listings.create({
@@ -242,7 +242,7 @@ describe('Lottery Controller Tests', () => {
       });
 
       const preferenceAId = await createMultiselectQuestion(
-        jurisdiction.id,
+        jurisdictionAId,
         listing1Created.id,
         MultiselectQuestionsApplicationSectionEnum.preferences,
       );
@@ -254,7 +254,7 @@ describe('Lottery Controller Tests', () => {
       });
 
       const preferenceBId = await createMultiselectQuestion(
-        jurisdiction.id,
+        jurisdictionAId,
         listing1Created.id,
         MultiselectQuestionsApplicationSectionEnum.preferences,
       );
@@ -432,19 +432,107 @@ describe('Lottery Controller Tests', () => {
 
       expect(updatedListing.lotteryStatus).toEqual(LotteryStatusEnum.ran);
     });
+
+    it('should re-run lottery if lottery has already ran', async () => {
+      const listing1 = await listingFactory(jurisdictionAId, prisma, {
+        status: ListingsStatusEnum.closed,
+      });
+      const listing1Created = await prisma.listings.create({
+        data: {
+          ...listing1,
+        },
+      });
+
+      const appA = await applicationFactory({
+        unitTypeId: unitTypeA.id,
+        listingId: listing1Created.id,
+      });
+      await prisma.applications.create({
+        data: appA,
+        include: {
+          applicant: true,
+        },
+      });
+      const appB = await applicationFactory({
+        unitTypeId: unitTypeA.id,
+        listingId: listing1Created.id,
+      });
+      await prisma.applications.create({
+        data: appB,
+        include: {
+          applicant: true,
+        },
+      });
+      const appC = await applicationFactory({
+        unitTypeId: unitTypeA.id,
+        listingId: listing1Created.id,
+      });
+      await prisma.applications.create({
+        data: appC,
+        include: {
+          applicant: true,
+        },
+      });
+      const appD = await applicationFactory({
+        unitTypeId: unitTypeA.id,
+        listingId: listing1Created.id,
+      });
+      await prisma.applications.create({
+        data: appD,
+        include: {
+          applicant: true,
+        },
+      });
+      const appE = await applicationFactory({
+        unitTypeId: unitTypeA.id,
+        listingId: listing1Created.id,
+      });
+      await prisma.applications.create({
+        data: appE,
+        include: {
+          applicant: true,
+        },
+      });
+
+      await request(app.getHttpServer())
+        .put(`/lottery/generateLotteryResults`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          id: listing1Created.id,
+        })
+        .set('Cookie', cookies)
+        .expect(200);
+      const lotterySpotsA = await prisma.applicationLotteryPositions.findMany({
+        where: { listingId: listing1Created.id },
+      });
+      expect(lotterySpotsA).toHaveLength(5);
+      await request(app.getHttpServer())
+        .put(`/lottery/generateLotteryResults`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          id: listing1Created.id,
+        })
+        .set('Cookie', cookies)
+        .expect(200);
+      const lotterySpotsB = await prisma.applicationLotteryPositions.findMany({
+        where: { listingId: listing1Created.id },
+      });
+      expect(lotterySpotsB).toHaveLength(5);
+
+      // The new lottery should be different than the first lottery
+      const lotterySpotsASorted = lotterySpotsA
+        .sort((spotA, spotB) => spotA.ordinal - spotB.ordinal)
+        .map((lotterySpot) => lotterySpot.applicationId);
+      const lotterySpotsBSorted = lotterySpotsB
+        .sort((spotA, spotB) => spotA.ordinal - spotB.ordinal)
+        .map((lotterySpot) => lotterySpot.applicationId);
+      expect(lotterySpotsASorted).not.toEqual(lotterySpotsBSorted);
+    });
   });
 
   describe('getLotteryResults endpoint', () => {
     it('should get a lottery export of application', async () => {
-      const unitTypeA = await unitTypeFactorySingle(
-        prisma,
-        UnitTypeEnum.oneBdrm,
-      );
-      const jurisdiction = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdiction.id, prisma);
-      const listing1 = await listingFactory(jurisdiction.id, prisma, {
+      const listing1 = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
       });
       const listing1Created = await prisma.listings.create({
@@ -515,12 +603,8 @@ describe('Lottery Controller Tests', () => {
 
   describe('autoPublishResults endpoint', () => {
     it('should only publish listing lotteries that are due today', async () => {
-      const jurisdictionA = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdictionA.id, prisma);
       const today = new Date();
-      const dueListingData = await listingFactory(jurisdictionA.id, prisma, {
+      const dueListingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
         reviewOrderType: ReviewOrderTypeEnum.lottery,
         lotteryOptIn: true,
@@ -538,7 +622,7 @@ describe('Lottery Controller Tests', () => {
       });
 
       const dueButNotReleasedListingData = await listingFactory(
-        jurisdictionA.id,
+        jurisdictionAId,
         prisma,
         {
           status: ListingsStatusEnum.closed,
@@ -557,7 +641,7 @@ describe('Lottery Controller Tests', () => {
         data: dueButNotReleasedListingData,
       });
 
-      const notDueListingData = await listingFactory(jurisdictionA.id, prisma, {
+      const notDueListingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
         reviewOrderType: ReviewOrderTypeEnum.lottery,
         lotteryOptIn: true,
@@ -623,32 +707,22 @@ describe('Lottery Controller Tests', () => {
 
   describe('expireLotteries endpoint', () => {
     it('should only expire listing lotteries that are past due', async () => {
-      const jurisdictionA = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdictionA.id, prisma);
+      process.env.LOTTERY_DAYS_TILL_EXPIRY = '45';
       const expiredClosedListingDate = dayjs(new Date())
-        .subtract(
-          Number(process.env.LOTTERY_DAYS_TILL_EXPIRY || 45) + 1,
-          'days',
-        )
+        .subtract(46, 'days')
         .toDate();
 
-      const expiredListingData = await listingFactory(
-        jurisdictionA.id,
-        prisma,
-        {
-          status: ListingsStatusEnum.closed,
-          closedAt: expiredClosedListingDate,
-          reviewOrderType: ReviewOrderTypeEnum.lottery,
-        },
-      );
+      const expiredListingData = await listingFactory(jurisdictionAId, prisma, {
+        status: ListingsStatusEnum.closed,
+        closedAt: expiredClosedListingDate,
+        reviewOrderType: ReviewOrderTypeEnum.lottery,
+      });
       const expiredListing = await prisma.listings.create({
         data: expiredListingData,
       });
 
       const recentlyClosedListingData = await listingFactory(
-        jurisdictionA.id,
+        jurisdictionAId,
         prisma,
         {
           status: ListingsStatusEnum.closed,
@@ -660,7 +734,7 @@ describe('Lottery Controller Tests', () => {
         data: recentlyClosedListingData,
       });
 
-      const openListingData = await listingFactory(jurisdictionA.id, prisma, {
+      const openListingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.active,
         reviewOrderType: ReviewOrderTypeEnum.lottery,
       });
@@ -713,7 +787,7 @@ describe('Lottery Controller Tests', () => {
   });
 
   describe('lottery status endpoint', () => {
-    let adminUser, adminAccessToken;
+    let adminUser, adminAccessToken: string[];
     beforeAll(async () => {
       adminUser = await prisma.userAccounts.create({
         data: await userFactory({
@@ -731,7 +805,7 @@ describe('Lottery Controller Tests', () => {
         .send({ email: adminUser.email, password: 'Abcdef12345!' })
         .expect(201);
 
-      adminAccessToken = res.header?.['set-cookie'].find((cookie) =>
+      adminAccessToken = res.header?.['set-cookie'].find((cookie: string) =>
         cookie.startsWith('access-token='),
       );
     });
@@ -753,11 +827,7 @@ describe('Lottery Controller Tests', () => {
     });
 
     it('should error if user is not an admin and tries to update to ran or releasedToPartner', async () => {
-      const jurisdictionA = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdictionA.id, prisma);
-      const listingData = await listingFactory(jurisdictionA.id, prisma, {
+      const listingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
       });
       const listing = await prisma.listings.create({
@@ -784,11 +854,7 @@ describe('Lottery Controller Tests', () => {
     });
 
     it('should update listing lottery status to releasedToPartners from ran', async () => {
-      const jurisdictionA = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdictionA.id, prisma);
-      const listingData = await listingFactory(jurisdictionA.id, prisma, {
+      const listingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
         lotteryStatus: LotteryStatusEnum.ran,
       });
@@ -810,7 +876,7 @@ describe('Lottery Controller Tests', () => {
             isJurisdictionalAdmin: false,
           },
           listings: [listing.id],
-          jurisdictionIds: [jurisdictionA.id],
+          jurisdictionIds: [jurisdictionAId],
           confirmedAt: new Date(),
         }),
       });
@@ -826,15 +892,15 @@ describe('Lottery Controller Tests', () => {
         .expect(200);
       expect(res.body.success).toEqual(true);
 
-      expect(mockLotteryReleased).toBeCalledWith(
-        {
-          id: listing.id,
-          name: listing.name,
-          juris: expect.stringMatching(jurisdictionA.id),
-        },
-        expect.arrayContaining([partnerUser.email, adminUser.email]),
-        process.env.PARTNERS_PORTAL_URL,
-      );
+      expect(mockSeSClient).toHaveReceivedCommandWith(SendBulkEmailCommand, {
+        FromEmailAddress: 'Doorway <no-reply@housingbayarea.org>',
+        BulkEmailEntries: expect.arrayContaining([
+          { Destination: { ToAddresses: [partnerUser.email] } },
+          { Destination: { ToAddresses: [adminUser.email] } },
+          { Destination: { ToAddresses: [expect.anything()] } },
+        ]),
+        DefaultContent: expect.anything(),
+      });
 
       const activityLogResult = await prisma.activityLog.findFirst({
         where: {
@@ -848,11 +914,7 @@ describe('Lottery Controller Tests', () => {
     });
 
     it('should error trying to update listing lottery status to releasedToPartners from ran if there are new paper application updates', async () => {
-      const jurisdictionA = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdictionA.id, prisma);
-      const listingData = await listingFactory(jurisdictionA.id, prisma, {
+      const listingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
         lotteryStatus: LotteryStatusEnum.ran,
       });
@@ -878,11 +940,7 @@ describe('Lottery Controller Tests', () => {
     });
 
     it('should update listing lottery status to ran from releasedToPartners aka retract', async () => {
-      const jurisdictionA = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdictionA.id, prisma);
-      const listingData = await listingFactory(jurisdictionA.id, prisma, {
+      const listingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
         lotteryStatus: LotteryStatusEnum.releasedToPartners,
       });
@@ -913,11 +971,8 @@ describe('Lottery Controller Tests', () => {
     });
 
     it('should update listing lottery status to publishedToPublic from releasedToPartners', async () => {
-      const jurisdictionA = await prisma.jurisdictions.create({
-        data: jurisdictionFactory(),
-      });
-      await reservedCommunityTypeFactoryAll(jurisdictionA.id, prisma);
-      const listingData = await listingFactory(jurisdictionA.id, prisma, {
+      process.env.SITE_EMAIL = 'sampleSiteEmail@email.com';
+      const listingData = await listingFactory(jurisdictionAId, prisma, {
         status: ListingsStatusEnum.closed,
         lotteryStatus: LotteryStatusEnum.releasedToPartners,
         applications: [
@@ -927,9 +982,12 @@ describe('Lottery Controller Tests', () => {
             confirmationCode: 'ABCD1234',
             submissionType: ApplicationSubmissionTypeEnum.electronical,
             language: LanguagesEnum.en,
-            applicant: {
+            userAccounts: {
               create: {
-                emailAddress: 'applicant@email.com',
+                email: 'applicant@email.com',
+                firstName: 'first',
+                lastName: 'last',
+                passwordHash: 'abcd1234',
               },
             },
           },
@@ -939,9 +997,12 @@ describe('Lottery Controller Tests', () => {
             confirmationCode: 'EFGH5678',
             submissionType: ApplicationSubmissionTypeEnum.electronical,
             language: LanguagesEnum.es,
-            applicant: {
+            userAccounts: {
               create: {
-                emailAddress: 'applicant2@email.com',
+                email: 'applicant2@email.com',
+                firstName: 'first',
+                lastName: 'last',
+                passwordHash: 'abcd1234',
               },
             },
           },
@@ -951,16 +1012,34 @@ describe('Lottery Controller Tests', () => {
             confirmationCode: 'IJKL9012',
             submissionType: ApplicationSubmissionTypeEnum.electronical,
             language: null,
+            userAccounts: {
+              create: {
+                email: 'applicant3@email.com',
+                firstName: 'first',
+                lastName: 'last',
+                passwordHash: 'abcd1234',
+              },
+            },
+          },
+          {
+            preferences: [],
+            status: ApplicationStatusEnum.submitted,
+            confirmationCode: 'MNOP3456',
+            submissionType: ApplicationSubmissionTypeEnum.electronical,
+            language: null,
             applicant: {
               create: {
-                emailAddress: 'applicant3@email.com',
+                emailAddress: 'applicant4@email.com',
               },
             },
           },
         ],
       });
       const listing = await prisma.listings.create({
-        data: listingData,
+        data: {
+          ...listingData,
+          lotteryLastPublishedAt: new Date(),
+        },
       });
 
       const partnerUser = await prisma.userAccounts.create({
@@ -971,7 +1050,7 @@ describe('Lottery Controller Tests', () => {
             isJurisdictionalAdmin: false,
           },
           listings: [listing.id],
-          jurisdictionIds: [jurisdictionA.id],
+          jurisdictionIds: [jurisdictionAId],
           confirmedAt: new Date(),
         }),
       });
@@ -997,26 +1076,191 @@ describe('Lottery Controller Tests', () => {
 
       expect(activityLogResult).not.toBeNull();
 
-      expect(mockLotteryPublishedAdmin).toBeCalledWith(
-        {
-          id: listing.id,
-          name: listing.name,
-          juris: expect.stringMatching(jurisdictionA.id),
+      // should send three: one to partners, one to english applicants, one to spanish applicant
+      // site email should be sent with all of them
+      expect(mockSeSClient).toHaveReceivedCommandTimes(SendBulkEmailCommand, 3);
+      expect(mockSeSClient).toHaveReceivedCommandWith(SendBulkEmailCommand, {
+        FromEmailAddress: 'Doorway <no-reply@housingbayarea.org>',
+        BulkEmailEntries: expect.arrayContaining([
+          { Destination: { ToAddresses: [partnerUser.email] } },
+          { Destination: { ToAddresses: [adminUser.email] } },
+          { Destination: { ToAddresses: [expect.anything()] } },
+          { Destination: { ToAddresses: ['sampleSiteEmail@email.com'] } },
+        ]),
+        DefaultContent: {
+          Template: {
+            TemplateContent: {
+              Subject: `Lottery results have been published for ${listing.name}`,
+              Html: expect.anything(),
+            },
+            TemplateData: expect.anything(),
+          },
         },
-        expect.arrayContaining([partnerUser.email, adminUser.email]),
-        process.env.PARTNERS_PORTAL_URL,
+      });
+      expect(mockSeSClient).toHaveReceivedCommandWith(SendBulkEmailCommand, {
+        FromEmailAddress: 'Doorway <no-reply@housingbayarea.org>',
+        BulkEmailEntries: expect.arrayContaining([
+          { Destination: { ToAddresses: ['applicant@email.com'] } },
+          { Destination: { ToAddresses: ['applicant3@email.com'] } },
+          { Destination: { ToAddresses: ['sampleSiteEmail@email.com'] } },
+        ]),
+        DefaultContent: {
+          Template: {
+            TemplateContent: {
+              Subject: 'New Housing Lottery Results Available',
+              Html: expect.anything(),
+            },
+            TemplateData: expect.anything(),
+          },
+        },
+      });
+      expect(mockSeSClient).toHaveReceivedCommandWith(SendBulkEmailCommand, {
+        FromEmailAddress: 'Doorway <no-reply@housingbayarea.org>',
+        BulkEmailEntries: expect.arrayContaining([
+          { Destination: { ToAddresses: ['applicant2@email.com'] } },
+          { Destination: { ToAddresses: ['sampleSiteEmail@email.com'] } },
+        ]),
+        DefaultContent: {
+          Template: {
+            TemplateContent: {
+              Subject:
+                'Nuevos resultados de la lotería de vivienda disponibles',
+              Html: expect.anything(),
+            },
+            TemplateData: expect.anything(),
+          },
+        },
+      });
+    });
+  });
+  describe('publicLotteryResults', () => {
+    it('should return a raw rank', async () => {
+      const listing1 = await listingFactory(jurisdictionAId, prisma, {
+        status: ListingsStatusEnum.closed,
+      });
+      const listing1Created = await prisma.listings.create({
+        data: listing1,
+      });
+
+      const appA = await applicationFactory({
+        listingId: listing1Created.id,
+      });
+
+      const appACreated = await prisma.applications.create({
+        data: appA,
+        include: {
+          applicant: true,
+        },
+      });
+
+      await lotteryService.lotteryGenerate(
+        {
+          user: {
+            id: randomUUID(),
+            userRoles: {
+              isAdmin: true,
+            },
+          },
+        } as unknown as ExpressRequest,
+        {} as Response,
+        { id: listing1Created.id },
       );
 
-      expect(mockLotteryPublishedApplicant).toBeCalledWith(
-        {
-          id: listing.id,
-          name: listing.name,
-          juris: expect.stringMatching(jurisdictionA.id),
+      const res = await request(app.getHttpServer())
+        .get(`/lottery/publicLotteryResults/${appACreated.id}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(200);
+
+      expect(res.body).toEqual([{ ordinal: 1, multiselectQuestionId: null }]);
+    });
+  });
+  describe('lotteryTotals', () => {
+    it('should return totals', async () => {
+      const preferenceA = multiselectQuestionFactory(jurisdictionAId, {
+        multiselectQuestion: {
+          text: 'City Employees',
+          description: 'Employees of the local city.',
+          applicationSection:
+            MultiselectQuestionsApplicationSectionEnum.preferences,
+          options: [
+            {
+              text: 'At least one member of my household is a city employee',
+              collectAddress: false,
+              ordinal: 0,
+            },
+          ],
         },
-        expect.objectContaining({
-          en: ['applicant@email.com', 'applicant3@email.com'],
-          es: ['applicant2@email.com'],
-        }),
+      });
+
+      const preferenceACreated = await prisma.multiselectQuestions.create({
+        data: preferenceA,
+      });
+
+      const listing1 = await listingFactory(jurisdictionAId, prisma, {
+        status: ListingsStatusEnum.closed,
+        multiselectQuestions: [preferenceACreated],
+      });
+
+      const listing1Created = await prisma.listings.create({
+        data: listing1,
+      });
+
+      const appA = await applicationFactory({
+        listingId: listing1Created.id,
+        unitTypeId: unitTypeA.id,
+        multiselectQuestions: [preferenceACreated],
+      });
+
+      await prisma.applications.create({
+        data: appA,
+        include: {
+          applicant: true,
+        },
+      });
+
+      const appB = await applicationFactory({
+        listingId: listing1Created.id,
+        unitTypeId: unitTypeA.id,
+      });
+
+      await prisma.applications.create({
+        data: appB,
+        include: {
+          applicant: true,
+        },
+      });
+
+      await lotteryService.lotteryGenerate(
+        {
+          user: {
+            id: randomUUID(),
+            userRoles: {
+              isAdmin: true,
+            },
+          },
+        } as unknown as ExpressRequest,
+        {} as Response,
+        { id: listing1Created.id },
+      );
+
+      const res = await request(app.getHttpServer())
+        .get(`/lottery/lotteryTotals/${listing1Created.id}`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', adminAccessToken)
+        .expect(200);
+
+      expect(res.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            multiselectQuestionId: null,
+            total: 2,
+          }),
+          expect.objectContaining({
+            multiselectQuestionId: preferenceACreated.id,
+            total: 1,
+          }),
+        ]),
       );
     });
   });

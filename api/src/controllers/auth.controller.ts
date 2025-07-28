@@ -30,11 +30,13 @@ import { Login } from '../dtos/auth/login.dto';
 import { mapTo } from '../utilities/mapTo';
 import { User } from '../dtos/users/user.dto';
 import { LoginViaSingleUseCode } from '../dtos/auth/login-single-use-code.dto';
+import { ApiKeyGuard } from '../guards/api-key.guard';
 import { SingleUseCodeAuthGuard } from '../guards/single-use-code.guard';
 
 @Controller('auth')
 @ApiTags('auth')
 @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
+@UseGuards(ApiKeyGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -56,6 +58,7 @@ export class AuthController {
       !!process.env.RECAPTCHA_KEY,
       !!dto.mfaCode,
       process.env.ENABLE_RECAPTCHA === 'TRUE',
+      dto.agreedToTermsOfService,
     );
   }
 
@@ -70,10 +73,12 @@ export class AuthController {
   async loginViaSingleUseCode(
     @Request() req: ExpressRequest,
     @Response({ passthrough: true }) res: ExpressResponse,
+    @Body() dto: LoginViaSingleUseCode,
   ): Promise<SuccessDTO> {
     return await this.authService.confirmAndSetCredentials(
       mapTo(User, req['user']),
       res,
+      dto.agreedToTermsOfService,
     );
   }
 

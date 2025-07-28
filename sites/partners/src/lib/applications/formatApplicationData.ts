@@ -1,4 +1,4 @@
-import { TimeFieldPeriod } from "@bloom-housing/ui-components"
+import { DateFieldValues, TimeFieldPeriod, TimeFieldValues } from "@bloom-housing/ui-components"
 import {
   fieldGroupObjectToArray,
   adaFeatureKeys,
@@ -85,42 +85,30 @@ export const mapFormToApi = ({
     ? data.application?.language
     : null
 
-  const submissionDate: Date | null = (() => {
-    // rename default (wrong property names)
-    const {
-      day: submissionDay,
-      month: submissionMonth,
-      year: submissionYear,
-    } = data.dateSubmitted || {}
-    const { hours, minutes = 0, seconds = 0, period } = data?.timeSubmitted || {}
+  const getDateTime = (date: DateFieldValues, time: TimeFieldValues) => {
+    let day = date?.day
+    let month = date?.month
+    const year = date?.year
+    const { hours, minutes = 0, seconds = 0, period } = time || {}
 
-    if (!submissionDay || !submissionMonth || !submissionYear) return null
+    if (!day || !month || !year) return null
+
+    if (month.length === 1) month = `0${month}`
+    if (day.length === 1) day = `0${day}`
 
     const dateString = dayjs(
-      `${submissionMonth}/${submissionDay}/${submissionYear} ${hours}:${minutes}:${seconds} ${period}`,
+      `${month}/${day}/${year} ${hours}:${minutes}:${seconds} ${period}`,
       "MM/DD/YYYY hh:mm:ss a"
     ).format(TIME_24H_FORMAT)
 
     const formattedDate = dayjs(dateString, TIME_24H_FORMAT).toDate()
 
     return formattedDate
-  })()
+  }
 
-  const receivedAt: Date | null = (() => {
-    const { day: receivedDay, month: receivedMonth, year: receivedYear } = data?.dateReceived || {}
-    const { hours, minutes = 0, seconds = 0, period } = data?.timeReceived || {}
+  const submissionDate: Date | null = getDateTime(data?.dateSubmitted, data?.timeSubmitted)
 
-    if (!receivedDay || !receivedMonth || !receivedYear) return null
-
-    const dateString = dayjs(
-      `${receivedMonth}/${receivedDay}/${receivedYear} ${hours}:${minutes}:${seconds} ${period}`,
-      "MM/DD/YYYY hh:mm:ss a"
-    ).format(TIME_24H_FORMAT)
-
-    const formattedDate = dayjs(dateString, TIME_24H_FORMAT).toDate()
-
-    return formattedDate
-  })()
+  const receivedAt: Date | null = getDateTime(data?.dateReceived, data?.timeReceived)
 
   const receivedBy = data.application?.receivedBy || null
 
@@ -161,7 +149,6 @@ export const mapFormToApi = ({
     additionalPhoneNumberType: additionalPhoneNumberTypeData,
     applicationsMailingAddress: mailingAddressData,
     additionalPhoneNumber,
-    contactPreferences,
     incomeVouchers,
   } = data.application
 
@@ -200,6 +187,8 @@ export const mapFormToApi = ({
 
   householdMembers.forEach((member) => {
     member.relationship = member.relationship || null
+    delete member.householdMemberWorkAddress
+    delete member.workInRegion
   })
 
   const incomePeriod: IncomePeriodEnum | null = data.application?.incomePeriod || null
@@ -243,7 +232,6 @@ export const mapFormToApi = ({
     additionalPhone,
     additionalPhoneNumber,
     additionalPhoneNumberType,
-    contactPreferences,
     sendMailToMailingAddress,
     applicationsMailingAddress,
     alternateContact,
@@ -375,7 +363,6 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
   const application: ApplicationTypes = (() => {
     const {
       language,
-      contactPreferences,
       sendMailToMailingAddress,
       applicationsMailingAddress,
       incomePeriod,
@@ -414,7 +401,6 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
       additionalPhoneNumber,
       additionalPhoneNumberType,
       preferences,
-      contactPreferences,
       sendMailToMailingAddress,
       applicationsMailingAddress,
       preferredUnit,

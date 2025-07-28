@@ -5,12 +5,13 @@ import Markdown from "markdown-to-jsx"
 import { ReviewOrderTypeEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { t, Form } from "@bloom-housing/ui-components"
 import { OnClientSide, PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
+import { Button } from "@bloom-housing/ui-seeds"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import FormsLayout from "../../../layouts/forms"
 import { useFormConductor } from "../../../lib/hooks"
 import { UserStatus } from "../../../lib/constants"
 import ApplicationFormLayout from "../../../layouts/application-form"
-import { Button } from "@bloom-housing/ui-seeds"
+import styles from "../../../layouts/application-form.module.scss"
 
 const ApplicationWhatToExpect = () => {
   const { profile } = useContext(AuthContext)
@@ -65,7 +66,9 @@ const ApplicationWhatToExpect = () => {
           mounted: OnClientSide(),
         }}
         backLink={{
-          url: `/applications/start/choose-language?listingId=${listing?.id}`,
+          url: listing?.includeCommunityDisclaimer
+            ? conductor.determinePreviousUrl()
+            : `/applications/start/choose-language?listingId=${listing?.id}`,
         }}
       >
         <CardSection>
@@ -105,7 +108,7 @@ const ApplicationWhatToExpect = () => {
             </Markdown>
           </div>
         </CardSection>
-        <CardSection className={"bg-primary-lighter"}>
+        <CardSection className={styles["application-form-action-footer"]}>
           <Form onSubmit={handleSubmit(onSubmit)}>
             <Button
               type="submit"

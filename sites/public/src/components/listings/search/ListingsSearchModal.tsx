@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react"
-import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
-import { t } from "@bloom-housing/ui-components"
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
-  Modal,
   ButtonGroup,
   ButtonGroupSpacing,
   Button,
@@ -10,10 +9,10 @@ import {
   FieldGroup,
   FieldSingle,
 } from "@bloom-housing/doorway-ui-components"
+import { t } from "@bloom-housing/ui-components"
 import { Dialog } from "@bloom-housing/ui-seeds"
-import { useForm } from "react-hook-form"
 import { numericSearchFieldGenerator } from "./helpers"
-import { FilterAvailabilityEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { ListingSearchParams, parseSearchString } from "../../../lib/listings/search"
 
 const inputSectionStyle: React.CSSProperties = {
   margin: "0px 15px",
@@ -26,8 +25,7 @@ const hyphenContainerStyle: React.CSSProperties = {
 const hyphenStyle: React.CSSProperties = {
   fontSize: "2rem",
   position: "relative",
-  bottom: "1px",
-  padding: ".7rem",
+  padding: "0.5rem .7rem",
   width: "100%",
 }
 
@@ -44,6 +42,10 @@ const sectionTitleTopBorder: React.CSSProperties = {
 const rentStyle: React.CSSProperties = {
   margin: "0px 0px",
   display: "flex",
+}
+
+const propertySearchTitle: React.CSSProperties = {
+  paddingBlock: "var(--seeds-s4)",
 }
 
 const clearButtonStyle: React.CSSProperties = {
@@ -87,13 +89,15 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     bathrooms: null,
     minRent: "",
     monthlyRent: "",
+    propertyName: "",
     counties: countyLabels,
     availability: null,
+    ids: undefined,
   }
   const initialState = parseSearchString(searchString, nullState)
   const [formValues, setFormValues] = useState(initialState)
 
-  const countFilters = (params: ListingSearchParams) => {
+  const countFilters = useCallback((params: ListingSearchParams) => {
     let count = 0
     // For each of our search params, count the number that aren't empty
     Object.values(params).forEach((value) => {
@@ -102,23 +106,14 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
       count++
     })
     return count
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // We're factoring out the function to prevent requiring props in useEffect
   const filterChange = props.onFilterChange
   useEffect(() => {
     filterChange(countFilters(formValues))
   }, [formValues, filterChange, countFilters])
-
-  // Run this once immediately after first render
-  // Empty array is intentional; it's how we make sure it only runs once
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    // Set initial filter count
-    props.onFilterChange(countFilters(formValues))
-    // Fetch listings
-    onSubmit()
-  }, [])
 
   const clearValues = () => {
     setFormValues(nullState)
@@ -131,6 +126,9 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     document.querySelector("#monthlyRent").value = null
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    document.querySelector("#propertyName").value = null
   }
 
   const onSubmit = () => {
@@ -199,7 +197,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         check = false
       }
       countyFields.push({
-        id: `county-item-${idx}`,
+        id: `county-item-${county.label}`,
         index: idx,
         label: county.label,
         value: county.value,
@@ -218,6 +216,12 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
   const monthlyRentFormatted = watch("monthlyRent")
   const minRentFormatted = watch("minRent")
   const currencyFormatting = /,|\.\d{2}/g
+
+  const validateSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
+    // handle semicolon by searching text before since removing could lead to missing exact match
+    const searchableValue = e.target.value.split(";")[0]
+    updateValue("propertyName", searchableValue)
+  }
 
   // workarounds to leverage UI-C's currency formatting without full refactor
   useEffect(() => {
@@ -291,7 +295,7 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
               defaultValue={formValues.minRent}
               placeholder={t("t.minPrice")}
               className="doorway-field"
-              inputClassName="rent-input"
+              inputClassName="typed-input"
               labelClassName="input-label"
             ></Field>
             <div style={hyphenContainerStyle}>
@@ -307,10 +311,27 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
               defaultValue={formValues.monthlyRent}
               placeholder={t("t.maxPrice")}
               className="doorway-field"
-              inputClassName="rent-input"
+              inputClassName="typed-input"
               labelClassName="input-label"
             ></Field>
           </div>
+        </div>
+        <div style={inputSectionStyle}>
+          <div style={{ ...sectionTitle, ...propertySearchTitle }}>
+            {t("listings.propertyName")}
+          </div>
+          <Field
+            type="text"
+            id="propertyName"
+            name="propertyName"
+            subNote={t("listings.propertyName.helperModal")}
+            register={register}
+            onChange={validateSearchInput}
+            defaultValue={formValues.propertyName}
+            className="doorway-field pb-4"
+            inputClassName="typed-input"
+            labelClassName="input-label"
+          />
         </div>
 
         <div style={inputSectionStyle}>
@@ -327,11 +348,20 @@ export function ListingsSearchModal(props: ListingsSearchModalProps) {
         <img src={"/images/county-map.png"} alt={t("welcome.bayAreaCountyMap")} />
       </Dialog.Content>
       <Dialog.Footer>
-        <Button type="button" className="is-secondary" onClick={onSubmit}>
+        <Button
+          type="button"
+          className="is-secondary"
+          onClick={onSubmit}
+          id={"listings-map-filter-dialog-show-button"}
+        >
           {t("t.showMatchingListings")}
         </Button>
         <div style={{ flexGrow: 1 }}></div>
-        <button style={clearButtonStyle} onClick={clearValues}>
+        <button
+          style={clearButtonStyle}
+          onClick={clearValues}
+          data-testid={"listings-map-filter-dialog-clear-button"}
+        >
           {t("t.clearAllFilters")}
         </button>
       </Dialog.Footer>

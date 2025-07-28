@@ -1,8 +1,4 @@
-import {
-  ListingEventsTypeEnum,
-  ReviewOrderTypeEnum,
-  YesNoEnum,
-} from '@prisma/client';
+import { ListingEventsTypeEnum, ReviewOrderTypeEnum } from '@prisma/client';
 import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
@@ -19,11 +15,10 @@ export class LotteryDateParamValidator implements ValidatorConstraintInterface {
     listingEvents: ListingEvent[] | undefined,
     args: ValidationArguments,
   ) {
-    const { reviewOrderType, lotteryOptIn } = args.object as {
+    const { reviewOrderType } = args.object as {
       reviewOrderType: string;
-      lotteryOptIn: boolean;
     };
-    if (reviewOrderType === ReviewOrderTypeEnum.lottery && lotteryOptIn) {
+    if (reviewOrderType === ReviewOrderTypeEnum.lottery) {
       return !!listingEvents.find(
         (event: ListingEvent) =>
           event.type === ListingEventsTypeEnum.publicLottery &&

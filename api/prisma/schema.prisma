@@ -136,7 +136,7 @@ model ApplicationFlaggedSet {
   createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt             DateTime             @updatedAt @map("updated_at") @db.Timestamp(6)
   rule                  RuleEnum
-  ruleKey               String               @unique() @map("rule_key") @db.VarChar
+  ruleKey               String               @map("rule_key") @db.VarChar
   resolvedTime          DateTime?            @map("resolved_time") @db.Timestamptz(6)
   listingId             String               @map("listing_id") @db.Uuid
   showConfirmationAlert Boolean              @default(false) @map("show_confirmation_alert")
@@ -146,6 +146,7 @@ model ApplicationFlaggedSet {
   listings              Listings             @relation(fields: [listingId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   applications          Applications[]
 
+  @@unique([ruleKey, listingId])
   @@index([listingId])
   @@map("application_flagged_set")
 }
@@ -205,6 +206,8 @@ model Applications {
   markedAsDuplicate            Boolean                       @default(false) @map("marked_as_duplicate")
   confirmationCode             String                        @map("confirmation_code")
   reviewStatus                 ApplicationReviewStatusEnum   @default(pending) @map("review_status")
+  // Used to denote when an application was transferred from another jurisdiction
+  wasCreatedExternally         Boolean                       @default(false) @map("was_created_externally")
   userId                       String?                       @map("user_id") @db.Uuid
   listingId                    String?                       @map("listing_id") @db.Uuid
   applicantId                  String?                       @unique() @map("applicant_id") @db.Uuid
@@ -276,6 +279,18 @@ model Demographics {
   @@map("demographics")
 }
 
+model FeatureFlags {
+  id            String          @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Timestamp(6)
+  name          String          @unique()
+  description   String
+  active        Boolean         @default(true)
+  jurisdictions Jurisdictions[]
+
+  @@map("feature_flags")
+}
+
 model GeneratedListingTranslations {
   id             String        @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
@@ -332,19 +347,19 @@ model Jurisdictions {
   rentalAssistanceDefault     String                   @map("rental_assistance_default")
   enablePartnerSettings       Boolean                  @default(false) @map("enable_partner_settings")
   enablePartnerDemographics   Boolean                  @default(false) @map("enable_partner_demographics")
-  enableAccessibilityFeatures Boolean                  @default(false) @map("enable_accessibility_features")
-  enableUtilitiesIncluded     Boolean                  @default(false) @map("enable_utilities_included")
   enableGeocodingPreferences  Boolean                  @default(false) @map("enable_geocoding_preferences")
   enableListingOpportunity    Boolean                  @default(false) @map("enable_listing_opportunity")
   enableGeocodingRadiusMethod Boolean                  @default(false) @map("enable_geocoding_radius_method")
   allowSingleUseCodeLogin     Boolean                  @default(false) @map("allow_single_use_code_login")
   amiChart                    AmiChart[]
+  featureFlags                FeatureFlags[]
   multiselectQuestions        MultiselectQuestions[]
   listings                    Listings[]
   reservedCommunityTypes      ReservedCommunityTypes[]
   translations                Translations[]
   user_accounts               UserAccounts[]
   listingApprovalPermissions  UserRoleEnum[]           @map("listing_approval_permission")
+  duplicateListingPermissions UserRoleEnum[]           @map("duplicate_listing_permissions")
 
   @@map("jurisdictions")
 }
@@ -354,6 +369,7 @@ enum UserRoleEnum {
   partner
   admin
   jurisdictionAdmin
+  limitedJurisdictionAdmin
 
   @@map("user_role_enum")
 }
@@ -442,6 +458,18 @@ model ApplicationLotteryPositions {
   @@index([listingId])
   @@index([applicationId])
   @@map("application_lottery_positions")
+}
+
+model ApplicationLotteryTotal {
+  id                    String                @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  total                 Int
+  listingId             String                @map("listing_id") @db.Uuid
+  listings              Listings              @relation(fields: [listingId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  multiselectQuestionId String?               @map("multiselect_question_id") @db.Uuid
+  multiselectQuestions  MultiselectQuestions? @relation(fields: [multiselectQuestionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([listingId])
+  @@map("application_lottery_totals")
 }
 
 model ListingUtilities {
@@ -534,6 +562,7 @@ model Listings {
   closedAt                              DateTime?                     @map("closed_at") @db.Timestamptz(6)
   afsLastRunAt                          DateTime?                     @default(dbgenerated("'1970-01-01 00:00:00-07'::timestamp with time zone")) @map("afs_last_run_at") @db.Timestamptz(6)
   lastApplicationUpdateAt               DateTime?                     @default(dbgenerated("'1970-01-01 00:00:00-07'::timestamp with time zone")) @map("last_application_update_at") @db.Timestamptz(6)
+  lotteryLastPublishedAt                DateTime?                     @map("lottery_last_published_at") @db.Timestamptz(6)
   lotteryLastRunAt                      DateTime?                     @map("lottery_last_run_at") @db.Timestamptz(6)
   lotteryStatus                         LotteryStatusEnum?            @map("lottery_status")
   buildingAddressId                     String?                       @map("building_address_id") @db.Uuid
@@ -541,12 +570,18 @@ model Listings {
   applicationDropOffAddressId           String?                       @map("application_drop_off_address_id") @db.Uuid
   applicationMailingAddressId           String?                       @map("application_mailing_address_id") @db.Uuid
   buildingSelectionCriteriaFileId       String?                       @map("building_selection_criteria_file_id") @db.Uuid
+  copyOfId                              String?                       @map("copy_of_id") @db.Uuid
   jurisdictionId                        String?                       @map("jurisdiction_id") @db.Uuid
   leasingAgentAddressId                 String?                       @map("leasing_agent_address_id") @db.Uuid
   reservedCommunityTypeId               String?                       @map("reserved_community_type_id") @db.Uuid
   resultId                              String?                       @map("result_id") @db.Uuid
   featuresId                            String?                       @unique() @map("features_id") @db.Uuid
   utilitiesId                           String?                       @unique() @map("utilities_id") @db.Uuid
+  includeCommunityDisclaimer            Boolean?                      @map("include_community_disclaimer")
+  communityDisclaimerTitle              String?                       @map("community_disclaimer_title")
+  communityDisclaimerDescription        String?                       @map("community_disclaimer_description")
+  // Used to denote when a listing was transferred from another jurisdiction
+  wasCreatedExternally                  Boolean                       @default(false) @map("was_created_externally")
   // START DETROIT SPECIFIC
   hrdId                                 String?                       @map("hrd_id")
   ownerCompany                          String?                       @map("owner_company")
@@ -586,8 +621,9 @@ model Listings {
   listingsApplicationPickUpAddress      Address?                      @relation("application_pick_up_address", fields: [applicationPickUpAddressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   listingsBuildingAddress               Address?                      @relation("building_address", fields: [buildingAddressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   userAccounts                          UserAccounts[]
+  userAccountFavorites                  UserAccounts[]                @relation("favorite_listings")
   units                                 Units[]
-  unitGroup                             UnitGroup[]
+  unitGroups                            UnitGroup[]
   userPreferences                       UserPreferences[]
   unitsSummary                          UnitsSummary[]
   requestedChanges                      String?                       @map("requested_changes")
@@ -595,6 +631,9 @@ model Listings {
   requestedChangesUserId                String?                       @map("requested_changes_user_id") @db.Uuid
   requestedChangesUser                  UserAccounts?                 @relation("requested_changes_user", fields: [requestedChangesUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   applicationLotteryPositions           ApplicationLotteryPositions[]
+  applicationLotteryTotals              ApplicationLotteryTotal[]
+  copyOf                                Listings?                     @relation("copy_of", fields: [copyOfId], references: [id], onUpdate: NoAction)
+  Listings                              Listings[]                    @relation("copy_of")
 
   @@index([jurisdictionId])
   @@map("listings")
@@ -631,10 +670,13 @@ model MultiselectQuestions {
   options                     Json?
   optOutText                  String?                                    @map("opt_out_text")
   hideFromListing             Boolean?                                   @map("hide_from_listing")
+  // Used to denote when a multiselect question was transferred from another jurisdiction
+  wasCreatedExternally        Boolean                                    @default(false) @map("was_created_externally")
   applicationSection          MultiselectQuestionsApplicationSectionEnum @map("application_section")
   jurisdictions               Jurisdictions[]
   listings                    ListingMultiselectQuestions[]
   applicationLotteryPositions ApplicationLotteryPositions[]
+  applicationLotteryTotals    ApplicationLotteryTotal[]
 
   @@map("multiselect_questions")
 }
@@ -686,7 +728,7 @@ model UnitAccessibilityPriorityTypes {
   updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
   name         String
   units        Units[]
-  unitGroup    UnitGroup[]
+  unitGroups   UnitGroup[]
   unitsSummary UnitsSummary[]
 
   @@map("unit_accessibility_priority_types")
@@ -827,6 +869,7 @@ model UserAccounts {
   userPreferences          UserPreferences?
   userRoles                UserRoles?
   requestedChangesListings Listings[]              @relation("requested_changes_user")
+  favoriteListings         Listings[]              @relation("favorite_listings")
 
   @@map("user_accounts")
 }
@@ -836,6 +879,8 @@ model UserRoles {
   isJurisdictionalAdmin        Boolean      @default(false) @map("is_jurisdictional_admin")
   isLimitedJurisdictionalAdmin Boolean      @default(false) @map("is_limited_jurisdictional_admin")
   isPartner                    Boolean      @default(false) @map("is_partner")
+  // Role for maintainers of the code base. Should have access to everything as well as developer specific pages
+  isSuperAdmin                 Boolean      @default(false) @map("is_super_admin")
   userId                       String       @id() @map("user_id") @db.Uuid
   userAccounts                 UserAccounts @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -900,11 +945,27 @@ view CombinedListings {
   unitsSummarized           Json?               @map("units_summarized")
   listingImages             Json?               @map("listing_images")
   reservedCommunityTypes    Json?               @map("reserved_community_types")
-  units                     Json?
   isExternal                Boolean?            @map("is_external")
   urlSlug                   String?             @map("url_slug")
 
   @@map("combined_listings")
+}
+
+view CombinedListingsUnits {
+  id                        String              @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  units                     Json?
+
+   @@map("combined_listings_units")
+}
+
+view MapMarkers {
+  id                        String              @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  status                    String
+  latitude                  String?
+  longitude                 String?
+  isExternal                Boolean?            @map("is_external")
+
+  @@map("map_marker")
 }
 
 // END Doorway specific
@@ -926,6 +987,8 @@ model ListingNeighborhoodAmenities {
 }
 
 model UnitGroup {
+  createdAt                      DateTime                        @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                      DateTime                        @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
   maxOccupancy                   Int?                            @map("max_occupancy")
   minOccupancy                   Int?                            @map("min_occupancy")
   floorMin                       Int?                            @map("floor_min")
@@ -949,6 +1012,8 @@ model UnitGroup {
 }
 
 model UnitGroupAmiLevels {
+  createdAt                    DateTime                         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                    DateTime                         @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
   id                           String                           @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   amiPercentage                Int?                             @map("ami_percentage")
   monthlyRentDeterminationType MonthlyRentDeterminationTypeEnum @map("monthly_rent_determination_type")
@@ -984,6 +1049,23 @@ model ScriptRuns {
   didScriptRun   Boolean  @default(false) @map("did_script_run")
 
   @@map("script_runs")
+}
+
+model ListingTransferMap {
+  listingId String @id() @map("listing_id") @db.Uuid
+  oldId     String @map("old_id") @db.Uuid
+
+  @@map("listing_transfer_map")
+}
+
+view ApplicationFlaggedSetPossibilities {
+  key           String
+  listingId     String @map("listing_id") @db.Uuid
+  applicationId String @map("application_id") @db.Uuid
+  type          String
+
+  @@id([key, applicationId])
+  @@map("application_flagged_set_possibilities")
 }
 
 enum ApplicationMethodsTypeEnum {
@@ -1068,6 +1150,7 @@ enum YesNoEnum {
 enum RuleEnum {
   nameAndDOB
   email
+  combination
 
   @@map("rule_enum")
 }

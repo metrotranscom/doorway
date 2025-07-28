@@ -6,6 +6,7 @@ try {
   // Pass
 }
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
@@ -19,9 +20,13 @@ import { instance } from './logger/winston.logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: WinstonModule.createLogger({
-      instance: instance,
-    }),
+    // In local development use the built in logger for better readability
+    logger:
+      process.env.NODE_ENV === 'development'
+        ? ['log']
+        : WinstonModule.createLogger({
+            instance: instance,
+          }),
   });
   const allowList = process.env.CORS_ORIGINS || [];
   const allowListRegex = process.env.CORS_REGEX
@@ -32,7 +37,8 @@ async function bootstrap() {
   });
 
   const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new CustomExceptionFilter(httpAdapter));
+  const inUselogger: Logger = app.get(Logger);
+  app.useGlobalFilters(new CustomExceptionFilter(httpAdapter, inUselogger));
   app.enableCors((req, cb) => {
     const options = {
       credentials: true,
@@ -65,6 +71,20 @@ async function bootstrap() {
     .addTag('listings')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+  // Add passkey as an optional header to all endpoints
+  Object.values(document.paths).forEach((path) => {
+    Object.values(path).forEach((method) => {
+      method.parameters = [
+        ...(method.parameters || []),
+        {
+          in: 'header',
+          name: 'passkey',
+          description: 'Pass key',
+          required: false,
+        },
+      ];
+    });
+  });
   SwaggerModule.setup('api', app, document);
   const configService: ConfigService = app.get(ConfigService);
 

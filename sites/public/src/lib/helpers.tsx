@@ -1,29 +1,34 @@
 import React from "react"
 import dayjs from "dayjs"
-import { ApplicationStatusType, StatusBarType, t } from "@bloom-housing/ui-components"
-import {
-  FooterNav,
-  FooterSection,
-  ListingCard,
-  SiteFooter,
-} from "@bloom-housing/doorway-ui-components"
+import { ListingCard } from "@bloom-housing/doorway-ui-components"
+import InfoIcon from "@heroicons/react/20/solid/InformationCircleIcon"
+import { t, ApplicationStatusType, StatusBarType } from "@bloom-housing/ui-components"
 import {
   imageUrlFromListing,
   getSummariesTable,
   IMAGE_FALLBACK_URL,
   cleanMultiselectString,
+  getStackedSummariesTable,
+  ResponseException,
+  getStackedGroupSummariesTable,
 } from "@bloom-housing/shared-helpers"
 import {
   Address,
   ApplicationMultiselectQuestion,
+  Jurisdiction,
   Listing,
   ListingsStatusEnum,
+  MarketingSeasonEnum,
+  MarketingTypeEnum,
+  ModificationEnum,
   ReviewOrderTypeEnum,
+  UnitGroupsSummarized,
   UnitsSummarized,
+  UserService,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-
-export const emailRegex =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+import { CommonMessageVariant } from "@bloom-housing/ui-seeds/src/blocks/shared/CommonMessage"
+import { Icon, Message } from "@bloom-housing/ui-seeds"
+import styles from "./helpers.module.scss"
 
 export const getGenericAddress = (bloomAddress: Address) => {
   return bloomAddress
@@ -41,13 +46,6 @@ export const getGenericAddress = (bloomAddress: Address) => {
     : null
 }
 
-export const disableContactFormOption = (id: string, noPhone: boolean, noEmail: boolean) => {
-  if (id === "phone" || id === "text") {
-    return noPhone
-  }
-  return id === "email" && noEmail
-}
-
 export const openInFuture = (listing: Listing) => {
   const nowTime = dayjs()
   return listing.applicationOpenDate && nowTime < dayjs(listing.applicationOpenDate)
@@ -58,7 +56,7 @@ const getListingCardSubtitle = (address: Address) => {
   return address ? `${street}, ${city} ${state}, ${zipCode}` : null
 }
 
-const getListingTableData = (
+export const getListingTableData = (
   unitsSummarized: UnitsSummarized,
   listingReviewOrder: ReviewOrderTypeEnum,
   includeRentandMinimumIncome: boolean
@@ -80,7 +78,27 @@ export const getListingUrl = (listing: Listing) => {
   }
 }
 
-export const getListingApplicationStatus = (listing: Listing): StatusBarType => {
+export const getListingStackedTableData = (unitsSummarized: UnitsSummarized) => {
+  return unitsSummarized !== undefined
+    ? getStackedSummariesTable(unitsSummarized.byUnitTypeAndRent)
+    : []
+}
+
+export const getListingStackedGroupTableData = (
+  unitGroupsSummarized: UnitGroupsSummarized,
+  isComingSoon?: boolean
+) => {
+  return unitGroupsSummarized !== undefined
+    ? getStackedGroupSummariesTable(unitGroupsSummarized.unitGroupSummary, isComingSoon)
+    : []
+}
+
+export const getListingApplicationStatus = (
+  listing: Listing,
+  hideTime?: boolean,
+  hideReviewOrder?: boolean
+): StatusBarType => {
+  if (!listing) return
   let content = ""
   let subContent = ""
   let formattedDate = ""
@@ -98,25 +116,31 @@ export const getListingApplicationStatus = (listing: Listing): StatusBarType => 
     } else if (listing.applicationDueDate) {
       const dueDate = dayjs(listing.applicationDueDate)
       formattedDate = dueDate.format("MMM DD, YYYY")
-      formattedDate = formattedDate + ` ${t("t.at")} ` + dueDate.format("h:mmA")
+      formattedDate = !hideTime
+        ? formattedDate + ` ${t("t.at")} ` + dueDate.format("h:mmA")
+        : formattedDate
 
       // if due date is in future, listing is open
       if (dayjs() < dueDate) {
-        content = t("listings.applicationDeadline")
+        content = t("listings.applicationDue")
       } else {
         status = ApplicationStatusType.Closed
         content = t("listings.applicationsClosed")
       }
+    } else {
+      content = t("listings.applicationOpenPeriod")
     }
   }
 
-  if (formattedDate != "") {
+  if (formattedDate !== "") {
     content = content + `: ${formattedDate}`
   }
 
-  if (listing.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe) {
-    subContent = content
-    content = t("listings.applicationFCFS")
+  if (!hideReviewOrder) {
+    if (listing.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe) {
+      subContent = content
+      content = t("listings.applicationFCFS")
+    }
   }
 
   return {
@@ -124,6 +148,124 @@ export const getListingApplicationStatus = (listing: Listing): StatusBarType => 
     content,
     subContent,
   }
+}
+
+export const getStatusPrefix = (
+  listing: Listing,
+  enableMarketingStatus: boolean
+): { label: string; variant: CommonMessageVariant } => {
+  if (
+    listing.status === ListingsStatusEnum.closed ||
+    (listing.applicationDueDate && dayjs() > dayjs(listing.applicationDueDate))
+  ) {
+    return { label: t("listings.applicationsClosed"), variant: "secondary-inverse" }
+  }
+  if (enableMarketingStatus && listing.marketingType === MarketingTypeEnum.comingSoon)
+    return { label: t("listings.underConstruction"), variant: "warn" }
+
+  switch (listing.reviewOrderType) {
+    case ReviewOrderTypeEnum.lottery:
+      return { label: t("listings.lottery"), variant: "primary" }
+    case ReviewOrderTypeEnum.waitlist:
+      return { label: t("listings.waitlist.open"), variant: "secondary" }
+    default:
+      return { label: t("listings.applicationFCFS"), variant: "primary" }
+  }
+}
+
+export const getListingStatusMessageContent = (
+  status: ListingsStatusEnum,
+  applicationDueDate: Date,
+  enableMarketingStatus: boolean,
+  marketingType: MarketingTypeEnum,
+  marketingSeason: MarketingSeasonEnum,
+  marketingDate: Date,
+  hideTime?: boolean
+) => {
+  let content = ""
+  let formattedDate = ""
+  if (status !== ListingsStatusEnum.closed) {
+    if (applicationDueDate) {
+      const dueDate = dayjs(applicationDueDate)
+      formattedDate = dueDate.format("MMM DD, YYYY")
+      formattedDate = !hideTime
+        ? formattedDate + ` ${t("t.at")} ` + dueDate.format("h:mmA")
+        : formattedDate
+
+      if (dayjs() < dueDate) {
+        content = t("listings.applicationDue")
+        if (formattedDate) content = content + ": "
+      }
+    } else {
+      content = t("listings.applicationOpenPeriod")
+    }
+
+    if (formattedDate !== "") {
+      content = content + `${formattedDate}`
+    }
+
+    if (marketingType === MarketingTypeEnum.comingSoon && enableMarketingStatus) {
+      content = getApplicationSeason(marketingSeason, marketingDate)
+    }
+  }
+  return content
+}
+
+export const getListingStatusMessage = (
+  listing: Listing,
+  jurisdiction: Jurisdiction,
+  content?: React.ReactNode,
+  hideTime?: boolean,
+  hideDate?: boolean
+) => {
+  if (!listing) return
+
+  const enableMarketingStatus = isFeatureFlagOn(jurisdiction, "enableMarketingStatus")
+  const prefix = getStatusPrefix(listing, enableMarketingStatus)
+
+  return (
+    <Message
+      className={styles["status-bar"]}
+      customIcon={
+        <Icon size="md" className={styles["primary-color-icon"]}>
+          <InfoIcon />
+        </Icon>
+      }
+      variant={prefix.variant}
+    >
+      {content ? (
+        content
+      ) : (
+        <div className={styles["due-date-content"]}>
+          <div className={styles["date-review-order"]}>{prefix.label}</div>
+          {!hideDate && (
+            <div>
+              {getListingStatusMessageContent(
+                listing.status,
+                listing.applicationDueDate,
+                enableMarketingStatus,
+                listing.marketingType,
+                listing.marketingSeason,
+                listing.marketingDate,
+                hideTime
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </Message>
+  )
+}
+
+export const getApplicationSeason = (marketingSeason: MarketingSeasonEnum, marketingDate: Date) => {
+  let label = t("listings.apply.applicationSeason")
+  if (marketingSeason) {
+    label = label.concat(` ${t(`seasons.${marketingSeason}`)}`)
+  }
+  if (marketingDate) {
+    label = label.concat(` ${dayjs(marketingDate).year()}`)
+  }
+  return label
 }
 
 const unitSummariesHeaders = {
@@ -140,7 +282,6 @@ export const getListings = (listings: Listing[]) => {
 
 export const getListingCard = (listing: Listing, index: number) => {
   const uri = getListingUrl(listing)
-  const displayIndex: string = (index + 1).toString()
   return (
     <ListingCard
       key={index}
@@ -173,9 +314,10 @@ export const getListingCard = (listing: Listing, index: number) => {
       ]}
       contentProps={{
         contentHeader: {
-          content: displayIndex + ". " + listing.name,
+          content: listing.name,
           href: uri,
           makeCardClickable: true,
+          priority: 3,
         },
         contentSubheader: { content: getListingCardSubtitle(listing.listingsBuildingAddress) },
       }}
@@ -250,106 +392,6 @@ export const untranslateMultiselectQuestion = (
   })
 }
 
-export const getSiteFooter = () => {
-  return (
-    <SiteFooter>
-      <FooterSection sectionClassName="justify-between" small>
-        <div className="text-left">
-          <img
-            className="h-20 w-20 mr-3"
-            src="/images/bahfa-logo.png"
-            alt={t("footer.bahfaLogo")}
-          />
-          <img className="h-24 w-96" src="/images/mtc-abag-logo.svg" alt={t("footer.mtcLogo")} />
-          <p className="mt-8 text-white">
-            375 Beale Street, Suite 800
-            <br /> San Francisco, CA 94105-2066
-            <br /> {t("footer.mondayToFriday")}
-            <br />
-            <a href="mailto: doorway@bayareametro.gov" className="underline">
-              doorway@bayareametro.gov
-            </a>
-          </p>
-        </div>
-        <div className="text-left">
-          <FooterNav>
-            <a href="https://mtc.ca.gov/doorway-housing-portal-privacy-policy" target="_blank">
-              {t("pageTitle.privacy")}
-            </a>
-            <a href="https://mtc.ca.gov/doorway-housing-portal-terms-use" target="_blank">
-              {t("pageTitle.termsOfUse")}
-            </a>
-            <a href="https://mtc.ca.gov/bahfa-non-discrimination-statement" target="_blank">
-              {t("pageTitle.bahfaNonDiscriminationStatement")}
-            </a>
-            <a
-              href="https://mtc.ca.gov/about-mtc/public-participation/language-assistance"
-              target="_blank"
-            >
-              {t("pageTitle.languageAssistance")}
-            </a>
-            <a
-              href="https://mtc.ca.gov/doorway-housing-portal-accessibility-statement"
-              target="_blank"
-            >
-              {t("footer.accessibilityStatement")}
-            </a>
-          </FooterNav>
-          <a href="https://twitter.com/mtcbata" target="_blank">
-            <img
-              className="h-10 w-10 mr-4"
-              src="/images/twitter-logo.svg"
-              alt={t("footer.twitterLogo")}
-            />
-          </a>
-          <a
-            href="https://www.linkedin.com/company/metropolitan-transportation-commission"
-            target="_blank"
-          >
-            <img
-              className="h-10 w-10 mr-4"
-              src="/images/linkedin-logo.svg"
-              alt={t("footer.linkedinLogo")}
-            />
-          </a>
-          <a href="https://www.facebook.com/MTCBATA" target="_blank">
-            <img
-              className="h-10 w-10 mr-4"
-              src="/images/facebook-logo.svg"
-              alt={t("footer.facebookLogo")}
-            />
-          </a>
-          <a href="https://www.youtube.com/user/mtcabaglibrary" target="_blank">
-            <img
-              className="h-10 w-10 mr-4"
-              src="/images/youtube-logo.svg"
-              alt={t("footer.youtubeLogo")}
-            />
-          </a>
-          <a href="https://www.instagram.com/mtcbata/" target="_blank">
-            <img
-              className="h-10 w-10 mr-4"
-              src="/images/instagram-logo.svg"
-              alt={t("footer.instagramLogo")}
-            />
-          </a>
-        </div>
-      </FooterSection>
-      <div className="bg-gray-950">
-        <FooterSection
-          small
-          sectionClassName="items:start md:items-center justify-start md:justify-between"
-        >
-          <div>{t("footer.bahfaCopyright")}</div>
-          <div>
-            <img className="h-20 w-20" src="/images/eho-logo.svg" alt={t("footer.ehoLogo")} />
-          </div>
-        </FooterSection>
-      </div>
-    </SiteFooter>
-  )
-}
-
 export const downloadExternalPDF = async (fileURL: string, fileName: string) => {
   try {
     await fetch(fileURL, {
@@ -373,4 +415,79 @@ export const downloadExternalPDF = async (fileURL: string, fileName: string) => 
   } catch (err) {
     console.log(err)
   }
+}
+
+// Related to our google maps implementation, this function calculates based on a set of bounds (boundaries of a set of markers), what the zoom level would be that would allow all markers to be in view (sadly this is not built in without also automatically changing the bounds - which results in an instant and very harsh transition). This allows us to zoom in slowly.
+// https://stackoverflow.com/questions/6048975/google-maps-v3-how-to-calculate-the-zoom-level-for-a-given-bounds
+export const getBoundsZoomLevel = (bounds: google.maps.LatLngBounds) => {
+  const mapElement = document.getElementById("listings-map")
+  const WORLD_DIM = { height: 256, width: 256 }
+  const ZOOM_MAX = 21
+
+  function latRad(lat) {
+    const sin = Math.sin((lat * Math.PI) / 180)
+    const radX2 = Math.log((1 + sin) / (1 - sin)) / 2
+    return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2
+  }
+
+  function zoom(mapPx, worldPx, fraction) {
+    return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2)
+  }
+
+  const ne = bounds.getNorthEast()
+  const sw = bounds.getSouthWest()
+
+  const latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI
+
+  const lngDiff = ne.lng() - sw.lng()
+  const lngFraction = (lngDiff < 0 ? lngDiff + 360 : lngDiff) / 360
+
+  const latZoom = zoom(mapElement.clientHeight, WORLD_DIM.height, latFraction)
+  const lngZoom = zoom(mapElement.clientWidth, WORLD_DIM.width, lngFraction)
+
+  return Math.min(latZoom, lngZoom, ZOOM_MAX)
+}
+
+export const isFeatureFlagOn = (jurisdiction: Jurisdiction, featureFlag: string) => {
+  return jurisdiction?.featureFlags?.some((flag) => flag.name === featureFlag && flag.active)
+}
+
+export const setFeatureFlagLocalStorage = (
+  jurisdiction: Jurisdiction,
+  featureFlag: string,
+  storageKey: string
+) => {
+  window.localStorage.setItem(
+    `bloom-${storageKey}`,
+    (isFeatureFlagOn(jurisdiction, featureFlag) === true).toString()
+  )
+}
+
+/**
+ * @throws {ResponseError}
+ */
+export const saveListingFavorite = async (
+  userService: UserService,
+  listingId: string,
+  favorited: boolean
+) => {
+  try {
+    await userService.modifyFavoriteListings({
+      body: {
+        id: listingId,
+        action: favorited ? ModificationEnum.add : ModificationEnum.remove,
+      },
+    })
+  } catch (err) {
+    console.error(err)
+    throw new ResponseException(t("listings.favoriteSaveError"))
+  }
+}
+
+export const fetchFavoriteListingIds = async (userId: string, userService: UserService) => {
+  return (await userService.favoriteListings({ id: userId })).map((item) => item.id)
+}
+
+export const isTrue = (value) => {
+  return value === true || value === "true"
 }

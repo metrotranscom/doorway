@@ -59,7 +59,7 @@ export const countyKeys = [
   // Removing options due to existing Bay Area Bloom sites
   // TODO add back in (uncomment) when the other BA Bloom sites are shutdown
   "",
-  // "Alameda",
+  "Alameda",
   "Contra Costa",
   "Marin",
   "Napa",
@@ -68,21 +68,6 @@ export const countyKeys = [
   "Santa Clara",
   "Solano",
   "Sonoma",
-]
-
-export const contactPreferencesKeys = [
-  {
-    id: "email",
-  },
-  {
-    id: "phone",
-  },
-  {
-    id: "letter",
-  },
-  {
-    id: "text",
-  },
 ]
 
 export const adaFeatureKeys = ["mobility", "vision", "hearing"]
@@ -199,10 +184,17 @@ export const fieldGroupObjectToArray = (
   const modifiedArray: string[] = []
   const getValue = (elem: string) => {
     const formSubKey = elem.substring(elem.indexOf("-") + 1)
-    return formSubKey === formObject[elem] ? formSubKey : `${formSubKey}: ${formObject[elem]}`
+    return formSubKey === formObject[elem] || formObject[elem] === ""
+      ? formSubKey
+      : `${formSubKey}: ${formObject[elem]}`
   }
   Object.keys(formObject)
-    .filter((formValue) => formValue.split("-")[0] === rootKey && formObject[formValue])
+    .filter(
+      (formValue) =>
+        formValue.split("-")[0] === rootKey &&
+        //empty string handles selected checkbox fields with empty additionalText
+        (formObject[formValue] || formObject[formValue] === "")
+    )
     .forEach((elem) => {
       if (formObject[elem].isArray) {
         formObject[elem].forEach(() => {
@@ -320,6 +312,11 @@ export const listingFeatures = [
   "hearing",
   "mobility",
   "visual",
+  "barrierFreeUnitEntrance",
+  "loweredLightSwitch",
+  "barrierFreeBathroom",
+  "wideDoorways",
+  "loweredCabinets",
 ]
 
 export enum RoleOption {

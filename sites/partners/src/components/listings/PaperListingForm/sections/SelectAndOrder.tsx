@@ -96,7 +96,7 @@ const SelectAndOrder = ({
         name: { content: item.text },
         additionalFields: {
           content: (
-            <>{item?.options.some((item) => item.collectAddress) && additionalFieldsTag()}</>
+            <>{item?.options?.some((item) => item.collectAddress) && additionalFieldsTag()}</>
           ),
         },
         action: {
@@ -127,7 +127,7 @@ const SelectAndOrder = ({
         name: { content: item.text },
         additionalFields: {
           content: (
-            <>{item?.options.some((item) => item.collectAddress) && additionalFieldsTag()}</>
+            <>{item?.options?.some((item) => item.collectAddress) && additionalFieldsTag()}</>
           ),
         },
         action: {
@@ -288,10 +288,10 @@ const SelectAndOrder = ({
             >
               {listingData.length ? editText : addText}
             </Button>
-            {subNote && <p className="field-sub-note">{subNote}</p>}
           </Grid.Cell>
         </Grid.Row>
       </SectionWithGrid>
+      {subNote && <p className="field-sub-note">{subNote}</p>}
 
       <Drawer
         isOpen={!!tableDrawer}
@@ -374,7 +374,7 @@ const SelectAndOrder = ({
                               register={register}
                               inputProps={{
                                 defaultChecked: draftListingData.some(
-                                  (existingItem) => existingItem.text === item.text
+                                  (existingItem) => existingItem.id === item.id
                                 ),
                               }}
                             />

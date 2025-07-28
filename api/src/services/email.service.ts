@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import fs from 'fs';
@@ -11,9 +11,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import tz from 'dayjs/plugin/timezone';
 import advanced from 'dayjs/plugin/advancedFormat';
-import * as aws from '@aws-sdk/client-ses';
-import nodemailer, { SendMailOptions } from 'nodemailer';
-import Mail from 'nodemailer/lib/mailer';
+import * as aws from '@aws-sdk/client-sesv2';
 import { TranslationService } from './translation.service';
 import { JurisdictionService } from './jurisdiction.service';
 import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
@@ -39,24 +37,26 @@ type listingInfo = {
   juris: string;
 };
 
+const SEND_FROM_EMAIL = 'Doorway <no-reply@housingbayarea.org>';
+
 @Injectable()
 export class EmailService {
   polyglot: Polyglot;
-  transporter: Mail;
+  client: aws.SESv2Client;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly translationService: TranslationService,
     private readonly jurisdictionService: JurisdictionService,
     private readonly httpService: HttpService,
+    @Inject(Logger)
+    private logger = new Logger(EmailService.name),
   ) {
-    const sesClient = new aws.SESClient({
+    const sesClient = new aws.SESv2Client({
       region: process.env.AWS_REGION,
     });
 
-    this.transporter = nodemailer.createTransport({
-      SES: { ses: sesClient, aws },
-    });
+    this.client = sesClient;
 
     this.polyglot = new Polyglot({
       phrases: {},
@@ -129,10 +129,17 @@ export class EmailService {
       return;
     }
 
+    // for production govDelivery sends the "Doorway Housing Portal" email should be used. That does not exist in staging
+    const fromEmailAddress = !this.configService
+      .get<string>('GOVDELIVERY_API_URL')
+      .includes('stage')
+      ? '121723' // This is the id value of the email
+      : '';
+
     // juice inlines css to allow for email styling
     const inlineHtml = juice(rawHtml);
     const govEmailXml = `<bulletin>\n <subject>${subject}</subject>\n  <body><![CDATA[\n     
-      ${inlineHtml}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>${GOVDELIVERY_TOPIC}</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`;
+      ${inlineHtml}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <from_address_id>${fromEmailAddress}</from_address_id>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>${GOVDELIVERY_TOPIC}</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`;
 
     await firstValueFrom(
       this.httpService.post(GOVDELIVERY_API_URL, govEmailXml, {
@@ -146,16 +153,108 @@ export class EmailService {
     );
   }
 
-  public async sendSES(mailOptions: SendMailOptions) {
+  public async sendSingleSES(
+    mailOptions: {
+      to: string;
+      subject: string;
+      html: string;
+      text?: string;
+    },
+    useCase: string,
+  ) {
     try {
-      return await this.transporter.sendMail({
-        ...mailOptions,
-        from: 'Doorway <no-reply@housingbayarea.org>',
+      const command = new aws.SendEmailCommand({
+        FromEmailAddress: SEND_FROM_EMAIL,
+        Destination: { ToAddresses: [mailOptions.to] },
+        Content: {
+          Simple: {
+            Subject: {
+              Data: mailOptions.subject,
+            },
+            Body: {
+              Html: {
+                Data: mailOptions.html,
+              },
+              Text: mailOptions.text
+                ? {
+                    Data: mailOptions.text,
+                  }
+                : undefined,
+            },
+          },
+        },
       });
+      const response = await this.client.send(command);
+      if (response.$metadata?.httpStatusCode !== 200) {
+        this.logger.error(
+          `Email send for ${useCase} email to ${mailOptions.to} did not return 200`,
+        );
+      }
     } catch (e) {
-      console.log(e);
-      console.error('Failed to send email');
+      this.logger.log(e);
+      this.logger.error(`Failed to send ${useCase} email to ${mailOptions.to}`);
       return e;
+    }
+  }
+
+  public async sendBulkSES(
+    mailOptions: {
+      emails: string[];
+      subject: string;
+      html: string;
+      text?: string;
+    },
+    useCase: string,
+    includeJurisdictionEmail = false,
+  ) {
+    const siteEmail = this.configService.get('SITE_EMAIL');
+    const emailsToSendTo =
+      includeJurisdictionEmail && siteEmail
+        ? [siteEmail, ...mailOptions.emails]
+        : mailOptions.emails;
+    const MAX_EMAIL_TO_SEND_IN_BULK = 50;
+    const emailsChunked = emailsToSendTo.reduce((all, one, i) => {
+      const chunk = Math.floor(i / MAX_EMAIL_TO_SEND_IN_BULK);
+      all[chunk] = [].concat(all[chunk] || [], one);
+      return all;
+    }, []);
+    for (const emailList of emailsChunked) {
+      try {
+        const command = new aws.SendBulkEmailCommand({
+          FromEmailAddress: SEND_FROM_EMAIL,
+          BulkEmailEntries: emailList.map((email) => {
+            return {
+              Destination: {
+                ToAddresses: [email],
+              },
+            };
+          }),
+          DefaultContent: {
+            Template: {
+              TemplateContent: {
+                Subject: mailOptions.subject,
+                Html: mailOptions.html,
+              },
+              TemplateData: '{}', // We need to send template data even if there are no variables
+            },
+          },
+        });
+        const response = await this.client.send(command);
+        const nonSuccessResults = response.BulkEmailEntryResults.filter(
+          (result) => result.Status !== aws.BulkEmailStatus.SUCCESS,
+        );
+        if (nonSuccessResults.length) {
+          this.logger.error(
+            `Failed to send ${useCase} email to ${nonSuccessResults.toString()}`,
+          );
+        }
+      } catch (e) {
+        this.logger.log(e);
+        this.logger.error(
+          `Failed to send ${useCase} email to ${emailList.toString()}`,
+        );
+        return e;
+      }
     }
   }
 
@@ -201,15 +300,18 @@ export class EmailService {
     const baseUrl = appUrl ? new URL(appUrl).origin : undefined;
     await this.loadTranslations(jurisdiction, user.language);
 
-    await this.sendSES({
-      to: user.email,
-      subject: this.polyglot.t('register.welcome'),
-      html: this.template('register-email')({
-        user: user,
-        confirmationUrl: confirmationUrl,
-        appOptions: { appUrl: baseUrl },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('register.welcome'),
+        html: this.template('register-email')({
+          user: user,
+          confirmationUrl: confirmationUrl,
+          appOptions: { appUrl: baseUrl },
+        }),
+      },
+      'welcome',
+    );
   }
 
   /* Send invite email to partner users */
@@ -222,34 +324,18 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(jurisdictionIds);
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    await this.sendSES({
-      to: user.email,
-      subject: this.polyglot.t('invite.hello'),
-      html: this.template('invite')({
-        user: user,
-        confirmationUrl: confirmationUrl,
-        appOptions: { appUrl },
-      }),
-    });
-  }
-
-  /* send account update email */
-  async portalAccountUpdate(
-    jurisdictionIds: IdDTO[],
-    user: User,
-    appUrl: string,
-  ) {
-    const jurisdiction = await this.getJurisdiction(jurisdictionIds);
-    void (await this.loadTranslations(jurisdiction, user.language));
-
-    await this.sendSES({
-      to: user.email,
-      subject: this.polyglot.t('invite.portalAccountUpdate'),
-      html: this.template('portal-account-update')({
-        user,
-        appUrl,
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('invite.hello'),
+        html: this.template('invite')({
+          user: user,
+          confirmationUrl: confirmationUrl,
+          appOptions: { appUrl },
+        }),
+      },
+      'invitePartnerUser',
+    );
   }
 
   /* send change of email email */
@@ -263,15 +349,18 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(null, jurisdictionName);
     await this.loadTranslations(jurisdiction, user.language);
 
-    await this.sendSES({
-      to: newEmail,
-      subject: 'Bloom email change request',
-      html: this.template('change-email')({
-        user: user,
-        confirmationUrl: confirmationUrl,
-        appOptions: { appUrl: appUrl },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: newEmail,
+        subject: 'Doorway email change request',
+        html: this.template('change-email')({
+          user: user,
+          confirmationUrl: confirmationUrl,
+          appOptions: { appUrl: appUrl },
+        }),
+      },
+      'changeEmail',
+    );
   }
 
   /* Send forgot password email */
@@ -287,31 +376,36 @@ export class EmailService {
     const resetUrl = getPublicEmailURL(appUrl, resetToken, '/reset-password');
     const baseUrl = appUrl ? new URL(appUrl).origin : undefined;
 
-    await this.sendSES({
-      to: user.email,
-      subject: this.polyglot.t('forgotPassword.subject'),
-      text: 'Text version',
-      html: compiledTemplate({
-        resetUrl: resetUrl,
-        resetOptions: { appUrl: baseUrl },
-        user: user,
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('forgotPassword.subject'),
+        html: compiledTemplate({
+          resetUrl: resetUrl,
+          resetOptions: { appUrl: baseUrl },
+          user: user,
+        }),
+      },
+      'forgotPassword',
+    );
   }
 
   public async sendMfaCode(user: User, singleUseCode: string) {
     const jurisdiction = await this.getJurisdiction(user.jurisdictions);
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    await this.sendSES({
-      to: user.email,
-      subject: 'Partners Portal account access token',
-      text: 'Text version',
-      html: this.template('mfa-code')({
-        user: user,
-        mfaCodeOptions: { singleUseCode },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: `${singleUseCode} is your secure Partners Portal account access token`,
+        text: `${singleUseCode} is your secure Partners Portal account access token`,
+        html: this.template('mfa-code')({
+          user: user,
+          mfaCodeOptions: { singleUseCode },
+        }),
+      },
+      'sendMfaCode',
+    );
   }
 
   public async sendSingleUseCode(
@@ -325,19 +419,21 @@ export class EmailService {
     );
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    await this.sendSES({
-      to: user.email,
-      subject: user.confirmedAt
-        ? `Code for your ${jurisdiction?.name} sign-in`
-        : `${jurisdiction?.name} verification code`,
-      html: this.template('single-use-code')({
-        user: user,
-        singleUseCodeOptions: {
-          singleUseCode,
-          jurisdictionName: jurisdiction?.name,
-        },
-      }),
-    });
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: user.confirmedAt
+          ? `${singleUseCode} is your secure Doorway sign-in code`
+          : `${singleUseCode} is your secure Doorway verification code`,
+        html: this.template('single-use-code')({
+          user: user,
+          singleUseCodeOptions: {
+            singleUseCode,
+          },
+        }),
+      },
+      'sendSingleUseCode',
+    );
   }
 
   public async applicationConfirmation(
@@ -353,6 +449,7 @@ export class EmailService {
     let eligibleText: string;
     let preferenceText: string;
     let contactText = null;
+    let duplicateText = null;
     if (listing.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe) {
       eligibleText = this.polyglot.t('confirmation.eligible.fcfs');
       preferenceText = this.polyglot.t('confirmation.eligible.fcfsPreference');
@@ -362,6 +459,7 @@ export class EmailService {
       preferenceText = this.polyglot.t(
         'confirmation.eligible.lotteryPreference',
       );
+      duplicateText = this.polyglot.t('lotteryAvailable.duplicatesDetails');
     }
     if (listing.reviewOrderType === ReviewOrderTypeEnum.waitlist) {
       eligibleText = this.polyglot.t('confirmation.eligible.waitlist');
@@ -379,27 +477,32 @@ export class EmailService {
 
     const nextStepsUrl = this.polyglot.t('confirmation.nextStepsUrl');
 
-    await this.sendSES({
-      to: application.applicant.emailAddress,
-      subject: this.polyglot.t('confirmation.subject'),
-      html: compiledTemplate({
+    await this.sendSingleSES(
+      {
+        to: application.applicant.emailAddress,
         subject: this.polyglot.t('confirmation.subject'),
-        header: {
-          logoTitle: this.polyglot.t('header.logoTitle'),
-          logoUrl: this.polyglot.t('header.logoUrl'),
-        },
-        listing,
-        listingUrl,
-        application,
-        preferenceText,
-        interviewText: this.polyglot.t('confirmation.interview'),
-        eligibleText,
-        contactText,
-        nextStepsUrl:
-          nextStepsUrl != 'confirmation.nextStepsUrl' ? nextStepsUrl : null,
-        user,
-      }),
-    });
+        html: compiledTemplate({
+          subject: this.polyglot.t('confirmation.subject'),
+          header: {
+            logoTitle: this.polyglot.t('header.logoTitle'),
+            logoUrl: this.polyglot.t('header.logoUrl'),
+          },
+          listing,
+          listingUrl,
+          application,
+          preferenceText,
+          interviewText: this.polyglot.t('confirmation.interview'),
+          eligibleText,
+          duplicateText,
+          termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
+          contactText,
+          nextStepsUrl:
+            nextStepsUrl != 'confirmation.nextStepsUrl' ? nextStepsUrl : null,
+          user,
+        }),
+      },
+      'applicationConfirmation',
+    );
   }
 
   public async requestApproval(
@@ -411,15 +514,22 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction([jurisdictionId]);
     void (await this.loadTranslations(jurisdiction));
 
-    await this.sendSES({
-      to: emails,
-      subject: this.polyglot.t('requestApproval.header'),
-      html: this.template('request-approval')({
-        appOptions: { listingName: listingInfo.name },
-        appUrl: appUrl,
-        listingUrl: `${appUrl}/listings/${listingInfo.id}`,
-      }),
-    });
+    this.logger.log(
+      `Sending request approval email for listing ${listingInfo.name} to ${emails.length} emails`,
+    );
+
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('requestApproval.header'),
+        html: this.template('request-approval')({
+          appOptions: { listingName: listingInfo.name },
+          appUrl: appUrl,
+          listingUrl: `${appUrl}/listings/${listingInfo.id}`,
+        }),
+      },
+      'requestApproval',
+    );
   }
 
   public async changesRequested(
@@ -433,15 +543,22 @@ export class EmailService {
       : user.jurisdictions[0];
     void (await this.loadTranslations(jurisdiction));
 
-    await this.sendSES({
-      to: emails,
-      subject: this.polyglot.t('changesRequested.header'),
-      html: this.template('changes-requested')({
-        appOptions: { listingName: listingInfo.name },
-        appUrl: appUrl,
-        listingUrl: `${appUrl}/listings/${listingInfo.id}`,
-      }),
-    });
+    this.logger.log(
+      `Sending changes requested email for listing ${listingInfo.name} to ${emails.length} emails`,
+    );
+
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('changesRequested.header'),
+        html: this.template('changes-requested')({
+          appOptions: { listingName: listingInfo.name },
+          appUrl: appUrl,
+          listingUrl: `${appUrl}/listings/${listingInfo.id}`,
+        }),
+      },
+      'changesRequested',
+    );
   }
 
   public async listingApproved(
@@ -453,14 +570,21 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction([jurisdictionId]);
     void (await this.loadTranslations(jurisdiction));
 
-    await this.sendSES({
-      to: emails,
-      subject: this.polyglot.t('listingApproved.header'),
-      html: this.template('listing-approved')({
-        appOptions: { listingName: listingInfo.name },
-        listingUrl: `${publicUrl}/listing/${listingInfo.id}`,
-      }),
-    });
+    this.logger.log(
+      `Sending listing approved email for listing ${listingInfo.name} to ${emails.length} emails`,
+    );
+
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('listingApproved.header'),
+        html: this.template('listing-approved')({
+          appOptions: { listingName: listingInfo.name },
+          listingUrl: `${publicUrl}/listing/${listingInfo.id}`,
+        }),
+      },
+      'listingApproved',
+    );
   }
 
   public async listingOpportunity(listing: Listing) {
@@ -468,11 +592,9 @@ export class EmailService {
     void (await this.loadTranslations(jurisdiction, LanguagesEnum.en));
     const compiledTemplate = this.template('listing-opportunity');
 
-    if (this.configService.get<string>('NODE_ENV') == 'production') {
-      Logger.log(
-        `Preparing to send a listing opportunity email for ${listing.name} from ${jurisdiction.emailFromAddress}...`,
-      );
-    }
+    this.logger.log(
+      `Preparing to send a listing opportunity email for ${listing.name} from govDelivery...`,
+    );
 
     // Gather all variables from each unit into one place
     const units: {
@@ -510,20 +632,24 @@ export class EmailService {
     if (listing.reservedCommunityTypes?.name) {
       tableRows.push({
         label: this.polyglot.t('rentalOpportunity.community'),
-        value: this.formatCommunityType[listing.reservedCommunityTypes.name],
+        value:
+          this.formatCommunityType[listing.reservedCommunityTypes.name] || '',
       });
     }
     if (listing.applicationDueDate) {
       tableRows.push({
         label: this.polyglot.t('rentalOpportunity.applicationsDue'),
-        value: dayjs(listing.applicationDueDate).format('MMMM D, YYYY'),
+        value: dayjs(listing.applicationDueDate)
+          .tz(process.env.TIME_ZONE)
+          .format('MMMM D, YYYY [at] h:mma z'),
+        bolded: true,
       });
     }
     tableRows.push({
       label: this.polyglot.t('rentalOpportunity.address'),
-      value: `${listing.listingsBuildingAddress.street}, ${listing.listingsBuildingAddress.city} ${listing.listingsBuildingAddress.state} ${listing.listingsBuildingAddress.zipCode}`,
+      value: `${listing.listingsBuildingAddress?.street}, ${listing.listingsBuildingAddress?.city} ${listing.listingsBuildingAddress?.state} ${listing.listingsBuildingAddress?.zipCode}`,
     });
-    Object.entries(units.bedrooms).forEach(([key, bedroom]) => {
+    Object.entries(units?.bedrooms || {})?.forEach(([key, bedroom]) => {
       const sqFtString = this.formatUnitDetails(bedroom, 'sqFeet', 'sqft');
       const bathroomstring = this.formatUnitDetails(
         bedroom,
@@ -533,24 +659,24 @@ export class EmailService {
       );
       tableRows.push({
         label: this.polyglot.t(`rentalOpportunity.${key}`),
-        value: `${bedroom.length} unit${
+        value: `${bedroom?.length} unit${
           bedroom.length > 1 ? 's' : ''
         }${bathroomstring}${sqFtString}`,
       });
     });
-    if (units.rent?.length) {
+    if (units?.rent?.length) {
       tableRows.push({
         label: this.polyglot.t('rentalOpportunity.rent'),
         value: this.formatPricing(units.rent),
       });
     }
-    if (units.minIncome?.length) {
+    if (units?.minIncome?.length) {
       tableRows.push({
         label: this.polyglot.t('rentalOpportunity.minIncome'),
         value: this.formatPricing(units.minIncome),
       });
     }
-    if (units.maxIncome?.length) {
+    if (units?.maxIncome?.length) {
       tableRows.push({
         label: this.polyglot.t('rentalOpportunity.maxIncome'),
         value: this.formatPricing(units.maxIncome),
@@ -561,9 +687,19 @@ export class EmailService {
         (event) => event.type === ListingEventsTypeEnum.publicLottery,
       );
       if (lotteryEvent && lotteryEvent.startDate) {
+        let lotteryDateTime = dayjs(lotteryEvent.startDate)
+          .tz(process.env.TIME_ZONE)
+          .format('MMMM D, YYYY');
+        if (lotteryEvent.startTime) {
+          lotteryDateTime =
+            lotteryDateTime +
+            ` at ${dayjs(lotteryEvent.startTime)
+              .tz(process.env.TIME_ZONE)
+              .format('h:mma z')}`;
+        }
         tableRows.push({
           label: this.polyglot.t('rentalOpportunity.lottery'),
-          value: dayjs(lotteryEvent.startDate).format('MMMM D, YYYY'),
+          value: lotteryDateTime,
         });
       }
     }
@@ -599,7 +735,7 @@ export class EmailService {
     });
 
     const compiled = compiledTemplate({
-      listingName: listing.name,
+      listingName: this.stripAngleBrackets(listing.name),
       tableRows,
       languageUrls,
     });
@@ -615,17 +751,25 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction([
       { id: listingInfo.juris },
     ]);
-    await this.sendSES({
-      to: emails,
-      subject: this.polyglot.t('lotteryReleased.header', {
-        listingName: listingInfo.name,
-      }),
-      html: this.template('lottery-released')({
-        appOptions: { listingName: listingInfo.name },
-        appUrl: appUrl,
-        listingUrl: `${appUrl}/listings/${listingInfo.id}`,
-      }),
-    });
+    void (await this.loadTranslations(jurisdiction));
+    this.logger.log(
+      `Sending lottery released email for listing ${listingInfo.name} to ${emails.length} emails`,
+    );
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('lotteryReleased.header', {
+          listingName: listingInfo.name,
+        }),
+        html: this.template('lottery-released')({
+          appOptions: { listingName: listingInfo.name },
+          appUrl: appUrl,
+          listingUrl: `${appUrl}/listings/${listingInfo.id}`,
+        }),
+      },
+      'lotteryReleased',
+      true,
+    );
   }
 
   public async lotteryPublishedAdmin(
@@ -637,15 +781,22 @@ export class EmailService {
       { id: listingInfo.juris },
     ]);
     void (await this.loadTranslations(jurisdiction));
-    await this.sendSES({
-      to: emails,
-      subject: this.polyglot.t('lotteryPublished.header', {
-        listingName: listingInfo.name,
-      }),
-      html: this.template('lottery-published-admin')({
-        appOptions: { listingName: listingInfo.name, appUrl: appUrl },
-      }),
-    });
+    this.logger.log(
+      `Sending lottery published admin email for listing ${listingInfo.name} to ${emails.length} emails`,
+    );
+    await this.sendBulkSES(
+      {
+        emails: emails,
+        subject: this.polyglot.t('lotteryPublished.header', {
+          listingName: listingInfo.name,
+        }),
+        html: this.template('lottery-published-admin')({
+          appOptions: { listingName: listingInfo.name, appUrl: appUrl },
+        }),
+      },
+      'lotteryPublishedAdmin',
+      true,
+    );
   }
 
   /**
@@ -662,24 +813,37 @@ export class EmailService {
 
     for (const language in emails) {
       void (await this.loadTranslations(null, language as LanguagesEnum));
-      await this.sendSES({
-        to: emails[language],
-
-        subject: this.polyglot.t('lotteryAvailable.header', {
-          listingName: listingInfo.name,
-        }),
-        html: this.template('lottery-published-applicant')({
-          appOptions: {
+      this.logger.log(
+        `Sending lottery published ${language} email for listing ${listingInfo.name} to ${emails[language]?.length} emails`,
+      );
+      await this.sendBulkSES(
+        {
+          emails: emails[language],
+          subject: this.polyglot.t('lotteryAvailable.header', {
             listingName: listingInfo.name,
-            appUrl: jurisdiction.publicUrl,
-          },
-          appUrl: jurisdiction.publicUrl,
-          // These two URLs are placeholders and must be updated per jurisdiction
-          notificationsUrl: 'https://www.exygy.com',
-          helpCenterUrl: 'https://www.exygy.com',
-        }),
-      });
+          }),
+          html: this.template('lottery-published-applicant')({
+            appOptions: {
+              listingName: listingInfo.name,
+              appUrl: jurisdiction.publicUrl,
+            },
+            signInUrl: `${jurisdiction.publicUrl}/${language}/sign-in`,
+            termsUrl: 'https://mtc.ca.gov/doorway-housing-portal-terms-use',
+            notificationsUrl:
+              'https://public.govdelivery.com/accounts/CAMTC/signup/36832',
+            helpCenterUrl: `${jurisdiction.publicUrl}/help/questions#how-do-lottery-results-work-section`,
+          }),
+        },
+        'lotteryPublishedApplicant',
+        true,
+      );
     }
+  }
+
+  // Useful for GovSend where we can't send entities, so we'll output certain strings raw but we want to
+  // ensure we don't let real HTML through which is an XSS risk
+  stripAngleBrackets(markup: string): string {
+    return markup.replace(/[<>]/g, '');
   }
 
   formatLocalDate(rawDate: string | Date, format: string): string {
@@ -721,5 +885,13 @@ export class EmailService {
     senior55: 'Seniors 55+',
     senior62: 'Seniors 62+',
     specialNeeds: 'Special Needs',
+    developmentalDisability: 'Developmental Disability',
+    farmworkerHousing: 'Farmworker Housing',
+    housingVoucher: 'HCV/Section 8 Voucher',
+    senior: 'Seniors',
+    seniorVeterans: 'Senior Veteran',
+    veteran: 'Veteran',
+    schoolEmployee: 'School Employee',
+    tay: 'TAY - Transition Aged Youth',
   };
 }

@@ -1,12 +1,19 @@
-import React, { useContext, useEffect, useState } from "react"
-import { Heading, AppearanceStyleType, StandardTableProps, HeaderType, Icon, IconFillColors } from "@bloom-housing/ui-components"
+import React, { useEffect, useState, useRef } from "react"
+import Link from "next/link"
+import { Button as SeedsButton } from "@bloom-housing/ui-seeds"
+import {
+  Heading,
+  AppearanceStyleType,
+  StandardTableProps,
+  HeaderType,
+  Icon,
+  IconFillColors,
+  Tag,
+  StackedTableProps,
+} from "@bloom-housing/ui-components"
 import { ImageCard, ImageCardProps, ImageTag } from "../../blocks/ImageCard"
-import { LinkButton } from "../../actions/LinkButton"
-import { StackedTableProps } from "../../tables/StackedTable"
-import { Tag } from "../../text/Tag"
 import { AppearanceShadeType } from "../../global/AppearanceTypes"
 import "./ListingCard.scss"
-import { NavigationContext } from "../../config/NavigationContext"
 import { DoorwayListingTable } from "./DoorwayListingTable"
 
 interface ListingCardTableProps extends StandardTableProps, StackedTableProps {}
@@ -81,8 +88,7 @@ const ListingCard = (props: ListingCardProps) => {
     contentProps,
     tableProps,
   } = props
-  const { LinkComponent } = useContext(NavigationContext)
-  const linkRef = React.useRef<HTMLAnchorElement>(null)
+  const linkRef = useRef<HTMLAnchorElement>(null)
   const simulateLinkClick = () => {
     if (linkRef.current) {
       linkRef.current.click()
@@ -133,9 +139,9 @@ const ListingCard = (props: ListingCardProps) => {
       return (
         <Heading priority={priority} styleType={styleType} className={customClass}>
           {header.href ? (
-            <LinkComponent className="is-card-link" href={header.href} linkref={linkRef}>
+            <Link className="is-card-link" href={header.href} ref={linkRef}>
               {header.content}
-            </LinkComponent>
+            </Link>
           ) : (
             header.content
           )}
@@ -223,14 +229,14 @@ const ListingCard = (props: ListingCardProps) => {
           <div className={footerContainerClass ?? "listings-row_footer"}>
             {footerButtons?.map((footerButton, index) => {
               return (
-                <LinkButton
+                <SeedsButton
                   href={footerButton.href}
                   ariaHidden={footerButton.ariaHidden}
                   key={index}
-                  className={"is-secondary"}
+                  variant="secondary"
                 >
                   {footerButton.text}
-                </LinkButton>
+                </SeedsButton>
               )
             })}
           </div>
@@ -246,6 +252,7 @@ const ListingCard = (props: ListingCardProps) => {
       className={`listings-row ${componentIsClickable ? "cursor-pointer" : ""}`}
       data-testid={"listing-card-component"}
       onClick={componentIsClickable ? simulateLinkClick : undefined}
+      aria-label={`${contentProps?.contentHeader?.content} listing`}
     >
       <div className="listings-row_figure">
         <ImageCard {...imageCardProps} />

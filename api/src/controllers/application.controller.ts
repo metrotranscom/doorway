@@ -45,11 +45,13 @@ import { ActivityLogInterceptor } from '../interceptors/activity-log.interceptor
 import { PermissionTypeDecorator } from '../decorators/permission-type.decorator';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import { PermissionAction } from '../decorators/permission-action.decorator';
-import { ApplicationCsvExporterService } from '../services/application-csv-export.service';
+import { ApplicationExporterService } from '../services/application-exporter.service';
 import { ApplicationCsvQueryParams } from '../dtos/applications/application-csv-query-params.dto';
 import { MostRecentApplicationQueryParams } from '../dtos/applications/most-recent-application-query-params.dto';
 import { ExportLogInterceptor } from '../interceptors/export-log.interceptor';
 import { ApiKeyGuard } from '../guards/api-key.guard';
+import { PublicAppsViewQueryParams } from '../dtos/applications/public-apps-view-params.dto';
+import { PublicAppsViewResponse } from '../dtos/applications/public-apps-view-response.dto';
 
 @Controller('applications')
 @ApiTags('applications')
@@ -66,7 +68,7 @@ import { ApiKeyGuard } from '../guards/api-key.guard';
 export class ApplicationController {
   constructor(
     private readonly applicationService: ApplicationService,
-    private readonly applicationCsvExportService: ApplicationCsvExporterService,
+    private readonly applicationExportService: ApplicationExporterService,
   ) {}
 
   @Get()
@@ -95,23 +97,98 @@ export class ApplicationController {
     return await this.applicationService.mostRecentlyCreated(queryParams, req);
   }
 
+  @Get('publicAppsView')
+  @ApiOperation({
+    summary: 'Get public applications info',
+    operationId: 'publicAppsView',
+  })
+  @ApiOkResponse({ type: PublicAppsViewResponse })
+  async publicAppsView(
+    @Request() req: ExpressRequest,
+    @Query() queryParams: PublicAppsViewQueryParams,
+  ): Promise<PublicAppsViewResponse> {
+    return await this.applicationService.publicAppsView(queryParams, req);
+  }
+
   @Get(`csv`)
   @ApiOperation({
     summary: 'Get applications as csv',
     operationId: 'listAsCsv',
   })
-  @Header('Content-Type', 'text/csv')
+  @Header('Content-Type', 'application/zip')
   @UseInterceptors(ExportLogInterceptor)
   async listAsCsv(
+    @Request() req: ExpressRequest,
+    @Query(new ValidationPipe(defaultValidationPipeOptions))
+    queryParams: ApplicationCsvQueryParams,
+  ): Promise<StreamableFile> {
+    return await this.applicationExportService.exporter(
+      req,
+      queryParams,
+      false,
+      false,
+    );
+  }
+
+  @Get(`spreadsheet`)
+  @ApiOperation({
+    summary: 'Get applications as spreadsheet',
+    operationId: 'listAsSpreadsheet',
+  })
+  @Header('Content-Type', 'application/zip')
+  @UseInterceptors(ExportLogInterceptor)
+  async spreadsheetExport(
     @Request() req: ExpressRequest,
     @Res({ passthrough: true }) res: Response,
     @Query(new ValidationPipe(defaultValidationPipeOptions))
     queryParams: ApplicationCsvQueryParams,
   ): Promise<StreamableFile> {
-    return await this.applicationCsvExportService.exportFile(
+    return await this.applicationExportService.exporter(
       req,
-      res,
       queryParams,
+      false,
+      true,
+    );
+  }
+
+  @Get(`csvSecure`)
+  @ApiOperation({
+    summary: 'Get applications as csv',
+    operationId: 'listAsCsvSecure',
+  })
+  @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
+  async listAsCsvSecure(
+    @Request() req: ExpressRequest,
+    @Query(new ValidationPipe(defaultValidationPipeOptions))
+    queryParams: ApplicationCsvQueryParams,
+  ): Promise<string> {
+    return await this.applicationExportService.exporterSecure(
+      req,
+      queryParams,
+      false,
+      false,
+    );
+  }
+
+  @Get(`spreadsheetSecure`)
+  @ApiOperation({
+    summary: 'Get applications as spreadsheet',
+    operationId: 'listAsSpreadsheetSecure',
+  })
+  @UseInterceptors(ExportLogInterceptor)
+  @ApiOkResponse({ type: String })
+  async spreadsheetExportSecure(
+    @Request() req: ExpressRequest,
+    @Res({ passthrough: true }) res: Response,
+    @Query(new ValidationPipe(defaultValidationPipeOptions))
+    queryParams: ApplicationCsvQueryParams,
+  ): Promise<string> {
+    return await this.applicationExportService.exporterSecure(
+      req,
+      queryParams,
+      false,
+      true,
     );
   }
 

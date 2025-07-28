@@ -35,7 +35,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       include: {
         listings: true,
         userRoles: true,
-        jurisdictions: true,
+        jurisdictions: {
+          include: {
+            featureFlags: {
+              select: {
+                name: true,
+                active: true,
+              },
+            },
+          },
+        },
       },
       where: {
         id: userId,
@@ -54,7 +63,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     ) {
       // if we have a user and the user's password is outdated
       throw new UnauthorizedException(
-        `user ${userId} attempted to log in, but password is outdated`,
+        `user ${userId} attempted to log in, but password is no longer valid`,
       );
     } else if (rawUser.activeAccessToken !== rawToken) {
       // if the incoming token is not the active token for the user, clear the user's tokens

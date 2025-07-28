@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
 import Markdown from "markdown-to-jsx"
@@ -10,6 +10,7 @@ import {
   pushGtmEvent,
   AuthContext,
   listingSectionQuestions,
+  MessageContext,
 } from "@bloom-housing/shared-helpers"
 import FormsLayout from "../../../layouts/forms"
 import { useFormConductor } from "../../../lib/hooks"
@@ -20,14 +21,22 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import ApplicationFormLayout from "../../../layouts/application-form"
-import { Button } from "@bloom-housing/ui-seeds"
+import { Button, Dialog } from "@bloom-housing/ui-seeds"
+import styles from "../../../layouts/application-form.module.scss"
 
 const ApplicationTerms = () => {
   const router = useRouter()
   const { conductor, application, listing } = useFormConductor("terms")
-  const { applicationsService, profile } = useContext(AuthContext)
+  const { applicationsService, authService, loadProfile, profile } = useContext(AuthContext)
+  const { addToast } = useContext(MessageContext)
   const [apiError, setApiError] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [sessionVoided, setSessionVoided] = useState(false)
+
+  const closeCallback = useCallback(async () => {
+    await router.push("/sign-in")
+    void loadProfile()
+  }, [router, loadProfile])
 
   let currentPageSection = 4
   if (listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.length)
@@ -41,57 +50,80 @@ const ApplicationTerms = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, handleSubmit, errors } = useForm()
   const onSubmit = (data) => {
-    setSubmitting(true)
-    const acceptedTerms = data.agree
-    conductor.currentStep.save({ acceptedTerms })
-    application.acceptedTerms = acceptedTerms
-    application.completedSections = 6
+    // blocks multiple clicks and previously submitted applications
+    if (!submitting && !application.confirmationCode) {
+      setSubmitting(true)
+      const acceptedTerms = data.agree
+      conductor.currentStep.save({ acceptedTerms })
+      application.acceptedTerms = acceptedTerms
+      application.completedSections = 6
 
-    if (application.programs?.length) {
-      untranslateMultiselectQuestion(application.programs, listing)
-    }
-    if (application.preferences?.length) {
-      untranslateMultiselectQuestion(application.preferences, listing)
-    }
+      if (application.programs?.length) {
+        untranslateMultiselectQuestion(application.programs, listing)
+      }
+      if (application.preferences?.length) {
+        untranslateMultiselectQuestion(application.preferences, listing)
+      }
 
-    if (application.demographics.spokenLanguage === "notListed") {
+      if (application.demographics.spokenLanguage === "notListed") {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        application.demographics.spokenLanguage = `${application.demographics.spokenLanguage}:${application.demographics.spokenLanguageNotListed}`
+      }
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      application.demographics.spokenLanguage = `${application.demographics.spokenLanguage}:${application.demographics.spokenLanguageNotListed}`
-    }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    delete application.demographics.spokenLanguageNotListed
+      delete application.demographics.spokenLanguageNotListed
 
-    applicationsService
-      .submit({
-        body: {
-          ...application,
-          reviewStatus: ApplicationReviewStatusEnum.pending,
-          listings: {
-            id: listing.id,
-          },
-          appUrl: window.location.origin,
-          ...(profile && {
-            user: {
-              id: profile.id,
-            },
-          }),
-          // TODO remove this once this call is changed to the new backend
-        },
-      })
-      .then((result) => {
-        conductor.currentStep.save({ confirmationCode: result.confirmationCode })
-        return router.push("/applications/review/confirmation")
-      })
-      .catch((err) => {
-        setSubmitting(false)
-        setApiError(true)
-        window.scrollTo(0, 0)
-        console.error(`Error creating application: ${err}`)
-        throw err
-      })
+      authService
+        .requestNewToken()
+        .then(() => {
+          applicationsService
+            .submit({
+              body: {
+                ...application,
+                reviewStatus: ApplicationReviewStatusEnum.pending,
+                listings: {
+                  id: listing.id,
+                },
+                appUrl: window.location.origin,
+                ...(profile && {
+                  user: {
+                    id: profile.id,
+                  },
+                }),
+                // TODO remove this once this call is changed to the new backend
+              },
+            })
+            .then((result) => {
+              conductor.currentStep.save({ confirmationCode: result.confirmationCode })
+              return router.push("/applications/review/confirmation")
+            })
+            .catch((err) => {
+              setSubmitting(false)
+              setApiError(true)
+              window.scrollTo(0, 0)
+              console.error(`Error creating application: ${err}`)
+              throw err
+            })
+        })
+        .catch((e) => {
+          // We need to have a valid user when submitting an application.
+          // If their session is no longer valid we should send them back to login
+          // This can happen either by auth token being too old or the user logged in a different session and voided this one
+          console.error(e)
+          setSessionVoided(true)
+        })
+    }
   }
+
+  useEffect(() => {
+    if (application.confirmationCode && router.isReady) {
+      addToast(t("listings.applicationAlreadySubmitted"), { variant: "alert" })
+      profile
+        ? void router.push(`/${router.locale}/account/applications`)
+        : void router.push(`/${router.locale}/listing/${listing.id}/${listing.urlSlug}`)
+    }
+  }, [application, listing, profile, router])
 
   useEffect(() => {
     pushGtmEvent<PageView>({
@@ -103,6 +135,29 @@ const ApplicationTerms = () => {
 
   return (
     <FormsLayout>
+      <Dialog
+        isOpen={sessionVoided}
+        onClose={closeCallback}
+        ariaLabelledBy="session-voided-dialog-header"
+        ariaDescribedBy="session-voided-dialog-content"
+      >
+        <Dialog.Header id="session-voided-dialog-header">
+          {t("session.voided.header")}
+        </Dialog.Header>
+        <Dialog.Content id="session-voided-dialog-content">
+          <p>
+            {t("session.voided.context1")}
+            {listing.name}
+            {t("session.voided.context2")}
+          </p>
+          <p>{t("session.voided.context3")}</p>
+        </Dialog.Content>
+        <Dialog.Footer>
+          <Button variant="primary" onClick={closeCallback} size="sm">
+            {t("session.voided.ok")}
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
       <Form id="review-terms" onSubmit={handleSubmit(onSubmit)}>
         <ApplicationFormLayout
           listingName={listing?.name}
@@ -168,7 +223,7 @@ const ApplicationTerms = () => {
               </div>
             </div>
           </CardSection>
-          <CardSection className={"bg-primary-lighter"}>
+          <CardSection className={styles["application-form-action-footer"]}>
             <Button
               loadingMessage={
                 submitting ? t("application.review.terms.submittingApplication") : null

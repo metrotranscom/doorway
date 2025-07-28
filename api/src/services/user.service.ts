@@ -41,7 +41,9 @@ import { UserViews } from '../enums/user/view-enum';
 import { buildWhereClause } from '../utilities/build-user-where';
 import { getPublicEmailURL } from '../utilities/get-public-email-url';
 import { RequestSingleUseCode } from '../dtos/single-use-code/request-single-use-code.dto';
-import { generateSingleUseCode } from '../utilities/generate-single-use-code';
+import { getSingleUseCode } from '../utilities/get-single-use-code';
+import { UserFavoriteListing } from '../dtos/users/user-favorite-listing.dto';
+import { ModificationEnum } from '../enums/shared/modification-enum';
 
 /*
   this is the service for users
@@ -55,8 +57,18 @@ const views: Partial<Record<UserViews, Prisma.UserAccountsInclude>> = {
   },
 };
 
+views.favorites = {
+  favoriteListings: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+};
+
 views.full = {
   ...views.base,
+  ...views.favorites,
   listings: true,
 };
 
@@ -202,7 +214,7 @@ export class UserService {
         confirmationToken,
       );
 
-      this.emailService.changeEmail(
+      await this.emailService.changeEmail(
         dto.jurisdictions && dto.jurisdictions[0]
           ? dto.jurisdictions[0].name
           : jurisdictionName,
@@ -365,7 +377,7 @@ export class UserService {
           dto.appUrl,
           confirmationToken,
         );
-        this.emailService.welcome(
+        await this.emailService.welcome(
           storedUser.jurisdictions && storedUser.jurisdictions.length
             ? storedUser.jurisdictions[0].name
             : null,
@@ -378,7 +390,7 @@ export class UserService {
           dto.appUrl,
           confirmationToken,
         );
-        this.emailService.invitePartnerUser(
+        await this.emailService.invitePartnerUser(
           storedUser.jurisdictions,
           storedUser as unknown as User,
           dto.appUrl,
@@ -404,6 +416,7 @@ export class UserService {
     const isPartnerPortalUser =
       storedUser.userRoles?.isAdmin ||
       storedUser.userRoles?.isJurisdictionalAdmin ||
+      storedUser.userRoles?.isLimitedJurisdictionalAdmin ||
       storedUser.userRoles?.isPartner;
     const isUserSiteMatch = async () => {
       if (isPartnerPortalUser) {
@@ -437,7 +450,7 @@ export class UserService {
         id: storedUser.id,
       },
     });
-    this.emailService.forgotPassword(
+    await this.emailService.forgotPassword(
       storedUser.jurisdictions,
       mapTo(User, storedUser),
       dto.appUrl,
@@ -712,38 +725,19 @@ export class UserService {
           dto.appUrl,
           confirmationToken,
         );
-        this.emailService.welcome(
+        await this.emailService.welcome(
           jurisdictionName,
           mapTo(User, newUser),
           dto.appUrl,
           confirmationUrl,
         );
       }
-
-      // Partner user that is given access to an additional jurisdiction
-    } else if (
-      forPartners &&
-      existingUser &&
-      'userRoles' in dto &&
-      existingUser?.userRoles?.isPartner &&
-      dto?.userRoles?.isPartner &&
-      this.jurisdictionMismatch(dto.jurisdictions, existingUser.jurisdictions)
-    ) {
-      const newJurisdictions = this.getMismatchedJurisdictions(
-        dto.jurisdictions,
-        existingUser.jurisdictions,
-      );
-      this.emailService.portalAccountUpdate(
-        newJurisdictions,
-        mapTo(User, newUser),
-        dto.appUrl,
-      );
     } else if (forPartners) {
       const confirmationUrl = this.getPartnersConfirmationUrl(
         this.configService.get('PARTNERS_PORTAL_URL'),
         confirmationToken,
       );
-      this.emailService.invitePartnerUser(
+      await this.emailService.invitePartnerUser(
         dto.jurisdictions,
         mapTo(User, newUser),
         this.configService.get('PARTNERS_PORTAL_URL'),
@@ -898,27 +892,17 @@ export class UserService {
     existingJurisdictions: IdDTO[],
   ): boolean {
     return (
-      this.getMismatchedJurisdictions(
-        incomingJurisdictions,
-        existingJurisdictions,
-      ).length > 0
+      incomingJurisdictions.reduce((misMatched, jurisdiction) => {
+        if (
+          !existingJurisdictions?.some(
+            (existingJuris) => existingJuris.id === jurisdiction.id,
+          )
+        ) {
+          misMatched.push(jurisdiction.id);
+        }
+        return misMatched;
+      }, []).length > 0
     );
-  }
-
-  getMismatchedJurisdictions(
-    incomingJurisdictions: IdDTO[],
-    existingJurisdictions: IdDTO[],
-  ) {
-    return incomingJurisdictions.reduce((misMatched, jurisdiction) => {
-      if (
-        !existingJurisdictions?.some(
-          (existingJuris) => existingJuris.id === jurisdiction.id,
-        )
-      ) {
-        misMatched.push(jurisdiction.id);
-      }
-      return misMatched;
-    }, []);
   }
 
   containsInvalidCharacters(value: string): boolean {
@@ -977,8 +961,11 @@ export class UserService {
       );
     }
 
-    const singleUseCode = generateSingleUseCode(
+    const singleUseCode = getSingleUseCode(
       Number(process.env.MFA_CODE_LENGTH),
+      user.singleUseCode,
+      user.singleUseCodeUpdatedAt,
+      Number(process.env.MFA_CODE_VALID),
     );
     await this.prisma.userAccounts.update({
       data: {
@@ -997,5 +984,59 @@ export class UserService {
     );
 
     return { success: true };
+  }
+
+  /**
+   * Returns the names & ids of any listings a user has favorited
+   * @param userId - typically the user who is logged in
+   * @returns an array of Id DTOs
+   */
+  async favoriteListings(userId: string): Promise<IdDTO[]> {
+    const rawUser = await this.findUserOrError(
+      { userId: userId },
+      UserViews.favorites,
+    );
+
+    return mapTo(IdDTO, rawUser.favoriteListings);
+  }
+
+  async modifyFavoriteListings(dto: UserFavoriteListing, requestingUser: User) {
+    const listing = await this.prisma.listings.findUnique({
+      where: {
+        id: dto.id,
+      },
+    });
+
+    if (!listing) {
+      throw new NotFoundException(
+        `listingId ${dto.id} was requested but not found`,
+      );
+    }
+
+    let dataClause;
+    switch (dto.action) {
+      case ModificationEnum.add:
+        dataClause = {
+          connect: { id: dto.id },
+        };
+        break;
+      case ModificationEnum.remove:
+        dataClause = {
+          disconnect: { id: dto.id },
+        };
+        break;
+    }
+
+    const rawResults = await this.prisma.userAccounts.update({
+      data: {
+        favoriteListings: dataClause,
+      },
+      include: views.full,
+      where: {
+        id: requestingUser.id,
+      },
+    });
+
+    return mapTo(User, rawResults);
   }
 }

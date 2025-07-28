@@ -39,21 +39,25 @@ module.exports = withBundleAnalyzer({
     gtmKey: process.env.GTM_KEY || null,
     idleTimeout: process.env.IDLE_TIMEOUT,
     jurisdictionName: process.env.JURISDICTION_NAME,
-    cacheRevalidate: process.env.CACHE_REVALIDATE ? Number(process.env.CACHE_REVALIDATE) : 60,
+    cacheRevalidate: process.env.CACHE_REVALIDATE ? Number(process.env.CACHE_REVALIDATE) : 30,
     cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
     showProfessionalPartners: process.env.SHOW_PROFESSIONAL_PARTNERS === "TRUE",
+    showPublicLottery: process.env.SHOW_PUBLIC_LOTTERY === "TRUE",
+    showNewSeedsDesigns: process.env.SHOW_NEW_SEEDS_DESIGNS === "TRUE",
     showMandatedAccounts: process.env.SHOW_MANDATED_ACCOUNTS === "TRUE",
     showPwdless: process.env.SHOW_PWDLESS === "TRUE",
     notificationsSignUpUrl: process.env.NOTIFICATIONS_SIGN_UP_URL || null,
     maintenanceWindow: process.env.MAINTENANCE_WINDOW,
-    // start Doorway env variables
-    //googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // moved to runtime config
+    siteMessageWindow: process.env.SITE_MESSAGE_WINDOW,
+    mtcDataUrl: process.env.MTC_DATA_URL,
     awsS3BucketName: process.env.AWS_S3_BUCKET_NAME,
     awsAccessKey: process.env.AWS_ACCESS_KEY_ID,
     awsSecretKey: process.env.AWS_SECRET_KEY,
     awsRegion: process.env.AWS_REGION,
     fileService: process.env.FILE_SERVICE,
     reCaptchaKey: process.env.RECAPTCHA_KEY,
+    maxBrowseListings: process.env.MAX_BROWSE_LISTINGS,
+    rtlLanguages: process.env.RTL_LANGUAGES || "ar",
   },
   i18n: {
     locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],
@@ -99,6 +103,16 @@ module.exports = withBundleAnalyzer({
             value: `frame-ancestors 'none';`,
           },
         ],
+      },
+    ]
+  },
+  redirects() {
+    return [
+      // get-assistance page doesn't exist in Doorway so re-route to the get started page
+      {
+        source: "/get-assistance",
+        destination: "/help/get-started",
+        permanent: true,
       },
     ]
   },

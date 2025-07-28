@@ -1,17 +1,30 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import Markdown from "markdown-to-jsx"
 import { useRouter } from "next/router"
 import Head from "next/head"
 import { Toast } from "@bloom-housing/ui-seeds"
 import { MenuLink, t } from "@bloom-housing/ui-components"
 import { AlertBanner, AuthContext, MessageContext } from "@bloom-housing/shared-helpers"
-import { getSiteFooter } from "../lib/helpers"
 import { SiteHeader } from "@bloom-housing/doorway-ui-components/src/headers/SiteHeader"
+import CustomSiteFooter from "../components/shared/CustomSiteFooter"
 
-const Layout = (props) => {
+interface LayoutProps {
+  children?: React.ReactNode
+  hideFooter?: boolean
+}
+
+const Layout = (props: LayoutProps) => {
   const { profile, signOut } = useContext(AuthContext)
   const { toastMessagesRef, addToast } = useContext(MessageContext)
   const router = useRouter()
+
+  const [showFavorites, setShowFavorites] = useState(false)
+  const [showApplications, setShowApplications] = useState(true)
+
+  useEffect(() => {
+    setShowFavorites(window.localStorage.getItem("bloom-show-favorites-menu-item") === "true")
+    setShowApplications(window.localStorage.getItem("bloom-hide-applications-menu-item") !== "true")
+  }, [setShowFavorites, setShowApplications])
 
   const languages =
     router?.locales?.map((item) => ({
@@ -78,10 +91,22 @@ const Layout = (props) => {
             title: t("nav.myDashboard"),
             href: "/account/dashboard",
           },
-          {
-            title: t("account.myApplications"),
-            href: "/account/applications",
-          },
+          ...(showApplications
+            ? [
+                {
+                  title: t("account.myApplications"),
+                  href: "/account/applications",
+                },
+              ]
+            : []),
+          ...(showFavorites
+            ? [
+                {
+                  title: t("account.myFavorites"),
+                  href: "/account/favorites",
+                },
+              ]
+            : []),
           {
             title: t("account.accountSettings"),
             href: "/account/edit",
@@ -113,15 +138,17 @@ const Layout = (props) => {
         <Head>
           <title>{t("nav.siteTitle")}</title>
         </Head>
-        {/* temporary change to infra maintenance, should return to alert.maintenance after window */}
-        <AlertBanner maintenanceWindow={process.env.maintenanceWindow} variant={"primary"}>
-          <Markdown>{t("alert.infraMaintenance")}</Markdown>
+        <AlertBanner windowEnv={process.env.maintenanceWindow} variant={"alert"}>
+          <Markdown>{t("alert.maintenance")}</Markdown>
+        </AlertBanner>
+        <AlertBanner windowEnv={process.env.siteMessageWindow} variant={"primary"}>
+          <Markdown>{t("siteMessage.achpTranstion")}</Markdown>
         </AlertBanner>
         <SiteHeader
           logoSrc="/images/doorway-logo.png"
           homeURL="/"
           mainContentId="main-content"
-          languages={languages.map((lang) => {
+          languages={languages?.map((lang) => {
             return {
               label: lang.label,
               onClick: () =>
@@ -141,8 +168,8 @@ const Layout = (props) => {
           })}
           strings={{ skipToMainContent: t("t.skipToMainContent") }}
         />
-        <main id="main-content" className="md:overflow-x-hidden">
-          {toastMessagesRef.current.map((toastMessage) => (
+        <main id="main-content" className="md:overflow-x-hidden relative">
+          {toastMessagesRef.current?.map((toastMessage) => (
             <Toast {...toastMessage.props} testId="toast-alert" key={toastMessage.timestamp}>
               {toastMessage.message}
             </Toast>
@@ -150,7 +177,7 @@ const Layout = (props) => {
           {props.children}
         </main>
       </div>
-      {getSiteFooter()}
+      {!props.hideFooter && <CustomSiteFooter />}
     </div>
   )
 }

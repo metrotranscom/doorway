@@ -1,37 +1,77 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
+import { Test, TestingModule } from '@nestjs/testing';
 import {
+  ApplicationReviewStatusEnum,
+  ApplicationStatusEnum,
+  ApplicationSubmissionTypeEnum,
+  LanguagesEnum,
   MultiselectQuestionsApplicationSectionEnum,
   PrismaClient,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import dayjs from 'dayjs';
 import { Request as ExpressRequest } from 'express';
-import { ScriptRunnerService } from '../../../src/services/script-runner.service';
-import { PrismaService } from '../../../src/services/prisma.service';
+import { mockDeep } from 'jest-mock-extended';
 import { User } from '../../../src/dtos/users/user.dto';
 import { AmiChartService } from '../../../src/services/ami-chart.service';
-import { mockDeep } from 'jest-mock-extended';
+import { FeatureFlagService } from '../../../src/services/feature-flag.service';
+import { JurisdictionService } from '../../../src/services/jurisdiction.service';
+import { PrismaService } from '../../../src/services/prisma.service';
+import { ScriptRunnerService } from '../../../src/services/script-runner.service';
+import { MultiselectQuestionService } from '../../../src/services/multiselect-question.service';
+import { AssetModule } from '../../../src/modules/asset.module';
+import { PrismaModule } from '../../../src/modules/prisma.module';
 
 const externalPrismaClient = mockDeep<PrismaClient>();
 
 describe('Testing script runner service', () => {
   let service: ScriptRunnerService;
   let prisma: PrismaService;
+  let multiselectQuestionService: MultiselectQuestionService;
+  let mockConsoleLog;
+
+  beforeEach(() => {
+    mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
+  });
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ScriptRunnerService,
-        PrismaService,
-        Logger,
-        SchedulerRegistry,
         AmiChartService,
+        FeatureFlagService,
+        JurisdictionService,
+        Logger,
+        {
+          provide: MultiselectQuestionService,
+          useValue: {
+            create: jest.fn().mockResolvedValue({
+              id: 'new id',
+            }),
+            list: jest.fn().mockResolvedValue([
+              {
+                id: 'new id',
+                createdAt: dayjs(
+                  '2024-10-22 00:00',
+                  'YYYY-MM-DD HH:mm Z',
+                ).toDate(),
+              },
+            ]),
+          },
+        },
       ],
+      imports: [AssetModule, PrismaModule],
     }).compile();
 
     service = module.get<ScriptRunnerService>(ScriptRunnerService);
     prisma = module.get<PrismaService>(PrismaService);
+    multiselectQuestionService = module.get<MultiselectQuestionService>(
+      MultiselectQuestionService,
+    );
+  });
+
+  afterEach(() => {
+    mockConsoleLog.mockRestore();
   });
 
   describe('transferJurisdictionData', () => {
@@ -80,6 +120,7 @@ describe('Testing script runner service', () => {
     });
 
     it('should transfer ami and multiselect questions', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
@@ -186,7 +227,6 @@ describe('Testing script runner service', () => {
 
   const createAddress = (name: string) => {
     return {
-      place_name: name,
       city: `${name} city`,
       state: `${name} state`,
       street: `${name} street`,
@@ -199,9 +239,9 @@ describe('Testing script runner service', () => {
     prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
     prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
-    prisma.translations.findFirst = jest
+    prisma.translations.findMany = jest
       .fn()
-      .mockResolvedValue({ id: randomUUID(), translations: {} });
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
     prisma.translations.update = jest.fn().mockResolvedValue(null);
 
     const id = randomUUID();
@@ -237,11 +277,144 @@ describe('Testing script runner service', () => {
     });
   });
 
+  it('should add duplicates lottery info translations', async () => {
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.findMany = jest
+      .fn()
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
+    prisma.translations.update = jest.fn().mockResolvedValue(null);
+
+    const id = randomUUID();
+    const scriptName = 'add duplicates information to lottery email';
+
+    const res = await service.addDuplicatesInformationToLotteryEmail({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+  });
+
+  it('should add lottery translations and create if empty', async () => {
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.findMany = jest.fn().mockResolvedValue(undefined);
+    prisma.translations.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.create = jest.fn().mockReturnValue({
+      language: LanguagesEnum.en,
+      translations: {},
+      jurisdictions: undefined,
+    });
+
+    const id = randomUUID();
+    const scriptName = 'add lottery translations create if empty';
+
+    const res = await service.addLotteryTranslationsCreateIfEmpty({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+
+    expect(prisma.translations.create).toHaveBeenCalled();
+  });
+
+  it('should add translations for lottery opportunity email', async () => {
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.findMany = jest
+      .fn()
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
+    prisma.translations.update = jest.fn().mockResolvedValue(null);
+
+    const id = randomUUID();
+    const scriptName = 'add notice translation for listing opportunity email';
+
+    const res = await service.addNoticeToListingOpportunityEmail({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+  });
+
   describe('transferJurisdictionListingData', () => {
     it('should transfer listings', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);
@@ -314,7 +487,7 @@ describe('Testing script runner service', () => {
           id: listingId,
           accessibility: 'accessibility',
           additionalApplicationSubmissionNotes: undefined,
-          afsLastRunAt: undefined,
+          afsLastRunAt: expect.anything(),
           amenities: 'amenities',
           amiPercentageMax: undefined,
           amiPercentageMin: undefined,
@@ -381,7 +554,7 @@ describe('Testing script runner service', () => {
               createdAt: undefined,
               latitude: undefined,
               longitude: undefined,
-              placeName: 'application drop up',
+              placeName: undefined,
               state: 'application drop up state',
               street: 'application drop up street',
               street2: 'application drop up street2',
@@ -396,7 +569,7 @@ describe('Testing script runner service', () => {
               createdAt: undefined,
               latitude: undefined,
               longitude: undefined,
-              placeName: 'application pick up',
+              placeName: undefined,
               state: 'application pick up state',
               street: 'application pick up street',
               street2: 'application pick up street2',
@@ -410,7 +583,7 @@ describe('Testing script runner service', () => {
               createdAt: undefined,
               latitude: undefined,
               longitude: undefined,
-              placeName: 'building',
+              placeName: undefined,
               state: 'building state',
               street: 'building street',
               street2: 'building street2',
@@ -424,7 +597,7 @@ describe('Testing script runner service', () => {
               createdAt: undefined,
               latitude: undefined,
               longitude: undefined,
-              placeName: 'leasing agent',
+              placeName: undefined,
               state: 'leasing agent state',
               street: 'leasing agent street',
               street2: 'leasing agent street2',
@@ -493,9 +666,11 @@ describe('Testing script runner service', () => {
     });
 
     it('should transfer listings with RCD', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);
@@ -563,7 +738,7 @@ describe('Testing script runner service', () => {
           id: listingId,
           accessibility: undefined,
           additionalApplicationSubmissionNotes: undefined,
-          afsLastRunAt: undefined,
+          afsLastRunAt: expect.anything(),
           amenities: undefined,
           amiPercentageMax: undefined,
           amiPercentageMin: undefined,
@@ -663,6 +838,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       const doorwayPriorityTypeId = randomUUID();
       const priorityTypeId = randomUUID();
       prisma.unitAccessibilityPriorityTypes.findMany = jest
@@ -860,6 +1036,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);
@@ -953,9 +1130,11 @@ describe('Testing script runner service', () => {
     });
 
     it('should transfer listing events', async () => {
+      console.log = jest.fn();
       prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+      prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       prisma.unitAccessibilityPriorityTypes.findMany = jest
         .fn()
         .mockResolvedValue([]);
@@ -1042,6 +1221,315 @@ describe('Testing script runner service', () => {
           },
         ],
       });
+    });
+  });
+
+  describe('transferJurisdictionPartnerUserData', () => {
+    it('should transfer partner users', async () => {
+      prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+      prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+      prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+
+      const jurisdictionId = randomUUID();
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+        name: 'sample jurisdiction',
+        id: jurisdictionId,
+      });
+      const externalJurisdictionId = randomUUID();
+      externalPrismaClient.$queryRaw.mockResolvedValueOnce([
+        { name: 'sample jurisdiction', id: externalJurisdictionId },
+      ]);
+      const listingId = randomUUID();
+      const pastDate = dayjs(new Date()).subtract(15, 'days').toDate();
+      const userId = randomUUID();
+      const partnerOne = {
+        listings: [
+          {
+            jurisdictionId: externalJurisdictionId,
+            id: listingId,
+          },
+          { jurisdictionId: randomUUID(), id: randomUUID() },
+        ],
+        id: userId,
+        passwordHash: 'password hash',
+        passwordUpdatedAt: new Date(),
+        passwordValidForDays: 180,
+        resetToken: 'reset token',
+        confirmationToken: 'confirmation token',
+        confirmedAt: new Date(),
+        email: 'email@example.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dob: new Date(),
+        phoneNumber: 'phone number',
+        createdAt: pastDate,
+        updatedAt: pastDate,
+        language: LanguagesEnum.en,
+        mfaEnabled: false,
+        lastLoginAt: pastDate,
+        failedLoginAttemptsCount: 0,
+        phoneNumberVerified: true,
+        agreedToTermsOfService: true,
+        hitConfirmationUrl: new Date(),
+        singleUseCode: null,
+        singleUseCodeUpdatedAt: pastDate,
+        activeAccessToken: null,
+        activeRefreshToken: null,
+      };
+      externalPrismaClient.userAccounts.findMany.mockResolvedValueOnce([
+        partnerOne,
+      ]);
+      prisma.userAccounts.create = jest.fn();
+      const id = randomUUID();
+      await service.transferJurisdictionPartnerUserData(
+        {
+          user: {
+            id,
+          } as unknown as User,
+        } as unknown as ExpressRequest,
+        {
+          connectionString: 'Sample',
+          jurisdiction: 'Sample jurisdiction',
+        },
+        externalPrismaClient,
+      );
+
+      expect(prisma.userAccounts.create).toBeCalledTimes(1);
+      expect(prisma.userAccounts.create).toBeCalledWith({
+        data: {
+          activeAccessToken: null,
+          activeRefreshToken: null,
+          agreedToTermsOfService: false,
+          confirmationToken: 'confirmation token',
+          confirmedAt: expect.anything(),
+          createdAt: pastDate,
+          dob: expect.anything(),
+          email: 'email@example.com',
+          failedLoginAttemptsCount: 0,
+          firstName: 'first',
+          hitConfirmationUrl: expect.anything(),
+          id: expect.anything(),
+          jurisdictions: {
+            connect: {
+              id: jurisdictionId,
+            },
+          },
+          language: 'en',
+          lastLoginAt: expect.anything(),
+          lastName: 'last',
+          listings: {
+            connect: [
+              {
+                id: listingId,
+              },
+            ],
+          },
+          mfaEnabled: false,
+          middleName: 'middle',
+          passwordHash: 'password hash',
+          passwordUpdatedAt: expect.anything(),
+          passwordValidForDays: 180,
+          phoneNumber: 'phone number',
+          phoneNumberVerified: true,
+          resetToken: 'reset token',
+          singleUseCode: null,
+          singleUseCodeUpdatedAt: expect.anything(),
+          updatedAt: undefined,
+          userRoles: {
+            create: {
+              isPartner: true,
+            },
+          },
+        },
+      });
+    });
+  });
+
+  describe('transferJurisdictionPublicUserApplicationData', () => {
+    it('should transfer public users', async () => {
+      console.log = jest.fn();
+      prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+      prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+      prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+
+      const jurisdictionId = randomUUID();
+      prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
+        name: 'sample jurisdiction',
+        id: jurisdictionId,
+      });
+      const externalJurisdictionId = randomUUID();
+      externalPrismaClient.$queryRaw.mockResolvedValueOnce([
+        { name: 'sample jurisdiction', id: externalJurisdictionId },
+      ]);
+      const pastDate = dayjs(new Date()).subtract(15, 'days').toDate();
+      const userId = randomUUID();
+      const publicUser = {
+        id: userId,
+        passwordHash: 'password hash',
+        passwordUpdatedAt: new Date(),
+        passwordValidForDays: 180,
+        resetToken: 'reset token',
+        confirmationToken: 'confirmation token',
+        confirmedAt: new Date(),
+        email: 'email@example.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dob: new Date(),
+        phoneNumber: 'phone number',
+        createdAt: pastDate,
+        updatedAt: pastDate,
+        language: LanguagesEnum.en,
+        mfaEnabled: false,
+        lastLoginAt: pastDate,
+        failedLoginAttemptsCount: 0,
+        phoneNumberVerified: true,
+        agreedToTermsOfService: true,
+        hitConfirmationUrl: new Date(),
+        singleUseCode: null,
+        singleUseCodeUpdatedAt: pastDate,
+        activeAccessToken: null,
+        activeRefreshToken: null,
+      };
+      const applicationListingId = randomUUID();
+      const application = {
+        id: randomUUID(),
+        listings: {
+          id: applicationListingId,
+          jurisdictionId: externalJurisdictionId,
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: false,
+        appUrl: 'appUrl',
+        householdSize: 1,
+        status: ApplicationStatusEnum.submitted,
+        language: LanguagesEnum.en,
+        submissionType: ApplicationSubmissionTypeEnum.electronical,
+        acceptedTerms: true,
+        submissionDate: new Date(),
+        markedAsDuplicate: false,
+        confirmationCode: 'confirmationCode',
+        reviewStatus: ApplicationReviewStatusEnum.valid,
+      };
+      // application tied to a different jurisdiction
+      const differentApplication = {
+        ...application,
+        id: randomUUID(),
+        listings: { id: randomUUID(), jurisdictionId: randomUUID() },
+      };
+      const additionalPublicUsers = [...Array(25).keys()].map((user) => {
+        return {
+          ...publicUser,
+          id: randomUUID(),
+          email: `email-${user}@email.com`,
+          applications: [{ ...application, id: randomUUID() }],
+        };
+      });
+      externalPrismaClient.userAccounts.findMany.mockResolvedValueOnce([
+        {
+          ...publicUser,
+          applications: [
+            application,
+            differentApplication,
+            { ...application, id: randomUUID() },
+          ],
+        } as any,
+        ...additionalPublicUsers,
+      ]);
+      const createdUserId = randomUUID();
+      prisma.userAccounts.findFirst = jest.fn().mockResolvedValueOnce(null);
+      prisma.userAccounts.create = jest
+        .fn()
+        .mockResolvedValueOnce({ id: createdUserId })
+        .mockResolvedValue({ id: randomUUID() });
+      prisma.applications.create = jest.fn();
+      prisma.address.createMany = jest.fn();
+      const id = randomUUID();
+      await service.transferJurisdictionPublicUserAndApplicationData(
+        {
+          user: {
+            id,
+          } as unknown as User,
+        } as unknown as ExpressRequest,
+        {
+          connectionString: 'Sample',
+          jurisdiction: 'Sample jurisdiction',
+        },
+        externalPrismaClient,
+      );
+
+      expect(prisma.userAccounts.create).toBeCalledTimes(26);
+      expect(prisma.userAccounts.create).toBeCalledWith({
+        data: {
+          activeAccessToken: null,
+          activeRefreshToken: null,
+          agreedToTermsOfService: false,
+          application: undefined,
+          confirmationToken: 'confirmation token',
+          confirmedAt: expect.anything(),
+          createdAt: pastDate,
+          dob: expect.anything(),
+          email: 'email@example.com',
+          failedLoginAttemptsCount: 0,
+          firstName: 'first',
+          hitConfirmationUrl: expect.anything(),
+          id: expect.anything(),
+          jurisdictions: {
+            connect: {
+              id: jurisdictionId,
+            },
+          },
+          language: 'en',
+          lastLoginAt: expect.anything(),
+          lastName: 'last',
+          mfaEnabled: false,
+          middleName: 'middle',
+          passwordHash: 'password hash',
+          passwordUpdatedAt: expect.anything(),
+          passwordValidForDays: 180,
+          phoneNumber: 'phone number',
+          phoneNumberVerified: true,
+          resetToken: 'reset token',
+          singleUseCode: null,
+          singleUseCodeUpdatedAt: expect.anything(),
+          updatedAt: undefined,
+        },
+      });
+
+      expect(prisma.applications.create).toBeCalledTimes(27);
+      expect(prisma.applications.create).toBeCalledWith({
+        data: {
+          appUrl: 'appUrl',
+          confirmationCode: 'confirmationCode',
+          createdAt: expect.anything(),
+          deletedAt: false,
+          householdSize: 1,
+          id: expect.anything(),
+          listings: {
+            connect: {
+              id: applicationListingId,
+            },
+          },
+          markedAsDuplicate: false,
+          preferences: [],
+          programs: [],
+          contactPreferences: [],
+          reviewStatus: 'valid',
+          status: 'submitted',
+          submissionDate: expect.anything(),
+          submissionType: 'electronical',
+          updatedAt: expect.anything(),
+          userAccounts: {
+            connect: {
+              id: createdUserId,
+            },
+          },
+        },
+      });
+      expect(console.log).toBeCalledWith('migrated page 1 of public users');
+      expect(console.log).toBeCalledWith('migrated page 1 of public users');
     });
   });
 
@@ -1227,6 +1715,190 @@ describe('Testing script runner service', () => {
     });
   });
 
+  it('should update existing ami chart', async () => {
+    const id = randomUUID();
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.amiChart.findUnique = jest.fn().mockResolvedValue({
+      id: id,
+      name: 'example name',
+    });
+    prisma.amiChart.update = jest.fn().mockResolvedValue(null);
+
+    const name = 'example name';
+    const scriptName = `AMI Chart ${id} update ${new Date()}`;
+    const valueItem =
+      '15 18400 21000 23650 26250 28350 30450 32550 34650\n30 39150 44750 50350 55900 60400 64850 69350 73800\n50 65250 74600 83900 93200 100700 108150 115600 123050';
+    const res = await service.amiChartUpdateImport(
+      {
+        user: {
+          id,
+        } as unknown as User,
+      } as unknown as ExpressRequest,
+      {
+        amiId: id,
+        values: valueItem,
+      },
+    );
+    expect(res.success).toEqual(true);
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.amiChart.update).toHaveBeenCalledWith({
+      data: {
+        id: undefined,
+        items: [
+          {
+            percentOfAmi: 15,
+            householdSize: 1,
+            income: 18400,
+          },
+          {
+            percentOfAmi: 15,
+            householdSize: 2,
+            income: 21000,
+          },
+          {
+            percentOfAmi: 15,
+            householdSize: 3,
+            income: 23650,
+          },
+          {
+            percentOfAmi: 15,
+            householdSize: 4,
+            income: 26250,
+          },
+          {
+            percentOfAmi: 15,
+            householdSize: 5,
+            income: 28350,
+          },
+          {
+            percentOfAmi: 15,
+            householdSize: 6,
+            income: 30450,
+          },
+          {
+            percentOfAmi: 15,
+            householdSize: 7,
+            income: 32550,
+          },
+          {
+            percentOfAmi: 15,
+            householdSize: 8,
+            income: 34650,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 1,
+            income: 39150,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 2,
+            income: 44750,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 3,
+            income: 50350,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 4,
+            income: 55900,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 5,
+            income: 60400,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 6,
+            income: 64850,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 7,
+            income: 69350,
+          },
+          {
+            percentOfAmi: 30,
+            householdSize: 8,
+            income: 73800,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 1,
+            income: 65250,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 2,
+            income: 74600,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 3,
+            income: 83900,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 4,
+            income: 93200,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 5,
+            income: 100700,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 6,
+            income: 108150,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 7,
+            income: 115600,
+          },
+          {
+            percentOfAmi: 50,
+            householdSize: 8,
+            income: 123050,
+          },
+        ],
+        jurisdictions: undefined,
+        name: name,
+      },
+      include: {
+        jurisdictions: true,
+      },
+      where: {
+        id: id,
+      },
+    });
+  });
+
   it('should transfer data', async () => {
     prisma.listings.updateMany = jest.fn().mockResolvedValue({ count: 1 });
 
@@ -1244,6 +1916,433 @@ describe('Testing script runner service', () => {
       where: {
         reviewOrderType: ReviewOrderTypeEnum.lottery,
         lotteryOptIn: null,
+      },
+    });
+    expect(mockConsoleLog).toHaveBeenCalledWith(
+      'updated lottery opt in for 1 listings',
+    );
+  });
+
+  it('should hide programs from listing detail page', async () => {
+    const id = randomUUID();
+    const scriptName = 'hideProgramsFromListings';
+
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.multiselectQuestions.updateMany = jest.fn().mockResolvedValue(null);
+
+    const res = await service.hideProgramsFromListings({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.multiselectQuestions.updateMany).toHaveBeenCalledWith({
+      data: {
+        hideFromListing: true,
+      },
+      where: {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+      },
+    });
+  });
+
+  it('should update household member relationships', async () => {
+    const id = randomUUID();
+    const scriptName = 'update household member relationships';
+
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.householdMember.updateMany = jest.fn().mockResolvedValue(null);
+
+    const res = await service.updateHouseholdMemberRelationships({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+  });
+
+  it('should remove all working addresses', async () => {
+    const id = randomUUID();
+    const scriptName = 'remove work addresses';
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.applicant.findMany = jest
+      .fn()
+      .mockResolvedValueOnce([{ id: id, workAddressId: id }]);
+    prisma.applicant.updateMany = jest.fn().mockResolvedValue(null);
+    prisma.householdMember.findMany = jest
+      .fn()
+      .mockResolvedValueOnce([{ id: id, workAddressId: id }]);
+    prisma.householdMember.updateMany = jest.fn().mockResolvedValue(null);
+    prisma.address.deleteMany = jest.fn().mockResolvedValue(null);
+
+    const res = await service.removeWorkAddresses({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toEqual(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.applicant.findMany).toHaveBeenCalledWith({
+      select: {
+        id: true,
+        workAddressId: true,
+      },
+      where: {
+        workAddressId: {
+          not: null,
+        },
+      },
+      take: 10000,
+    });
+    expect(prisma.applicant.updateMany).toHaveBeenCalledWith({
+      data: {
+        workAddressId: null,
+      },
+      where: {
+        id: {
+          in: [id],
+        },
+      },
+    });
+    expect(prisma.householdMember.findMany).toHaveBeenCalledWith({
+      select: {
+        id: true,
+        workAddressId: true,
+      },
+      where: {
+        workAddressId: {
+          not: null,
+        },
+      },
+      take: 10000,
+    });
+
+    expect(prisma.householdMember.updateMany).toHaveBeenCalledWith({
+      data: {
+        workAddressId: null,
+      },
+      where: {
+        id: {
+          in: [id],
+        },
+      },
+    });
+    expect(prisma.address.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: {
+          in: [id],
+        },
+      },
+    });
+    expect(prisma.address.deleteMany).toHaveBeenCalledTimes(2);
+  });
+
+  it('should create 16 feature flags', async () => {
+    const id = randomUUID();
+    const scriptName = 'add feature flags';
+
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.featureFlags.create = jest.fn().mockResolvedValue({ id: 'new id' });
+
+    const res = await service.addFeatureFlags({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.featureFlags.create).toHaveBeenCalledTimes(17);
+    expect(mockConsoleLog).toHaveBeenCalledWith(
+      'Number of feature flags created: 17',
+    );
+  });
+
+  it('should add translations for lottery opportunity email', async () => {
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.translations.findFirst = jest
+      .fn()
+      .mockResolvedValue([{ id: randomUUID(), translations: {} }]);
+    prisma.translations.update = jest.fn().mockResolvedValue(null);
+
+    const id = randomUUID();
+    const scriptName = 'update forgot email translations';
+
+    const res = await service.updateForgotEmailTranslations({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.translations.findFirst).toHaveBeenCalledTimes(5);
+    expect(prisma.translations.update).toHaveBeenCalledTimes(5);
+  });
+
+  it('should migrate preferences and programs to the multiselect question table', async () => {
+    const id = randomUUID();
+    const scriptName = 'migrate Detroit to multiselect questions';
+
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.$queryRawUnsafe = jest.fn().mockResolvedValue([
+      {
+        id: 'example id',
+        title: 'example title',
+        subtitle: 'example subtitle',
+        description: 'example description',
+        links: [{ url: 'https://www.example.com', title: 'Link Title' }],
+        form_metadata: {
+          key: 'liveWork',
+          options: [
+            { key: 'live', extraData: [] },
+            { key: 'work', extraData: [] },
+          ],
+          hideFromListing: true,
+        },
+        name: 'example name',
+        listing_id: 'example listing_id',
+        ordinal: 1,
+      },
+    ]);
+    prisma.multiselectQuestions.create = jest.fn().mockResolvedValue({
+      id: 'new id',
+    });
+    prisma.listings.update = jest.fn().mockResolvedValue(null);
+
+    const res = await service.migrateDetroitToMultiselectQuestions({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.$queryRawUnsafe).toHaveBeenCalledTimes(5);
+    expect(multiselectQuestionService.create).toHaveBeenCalledTimes(2);
+    expect(prisma.listings.update).toHaveBeenCalledWith({
+      data: {
+        listingMultiselectQuestions: {
+          create: {
+            ordinal: 1,
+            multiselectQuestionId: 'new id',
+          },
+        },
+      },
+      where: {
+        id: 'example listing_id',
+      },
+    });
+  }, 100000);
+
+  it('should mark transfered data', async () => {
+    const id = randomUUID();
+    const scriptName = 'mark transfered data';
+
+    prisma.scriptRuns.findUnique = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
+    prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
+    prisma.multiselectQuestions.findMany = jest.fn().mockResolvedValue(null);
+    prisma.applications.updateMany = jest.fn().mockResolvedValue(null);
+    prisma.jurisdictions.findFirstOrThrow = jest
+      .fn()
+      .mockResolvedValue({ id: 'jurisId' });
+    prisma.listings.updateMany = jest.fn().mockResolvedValue(null);
+    prisma.multiselectQuestions.updateMany = jest.fn().mockResolvedValue(null);
+
+    const res = await service.markTransferedData({
+      user: {
+        id,
+      } as unknown as User,
+    } as unknown as ExpressRequest);
+
+    expect(res.success).toBe(true);
+
+    expect(prisma.scriptRuns.findUnique).toHaveBeenCalledWith({
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.scriptRuns.create).toHaveBeenCalledWith({
+      data: {
+        scriptName,
+        triggeringUser: id,
+      },
+    });
+    expect(prisma.scriptRuns.update).toHaveBeenCalledWith({
+      data: {
+        didScriptRun: true,
+        triggeringUser: id,
+      },
+      where: {
+        scriptName,
+      },
+    });
+    expect(prisma.applications.updateMany).toHaveBeenCalledTimes(2);
+    expect(prisma.applications.updateMany).toHaveBeenCalledWith({
+      data: {
+        wasCreatedExternally: true,
+      },
+      where: {
+        appUrl: expect.anything(),
+      },
+    });
+
+    expect(prisma.listings.updateMany).toHaveBeenCalledTimes(2);
+    expect(prisma.listings.updateMany).toHaveBeenCalledWith({
+      data: {
+        wasCreatedExternally: true,
+      },
+      where: {
+        createdAt: { lt: expect.anything() },
+        jurisdictionId: 'jurisId',
+      },
+    });
+
+    expect(multiselectQuestionService.list).toHaveBeenCalledTimes(2);
+    expect(prisma.multiselectQuestions.updateMany).toHaveBeenCalledWith({
+      data: {
+        wasCreatedExternally: true,
+      },
+      where: {
+        id: { in: ['new id'] },
       },
     });
   });
@@ -1343,6 +2442,234 @@ describe('Testing script runner service', () => {
       where: {
         scriptName,
       },
+    });
+  });
+
+  describe('migrateDetroitToMultiselectQuestions helpers', () => {
+    const translations = {
+      generalCore: {
+        'application.type.core.translationKey': 'general core translation',
+        't.preferNotToSay': 'general core prefer not to say',
+      },
+      generalPartners: {
+        'application.type.partners.translationKey':
+          'general partners translation',
+      },
+      generalPublic: {
+        'application.type.public.translationKey': 'general public translation',
+      },
+      detroitCore: {
+        'application.type.core.translationKey': 'detroit core translation',
+      },
+      detroitPartners: {
+        'application.type.partners.translationKey':
+          'detroit partners translation',
+      },
+      detroitPublic: {
+        'application.type.public.translationKey': 'detroit public translation',
+        'application.preferences.liveWork.live.label': 'Live in city',
+        'application.preferences.liveWork.work.label': 'Work in city',
+        'application.preferences.PBV.residency.label': 'Residency',
+        'application.preferences.PBV.homeless.label': 'Homeless',
+        'application.preferences.PBV.homeless.description':
+          'Unhoused or in temporary housing',
+        'application.preferences.PBV.noneApplyButConsider.label':
+          'None Apply But Consider',
+        'application.preferences.PBV.doNotConsider.label': 'Do Not Consider',
+      },
+    };
+
+    describe('test resolvehideFromListing', () => {
+      it('should find hideFromListing in object and return true', () => {
+        const pref = { form_metadata: { hideFromListing: true } };
+
+        const res = service.resolveHideFromListings(pref);
+
+        expect(res).toBe(true);
+      });
+
+      it('should find hideFromListing in object and return false', () => {
+        const pref = { form_metadata: { hideFromListing: false } };
+
+        const res = service.resolveHideFromListings(pref);
+
+        expect(res).toBe(false);
+      });
+
+      it('should not find hideFromListing in object and return null', () => {
+        const pref1 = {};
+
+        const res1 = service.resolveHideFromListings(pref1);
+
+        expect(res1).toBeNull();
+
+        const pref2 = { form_metadata: {} };
+
+        const res2 = service.resolveHideFromListings(pref2);
+
+        expect(res2).toBeNull();
+      });
+    });
+
+    describe('test resolveOptionValues', () => {
+      it('should resolve simple option values', () => {
+        const formMetaData = {
+          key: 'liveWork',
+          options: [
+            { key: 'live', extraData: [] },
+            { key: 'work', extraData: [] },
+          ],
+        };
+
+        const res = service.resolveOptionValues(
+          formMetaData,
+          'preferences',
+          'Detroit',
+          translations,
+        );
+
+        expect(res).toStrictEqual({
+          optOutText: null,
+          options: [
+            { ordinal: 1, text: 'Live in city' },
+            { ordinal: 2, text: 'Work in city' },
+          ],
+        });
+      });
+
+      it('should resolve complex option values', () => {
+        const formMetaData = {
+          key: 'PBV',
+          options: [
+            {
+              key: 'residency',
+              extraData: [
+                { key: 'name', type: 'text' },
+                { key: 'address', type: 'address' },
+              ],
+            },
+            { key: 'homeless', extraData: [], description: true },
+            {
+              key: 'noneApplyButConsider',
+              exclusive: true,
+              extraData: [],
+            },
+            {
+              key: 'doNotConsider',
+              exclusive: true,
+              extraData: [],
+              description: false,
+            },
+          ],
+          hideGenericDecline: true,
+        };
+
+        const res = service.resolveOptionValues(
+          formMetaData,
+          'preferences',
+          'Detroit',
+          translations,
+        );
+
+        expect(res).toStrictEqual({
+          optOutText: 'Do Not Consider',
+          options: [
+            { ordinal: 1, text: 'Residency', collectAddress: true },
+            {
+              ordinal: 2,
+              text: 'Homeless',
+              description: 'Unhoused or in temporary housing',
+            },
+            { ordinal: 3, text: 'None Apply But Consider', exclusive: true },
+          ],
+        });
+      });
+    });
+
+    describe('test getTranslated', () => {
+      it('should return no translation when no searchkey is matched', () => {
+        const res = service.getTranslated('', '', '', '', translations);
+
+        expect(res).toBe('no translation');
+      });
+
+      it('should return preferNotToSay when translationKey is preferNotToSay', () => {
+        const res = service.getTranslated(
+          '',
+          '',
+          'preferNotToSay',
+          '',
+          translations,
+        );
+
+        expect(res).toBe('general core prefer not to say');
+      });
+
+      it('should return jurisdiction specific translation if found', () => {
+        const res = service.getTranslated(
+          'type',
+          'core',
+          'translationKey',
+          'Detroit',
+          translations,
+        );
+
+        expect(res).toBe('detroit core translation');
+      });
+
+      it('should return generic translation if jurisdiction not found', () => {
+        const res = service.getTranslated(
+          'type',
+          'core',
+          'translationKey',
+          'juris',
+          translations,
+        );
+
+        expect(res).toBe('general core translation');
+      });
+
+      it('should return translation based on full searchkey', () => {
+        const generalPartnersRes = service.getTranslated(
+          'type',
+          'partners',
+          'translationKey',
+          '',
+          translations,
+        );
+
+        expect(generalPartnersRes).toBe('general partners translation');
+
+        const generalPublicRes = service.getTranslated(
+          'type',
+          'public',
+          'translationKey',
+          '',
+          translations,
+        );
+
+        expect(generalPublicRes).toBe('general public translation');
+
+        const detroitPartnersRes = service.getTranslated(
+          'type',
+          'partners',
+          'translationKey',
+          'Detroit',
+          translations,
+        );
+
+        expect(detroitPartnersRes).toBe('detroit partners translation');
+
+        const detroitPublicRes = service.getTranslated(
+          'type',
+          'public',
+          'translationKey',
+          'Detroit',
+          translations,
+        );
+
+        expect(detroitPublicRes).toBe('detroit public translation');
+      });
     });
   });
 });

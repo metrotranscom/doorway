@@ -11,7 +11,6 @@ import { HouseholdMemberForm } from "../../../components/applications/HouseholdM
 import { useFormConductor } from "../../../lib/hooks"
 import { UserStatus } from "../../../lib/constants"
 import ApplicationFormLayout from "../../../layouts/application-form"
-import styles from "../../../layouts/application-form.module.scss"
 
 const ApplicationAddMembers = () => {
   const { profile } = useContext(AuthContext)
@@ -91,6 +90,7 @@ const ApplicationAddMembers = () => {
           backLink={{
             url: conductor.determinePreviousUrl(),
           }}
+          conductor={conductor}
         >
           <HouseholdSizeField
             assistanceUrl={t("application.household.assistanceUrl")}
@@ -120,17 +120,6 @@ const ApplicationAddMembers = () => {
               type={"button"}
             >
               {t("application.household.addMembers.addHouseholdMember")}
-            </Button>
-          </CardSection>
-          <CardSection className={styles["application-form-action-footer"]}>
-            <Button
-              onClick={() => {
-                conductor.returnToReview = false
-                void handleSubmit(onSubmit)()
-              }}
-              id={"app-done-household-members-button"}
-            >
-              {t("t.next")}
             </Button>
           </CardSection>
         </ApplicationFormLayout>

@@ -34,7 +34,7 @@ export default function ApplicationsList() {
   {
     /* TODO: add listing name in a listing response */
   }
-  const { listingDto } = useSingleListingData(application?.listings.id)
+  const { listingDto } = useSingleListingData(application?.listings?.id)
 
   const { applicationsService } = useContext(AuthContext)
   const [errorAlert, setErrorAlert] = useState(false)
@@ -86,7 +86,7 @@ export default function ApplicationsList() {
           title={
             <>
               <p className="font-sans font-semibold uppercase text-2xl">
-                {application.applicant.firstName} {application.applicant.lastName}
+                {application.applicant?.firstName} {application.applicant?.lastName}
               </p>
 
               <p className="font-sans text-base mt-1">

@@ -43,7 +43,12 @@ phases:
         --build-arg "SHOW_MANDATED_ACCOUNTS=$SHOW_MANDATED_ACCOUNTS"
         --build-arg "SHOW_PWDLESS=$SHOW_PWDLESS"
         --build-arg "MAINTENANCE_WINDOW=$MAINTENANCE_WINDOW"
+        --build-arg "SITE_MESSAGE_WINDOW=$SITE_MESSAGE_WINDOW"
+        --build-arg "SHOW_PUBLIC_LOTTERY=${SHOW_PUBLIC_LOTTERY}"
         --build-arg "API_PASS_KEY=${API_PASS_KEY}"
+        --build-arg "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}"
+        --build-arg "GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID}"
+        --build-arg "SHOW_ALL_MAP_PINS=${SHOW_ALL_MAP_PINS}"
         --target test
         -t sites/public:test
         .
@@ -71,7 +76,12 @@ phases:
         --build-arg "SHOW_MANDATED_ACCOUNTS=$SHOW_MANDATED_ACCOUNTS"
         --build-arg "SHOW_PWDLESS=$SHOW_PWDLESS"
         --build-arg "MAINTENANCE_WINDOW=$MAINTENANCE_WINDOW"
+        --build-arg "SITE_MESSAGE_WINDOW=$SITE_MESSAGE_WINDOW"
+        --build-arg "SHOW_PUBLIC_LOTTERY=${SHOW_PUBLIC_LOTTERY}"
         --build-arg "API_PASS_KEY=${API_PASS_KEY}"
+        --build-arg "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}"
+        --build-arg "GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID}"
+        --build-arg "SHOW_ALL_MAP_PINS=${SHOW_ALL_MAP_PINS}"
         --target run
         -t sites/public:run-candidate
         .

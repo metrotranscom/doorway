@@ -3,7 +3,6 @@ import { randomUUID } from 'crypto';
 import { sign } from 'jsonwebtoken';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@sendgrid/mail';
 import { RecaptchaEnterpriseServiceClient } from '@google-cloud/recaptcha-enterprise';
 import {
   ACCESS_TOKEN_AVAILABLE_NAME,
@@ -35,6 +34,14 @@ const mockedRecaptcha =
   RecaptchaEnterpriseServiceClient as unknown as jest.Mock;
 
 describe('Testing auth service', () => {
+  process.env.APP_SECRET = 'SOME-LONG-SECRET-KEY';
+  process.env.EMAIL_API_KEY = 'SG.SOME-LONG-SECRET-KEY';
+  process.env.TWILIO_ACCOUNT_SID = 'AC';
+  process.env.TWILIO_AUTH_TOKEN = '842';
+  process.env.MFA_CODE_LENGTH = '5';
+  process.env.MFA_CODE_VALID = '60000';
+  process.env.TWILIO_PHONE_NUMBER = '5555555555';
+  process.env.GOOGLE_API_KEY = 'GOOGLE_API_KEY';
   let authService: AuthService;
   let smsService: SmsService;
   let prisma: PrismaService;
@@ -96,9 +103,9 @@ describe('Testing auth service', () => {
       sign(
         {
           sub: id,
-          expiresIn: 86400000 / 24,
+          expiresIn: 86400000 / 8,
         },
-        process.env.APP_SECRET,
+        'SOME-LONG-SECRET-KEY',
       ),
     );
   });
@@ -130,7 +137,7 @@ describe('Testing auth service', () => {
           sub: id,
           expiresIn: 86400000,
         },
-        process.env.APP_SECRET,
+        'SOME-LONG-SECRET-KEY',
       ),
     );
   });
@@ -153,7 +160,7 @@ describe('Testing auth service', () => {
           id: randomUUID(),
         } as Jurisdiction,
       ],
-      agreedToTermsOfService: false,
+      agreedToTermsOfService: true,
       id,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -209,7 +216,7 @@ describe('Testing auth service', () => {
             id: randomUUID(),
           } as Jurisdiction,
         ],
-        agreedToTermsOfService: false,
+        agreedToTermsOfService: true,
         id,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -221,6 +228,77 @@ describe('Testing auth service', () => {
       data: {
         activeAccessToken: expect.anything(),
         activeRefreshToken: expect.anything(),
+      },
+      where: {
+        id,
+      },
+    });
+
+    expect(prisma.userAccounts.count).toHaveBeenCalledWith({
+      where: {
+        id,
+        activeRefreshToken: 'refreshToken',
+      },
+    });
+
+    expect(response.cookie).toHaveBeenCalledWith(
+      TOKEN_COOKIE_NAME,
+      expect.anything(),
+      AUTH_COOKIE_OPTIONS,
+    );
+
+    expect(response.cookie).toHaveBeenCalledWith(
+      REFRESH_COOKIE_NAME,
+      expect.anything(),
+      REFRESH_COOKIE_OPTIONS,
+    );
+
+    expect(response.cookie).toHaveBeenCalledWith(
+      ACCESS_TOKEN_AVAILABLE_NAME,
+      'True',
+      ACCESS_TOKEN_AVAILABLE_OPTIONS,
+    );
+  });
+
+  it('should set credentials with incoming agreedToTermsOfService is true and user has not previously agreed to terms of service', async () => {
+    const id = randomUUID();
+    const response = {
+      cookie: jest.fn(),
+    };
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
+    prisma.userAccounts.count = jest.fn().mockResolvedValue(1);
+
+    await authService.setCredentials(
+      response as unknown as Response,
+      {
+        passwordUpdatedAt: new Date(),
+        passwordValidForDays: 100,
+        email: 'example@exygy.com',
+        firstName: 'Exygy',
+        lastName: 'User',
+        jurisdictions: [
+          {
+            id: randomUUID(),
+          } as Jurisdiction,
+        ],
+        agreedToTermsOfService: true,
+        id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      'refreshToken',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
+
+    expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+      data: {
+        activeAccessToken: expect.anything(),
+        activeRefreshToken: expect.anything(),
+        agreedToTermsOfService: true,
       },
       where: {
         id,
@@ -277,7 +355,7 @@ describe('Testing auth service', () => {
                 id: randomUUID(),
               } as Jurisdiction,
             ],
-            agreedToTermsOfService: false,
+            agreedToTermsOfService: true,
             id,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -321,7 +399,7 @@ describe('Testing auth service', () => {
     );
   });
 
-  it('should error when trying to set credentials,but user id not passed in', async () => {
+  it('should error when trying to set credentials, but user id not passed in', async () => {
     const id = randomUUID();
     const response = {
       cookie: jest.fn(),
@@ -345,7 +423,7 @@ describe('Testing auth service', () => {
                 id: randomUUID(),
               } as Jurisdiction,
             ],
-            agreedToTermsOfService: false,
+            agreedToTermsOfService: true,
             id: null,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -415,7 +493,7 @@ describe('Testing auth service', () => {
                 id: randomUUID(),
               } as Jurisdiction,
             ],
-            agreedToTermsOfService: false,
+            agreedToTermsOfService: true,
             id,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -486,7 +564,7 @@ describe('Testing auth service', () => {
                 id: randomUUID(),
               } as Jurisdiction,
             ],
-            agreedToTermsOfService: false,
+            agreedToTermsOfService: true,
             id,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -504,6 +582,44 @@ describe('Testing auth service', () => {
     expect(prisma.userAccounts.update).not.toHaveBeenCalled();
 
     expect(prisma.userAccounts.count).not.toHaveBeenCalled();
+
+    expect(response.clearCookie).not.toHaveBeenCalled();
+  });
+
+  it('should error when trying to set credentials and user has not agreed to terms of service', async () => {
+    const id = randomUUID();
+    const response = {
+      cookie: jest.fn(),
+      clearCookie: jest.fn(),
+    };
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
+    prisma.userAccounts.count = jest.fn().mockResolvedValue(1);
+
+    await expect(
+      async () =>
+        await authService.setCredentials(
+          response as unknown as Response,
+          {
+            passwordUpdatedAt: new Date(),
+            passwordValidForDays: 100,
+            email: 'example@exygy.com',
+            firstName: 'Exygy',
+            lastName: 'User',
+            jurisdictions: [
+              {
+                id: randomUUID(),
+              } as Jurisdiction,
+            ],
+            agreedToTermsOfService: false,
+            id,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          'refreshToken',
+        ),
+    ).rejects.toThrowError(`User ${id} has not accepted the terms of service`);
+
+    expect(prisma.userAccounts.update).not.toHaveBeenCalled();
 
     expect(response.clearCookie).not.toHaveBeenCalled();
   });
@@ -555,7 +671,7 @@ describe('Testing auth service', () => {
             id: randomUUID(),
           } as Jurisdiction,
         ],
-        agreedToTermsOfService: false,
+        agreedToTermsOfService: true,
         id,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -603,7 +719,7 @@ describe('Testing auth service', () => {
     );
   });
 
-  it('should error when trying to clear credentials,but user id not passed in', async () => {
+  it('should error when trying to clear credentials, but user id not passed in', async () => {
     const id = randomUUID();
     const response = {
       cookie: jest.fn(),
@@ -624,7 +740,7 @@ describe('Testing auth service', () => {
               id: randomUUID(),
             } as Jurisdiction,
           ],
-          agreedToTermsOfService: false,
+          agreedToTermsOfService: true,
           id: null,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -659,7 +775,7 @@ describe('Testing auth service', () => {
           id: randomUUID(),
         } as Jurisdiction,
       ],
-      agreedToTermsOfService: false,
+      agreedToTermsOfService: true,
       id,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -691,7 +807,7 @@ describe('Testing auth service', () => {
     );
   });
 
-  it('should request mfa code through email', async () => {
+  it('should send new mfa code through email when previous code is outdated', async () => {
     const id = randomUUID();
     emailService.sendMfaCode = jest.fn();
     prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
@@ -700,6 +816,10 @@ describe('Testing auth service', () => {
       passwordHash: await passwordToHash('Abcdef12345!'),
       email: 'example@exygy.com',
       phoneNumberVerified: false,
+      singleUseCode: '00000',
+      singleUseCodeUpdatedAt: new Date(
+        new Date().getTime() - Number(process.env.MFA_CODE_VALUE) * 2,
+      ),
     });
     prisma.userAccounts.update = jest.fn().mockResolvedValue({
       id,
@@ -723,7 +843,7 @@ describe('Testing auth service', () => {
     });
     expect(prisma.userAccounts.update).toHaveBeenCalledWith({
       data: {
-        singleUseCode: expect.anything(),
+        singleUseCode: expect.not.stringMatching('00000'),
         singleUseCodeUpdatedAt: expect.anything(),
       },
       where: {
@@ -737,7 +857,55 @@ describe('Testing auth service', () => {
     });
   });
 
-  it('should request mfa code through sms', async () => {
+  it('should send the same mfa code through email when requested again within valid window', async () => {
+    const id = randomUUID();
+    emailService.sendMfaCode = jest.fn();
+    prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
+      id: id,
+      mfaEnabled: true,
+      passwordHash: await passwordToHash('Abcdef12345!'),
+      email: 'example@exygy.com',
+      phoneNumberVerified: false,
+      singleUseCode: '00000',
+      singleUseCodeUpdatedAt: new Date(),
+    });
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
+    });
+
+    const res = await authService.requestMfaCode({
+      email: 'example@exygy.com',
+      password: 'Abcdef12345!',
+      mfaType: MfaType.email,
+    });
+
+    expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
+      include: expect.objectContaining({
+        listings: true,
+        jurisdictions: true,
+        userRoles: true,
+      }),
+      where: {
+        email: 'example@exygy.com',
+      },
+    });
+    expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+      data: {
+        singleUseCode: '00000',
+        singleUseCodeUpdatedAt: expect.anything(),
+      },
+      where: {
+        id,
+      },
+    });
+    expect(emailService.sendMfaCode).toHaveBeenCalled();
+    expect(res).toEqual({
+      email: 'example@exygy.com',
+      phoneNumberVerified: false,
+    });
+  });
+
+  it('should send new mfa code through sms when previous code is outdated', async () => {
     const id = randomUUID();
     prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
       id: id,
@@ -746,6 +914,10 @@ describe('Testing auth service', () => {
       email: 'example@exygy.com',
       phoneNumberVerified: false,
       phoneNumber: '520-781-8711',
+      singleUseCode: '00000',
+      singleUseCodeUpdatedAt: new Date(
+        new Date().getTime() - Number(process.env.MFA_CODE_VALUE) * 2,
+      ),
     });
     prisma.userAccounts.update = jest.fn().mockResolvedValue({
       id,
@@ -772,7 +944,7 @@ describe('Testing auth service', () => {
     });
     expect(prisma.userAccounts.update).toHaveBeenCalledWith({
       data: {
-        singleUseCode: expect.anything(),
+        singleUseCode: expect.not.stringMatching('00000'),
         singleUseCodeUpdatedAt: expect.anything(),
         phoneNumber: '520-781-8711',
       },
@@ -784,6 +956,63 @@ describe('Testing auth service', () => {
     expect(smsService.client.messages.create).toHaveBeenCalledWith({
       body: expect.anything(),
       from: expect.anything(),
+      to: '520-781-8711',
+    });
+    expect(res).toEqual({
+      phoneNumber: '520-781-8711',
+      phoneNumberVerified: false,
+    });
+  });
+
+  it('should send the same mfa code through sms when requested again within valid window', async () => {
+    const id = randomUUID();
+    prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
+      id: id,
+      mfaEnabled: true,
+      passwordHash: await passwordToHash('Abcdef12345!'),
+      email: 'example@exygy.com',
+      phoneNumberVerified: false,
+      phoneNumber: '520-781-8711',
+      singleUseCode: '00000',
+      singleUseCodeUpdatedAt: new Date(),
+    });
+    prisma.userAccounts.update = jest.fn().mockResolvedValue({
+      id,
+    });
+    smsService.client.messages.create = jest
+      .fn()
+      .mockResolvedValue({ success: true });
+
+    const res = await authService.requestMfaCode({
+      email: 'example@exygy.com',
+      password: 'Abcdef12345!',
+      mfaType: MfaType.sms,
+    });
+
+    expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
+      include: expect.objectContaining({
+        listings: true,
+        jurisdictions: true,
+        userRoles: true,
+      }),
+      where: {
+        email: 'example@exygy.com',
+      },
+    });
+    expect(prisma.userAccounts.update).toHaveBeenCalledWith({
+      data: {
+        singleUseCode: '00000',
+        singleUseCodeUpdatedAt: expect.anything(),
+        phoneNumber: '520-781-8711',
+      },
+      where: {
+        id,
+      },
+    });
+    expect(sendMfaCodeMock).not.toHaveBeenCalled();
+    expect(smsService.client.messages.create).toHaveBeenCalledWith({
+      body: 'Your Partners Portal account access token: 00000',
+      from: '5555555555',
       to: '520-781-8711',
     });
     expect(res).toEqual({
@@ -808,7 +1037,7 @@ describe('Testing auth service', () => {
 
     await expect(
       async () =>
-        await await authService.requestMfaCode({
+        await authService.requestMfaCode({
           email: 'example@exygy.com',
           password: 'abcdef123',
           mfaType: MfaType.sms,
@@ -826,13 +1055,15 @@ describe('Testing auth service', () => {
       {
         id,
       },
-      process.env.APP_SECRET,
+      'SOME-LONG-SECRET-KEY',
     );
     const response = {
       cookie: jest.fn(),
     };
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({ id });
+    prisma.userAccounts.findFirst = jest
+      .fn()
+      .mockResolvedValue({ id, agreedToTermsOfService: true });
 
     await authService.updatePassword(
       {
@@ -844,6 +1075,9 @@ describe('Testing auth service', () => {
     );
 
     expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
+      include: {
+        userRoles: true,
+      },
       where: {
         resetToken: token,
       },
@@ -887,23 +1121,25 @@ describe('Testing auth service', () => {
       {
         id,
       },
-      process.env.APP_SECRET,
+      'SOME-LONG-SECRET-KEY',
     );
     const secondId = randomUUID();
     const secondToken = sign(
       {
         id: secondId,
       },
-      process.env.APP_SECRET,
+      'SOME-LONG-SECRET-KEY',
     );
 
     const response = {
       cookie: jest.fn(),
     };
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id: secondId });
-    prisma.userAccounts.findFirst = jest
-      .fn()
-      .mockResolvedValue({ id: secondId, resetToken: secondToken });
+    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({
+      id: secondId,
+      resetToken: secondToken,
+      agreedToTermsOfService: true,
+    });
 
     await expect(
       async () =>
@@ -928,7 +1164,7 @@ describe('Testing auth service', () => {
       {
         id,
       },
-      process.env.APP_SECRET,
+      'SOME-LONG-SECRET-KEY',
     );
     prisma.userAccounts.findUnique = jest
       .fn()
@@ -989,7 +1225,7 @@ describe('Testing auth service', () => {
         id,
         email: 'example@exygy.com',
       },
-      process.env.APP_SECRET,
+      'SOME-LONG-SECRET-KEY',
     );
     prisma.userAccounts.findUnique = jest
       .fn()

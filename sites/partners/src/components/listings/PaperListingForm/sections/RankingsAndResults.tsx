@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext } from "react"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 dayjs.extend(utc)
@@ -6,8 +6,9 @@ import { useFormContext, useWatch } from "react-hook-form"
 import { t, Field, FieldGroup, Textarea, DateField, TimeField } from "@bloom-housing/ui-components"
 import { Grid } from "@bloom-housing/ui-seeds"
 import { FormListing } from "../../../../lib/listings/formTypes"
-import { getLotteryEvent } from "@bloom-housing/shared-helpers"
+import { AuthContext, getLotteryEvent } from "@bloom-housing/shared-helpers"
 import {
+  FeatureFlagEnum,
   Listing,
   ReviewOrderTypeEnum,
   YesNoEnum,
@@ -22,9 +23,10 @@ type RankingsAndResultsProps = {
 
 const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndResultsProps) => {
   const formMethods = useFormContext()
+  const { doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register, watch, control, errors } = formMethods
+  const { register, setValue, watch, control, errors } = formMethods
 
   const lotteryEvent = getLotteryEvent(listing as unknown as Listing)
 
@@ -52,6 +54,26 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
     name: "listingAvailabilityQuestion",
   })
 
+  const selectedJurisdictionId: string = useWatch({
+    control,
+    name: "jurisdictions.id",
+  })
+
+  const enableWaitlistAdditionalFields = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableWaitlistAdditionalFields,
+    selectedJurisdictionId
+  )
+
+  const enableUnitGroups = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableUnitGroups,
+    selectedJurisdictionId
+  )
+
+  // Ensure the lottery fields only show when it's "available units" listing
+  const showLotteryFields =
+    (availabilityQuestion !== "openWaitlist" || enableUnitGroups) &&
+    reviewOrder === "reviewOrderLottery"
+
   const yesNoRadioOptions = [
     {
       label: t("t.yes"),
@@ -62,13 +84,14 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
       value: YesNoEnum.no,
     },
   ]
+
   return (
     <>
       <SectionWithGrid
         heading={t("listings.sections.rankingsResultsTitle")}
         subheading={t("listings.sections.rankingsResultsSubtitle")}
       >
-        {availabilityQuestion !== "openWaitlist" && (
+        {(availabilityQuestion !== "openWaitlist" || enableUnitGroups) && (
           <Grid.Row columns={2} className={"flex items-center"}>
             <Grid.Cell>
               <p className="field-label m-4 ml-0">{t("listings.reviewOrderQuestion")}</p>
@@ -100,33 +123,7 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
             </Grid.Cell>
           </Grid.Row>
         )}
-        {reviewOrder === "reviewOrderFCFS" && (
-          <Grid.Row columns={2} className={"flex items-center"}>
-            <Grid.Cell>
-              <p className="field-label m-4 ml-0">{t("listings.dueDateQuestion")}</p>
-              <FieldGroup
-                name="dueDateQuestion"
-                type="radio"
-                register={register}
-                fields={[
-                  {
-                    ...yesNoRadioOptions[0],
-                    id: "dueDateQuestionYes",
-                    disabled: disableDueDates && !listing?.applicationDueDate,
-                    defaultChecked: listing && listing.applicationDueDate !== null,
-                  },
-                  {
-                    ...yesNoRadioOptions[1],
-                    id: "dueDateQuestionNo",
-                    disabled: disableDueDates && listing?.applicationDueDate !== null,
-                    defaultChecked: listing && !listing.applicationDueDate,
-                  },
-                ]}
-              />
-            </Grid.Cell>
-          </Grid.Row>
-        )}
-        {reviewOrder === "reviewOrderLottery" && (
+        {showLotteryFields && (
           <>
             {process.env.showLottery && (
               <>
@@ -178,6 +175,8 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                   name={"lotteryDate"}
                   id={"lotteryDate"}
                   register={register}
+                  required
+                  setValue={setValue}
                   watch={watch}
                   disabled={disableDueDates}
                   error={
@@ -189,7 +188,7 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                         }
                       : null
                   }
-                  errorMessage={t("errors.requiredFieldError")}
+                  errorMessage={t("errors.dateError")}
                   defaultDate={
                     errors?.lotteryDate
                       ? null
@@ -205,6 +204,7 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                             : null,
                         }
                   }
+                  dataTestId={"lottery-start-date"}
                 />
               </Grid.Cell>
               <Grid.Cell>
@@ -213,11 +213,12 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                   name={"lotteryStartTime"}
                   id={"lotteryStartTime"}
                   register={register}
+                  required
+                  setValue={setValue}
                   watch={watch}
-                  disabled={disableDueDates}
-                  error={errors?.lotteryDate ? true : false}
+                  error={errors?.lotteryStartTime ? true : false}
                   strings={{
-                    timeError: errors?.lotteryDate ? t("errors.requiredFieldError") : null,
+                    timeError: errors?.lotteryStartTime ? t("errors.timeError") : null,
                   }}
                   defaultValues={
                     errors?.lotteryDate
@@ -235,6 +236,7 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                           period: new Date(lotteryEvent?.startTime).getHours() >= 12 ? "pm" : "am",
                         }
                   }
+                  dataTestId={"lottery-start-time"}
                 />
               </Grid.Cell>
               <Grid.Cell>
@@ -243,11 +245,12 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                   name={"lotteryEndTime"}
                   id={"lotteryEndTime"}
                   register={register}
+                  required
+                  setValue={setValue}
                   watch={watch}
-                  disabled={disableDueDates}
-                  error={errors?.lotteryDate ? true : false}
+                  error={errors?.lotteryEndTime ? true : false}
                   strings={{
-                    timeError: errors?.lotteryDate ? t("errors.requiredFieldError") : null,
+                    timeError: errors?.lotteryEndTime ? t("errors.timeError") : null,
                   }}
                   defaultValues={
                     errors?.lotteryDate
@@ -265,6 +268,7 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                           period: new Date(lotteryEvent?.endTime).getHours() >= 12 ? "pm" : "am",
                         }
                   }
+                  dataTestId={"lottery-end-time"}
                 />
               </Grid.Cell>
             </Grid.Row>
@@ -295,32 +299,53 @@ const RankingsAndResults = ({ listing, disableDueDates, isAdmin }: RankingsAndRe
                 {
                   ...yesNoRadioOptions[0],
                   id: "waitlistOpenYes",
-                  disabled: availabilityQuestion === "availableUnits",
+                  disabled: !enableUnitGroups && availabilityQuestion === "availableUnits",
                   defaultChecked: listing && listing.isWaitlistOpen === true,
                 },
-
                 {
                   ...yesNoRadioOptions[1],
                   id: "waitlistOpenNo",
-                  disabled: availabilityQuestion === "availableUnits",
+                  disabled: !enableUnitGroups && availabilityQuestion === "availableUnits",
                   defaultChecked: !listing || (listing && listing.isWaitlistOpen === false),
                 },
               ]}
             />
           </Grid.Cell>
         </Grid.Row>
-        {waitlistOpen === YesNoEnum.yes && availabilityQuestion === "openWaitlist" && (
-          <Grid.Row columns={3}>
-            <Field
-              name="waitlistOpenSpots"
-              id="waitlistOpenSpots"
-              register={register}
-              label={t("listings.waitlist.openSizeQuestion")}
-              placeholder={t("listings.waitlist.openSize")}
-              type={"number"}
-            />
-          </Grid.Row>
-        )}
+        {waitlistOpen === YesNoEnum.yes &&
+          (availabilityQuestion === "openWaitlist" || enableUnitGroups) && (
+            <Grid.Row columns={3}>
+              {enableWaitlistAdditionalFields && (
+                <>
+                  <Field
+                    name="waitlistMaxSize"
+                    id="waitlistMaxSize"
+                    register={register}
+                    label={t("listings.waitlist.maxSizeQuestion")}
+                    placeholder={t("listings.waitlist.maxSize")}
+                    type={"number"}
+                    subNote={t("t.recommended")}
+                  />
+                  <Field
+                    name="waitlistCurrentSize"
+                    id="waitlistCurrentSize"
+                    register={register}
+                    label={t("listings.waitlist.currentSizeQuestion")}
+                    placeholder={t("listings.waitlist.currentSize")}
+                    type={"number"}
+                  />
+                </>
+              )}
+              <Field
+                name="waitlistOpenSpots"
+                id="waitlistOpenSpots"
+                register={register}
+                label={t("listings.waitlist.openSizeQuestion")}
+                placeholder={t("listings.waitlist.openSize")}
+                type={"number"}
+              />
+            </Grid.Row>
+          )}
         <Grid.Row columns={3}>
           <Grid.Cell className="seeds-grid-span-2">
             <Textarea

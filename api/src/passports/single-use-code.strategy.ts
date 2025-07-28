@@ -14,9 +14,9 @@ import { defaultValidationPipeOptions } from '../utilities/default-validation-pi
 import { LoginViaSingleUseCode } from '../dtos/auth/login-single-use-code.dto';
 import { OrderByEnum } from '../enums/shared/order-by-enum';
 import {
-  isUserLockedOut,
+  checkUserLockout,
   singleUseCodePresent,
-  singleUseCodeValid,
+  singleUseCodeInvalid,
 } from '../utilities/passport-validator-utilities';
 
 @Injectable()
@@ -86,7 +86,13 @@ export class SingleUseCodeStrategy extends PassportStrategy(
       );
     }
 
-    isUserLockedOut(
+    if (!rawUser.agreedToTermsOfService && !dto.agreedToTermsOfService) {
+      throw new BadRequestException(
+        `User ${rawUser.id} has not accepted the terms of service`,
+      );
+    }
+
+    rawUser.failedLoginAttemptsCount = checkUserLockout(
       rawUser.lastLoginAt,
       rawUser.failedLoginAttemptsCount,
       Number(process.env.AUTH_LOCK_LOGIN_AFTER_FAILED_ATTEMPTS),
@@ -108,7 +114,7 @@ export class SingleUseCodeStrategy extends PassportStrategy(
         name: 'singleUseCodeIsMissing',
       });
     } else if (
-      singleUseCodeValid(
+      singleUseCodeInvalid(
         rawUser.singleUseCodeUpdatedAt,
         Number(process.env.MFA_CODE_VALID),
         dto.singleUseCode,

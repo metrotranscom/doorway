@@ -128,10 +128,9 @@ describe('Jurisdiction Controller Tests', () => {
       emailFromAddress: `emailFromAddress: 10`,
       rentalAssistanceDefault: `rentalAssistanceDefault: 10`,
       enablePartnerSettings: true,
-      enableAccessibilityFeatures: true,
-      enableUtilitiesIncluded: true,
       allowSingleUseCodeLogin: true,
       listingApprovalPermissions: [],
+      duplicateListingPermissions: [],
     };
     const res = await request(app.getHttpServer())
       .post('/jurisdictions')
@@ -155,10 +154,9 @@ describe('Jurisdiction Controller Tests', () => {
       emailFromAddress: `emailFromAddress: 10`,
       rentalAssistanceDefault: `rentalAssistanceDefault: 10`,
       enablePartnerSettings: true,
-      enableAccessibilityFeatures: true,
-      enableUtilitiesIncluded: true,
       allowSingleUseCodeLogin: true,
       listingApprovalPermissions: [],
+      duplicateListingPermissions: [],
     };
     const res = await request(app.getHttpServer())
       .put(`/jurisdictions/${id}`)
@@ -186,10 +184,9 @@ describe('Jurisdiction Controller Tests', () => {
       emailFromAddress: `emailFromAddress: 10`,
       rentalAssistanceDefault: `rentalAssistanceDefault: 10`,
       enablePartnerSettings: true,
-      enableAccessibilityFeatures: true,
-      enableUtilitiesIncluded: true,
       allowSingleUseCodeLogin: true,
       listingApprovalPermissions: [],
+      duplicateListingPermissions: [],
     };
 
     const res = await request(app.getHttpServer())

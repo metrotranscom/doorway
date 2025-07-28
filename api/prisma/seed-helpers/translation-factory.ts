@@ -96,6 +96,10 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
         contactedForAnInterview:
           'If you are contacted for an interview, you will need to fill out a more detailed application and provide supporting documents.',
         gotYourConfirmationNumber: 'We got your application for',
+        submitAnotherApplication:
+          'If you’re not changing the primary applicant or any household members, you can just submit another application.  We’ll take the last one submitted, per the duplicate application policy.',
+        otherChanges:
+          'For other changes, please contact doorway@bayareametro.gov.',
       },
       leasingAgent: {
         officeHours: 'Office Hours:',
@@ -150,12 +154,14 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
       singleUseCodeEmail: {
         greeting: 'Hi',
         message:
-          'Use the following code to sign in to your %{jurisdictionName} account. This code will be valid for 5 minutes. Never share this code.',
+          'Use the following code to sign in to your Doorway account. This code will be valid for 10 minutes. Never share this code.',
         singleUseCode: '%{singleUseCode}',
       },
       rentalOpportunity: {
         subject: 'New rental opportunity',
         intro: 'Rental opportunity at',
+        viewListingNotice:
+          'Please view listing for the most updated information',
         applicationsDue: 'Applications Due',
         community: 'Community',
         address: 'Address',
@@ -197,13 +203,16 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
         signIn: 'Sign In to View Your Results',
         whatHappensHeader: 'What happens next?',
         whatHappensContent:
-          'The property manager will begin to contact applicants by their preferred contact method. They will do so in the order of lottery rank, within each lottery preference. When the units are all filled, the property manager will stop contacting applicants. All the units could be filled before the property manager reaches your rank. If this happens, you will not be contacted.',
+          'The property manager will begin to contact applicants in the order of lottery rank, within each lottery preference. When the units are all filled, the property manager will stop contacting applicants. All the units could be filled before the property manager reaches your rank. If this happens, you will not be contacted.',
+        duplicatesDetails:
+          'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
         otherOpportunities1:
           'To view other housing opportunities, please visit %{appUrl}. You can sign up to receive notifications of new application opportunities',
         otherOpportunities2: 'here',
         otherOpportunities3:
           'If you want to learn about how lotteries work, please see the lottery section of the',
         otherOpportunities4: 'Doorway Housing Portal Help Center',
+        termsOfUse: 'Terms of Use',
       },
     };
   } else if (language === LanguagesEnum.es) {
@@ -245,13 +254,16 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
         signIn: 'Inicie sesión para ver sus resultados',
         whatHappensHeader: '¿Qué pasa después?',
         whatHappensContent:
-          'El administrador de la propiedad comenzará a comunicarse con los solicitantes mediante su método de contacto preferido. Lo harán en el orden de clasificación de la lotería, dentro de cada preferencia de lotería. Cuando todas las unidades estén ocupadas, el administrador de la propiedad dejará de comunicarse con los solicitantes. Todas las unidades podrían llenarse antes de que el administrador de la propiedad alcance su rango. Si esto sucede, no lo contactaremos.',
+          'El administrador de la propiedad comenzará a comunicarse con los solicitantes en el orden de clasificación de la lotería, dentro de cada preferencia de la lotería. Cuando todas las unidades estén ocupadas, el administrador de la propiedad dejará de comunicarse con los solicitantes. Es posible que todas las unidades estén ocupadas antes de que el administrador de la propiedad alcance su clasificación. Si esto sucede, no se comunicarán con usted.',
+        duplicatesDetails:
+          'Doorway generalmente no acepta solicitudes duplicadas. Una solicitud duplicada es aquella en la que aparece una persona que también aparece en otra solicitud para la misma oportunidad de vivienda. Para obtener información más detallada sobre cómo manejamos las solicitudes duplicadas, consulte nuestro',
         otherOpportunities1:
           'Para ver otras oportunidades de vivienda, visite %{appUrl}. Puede registrarse para recibir notificaciones de nuevas oportunidades de solicitud',
         otherOpportunities2: 'aquí',
         otherOpportunities3:
           'Si desea obtener información sobre cómo funcionan las loterías, consulte la sección de lotería del',
         otherOpportunities4: 'Doorway Housing Portal Centro de ayuda',
+        termsOfUse: 'Términos de uso',
       },
     };
   }

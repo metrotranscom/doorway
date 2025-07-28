@@ -67,6 +67,8 @@ import {
   createSimpleApplication,
 } from './helpers';
 import { ApplicationFlaggedSetService } from '../../../src/services/application-flagged-set.service';
+import { ListingsQueryParams } from '../../../src/dtos/listings/listings-query-params.dto';
+import { Compare } from '../../../src/dtos/shared/base-filter.dto';
 
 const testEmailService = {
   confirmation: jest.fn(),
@@ -87,6 +89,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
   let applicationFlaggedSetService: ApplicationFlaggedSetService;
   let cookies = '';
   let jurisId = '';
+  let jurisId2 = '';
   let userListingId = '';
   let closedUserListingId = '';
   let closedUserListingId2 = '';
@@ -111,7 +114,15 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
     app.use(cookieParser());
     await app.init();
 
-    jurisId = await generateJurisdiction(prisma, 'permission juris 30');
+    jurisId = await generateJurisdiction(
+      prisma,
+      'correct partner permission juris',
+    );
+
+    jurisId2 = await generateJurisdiction(
+      prisma,
+      'correct partner permission juris 2',
+    );
     await reservedCommunityTypeFactoryAll(jurisId, prisma);
     await unitAccessibilityPriorityTypeFactoryAll(prisma);
 
@@ -125,10 +136,14 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
 
     listingMulitselectQuestion = msq.id;
 
+    const tomorrowsDate = new Date();
+    tomorrowsDate.setDate(tomorrowsDate.getDate() + 1);
     const listingData = await listingFactory(jurisId, prisma, {
+      applicationDueDate: tomorrowsDate,
       multiselectQuestions: [msq],
       digitalApp: true,
     });
+
     const listing = await prisma.listings.create({
       data: listingData,
     });
@@ -143,7 +158,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
     });
     closedUserListingId = closedListing.id;
 
-    const listingData2 = await listingFactory(jurisId, prisma, {
+    const listingData2 = await listingFactory(jurisId2, prisma, {
       multiselectQuestions: [msq],
     });
     const listing2 = await prisma.listings.create({
@@ -268,7 +283,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
 
   describe('Testing application endpoints', () => {
     beforeAll(async () => {
-      await await prisma.translations.create({
+      await prisma.translations.create({
         data: translationFactory(),
       });
     });
@@ -528,16 +543,16 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
     });
 
     it('should error as forbidden for delete endpoint', async () => {
-      const jurisdictionA = await await generateJurisdiction(
+      const jurisdictionDeleteId = await generateJurisdiction(
         prisma,
-        'permission juris 31',
+        'correct partner permission juris delete',
       );
 
       await request(app.getHttpServer())
         .delete(`/jurisdictions`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
-          id: jurisdictionA,
+          id: jurisdictionDeleteId,
         } as IdDTO)
         .set('Cookie', cookies)
         .expect(403);
@@ -989,7 +1004,10 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
     });
 
     it('should succeed for public create endpoint', async () => {
-      const juris = await generateJurisdiction(prisma, 'permission juris 32');
+      const juris = await generateJurisdiction(
+        prisma,
+        'correct partner permission juris create success',
+      );
 
       const data = await applicationFactory();
       data.applicant.create.emailAddress = 'publicuser@email.com';
@@ -1006,7 +1024,10 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
     });
 
     it('should error as forbidden for partner create endpoint', async () => {
-      const juris = await generateJurisdiction(prisma, 'permission juris 33');
+      const juris = await generateJurisdiction(
+        prisma,
+        'correct partner permission juris create error',
+      );
 
       await request(app.getHttpServer())
         .post(`/user/invite`)
@@ -1030,10 +1051,46 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
   describe('Testing listing endpoints', () => {
     it('should succeed for list endpoint', async () => {
       await request(app.getHttpServer())
-        .get(`/listings?`)
+        .post(`/listings/list`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(200);
+        .send({} as ListingsQueryParams)
+        .expect(201);
+    });
+
+    it('should succeed for list endpoint filtered by jurisdiction', async () => {
+      const totalListings = await request(app.getHttpServer())
+        .post(`/listings/list`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .send({})
+        .expect(201);
+      const jurisdiction2Listings = await request(app.getHttpServer())
+        .post(`/listings/list`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .send({
+          filter: [
+            {
+              $comparison: Compare.IN,
+              jurisdiction: jurisId2,
+            },
+          ],
+        } as ListingsQueryParams)
+        .expect(201);
+
+      expect(totalListings.body.items.length).toBeGreaterThan(
+        jurisdiction2Listings.body.items.length,
+      );
+      expect(jurisdiction2Listings.body.items.length).toBeGreaterThan(0);
+    });
+
+    it('should succeed for filterableList endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/listings/list`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(201);
     });
 
     it('should succeed for retrieveListings endpoint', async () => {
@@ -1064,13 +1121,18 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
     });
 
     it('should succeed for update endpoint & create an activity log entry', async () => {
+      const listing = await prisma.listings.findFirst({
+        where: {
+          id: userListingId,
+        },
+      });
+
       const val = await constructFullListingData(
         prisma,
         userListingId,
         jurisId,
       );
-      val.applicationDueDate = new Date('05-16-2024 01:25:18PM GMT+2');
-      val.reviewOrderType = null;
+      val.applicationDueDate = listing.applicationDueDate;
 
       await request(app.getHttpServer())
         .put(`/listings/${userListingId}`)
@@ -1101,6 +1163,21 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
         .expect(403);
     });
 
+    it('should error as forbidden for duplicate endpoint', async () => {
+      await request(app.getHttpServer())
+        .post('/listings/duplicate')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          includeUnits: true,
+          name: 'name',
+          storedListing: {
+            id: userListingId,
+          },
+        })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
     it('should error as forbidden for process endpoint', async () => {
       await request(app.getHttpServer())
         .put(`/listings/closeListings`)
@@ -1109,32 +1186,20 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
         .expect(403);
     });
 
-    it('should error as forbidden for expireLotteries endpoint', async () => {
-      await request(app.getHttpServer())
-        .put(`/lottery/expireLotteries`)
-        .set({ passkey: process.env.API_PASS_KEY || '' })
-        .set('Cookie', cookies)
-        .expect(403);
-    });
-
-    it('should succeed for lottery status endpoint', async () => {
-      await request(app.getHttpServer())
-        .put('/lottery/lotteryStatus')
-        .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send({
-          id: closedUserListingId2,
-          lotteryStatus: 'publishedToPublic',
-        })
-        .set('Cookie', cookies)
-        .expect(200);
-    });
-
     it('should succeed for csv endpoint', async () => {
       await request(app.getHttpServer())
         .get(`/listings/csv`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
+    });
+
+    it('should succeed for mapMarkers endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/listings/mapMarkers`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(201);
     });
   });
 
@@ -1262,6 +1327,82 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
+    });
+  });
+
+  describe('Testing lottery endpoints', () => {
+    it('should error as forbidden for expireLotteries endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/lottery/expireLotteries`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should succeed for lottery status endpoint', async () => {
+      await request(app.getHttpServer())
+        .put('/lottery/lotteryStatus')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          id: closedUserListingId2,
+          lotteryStatus: 'publishedToPublic',
+        })
+        .set('Cookie', cookies)
+        .expect(200);
+    });
+  });
+
+  describe('Testing feature flag endpoints', () => {
+    it('should error as forbidden for list endpoint', async () => {
+      await request(app.getHttpServer())
+        .get(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for create endpoint', async () => {
+      await request(app.getHttpServer())
+        .post(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for update endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for delete endpoint', async () => {
+      await request(app.getHttpServer())
+        .delete(`/featureFlags`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for associate jurisdictions endpoint', async () => {
+      await request(app.getHttpServer())
+        .put(`/featureFlags/associateJurisdictions`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({})
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for retrieve endpoint', async () => {
+      await request(app.getHttpServer())
+        .get(`/featureFlags/example`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', cookies)
+        .expect(403);
     });
   });
 });

@@ -17,9 +17,9 @@ import { defaultValidationPipeOptions } from '../utilities/default-validation-pi
 import { Login } from '../dtos/auth/login.dto';
 import { MfaType } from '../enums/mfa/mfa-type-enum';
 import {
-  isUserLockedOut,
+  checkUserLockout,
   singleUseCodePresent,
-  singleUseCodeValid,
+  singleUseCodeInvalid,
 } from '../utilities/passport-validator-utilities';
 
 @Injectable()
@@ -57,7 +57,8 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
         `user ${dto.email} attempted to log in, but does not exist`,
       );
     }
-    isUserLockedOut(
+    //check if user is locked out and update failed login attempts count
+    rawUser.failedLoginAttemptsCount = checkUserLockout(
       rawUser.lastLoginAt,
       rawUser.failedLoginAttemptsCount,
       Number(process.env.AUTH_LOCK_LOGIN_AFTER_FAILED_ATTEMPTS),
@@ -112,7 +113,7 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
         name: 'mfaCodeIsMissing',
       });
     } else if (
-      singleUseCodeValid(
+      singleUseCodeInvalid(
         rawUser.singleUseCodeUpdatedAt,
         Number(process.env.MFA_CODE_VALID),
         dto.mfaCode,

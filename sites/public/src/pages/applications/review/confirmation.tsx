@@ -12,6 +12,7 @@ import {
 } from "@bloom-housing/shared-helpers"
 import { Button, Heading, Link } from "@bloom-housing/ui-seeds"
 import FormsLayout from "../../../layouts/forms"
+import styles from "../../../layouts/application-form.module.scss"
 import { AppSubmissionContext } from "../../../lib/applications/AppSubmissionContext"
 import { UserStatus } from "../../../lib/constants"
 import { ReviewOrderTypeEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -39,6 +40,24 @@ const ApplicationConfirmation = () => {
         }
       default:
         return { text: "" }
+    }
+  }, [listing])
+
+  const contentUpdates = useMemo(() => {
+    switch (listing?.reviewOrderType) {
+      case ReviewOrderTypeEnum.lottery:
+        return {
+          text: t("application.review.confirmation.needToMakeUpdates.lottery"),
+        }
+      default:
+        return {
+          text: t("application.review.confirmation.needToMakeUpdates", {
+            agentName: listing?.leasingAgentName || "",
+            agentPhone: listing?.leasingAgentPhone || "",
+            agentEmail: listing?.leasingAgentEmail || "",
+            agentOfficeHours: listing?.leasingAgentOfficeHours || "",
+          }),
+        }
     }
   }, [listing, router.locale])
 
@@ -81,21 +100,13 @@ const ApplicationConfirmation = () => {
           <CardSection divider={"inset"}>
             <div className="markdown markdown-informational">
               <ApplicationTimeline />
-
-              <Markdown options={{ disableParsingRawHTML: true }}>{content.text}</Markdown>
+              <Markdown>{content.text}</Markdown>
             </div>
           </CardSection>
 
           <CardSection divider={"inset"}>
             <div className="markdown markdown-informational">
-              <Markdown options={{ disableParsingRawHTML: true }}>
-                {t("application.review.confirmation.needToMakeUpdates", {
-                  agentName: listing?.leasingAgentName || "",
-                  agentPhone: listing?.leasingAgentPhone || "",
-                  agentEmail: listing?.leasingAgentEmail || "",
-                  agentOfficeHours: listing?.leasingAgentOfficeHours || "",
-                })}
-              </Markdown>
+              <Markdown>{contentUpdates.text}</Markdown>
             </div>
           </CardSection>
 
@@ -110,7 +121,10 @@ const ApplicationConfirmation = () => {
           )}
 
           {initialStateLoaded && !profile && (
-            <CardSection className={"bg-primary-lighter border-none"} divider={"flush"}>
+            <CardSection
+              className={`${styles["application-form-action-footer"]} border-none`}
+              divider={"flush"}
+            >
               <Button
                 variant={"primary"}
                 onClick={() => {

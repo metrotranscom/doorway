@@ -140,9 +140,7 @@ Cypress.Commands.add("fillPrimaryApplicant", (application, fieldsToSkip = []) =>
     { id: "application.applicant.applicantAddress.state", fieldKey: "applicant.address.state" },
   ]
 
-  const fieldsToClick = [{ id: "email", fieldKey: "email" }]
-
-  fillFields(application, fieldsToType, fieldsToSelect, fieldsToClick, fieldsToSkip)
+  fillFields(application, fieldsToType, fieldsToSelect, [], fieldsToSkip)
 })
 
 Cypress.Commands.add("fillAlternateContact", (application, fieldsToSkip = []) => {
@@ -313,7 +311,6 @@ Cypress.Commands.add("verifyPrimaryApplicant", (application, fieldsToSkip = []) 
     { id: "dateOfBirth", fieldKey: "dateOfBirth" },
     { id: "phoneNumber", fieldKey: "formattedPhoneNumber" },
     { id: "additionalPhoneNumber", fieldKey: "formattedAdditionalPhoneNumber" },
-    { id: "preferredContact", fieldKey: "preferredContact" },
     { id: "residenceAddress.streetAddress", fieldKey: "applicant.address.street" },
     { id: "residenceAddress.street2", fieldKey: "applicant.address.street2" },
     { id: "residenceAddress.city", fieldKey: "applicant.address.city" },
@@ -381,4 +378,110 @@ Cypress.Commands.add("verifyHouseholdIncome", (application, fieldsToSkip = []) =
 
 Cypress.Commands.add("verifyTerms", (application) => {
   cy.getByTestId("signatureOnTerms").contains(application["acceptedTerms"])
+})
+
+Cypress.Commands.add("addMinimalListing", (listingName, isLottery, isApproval, jurisdiction) => {
+  // Create and publish minimal FCFS or Lottery listing
+  // TODO: test Open Waitlist, though maybe with integration test instead
+  cy.getByID("addListingButton").contains("Add Listing").click()
+  cy.contains("New Listing")
+  cy.fixture("minimalListing").then((listing) => {
+    if (jurisdiction) {
+      cy.getByID("jurisdictions.id").select("Bay Area")
+      cy.getByID("jurisdictions.id-error").should("have.length", 0)
+    }
+    cy.getByID("name").type(listingName)
+    cy.getByID("developer").type(listing["developer"])
+    cy.getByID("add-photos-button").contains("Add Photo").click()
+    cy.intercept("/api/adapter/upload", {
+      body: {
+        id: "123",
+        url: "https://assets.website-files.com/5fbfdd121e108ea418ede824/5fbfdea9a7287d45a63d821b_Exygy%20Logo.svg",
+      },
+    })
+    cy.getByTestId("dropzone-input").attachFile(
+      "cypress-automated-image-upload-071e2ab9-5a52-4f34-85f0-e41f696f4b96.jpeg",
+      {
+        subjectType: "drag-n-drop",
+      }
+    )
+    cy.getByTestId("drawer-photos-table")
+      .find("img")
+      .should("have.attr", "src")
+      .should(
+        "include",
+        "https://assets.website-files.com/5fbfdd121e108ea418ede824/5fbfdea9a7287d45a63d821b_Exygy%20Logo.svg"
+      )
+    cy.getByID("listing-photo-uploaded").contains("Save").click()
+    cy.getByID("listingsBuildingAddress.street").type(listing["buildingAddress.street"])
+    cy.getByID("neighborhood").type(listing["neighborhood"])
+    cy.getByID("listingsBuildingAddress.city").type(listing["buildingAddress.city"])
+    cy.getByID("listingsBuildingAddress.state").select(listing["buildingAddress.state"])
+    cy.getByID("listingsBuildingAddress.zipCode").type(listing["buildingAddress.zipCode"])
+    cy.getByID("addUnitsButton").contains("Add Unit").click()
+    cy.getByID("number").type(listing["number"])
+    cy.getByID("unitTypes.id").select(listing["unitType.id"])
+    cy.getByID("amiChart.id").select(1).trigger("change")
+    cy.getByID("amiPercentage").select(1)
+    cy.getByID("unitFormSaveAndExitButton").contains("Save & Exit").click()
+    cy.get("button").contains("Application Process").click()
+    if (isLottery) {
+      cy.getByID("reviewOrderLottery").check()
+      cy.getByTestId("lottery-start-date-month").type("1")
+      cy.getByTestId("lottery-start-date-day").type("17")
+      cy.getByTestId("lottery-start-date-year").type("2026")
+      cy.getByTestId("lottery-start-time-hours").type("9")
+      cy.getByTestId("lottery-start-time-minutes").type("00")
+      cy.getByTestId("lottery-start-time-period").select("AM")
+      cy.getByTestId("lottery-end-time-hours").type("10")
+      cy.getByTestId("lottery-end-time-minutes").type("00")
+      cy.getByTestId("lottery-end-time-period").select("AM")
+    }
+    cy.getByID("leasingAgentName").type(listing["leasingAgentName"])
+    cy.getByID("leasingAgentEmail").type(listing["leasingAgentEmail"])
+    cy.getByID("leasingAgentPhone").type(listing["leasingAgentPhone"])
+    cy.getByID("digitalApplicationChoiceYes").check()
+    cy.getByID("commonDigitalApplicationChoiceYes").check()
+    cy.getByID("paperApplicationNo").check()
+    cy.getByID("applicationDueDateField.month").type(listing["date.month"])
+    cy.getByID("applicationDueDateField.day").type(listing["date.day"])
+    cy.getByID("applicationDueDateField.year").type((new Date().getFullYear() + 1).toString())
+    cy.getByID("applicationDueTimeField.hours").type(listing["date.hours"])
+    cy.getByID("applicationDueTimeField.minutes").type(listing["date.minutes"])
+    cy.getByID("applicationDueTimeField.period").select("PM")
+  })
+
+  if (isApproval) {
+    cy.getByID("submitButton").contains("Submit").click()
+    cy.getByID("submitListingForApprovalButtonConfirm").contains("Submit").click()
+    cy.getByTestId("page-header").should("be.visible")
+    cy.getByTestId("page-header").should("have.text", listingName)
+  } else {
+    cy.getByID("publishButton").contains("Publish").click()
+    cy.getByID("publishButtonConfirm").contains("Publish").click()
+    cy.get("[data-testid=page-header]").should("be.visible")
+    cy.getByTestId("page-header").should("have.text", listingName)
+  }
+})
+
+Cypress.Commands.add("addMinimalApplication", (listingName) => {
+  cy.visit("/")
+  cy.contains("Users")
+  cy.getByTestId(`listing-status-cell-${listingName}`).click()
+  cy.getByID("addApplicationButton").contains("Add Application").click()
+  cy.fixture("applicantOnlyData").then((application) => {
+    cy.fillPrimaryApplicant(application, [
+      "application.additionalPhoneNumber",
+      "application.additionalPhoneNumberType",
+      "application.applicant.address.street2",
+    ])
+  })
+  cy.getByID("submitApplicationButton").click()
+})
+
+Cypress.Commands.add("findAndOpenListing", (listingName) => {
+  cy.visit("/")
+  cy.contains("Listings")
+  cy.getByTestId("ag-search-input").should("be.visible").type(listingName, { force: true })
+  cy.getByTestId(listingName).first().click()
 })

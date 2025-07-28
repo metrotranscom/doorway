@@ -1,5 +1,6 @@
 import React, { useEffect, useContext } from "react"
 import Head from "next/head"
+import { GetStaticPaths, GetStaticProps } from "next"
 import axios, { AxiosResponse } from "axios"
 import { t } from "@bloom-housing/ui-components"
 import {
@@ -21,6 +22,7 @@ interface ListingProps {
   listing: Listing
   jurisdiction: Jurisdiction
   googleMapsApiKey: string
+  googleMapsMapId: string
 }
 
 export default function ListingPage(props: ListingProps) {
@@ -75,16 +77,21 @@ export default function ListingPage(props: ListingProps) {
         listing={listing as ListingViewListing}
         jurisdiction={props.jurisdiction}
         googleMapsApiKey={props.googleMapsApiKey}
+        googleMapsMapId={props.googleMapsMapId}
         isExternal={true}
       />
     </Layout>
   )
 }
 
-export async function getServerSideProps(context: {
+export const getStaticPaths: GetStaticPaths = () => {
+  return { paths: [], fallback: "blocking" }
+}
+
+export const getStaticProps: GetStaticProps = async (context: {
   params: Record<string, string>
   locale: string
-}) {
+}) => {
   let response: AxiosResponse
   try {
     const extUrl = `${process.env.BLOOM_API_BASE}/listings/external/${context.params.id}`
@@ -99,7 +106,9 @@ export async function getServerSideProps(context: {
     props: {
       listing: response.data,
       jurisdiction: response.data.jurisdiction,
-      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey(),
+      googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey() || null,
+      googleMapsMapId: runtimeConfig.getGoogleMapsMapId() || null,
     },
+    revalidate: Number(process.env.cacheRevalidate),
   }
 }

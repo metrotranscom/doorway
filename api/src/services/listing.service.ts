@@ -15,11 +15,12 @@ import {
   LanguagesEnum,
   ListingEventsTypeEnum,
   ListingsStatusEnum,
-  LotteryStatusEnum,
+  MarketingTypeEnum,
   Prisma,
   ReviewOrderTypeEnum,
   UserRoleEnum,
 } from '@prisma/client';
+import dayjs from 'dayjs';
 import { firstValueFrom } from 'rxjs';
 import { ApplicationFlaggedSetService } from './application-flagged-set.service';
 import { EmailService } from './email.service';
@@ -27,16 +28,21 @@ import { PermissionService } from './permission.service';
 import { PrismaService } from './prisma.service';
 import { TranslationService } from './translation.service';
 import { AmiChart } from '../dtos/ami-charts/ami-chart.dto';
+import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
 import { Listing } from '../dtos/listings/listing.dto';
 import { ListingCreate } from '../dtos/listings/listing-create.dto';
+import { ListingDuplicate } from '../dtos/listings/listing-duplicate.dto';
+import { ListingMapMarker } from '../dtos/listings/listing-map-marker.dto';
 import { ListingFilterParams } from '../dtos/listings/listings-filter-params.dto';
-import { ListingLotteryStatus } from '../dtos/listings/listing-lottery-status.dto';
+import { ListingsQueryBody } from '../dtos/listings/listings-query-body.dto';
 import { ListingsQueryParams } from '../dtos/listings/listings-query-params.dto';
 import { ListingUpdate } from '../dtos/listings/listing-update.dto';
+import { Compare } from '../dtos/shared/base-filter.dto';
 import { IdDTO } from '../dtos/shared/id.dto';
 import { SuccessDTO } from '../dtos/shared/success.dto';
 import { User } from '../dtos/users/user.dto';
 import Unit from '../dtos/units/unit.dto';
+import { FeatureFlagEnum } from '../enums/feature-flags/feature-flags-enum';
 import { ListingViews } from '../enums/listings/view-enum';
 import { FilterAvailabilityEnum } from '../enums/listings/filter-availability-enum';
 import { ListingFilterKeys } from '../enums/listings/filter-key-enum';
@@ -55,6 +61,10 @@ import {
   summarizeUnitsByTypeAndRent,
   summarizeUnits,
 } from '../utilities/unit-utilities';
+import { ListingOrderByKeys } from '../enums/listings/order-by-enum';
+import { fillModelStringFields } from '../utilities/model-fields';
+import { doJurisdictionHaveFeatureFlagSet } from '../utilities/feature-flag-utilities';
+import { addUnitGroupsSummarized } from '../utilities/unit-groups-transformations';
 
 export type getListingsArgs = {
   skip: number;
@@ -80,6 +90,22 @@ export const views: Partial<Record<ListingViews, Prisma.ListingsInclude>> = {
     },
     listingFeatures: true,
     listingUtilities: true,
+    listingNeighborhoodAmenities: true,
+  },
+};
+
+views.name = {
+  Listings: {
+    select: {
+      name: true,
+      id: true,
+    },
+  },
+  jurisdictions: {
+    select: {
+      id: true,
+      name: true,
+    },
   },
 };
 
@@ -89,6 +115,20 @@ views.base = {
     include: {
       unitTypes: true,
       unitAmiChartOverrides: true,
+    },
+  },
+  unitGroups: {
+    include: {
+      unitTypes: true,
+      unitGroupAmiLevels: {
+        include: {
+          amiChart: {
+            include: {
+              jurisdictions: true,
+            },
+          },
+        },
+      },
     },
   },
 };
@@ -130,6 +170,20 @@ views.full = {
       },
     },
   },
+  unitGroups: {
+    include: {
+      unitTypes: true,
+      unitGroupAmiLevels: {
+        include: {
+          amiChart: {
+            include: {
+              jurisdictions: true,
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 views.details = {
@@ -137,13 +191,9 @@ views.details = {
   ...views.full,
 };
 
-views.csv = {
-  ...views.base,
-  ...views.full,
-  userAccounts: true,
-};
-
 const LISTING_CRON_JOB_NAME = 'LISTING_CRON_JOB';
+// Number of counties that Doorway supports
+const TOTAL_COUNTY_COUNT = 9;
 /*
   this is the service for listings
   it handles all the backend's business logic for reading in listing(s)
@@ -179,7 +229,7 @@ export class ListingService implements OnModuleInit {
     this set can either be paginated or not depending on the params
     it will return both the set of listings, and some meta information to help with pagination
   */
-  async list(params: ListingsQueryParams): Promise<{
+  async list(params: ListingsQueryBody | ListingsQueryParams): Promise<{
     items: Listing[];
     meta: {
       currentPage: number;
@@ -207,7 +257,10 @@ export class ListingService implements OnModuleInit {
     const listingsRaw = await this.prisma.listings.findMany({
       skip: calculateSkip(params.limit, page),
       take: calculateTake(params.limit),
-      orderBy: buildOrderByForListings(params.orderBy, params.orderDir),
+      orderBy: buildOrderByForListings(
+        params.orderBy,
+        params.orderDir,
+      ) as Prisma.ListingsOrderByWithRelationInput[],
       include: views[params.view ?? 'full'],
       where: whereClause,
     });
@@ -225,6 +278,8 @@ export class ListingService implements OnModuleInit {
       }
     });
 
+    addUnitGroupsSummarized(listings);
+
     const paginationInfo = buildPaginationMetaInfo(
       params,
       count,
@@ -237,23 +292,16 @@ export class ListingService implements OnModuleInit {
     };
   }
 
-  async listCombined(params: ListingsQueryParams): Promise<{
-    items: Listing[];
-    meta: {
-      currentPage: number;
-      itemCount: number;
-      itemsPerPage: number;
-      totalItems: number;
-      totalPages: number;
-    };
-  }> {
+  async buildListingsWhereClause(params: ListingsQueryParams) {
     const onlyLettersPattern = /^[A-Za-z ]+$/;
     const whereClauseArray = [];
-    if (params?.filter?.length) {
+    const queryParameters = [];
+    let includeUnitFiltering = false;
+    if (params?.filter?.length && this.findIfThereAreAnyFilters(params)) {
       params.filter.forEach((filter) => {
         if (filter[ListingFilterKeys.counties]) {
           const countyArray = [];
-          // check to remove potential malicous strings such as sql injection by only allowing letters and spaces
+          // check to remove potential malicious strings such as sql injection by only allowing letters and spaces
           filter[ListingFilterKeys.counties].forEach((county) => {
             if (county.match(onlyLettersPattern)) {
               countyArray.push(`'${county}'`);
@@ -263,7 +311,14 @@ export class ListingService implements OnModuleInit {
             `(combined.listings_building_address->>'county') in (${countyArray})`,
           );
         }
+        if (filter[ListingFilterKeys.ids]) {
+          const listingsArray = filter[ListingFilterKeys.ids].map(
+            (filterId) => `'${filterId}'`,
+          );
+          whereClauseArray.push(`combined.id in (${listingsArray})`);
+        }
         if (filter[ListingFilterKeys.bedrooms]) {
+          includeUnitFiltering = true;
           whereClauseArray.push(
             `(combined_units->>'numBedrooms') =  '${Math.floor(
               filter[ListingFilterKeys.bedrooms],
@@ -271,6 +326,7 @@ export class ListingService implements OnModuleInit {
           );
         }
         if (filter[ListingFilterKeys.bathrooms]) {
+          includeUnitFiltering = true;
           whereClauseArray.push(
             `(combined_units->>'numBathrooms') =  '${Math.floor(
               filter[ListingFilterKeys.bathrooms],
@@ -289,12 +345,24 @@ export class ListingService implements OnModuleInit {
           whereClauseArray.push(`combined.units_available >= 1`);
         }
         if (filter[ListingFilterKeys.monthlyRent]) {
+          includeUnitFiltering = true;
           const comparison = filter['$comparison'];
           whereClauseArray.push(
             `(combined_units->>'monthlyRent')::FLOAT ${comparison} '${
               filter[ListingFilterKeys.monthlyRent]
             }'`,
           );
+        }
+
+        if (filter[ListingFilterKeys.name]) {
+          const comparison = filter['$comparison'];
+          // Parameterized to prevent sql injection while allowing all characters
+          whereClauseArray.push(
+            `UPPER(combined.name) ${comparison} UPPER($${
+              queryParameters.length + 1
+            })`,
+          );
+          queryParameters.push(`%${filter[ListingFilterKeys.name]}%`);
         }
       });
     }
@@ -303,21 +371,41 @@ export class ListingService implements OnModuleInit {
     whereClauseArray.push("combined.status = 'active'");
 
     const whereClause = whereClauseArray?.length
-      ? `where ${whereClauseArray.join(' AND ')}`
+      ? `${whereClauseArray.join(' AND ')}`
       : '';
+
+    // Only add the unit joins if we need to filter on those fields
     const rawQuery = `select DISTINCT combined.id AS id
-    From combined_listings combined, jsonb_array_elements(combined.units) combined_units
+    From combined_listings combined ${
+      includeUnitFiltering
+        ? `, combined_listings_units combined_listings_units, jsonb_array_elements(combined_listings_units.units) combined_units where combined.id = combined_listings_units.id ${
+            whereClause ? 'AND ' : ''
+          }`
+        : 'where '
+    }
     ${whereClause}`;
 
     // The raw unsafe query is not ideal. But for the use case we have it is the only way
     // to do the constructed query. SQL injections are safeguarded by dto validation to type check
     // and the ones that are strings are checked to only be appropriate characters above
-    const listingIds: { id: string }[] = await this.prisma.$queryRawUnsafe(
-      rawQuery,
-    );
+    const listingIds: { id: string }[] = queryParameters.length
+      ? await this.prisma.$queryRawUnsafe(rawQuery, ...queryParameters)
+      : await this.prisma.$queryRawUnsafe(rawQuery);
+    return listingIds;
+  }
 
+  async listCombined(params: ListingsQueryParams): Promise<{
+    items: Listing[];
+    meta: {
+      currentPage: number;
+      itemCount: number;
+      itemsPerPage: number;
+      totalItems: number;
+      totalPages: number;
+    };
+  }> {
+    const listingIds = await this.buildListingsWhereClause(params);
     const count = listingIds?.length;
-
     // if passed in page and limit would result in no results because there aren't that many listings
     // revert back to the first page
     let page = params.page;
@@ -331,26 +419,38 @@ export class ListingService implements OnModuleInit {
       skip: calculateSkip(params.limit, page),
       take: calculateTake(params.limit),
       where: {
-        id: {
-          in: listingIds.map((listing) => listing.id),
-        },
+        status: ListingsStatusEnum.active,
+        // Only filter by id if there are filters
+        id: this.findIfThereAreAnyFilters(params)
+          ? {
+              in: listingIds.map((listing) => listing.id),
+            }
+          : undefined,
       },
+      orderBy: buildOrderByForListings(
+        [ListingOrderByKeys.mostRecentlyPublished],
+        params.orderDir,
+      ) as Prisma.CombinedListingsOrderByWithRelationInput[],
     });
 
-    listingsRaw.forEach((listing) => {
-      if (
-        !listing.unitsSummarized &&
-        Array.isArray(listing.units) &&
-        listing.units.length > 0
-      ) {
-        listing.unitsSummarized = {
-          byUnitTypeAndRent: summarizeUnitsByTypeAndRent(
-            listing.units as unknown as Unit[],
-            listing as unknown as Listing,
-          ),
-        } as unknown as Prisma.JsonObject;
+    // Get units for each listing if it doesn't already exist
+    for (const listing of listingsRaw) {
+      if (!listing.unitsSummarized) {
+        const units = await this.prisma.combinedListingsUnits.findFirst({
+          where: {
+            id: listing.id,
+          },
+        });
+        if (units) {
+          listing.unitsSummarized = {
+            byUnitTypeAndRent: summarizeUnitsByTypeAndRent(
+              units.units as unknown as Unit[],
+              listing as unknown as Listing,
+            ),
+          } as unknown as Prisma.JsonObject;
+        }
       }
-    });
+    }
 
     const paginationInfo = buildPaginationMetaInfo(
       params,
@@ -369,7 +469,12 @@ export class ListingService implements OnModuleInit {
     listingId?: string,
     jurisId?: string,
     getPublicUrl = false,
-  ): Promise<{ emails: string[]; publicUrl?: string | null }> {
+    getEmailFromAddress = false,
+  ): Promise<{
+    emails: string[];
+    publicUrl?: string | null;
+    emailFromAddress?: string | null;
+  }> {
     // determine where clause(s)
     const userRolesWhere: Prisma.UserAccountsWhereInput[] = [];
     if (userRoles.includes(UserRoleEnum.admin))
@@ -385,76 +490,44 @@ export class ListingService implements OnModuleInit {
         jurisdictions: { some: { id: jurisId } },
       });
     }
+    if (userRoles.includes(UserRoleEnum.limitedJurisdictionAdmin)) {
+      userRolesWhere.push({
+        userRoles: { isLimitedJurisdictionalAdmin: true },
+        jurisdictions: { some: { id: jurisId } },
+      });
+    }
 
-    const userResults = await this.prisma.userAccounts.findMany({
-      include: {
-        jurisdictions: {
-          select: {
-            id: true,
-            publicUrl: getPublicUrl,
-          },
-        },
+    const rawUsers = await this.prisma.userAccounts.findMany({
+      select: {
+        id: true,
+        email: true,
       },
       where: {
         OR: userRolesWhere,
       },
     });
 
-    // account for users having access to multiple jurisdictions
-    const publicUrl = getPublicUrl
-      ? userResults[0]?.jurisdictions?.find((juris) => juris.id === jurisId)
-          ?.publicUrl
-      : null;
-    const userEmails: string[] = [];
-    userResults?.forEach((user) => user?.email && userEmails.push(user.email));
-    return { emails: userEmails, publicUrl };
-  }
-
-  public async getPublicUserEmailInfo(
-    listingId?: string,
-  ): Promise<{ [key: string]: string[] }> {
-    const userResults = await this.prisma.applications.findMany({
+    const rawJuris = await this.prisma.jurisdictions.findFirst({
       select: {
-        language: true,
-        applicant: {
-          select: {
-            emailAddress: true,
-          },
-        },
+        id: true,
+        publicUrl: getPublicUrl,
+        emailFromAddress: getEmailFromAddress,
       },
       where: {
-        listingId,
-        applicant: {
-          emailAddress: {
-            not: null,
-          },
-        },
+        id: jurisId,
       },
     });
 
-    const result = {};
-    Object.keys(LanguagesEnum).forEach((languageKey) => {
-      const applications = userResults
-        .filter((user) => user.language === languageKey)
-        .map((userObj) => userObj.applicant.emailAddress);
-      if (applications.length) {
-        result[languageKey] = applications;
-      }
-    });
+    const publicUrl = getPublicUrl ? rawJuris?.publicUrl : null;
+    const emailFromAddress = getEmailFromAddress
+      ? rawJuris?.emailFromAddress
+      : null;
 
-    const noLanguageIndicated = userResults
-      .filter((user) => !user.language)
-      .map((userObj) => userObj.applicant.emailAddress);
-
-    if (!result[LanguagesEnum.en])
-      result[LanguagesEnum.en] = noLanguageIndicated;
-    else
-      result[LanguagesEnum.en] = [
-        ...result[LanguagesEnum.en],
-        ...noLanguageIndicated,
-      ];
-
-    return result;
+    const userEmails: string[] = rawUsers?.reduce((userEmails, user) => {
+      if (user?.email) userEmails.push(user.email);
+      return userEmails;
+    }, []);
+    return { emails: userEmails, publicUrl, emailFromAddress };
   }
 
   public async listingApprovalNotify(params: {
@@ -465,7 +538,10 @@ export class ListingService implements OnModuleInit {
     previousStatus?: ListingsStatusEnum;
     jurisId: string;
   }) {
-    const nonApprovingRoles: UserRoleEnum[] = [UserRoleEnum.partner];
+    const nonApprovingRoles: UserRoleEnum[] = [
+      UserRoleEnum.limitedJurisdictionAdmin,
+      UserRoleEnum.partner,
+    ];
     if (!params.approvingRoles.includes(UserRoleEnum.jurisdictionAdmin))
       nonApprovingRoles.push(UserRoleEnum.jurisdictionAdmin);
     if (
@@ -476,6 +552,8 @@ export class ListingService implements OnModuleInit {
         params.approvingRoles,
         params.listingInfo.id,
         params.jurisId,
+        false,
+        true,
       );
       await this.emailService.requestApproval(
         { id: params.jurisId },
@@ -493,6 +571,8 @@ export class ListingService implements OnModuleInit {
         nonApprovingRoles,
         params.listingInfo.id,
         params.jurisId,
+        false,
+        true,
       );
       await this.emailService.changesRequested(
         params.user,
@@ -518,6 +598,7 @@ export class ListingService implements OnModuleInit {
           params.listingInfo.id,
           params.jurisId,
           true,
+          true,
         );
         await this.emailService.listingApproved(
           { id: params.jurisId },
@@ -538,8 +619,485 @@ export class ListingService implements OnModuleInit {
   ): Prisma.ListingsWhereInput {
     const filters: Prisma.ListingsWhereInput[] = [];
 
+    const notUnderConstruction = buildFilter({
+      $comparison: Compare['<>'],
+      $include_nulls: false,
+      value: FilterAvailabilityEnum.comingSoon,
+      key: ListingFilterKeys.availabilities,
+      caseSensitive: true,
+    });
+
+    // detect combined >=/<= monthlyRent filters and add one range filter
+    const rentParams =
+      params?.filter((f) => f[ListingFilterKeys.monthlyRent] !== undefined) ||
+      [];
+    const minRent = rentParams.find((f) => f.$comparison === Compare['>=']);
+    const maxRent = rentParams.find((f) => f.$comparison === Compare['<=']);
+    if (minRent && maxRent) {
+      const min = minRent[ListingFilterKeys.monthlyRent];
+      const max = maxRent[ListingFilterKeys.monthlyRent];
+      filters.push({
+        OR: [
+          {
+            units: {
+              some: {
+                AND: [
+                  { monthlyRent: { gte: min } },
+                  { monthlyRent: { lte: max } },
+                ],
+              },
+            },
+          },
+          {
+            unitGroups: {
+              some: {
+                unitGroupAmiLevels: {
+                  some: {
+                    OR: [
+                      {
+                        AND: [
+                          { flatRentValue: { gte: min } },
+                          { flatRentValue: { lte: max } },
+                        ],
+                      },
+                      { percentageOfIncomeValue: { not: null } },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        ],
+      });
+    }
+
     if (params?.length) {
       params.forEach((filter) => {
+        if (filter[ListingFilterKeys.availabilities]) {
+          const orOptions = filter[ListingFilterKeys.availabilities].map(
+            (availability) => {
+              if (availability === FilterAvailabilityEnum.closedWaitlist) {
+                const builtFilter = buildFilter({
+                  $comparison: Compare['='],
+                  $include_nulls: false,
+                  value: false,
+                  key: ListingFilterKeys.availabilities,
+                  caseSensitive: true,
+                });
+                return {
+                  AND: builtFilter
+                    .map((filt) => ({
+                      unitGroups: {
+                        some: {
+                          [FilterAvailabilityEnum.openWaitlist]: filt,
+                        },
+                      },
+                    }))
+                    .concat(
+                      notUnderConstruction.map((filt) => ({
+                        marketingType: filt,
+                      })),
+                    ),
+                };
+              } else if (availability === FilterAvailabilityEnum.comingSoon) {
+                const builtFilter = buildFilter({
+                  $comparison: Compare['='],
+                  $include_nulls: false,
+                  value: MarketingTypeEnum.comingSoon,
+                  key: ListingFilterKeys.availabilities,
+                  caseSensitive: true,
+                });
+                return builtFilter.map((filt) => ({
+                  marketingType: filt,
+                }));
+              } else if (availability === FilterAvailabilityEnum.openWaitlist) {
+                const builtFilter = buildFilter({
+                  $comparison: Compare['='],
+                  $include_nulls: false,
+                  value: true,
+                  key: ListingFilterKeys.availabilities,
+                  caseSensitive: true,
+                });
+                return {
+                  AND: builtFilter
+                    .map((filt) => ({
+                      unitGroups: {
+                        some: {
+                          [FilterAvailabilityEnum.openWaitlist]: filt,
+                        },
+                      },
+                    }))
+                    .concat(
+                      notUnderConstruction.map((filt) => ({
+                        marketingType: filt,
+                      })),
+                    ),
+                };
+              } else if (availability === FilterAvailabilityEnum.waitlistOpen) {
+                const builtFilter = buildFilter({
+                  $comparison: Compare['='],
+                  $include_nulls: false,
+                  value: ReviewOrderTypeEnum.waitlist,
+                  key: ListingFilterKeys.availabilities,
+                  caseSensitive: true,
+                });
+                return builtFilter.map((filt) => ({
+                  reviewOrderType: filt,
+                }));
+              } else if (
+                availability === FilterAvailabilityEnum.unitsAvailable
+              ) {
+                const builtFilter = buildFilter({
+                  $comparison: Compare['>='],
+                  $include_nulls: false,
+                  value: 1,
+                  key: ListingFilterKeys.availabilities,
+                  caseSensitive: true,
+                });
+                return builtFilter.map((filt) => ({
+                  unitsAvailable: filt,
+                }));
+              }
+            },
+          );
+
+          filters.push({
+            OR: orOptions.flat(),
+          });
+        }
+        if (
+          filter[ListingFilterKeys.availability] ===
+          FilterAvailabilityEnum.closedWaitlist
+        ) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: false,
+            key: ListingFilterKeys.availability,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: [
+              {
+                AND: builtFilter
+                  .map((filt) => ({
+                    unitGroups: {
+                      some: { [FilterAvailabilityEnum.openWaitlist]: filt },
+                    },
+                  }))
+                  .concat(
+                    notUnderConstruction.map((filt) => ({
+                      marketingType: filt,
+                    })),
+                  ),
+              },
+            ],
+          });
+        } else if (
+          filter[ListingFilterKeys.availability] ===
+          FilterAvailabilityEnum.comingSoon
+        ) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.availability],
+            key: ListingFilterKeys.availability,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              marketingType: filt,
+            })),
+          });
+        } else if (
+          filter[ListingFilterKeys.availability] ===
+          FilterAvailabilityEnum.openWaitlist
+        ) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: true,
+            key: ListingFilterKeys.availability,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: [
+              {
+                AND: builtFilter
+                  .map((filt) => ({
+                    unitGroups: {
+                      some: { [FilterAvailabilityEnum.openWaitlist]: filt },
+                    },
+                  }))
+                  .concat(
+                    notUnderConstruction.map((filt) => ({
+                      marketingType: filt,
+                    })),
+                  ),
+              },
+            ],
+          });
+        } else if (
+          filter[ListingFilterKeys.availability] ===
+          FilterAvailabilityEnum.waitlistOpen
+        ) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: ReviewOrderTypeEnum.waitlist,
+            key: ListingFilterKeys.availability,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              reviewOrderType: filt,
+            })),
+          });
+        } else if (
+          filter[ListingFilterKeys.availability] ===
+          FilterAvailabilityEnum.unitsAvailable
+        ) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: 1,
+            key: ListingFilterKeys.availability,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              unitsAvailable: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.bathrooms] !== undefined) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.bathrooms],
+            key: ListingFilterKeys.bathrooms,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              units: {
+                some: {
+                  numBathrooms: filt,
+                },
+              },
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.bedrooms] !== undefined) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.bedrooms],
+            key: ListingFilterKeys.bedrooms,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: [
+              ...builtFilter.map((filt) => ({
+                units: {
+                  some: {
+                    numBedrooms: filt,
+                  },
+                },
+              })),
+              ...builtFilter.map((filt) => ({
+                unitGroups: {
+                  some: {
+                    unitTypes: {
+                      some: {
+                        numBedrooms: filt,
+                      },
+                    },
+                  },
+                },
+              })),
+            ],
+          });
+        }
+        if (filter[ListingFilterKeys.bedroomTypes] !== undefined) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.bedroomTypes],
+            key: ListingFilterKeys.bedroomTypes,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: [
+              ...builtFilter.map((filt) => ({
+                units: {
+                  some: {
+                    numBedrooms: filt,
+                  },
+                },
+              })),
+              ...builtFilter.map((filt) => ({
+                unitGroups: {
+                  some: {
+                    unitTypes: {
+                      some: {
+                        numBedrooms: filt,
+                      },
+                    },
+                  },
+                },
+              })),
+            ],
+          });
+        }
+        if (filter[ListingFilterKeys.city]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.city],
+            key: ListingFilterKeys.city,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              listingsBuildingAddress: {
+                city: filt,
+              },
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.counties]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.counties],
+            key: ListingFilterKeys.counties,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              listingsBuildingAddress: {
+                county: filt,
+              },
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.homeTypes]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.homeTypes],
+            key: ListingFilterKeys.homeTypes,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              homeType: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.ids]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.ids],
+            key: ListingFilterKeys.ids,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              id: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.isVerified] !== undefined) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.isVerified],
+            key: ListingFilterKeys.isVerified,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              [ListingFilterKeys.isVerified]: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.jurisdiction]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.jurisdiction],
+            key: ListingFilterKeys.jurisdiction,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              jurisdictionId: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.leasingAgent]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.leasingAgent],
+            key: ListingFilterKeys.leasingAgent,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              userAccounts: {
+                some: {
+                  id: filt,
+                },
+              },
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.listingFeatures]) {
+          filters.push({
+            OR: filter[ListingFilterKeys.listingFeatures].map((feature) => ({
+              listingFeatures: {
+                [feature]: true,
+              },
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.monthlyRent]) {
+          if (minRent && maxRent) return;
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.monthlyRent],
+            key: ListingFilterKeys.monthlyRent,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: [
+              ...builtFilter.map((filt) => ({
+                units: {
+                  some: {
+                    [ListingFilterKeys.monthlyRent]: filt,
+                  },
+                },
+              })),
+              ...builtFilter.map((filt) => ({
+                unitGroups: {
+                  some: {
+                    unitGroupAmiLevels: {
+                      some: {
+                        OR: [
+                          { flatRentValue: filt },
+                          { percentageOfIncomeValue: { not: null } },
+                        ],
+                      },
+                    },
+                  },
+                },
+              })),
+            ],
+          });
+        }
         if (filter[ListingFilterKeys.name]) {
           const builtFilter = buildFilter({
             $comparison: filter.$comparison,
@@ -551,7 +1109,80 @@ export class ListingService implements OnModuleInit {
           filters.push({
             OR: builtFilter.map((filt) => ({ [ListingFilterKeys.name]: filt })),
           });
-        } else if (filter[ListingFilterKeys.status]) {
+        }
+        if (filter[ListingFilterKeys.neighborhood]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.neighborhood],
+            key: ListingFilterKeys.neighborhood,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              [ListingFilterKeys.neighborhood]: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.multiselectQuestions]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.multiselectQuestions],
+            key: ListingFilterKeys.multiselectQuestions,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              listingMultiselectQuestions: {
+                some: { multiselectQuestionId: filt },
+              },
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.regions]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.regions],
+            key: ListingFilterKeys.regions,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              region: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.reservedCommunityTypes]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.reservedCommunityTypes],
+            key: ListingFilterKeys.reservedCommunityTypes,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              [ListingFilterKeys.reservedCommunityTypes]: {
+                name: filt,
+              },
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.section8Acceptance] !== undefined) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[ListingFilterKeys.section8Acceptance],
+            key: ListingFilterKeys.section8Acceptance,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              [ListingFilterKeys.section8Acceptance]: filt,
+            })),
+          });
+        }
+        if (filter[ListingFilterKeys.status]) {
           const builtFilter = buildFilter({
             $comparison: filter.$comparison,
             $include_nulls: false,
@@ -564,76 +1195,19 @@ export class ListingService implements OnModuleInit {
               [ListingFilterKeys.status]: filt,
             })),
           });
-        } else if (filter[ListingFilterKeys.neighborhood]) {
+        }
+        if (filter[ListingFilterKeys.zipCode]) {
           const builtFilter = buildFilter({
             $comparison: filter.$comparison,
             $include_nulls: false,
-            value: filter[ListingFilterKeys.neighborhood],
-            key: ListingFilterKeys.neighborhood,
-          });
-          filters.push({
-            OR: builtFilter.map((filt) => ({
-              [ListingFilterKeys.neighborhood]: filt,
-            })),
-          });
-        } else if (filter[ListingFilterKeys.bedrooms]) {
-          const builtFilter = buildFilter({
-            $comparison: filter.$comparison,
-            $include_nulls: false,
-            value: filter[ListingFilterKeys.bedrooms],
-            key: ListingFilterKeys.bedrooms,
-          });
-          filters.push({
-            OR: builtFilter.map((filt) => ({
-              units: {
-                some: {
-                  numBedrooms: filt,
-                },
-              },
-            })),
-          });
-        } else if (filter[ListingFilterKeys.zipcode]) {
-          const builtFilter = buildFilter({
-            $comparison: filter.$comparison,
-            $include_nulls: false,
-            value: filter[ListingFilterKeys.zipcode],
-            key: ListingFilterKeys.zipcode,
+            value: filter[ListingFilterKeys.zipCode],
+            key: ListingFilterKeys.zipCode,
           });
           filters.push({
             OR: builtFilter.map((filt) => ({
               listingsBuildingAddress: {
-                zipCode: filt,
+                [ListingFilterKeys.zipCode]: filt,
               },
-            })),
-          });
-        } else if (filter[ListingFilterKeys.leasingAgents]) {
-          const builtFilter = buildFilter({
-            $comparison: filter.$comparison,
-            $include_nulls: false,
-            value: filter[ListingFilterKeys.leasingAgents],
-            key: ListingFilterKeys.leasingAgents,
-            caseSensitive: true,
-          });
-          filters.push({
-            OR: builtFilter.map((filt) => ({
-              userAccounts: {
-                some: {
-                  id: filt,
-                },
-              },
-            })),
-          });
-        } else if (filter[ListingFilterKeys.jurisdiction]) {
-          const builtFilter = buildFilter({
-            $comparison: filter.$comparison,
-            $include_nulls: false,
-            value: filter[ListingFilterKeys.jurisdiction],
-            key: ListingFilterKeys.jurisdiction,
-            caseSensitive: true,
-          });
-          filters.push({
-            OR: builtFilter.map((filt) => ({
-              jurisdictionId: filt,
             })),
           });
         }
@@ -662,16 +1236,26 @@ export class ListingService implements OnModuleInit {
     listingId: string,
     lang: LanguagesEnum = LanguagesEnum.en,
     view: ListingViews = ListingViews.full,
+    combined?: boolean,
   ): Promise<Listing> {
-    const listingRaw = await this.findOrThrow(listingId, view);
+    const listingRaw = combined
+      ? await this.findOrThrowCombined(listingId)
+      : await this.findOrThrow(listingId, view);
 
     let result = mapTo(Listing, listingRaw);
 
-    if (lang && lang !== LanguagesEnum.en) {
+    // because we don't need auto translations on the public site map pin pop ups
+    // we skip the translation step
+    if (!combined && lang && lang !== LanguagesEnum.en) {
       result = await this.translationService.translateListing(result, lang);
     }
 
-    await this.addUnitsSummarized(result);
+    if (result.unitGroups?.length > 0) {
+      addUnitGroupsSummarized(result);
+    } else {
+      await this.addUnitsSummarized(result);
+    }
+
     return result;
   }
 
@@ -824,7 +1408,11 @@ export class ListingService implements OnModuleInit {
   /*
     creates a listing
   */
-  async create(dto: ListingCreate, requestingUser: User): Promise<Listing> {
+  async create(
+    dto: ListingCreate,
+    requestingUser: User,
+    copyOfId?: string,
+  ): Promise<Listing> {
     await this.permissionService.canOrThrow(
       requestingUser,
       'listing',
@@ -834,9 +1422,41 @@ export class ListingService implements OnModuleInit {
       },
     );
 
+    const rawJurisdiction = await this.prisma.jurisdictions.findFirst({
+      where: {
+        id: dto.jurisdictions.id,
+      },
+      include: {
+        featureFlags: true,
+      },
+    });
+
+    const enableUnitGroups = doJurisdictionHaveFeatureFlagSet(
+      rawJurisdiction as Jurisdiction,
+      FeatureFlagEnum.enableUnitGroups,
+    );
+
+    if (
+      (enableUnitGroups && dto.units?.length > 0) ||
+      (!enableUnitGroups && dto.unitGroups?.length > 0)
+    ) {
+      throw new BadRequestException({
+        message: `Cannot provide ${
+          enableUnitGroups ? 'units' : 'unitGroups'
+        } with enableUnitGroups flag set to ${enableUnitGroups}`,
+        status: 400,
+      });
+    }
+
     dto.unitsAvailable =
       dto.reviewOrderType !== ReviewOrderTypeEnum.waitlist && dto.units
         ? dto.units.length
+        : dto.unitGroups
+        ? dto.unitGroups.reduce(
+            (unitsAvailable, { totalAvailable }) =>
+              unitsAvailable + totalAvailable,
+            0,
+          )
         : 0;
 
     const rawListing = await this.prisma.listings.create({
@@ -1045,6 +1665,50 @@ export class ListingService implements OnModuleInit {
               })),
             }
           : undefined,
+        unitGroups: dto.unitGroups
+          ? {
+              create: dto.unitGroups.map((group) => ({
+                bathroomMax: group.bathroomMax,
+                bathroomMin: group.bathroomMin,
+                floorMax: group.floorMax,
+                floorMin: group.floorMin,
+                maxOccupancy: group.maxOccupancy,
+                minOccupancy: group.minOccupancy,
+                openWaitlist: group.openWaitlist,
+                sqFeetMax: group.sqFeetMax,
+                sqFeetMin: group.sqFeetMin,
+                totalAvailable: group.totalAvailable,
+                totalCount: group.totalCount,
+                unitGroupAmiLevels: {
+                  create: group.unitGroupAmiLevels.map((level) => ({
+                    amiPercentage: level.amiPercentage,
+                    monthlyRentDeterminationType:
+                      level.monthlyRentDeterminationType,
+                    percentageOfIncomeValue: level.percentageOfIncomeValue,
+                    flatRentValue: level.flatRentValue,
+                    amiChart: level.amiChart?.id
+                      ? {
+                          connect: { id: level.amiChart.id },
+                        }
+                      : undefined,
+                  })),
+                },
+                unitAccessibilityPriorityTypes:
+                  group.unitAccessibilityPriorityTypes
+                    ? {
+                        connect: {
+                          id: group.unitAccessibilityPriorityTypes.id,
+                        },
+                      }
+                    : undefined,
+                unitTypes: {
+                  connect: group.unitTypes.map((type) => ({
+                    id: type.id,
+                  })),
+                },
+              })),
+            }
+          : undefined,
         unitsSummary: dto.unitsSummary
           ? {
               create: dto.unitsSummary.map((unitSummary) => ({
@@ -1074,8 +1738,26 @@ export class ListingService implements OnModuleInit {
               },
             }
           : undefined,
+        listingNeighborhoodAmenities: dto.listingNeighborhoodAmenities
+          ? {
+              create: {
+                ...dto.listingNeighborhoodAmenities,
+              },
+            }
+          : undefined,
         requestedChangesUser: undefined,
+        publishedAt:
+          dto.status === ListingsStatusEnum.active ? new Date() : undefined,
         contentUpdatedAt: new Date(),
+        section8Acceptance: !!dto.section8Acceptance,
+        copyOf: copyOfId
+          ? {
+              connect: {
+                id: copyOfId,
+              },
+            }
+          : undefined,
+        isVerified: !!dto.isVerified,
       },
     });
 
@@ -1114,6 +1796,162 @@ export class ListingService implements OnModuleInit {
     return mapTo(Listing, rawListing);
   }
 
+  async duplicate(
+    dto: ListingDuplicate,
+    requestingUser: User,
+  ): Promise<Listing> {
+    const storedListing = await this.findOrThrow(
+      dto.storedListing.id,
+      ListingViews.details,
+    );
+    if (dto.name.trim() === storedListing.name) {
+      throw new BadRequestException('New listing name must be unique');
+    }
+
+    const duplicateListingPermissions = (
+      requestingUser?.jurisdictions?.length === 1
+        ? requestingUser?.jurisdictions[0]
+        : requestingUser?.jurisdictions?.find(
+            (juris) => juris.id === storedListing?.jurisdictions?.id,
+          )
+    )?.duplicateListingPermissions;
+
+    const userRoles =
+      requestingUser?.userRoles?.isAdmin ||
+      (requestingUser?.userRoles?.isJurisdictionalAdmin &&
+        duplicateListingPermissions?.includes(
+          UserRoleEnum.jurisdictionAdmin,
+        )) ||
+      (requestingUser?.userRoles?.isPartner &&
+        duplicateListingPermissions?.includes(UserRoleEnum.partner))
+        ? {
+            ...requestingUser.userRoles,
+            isAdmin: true,
+          }
+        : {
+            ...requestingUser?.userRoles,
+            isAdmin: false,
+          };
+
+    await this.permissionService.canOrThrow(
+      { ...requestingUser, userRoles: userRoles },
+      'listing',
+      permissionActions.create,
+      {
+        jurisdictionId: storedListing.jurisdictions.id,
+      },
+    );
+
+    //manually check for juris/listing mismatch since logic above is forcing admin permissioning
+    if (
+      (requestingUser?.userRoles?.isJurisdictionalAdmin &&
+        !requestingUser?.jurisdictions?.some(
+          (juris) => juris.id === storedListing.jurisdictionId,
+        )) ||
+      (requestingUser?.userRoles?.isPartner &&
+        !requestingUser?.listings?.some(
+          (listing) => listing.id === storedListing.id,
+        ))
+    ) {
+      throw new ForbiddenException();
+    }
+
+    const mappedListing = mapTo(ListingCreate, storedListing);
+
+    const listingEvents = mappedListing.listingEvents?.filter(
+      (event) => event.type !== ListingEventsTypeEnum.lotteryResults,
+    );
+
+    const listingImages = mappedListing.listingImages?.map((unsavedImage) => ({
+      assets: {
+        fileId: unsavedImage.assets.fileId,
+        label: unsavedImage.assets.label,
+      },
+      ordinal: unsavedImage.ordinal,
+    }));
+
+    const applicationMethods = mappedListing.applicationMethods?.map(
+      (applicationMethod) => ({
+        ...applicationMethod,
+        paperApplications: applicationMethod.paperApplications?.map(
+          (paperApplication) => ({
+            ...paperApplication,
+            assets: {
+              fileId: paperApplication.assets.fileId,
+              label: paperApplication.assets.label,
+            },
+          }),
+        ),
+      }),
+    );
+
+    if (!dto.includeUnits) {
+      delete mappedListing['units'];
+      delete mappedListing['unitGroups'];
+    }
+
+    const newListingData: ListingCreate = {
+      ...mappedListing,
+      applicationMethods: applicationMethods,
+      assets: [],
+      listingsBuildingSelectionCriteriaFile:
+        mappedListing.listingsBuildingSelectionCriteriaFile
+          ? {
+              fileId:
+                mappedListing.listingsBuildingSelectionCriteriaFile.fileId,
+              label: mappedListing.listingsBuildingSelectionCriteriaFile.label,
+            }
+          : undefined,
+      listingEvents: listingEvents,
+      listingImages: listingImages,
+      listingMultiselectQuestions:
+        storedListing.listingMultiselectQuestions?.map((question) => ({
+          id: question.multiselectQuestionId,
+          ordinal: question.ordinal,
+        })),
+      lotteryLastRunAt: undefined,
+      lotteryLastPublishedAt: undefined,
+      lotteryStatus: undefined,
+      name: dto.name,
+      status: ListingsStatusEnum.pending,
+    };
+
+    const res = await this.create(
+      newListingData,
+      {
+        ...requestingUser,
+        userRoles: userRoles,
+      },
+      storedListing.id,
+    );
+
+    if (
+      requestingUser?.userRoles?.isPartner &&
+      duplicateListingPermissions?.includes(UserRoleEnum.partner)
+    ) {
+      await this.prisma.userAccounts.update({
+        data: {
+          listings: {
+            connect: { id: res.id },
+          },
+        },
+        where: {
+          id: requestingUser.id,
+        },
+      });
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'user',
+          recordId: requestingUser.id,
+          action: 'update',
+          userAccounts: { connect: { id: requestingUser.id } },
+        },
+      });
+    }
+
+    return res;
+  }
+
   /*
     deletes a listing
   */
@@ -1146,8 +1984,10 @@ export class ListingService implements OnModuleInit {
     a listing view can be provided which will add the joins to produce that view correctly
   */
   async findOrThrow(id: string, view?: ListingViews) {
+    const viewInclude = view ? views[view] : undefined;
+
     const listing = await this.prisma.listings.findUnique({
-      include: view ? views[view] : undefined,
+      include: viewInclude,
       where: {
         id,
       },
@@ -1159,6 +1999,27 @@ export class ListingService implements OnModuleInit {
       );
     }
     return listing;
+  }
+
+  async findOrThrowCombined(id: string) {
+    const listing = await this.prisma.combinedListings.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!listing) {
+      throw new NotFoundException(
+        `listingId ${id} was requested but not found`,
+      );
+    }
+    const units = await this.prisma.combinedListingsUnits.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    return { ...listing, units: units?.units || [] };
   }
 
   /*
@@ -1211,6 +2072,51 @@ export class ListingService implements OnModuleInit {
     return undefined;
   }
 
+  /**
+   * @param listingId the listing id we are operating on
+   * @description disconnects assets from listing events, then deletes those assets
+   */
+  async updateListingEvents(listingId: string): Promise<void> {
+    const assetIds = await this.prisma.listingEvents.findMany({
+      select: {
+        id: true,
+        fileId: true,
+      },
+      where: {
+        listingId,
+      },
+    });
+    await Promise.all(
+      assetIds.map(async (assetData) => {
+        await this.prisma.listingEvents.update({
+          data: {
+            assets: {
+              disconnect: true,
+            },
+          },
+          where: {
+            id: assetData.id,
+          },
+        });
+      }),
+    );
+    const fileIds = assetIds.reduce((accum, curr) => {
+      if (curr.fileId) {
+        accum.push(curr.fileId);
+      }
+      return accum;
+    }, []);
+    if (fileIds.length) {
+      await this.prisma.assets.deleteMany({
+        where: {
+          id: {
+            in: fileIds,
+          },
+        },
+      });
+    }
+  }
+
   /*
     update a listing
   */
@@ -1254,9 +2160,41 @@ export class ListingService implements OnModuleInit {
       }
     }
 
+    const rawJurisdiction = await this.prisma.jurisdictions.findFirst({
+      where: {
+        id: dto.jurisdictions.id,
+      },
+      include: {
+        featureFlags: true,
+      },
+    });
+
+    const enableUnitGroups = doJurisdictionHaveFeatureFlagSet(
+      rawJurisdiction as Jurisdiction,
+      FeatureFlagEnum.enableUnitGroups,
+    );
+
+    if (
+      (enableUnitGroups && dto.units?.length > 0) ||
+      (!enableUnitGroups && dto.unitGroups?.length > 0)
+    ) {
+      throw new BadRequestException({
+        message: `Cannot provide ${
+          enableUnitGroups ? 'units' : 'unitGroups'
+        } with enableUnitGroups flag set to ${enableUnitGroups}`,
+        status: 400,
+      });
+    }
+
     dto.unitsAvailable =
       dto.reviewOrderType !== ReviewOrderTypeEnum.waitlist && dto.units
         ? dto.units.length
+        : dto.unitGroups
+        ? dto.unitGroups.reduce(
+            (unitsAvailable, { totalAvailable }) =>
+              unitsAvailable + totalAvailable,
+            0,
+          )
         : 0;
 
     // We need to save the assets before saving it to the listing_images table
@@ -1310,11 +2248,36 @@ export class ListingService implements OnModuleInit {
       dto,
       'listingsBuildingAddress',
     );
+    // Delete all assets tied to listing events before creating new ones
+    await this.updateListingEvents(dto.id);
+
+    const previousFeaturesId = storedListing.listingFeatures?.id;
+    const previousUtilitiesId = storedListing.listingUtilities?.id;
+    const previousNeighborhoodAmenitiesId =
+      storedListing.listingNeighborhoodAmenities?.id;
+
+    const fullNeighborhoodAmenities = fillModelStringFields(
+      'ListingNeighborhoodAmenities',
+      (dto.listingNeighborhoodAmenities as Record<string, string>) || {},
+    );
 
     // Wrap the deletion and update in one transaction so that units aren't lost if update fails
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const transactions = await this.prisma.$transaction([
-      // delete all connected units before recreating in update
+      // delete units and unitGroups with unitGroupAmiLevels
+      // technically there should be either units or unitGroups, not both
+      this.prisma.unitGroupAmiLevels.deleteMany({
+        where: {
+          unitGroup: {
+            listingId: storedListing.id,
+          },
+        },
+      }),
+      this.prisma.unitGroup.deleteMany({
+        where: {
+          listingId: storedListing.id,
+        },
+      }),
       this.prisma.units.deleteMany({
         where: {
           listingId: storedListing.id,
@@ -1395,6 +2358,7 @@ export class ListingService implements OnModuleInit {
                     ? {
                         create: {
                           ...event.assets,
+                          id: undefined,
                         },
                       }
                     : undefined,
@@ -1470,8 +2434,16 @@ export class ListingService implements OnModuleInit {
                 },
           listingUtilities: dto.listingUtilities
             ? {
-                create: {
-                  ...dto.listingUtilities,
+                upsert: {
+                  where: {
+                    id: previousUtilitiesId,
+                  },
+                  create: {
+                    ...dto.listingUtilities,
+                  },
+                  update: {
+                    ...dto.listingUtilities,
+                  },
                 },
               }
             : undefined,
@@ -1491,8 +2463,16 @@ export class ListingService implements OnModuleInit {
             : undefined,
           listingFeatures: dto.listingFeatures
             ? {
-                create: {
-                  ...dto.listingFeatures,
+                upsert: {
+                  where: {
+                    id: previousFeaturesId,
+                  },
+                  create: {
+                    ...dto.listingFeatures,
+                  },
+                  update: {
+                    ...dto.listingFeatures,
+                  },
                 },
               }
             : undefined,
@@ -1574,6 +2554,53 @@ export class ListingService implements OnModuleInit {
                 })),
               }
             : undefined,
+          unitGroups: dto.unitGroups
+            ? {
+                create: dto.unitGroups.map((group) => ({
+                  bathroomMax: group.bathroomMax,
+                  bathroomMin: group.bathroomMin,
+                  floorMax: group.floorMax,
+                  floorMin: group.floorMin,
+                  maxOccupancy: group.maxOccupancy,
+                  minOccupancy: group.minOccupancy,
+                  openWaitlist: group.openWaitlist,
+                  sqFeetMin: group.sqFeetMin,
+                  sqFeetMax: group.sqFeetMax,
+                  totalCount: group.totalCount,
+                  totalAvailable: group.totalAvailable,
+                  unitTypes: group.unitTypes
+                    ? {
+                        connect: group.unitTypes.map((type) => ({
+                          id: type.id,
+                        })),
+                      }
+                    : undefined,
+                  unitGroupAmiLevels: group.unitGroupAmiLevels
+                    ? {
+                        create: group.unitGroupAmiLevels.map((level) => ({
+                          amiPercentage: level.amiPercentage,
+                          flatRentValue: level.flatRentValue,
+                          monthlyRentDeterminationType:
+                            level.monthlyRentDeterminationType,
+                          percentageOfIncomeValue:
+                            level.percentageOfIncomeValue,
+                          amiChart: {
+                            connect: { id: level.amiChart.id },
+                          },
+                        })),
+                      }
+                    : undefined,
+                  unitAccessibilityPriorityTypes:
+                    group.unitAccessibilityPriorityTypes
+                      ? {
+                          connect: {
+                            id: group.unitAccessibilityPriorityTypes.id,
+                          },
+                        }
+                      : undefined,
+                })),
+              }
+            : undefined,
           unitsSummary: dto.unitsSummary
             ? {
                 create: dto.unitsSummary.map((unitSummary) => ({
@@ -1623,6 +2650,21 @@ export class ListingService implements OnModuleInit {
                 },
               }
             : undefined,
+          section8Acceptance: !!dto.section8Acceptance,
+          isVerified: !!dto.isVerified,
+          listingNeighborhoodAmenities: {
+            upsert: {
+              where: {
+                id: previousNeighborhoodAmenitiesId,
+              },
+              create: {
+                ...fullNeighborhoodAmenities,
+              },
+              update: {
+                ...fullNeighborhoodAmenities,
+              },
+            },
+          },
         },
         include: views.details,
         where: {
@@ -1638,6 +2680,7 @@ export class ListingService implements OnModuleInit {
     if (!rawListing) {
       throw new HttpException('listing failed to save', 500);
     }
+
     const listingApprovalPermissions = (
       await this.prisma.jurisdictions.findFirst({
         where: { id: dto.jurisdictions.id },
@@ -1659,7 +2702,15 @@ export class ListingService implements OnModuleInit {
       storedListing.status === ListingsStatusEnum.active &&
       dto.status === ListingsStatusEnum.closed
     ) {
-      await this.afsService.process(dto.id);
+      if (
+        process.env.DUPLICATES_CLOSE_DATE &&
+        dayjs(process.env.DUPLICATES_CLOSE_DATE, 'YYYY-MM-DD HH:mm Z') <
+          dayjs(new Date())
+      ) {
+        await this.afsService.processDuplicates(dto.id);
+      } else {
+        await this.afsService.process(dto.id);
+      }
     }
 
     await this.cachePurge(storedListing.status, dto.status, rawListing.id);
@@ -1892,5 +2943,51 @@ export class ListingService implements OnModuleInit {
     }
 
     return listing.jurisdictionId;
+  }
+
+  // When only filtering on county we don't actually need to filter if the county count is all of them we support
+  findIfThereAreAnyFilters(params: ListingsQueryParams): boolean {
+    return !!params.filter?.find((filter) => {
+      if (filter[ListingFilterKeys.counties]) {
+        if (filter[ListingFilterKeys.counties].length !== TOTAL_COUNTY_COUNT) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    });
+  }
+
+  async mapMarkers(params: ListingsQueryParams): Promise<ListingMapMarker[]> {
+    let listingIds = [];
+    const areThereAnyFilters = this.findIfThereAreAnyFilters(params);
+
+    if (areThereAnyFilters) {
+      listingIds = await this.buildListingsWhereClause(params);
+    }
+
+    const mapMarkersRaw = await this.prisma.mapMarkers.findMany({
+      select: {
+        id: true,
+        latitude: true,
+        longitude: true,
+      },
+      where: {
+        status: ListingsStatusEnum.active,
+        id: areThereAnyFilters
+          ? {
+              in: listingIds.map((listing) => listing.id),
+            }
+          : undefined,
+      },
+    });
+
+    return mapMarkersRaw.map((mapMarker) => {
+      return {
+        id: mapMarker.id,
+        lat: Number(mapMarker.latitude),
+        lng: Number(mapMarker.longitude),
+      } as ListingMapMarker;
+    });
   }
 }

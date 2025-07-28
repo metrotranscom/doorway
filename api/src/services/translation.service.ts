@@ -4,7 +4,6 @@ import { PrismaService } from './prisma.service';
 import { Listing } from '../dtos/listings/listing.dto';
 import { GoogleTranslateService } from './google-translate.service';
 import * as lodash from 'lodash';
-import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
 
 @Injectable()
 export class TranslationService {
@@ -165,6 +164,13 @@ export class TranslationService {
           },
         );
       });
+    }
+
+    if (listing.includeCommunityDisclaimer) {
+      pathsToFilter[`communityDisclaimerTitle`] =
+        listing.communityDisclaimerTitle;
+      pathsToFilter[`communityDisclaimerDescription`] =
+        listing.communityDisclaimerDescription;
     }
 
     const persistedTranslationsFromDB = await this.getPersistedTranslatedValues(

@@ -107,7 +107,6 @@ describe("Listings map", function () {
         console.log("MAP RESULTS EQUAL: ", innerTextValue)
       })
 
-    cy.pause()
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.get("@listingsSearch.all").should("have.length", 5)
 

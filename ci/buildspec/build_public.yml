@@ -6,8 +6,6 @@
 # CLOUDINARY_CLOUD_NAME
 # FILE_SERVICE
 # BACKEND_API_BASE
-# JURISDICTION_NAME
-# BLOOM_API_BASE
 
 version: 0.2
 env:
@@ -25,69 +23,51 @@ phases:
 
       # Build test image
       - >
-        docker build
-        -f build/docker/Dockerfile.sites-generic
-        --build-arg SITE=public
+        docker build . -f build/docker/Dockerfile.sites-generic
+        --target test
+        --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID}
+        --build-arg SITE=partners
         --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
         --build-arg "FILE_SERVICE=${FILE_SERVICE}"
         --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
-        --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
-        --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
         --build-arg "CACHE_REVALIDATE=${CACHE_REVALIDATE}"
         --build-arg "IDLE_TIMEOUT=${IDLE_TIMEOUT}"
         --build-arg "LANGUAGES=${LANGUAGES}"
         --build-arg "MAPBOX_TOKEN=${MAPBOX_TOKEN}"
-        --build-arg "GTM_KEY=${GTM_KEY}"
-        --build-arg "SHOW_PROFESSIONAL_PARTNERS=$SHOW_PROFESSIONAL_PARTNERS"
-        --build-arg "NOTIFICATIONS_SIGN_UP_URL=$NOTIFICATIONS_SIGN_UP_URL"
-        --build-arg "SHOW_MANDATED_ACCOUNTS=$SHOW_MANDATED_ACCOUNTS"
-        --build-arg "SHOW_PWDLESS=$SHOW_PWDLESS"
-        --build-arg "MAINTENANCE_WINDOW=$MAINTENANCE_WINDOW"
-        --build-arg "SITE_MESSAGE_WINDOW=$SITE_MESSAGE_WINDOW"
-        --build-arg "SHOW_PUBLIC_LOTTERY=${SHOW_PUBLIC_LOTTERY}"
+        --build-arg "MAINTENANCE_WINDOW=${MAINTENANCE_WINDOW}"
         --build-arg "API_PASS_KEY=${API_PASS_KEY}"
-        --build-arg "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}"
-        --build-arg "GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID}"
-        --build-arg "SHOW_ALL_MAP_PINS=${SHOW_ALL_MAP_PINS}"
-        --target test
-        -t sites/public:test
-        .
+        --build-arg "SHOW_LOTTERY=${SHOW_LOTTERY}"
+        --build-arg "LOTTERY_DAYS_TILL_EXPIRY=${LOTTERY_DAYS_TILL_EXPIRY}"
+        --build-arg "LIMIT_CLOSED_LISTING_ACTIONS=${LIMIT_CLOSED_LISTING_ACTIONS}"
+        --build-arg "USE_SECURE_DOWNLOAD_PATHWAY=${USE_SECURE_DOWNLOAD_PATHWAY}"
+        -t sites/partners:test
 
       # Run tests
-      - docker run sites/public:test
+      - docker run sites/partners:test
 
       # Build prod/run image
       - >
-        docker build
-        -f build/docker/Dockerfile.sites-generic
-        --build-arg SITE=public
+        docker build . -f build/docker/Dockerfile.sites-generic
+        --target run
+        --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID}
+        --build-arg SITE=partners
         --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
         --build-arg "FILE_SERVICE=${FILE_SERVICE}"
         --build-arg "BACKEND_API_BASE=${BACKEND_API_BASE}"
-        --build-arg "JURISDICTION_NAME=${JURISDICTION_NAME}"
-        --build-arg "BLOOM_API_BASE=${BLOOM_API_BASE}"
         --build-arg "CACHE_REVALIDATE=${CACHE_REVALIDATE}"
         --build-arg "IDLE_TIMEOUT=${IDLE_TIMEOUT}"
         --build-arg "LANGUAGES=${LANGUAGES}"
         --build-arg "MAPBOX_TOKEN=${MAPBOX_TOKEN}"
-        --build-arg "GTM_KEY=${GTM_KEY}"
-        --build-arg "SHOW_PROFESSIONAL_PARTNERS=$SHOW_PROFESSIONAL_PARTNERS"
-        --build-arg "NOTIFICATIONS_SIGN_UP_URL=$NOTIFICATIONS_SIGN_UP_URL"
-        --build-arg "SHOW_MANDATED_ACCOUNTS=$SHOW_MANDATED_ACCOUNTS"
-        --build-arg "SHOW_PWDLESS=$SHOW_PWDLESS"
-        --build-arg "MAINTENANCE_WINDOW=$MAINTENANCE_WINDOW"
-        --build-arg "SITE_MESSAGE_WINDOW=$SITE_MESSAGE_WINDOW"
-        --build-arg "SHOW_PUBLIC_LOTTERY=${SHOW_PUBLIC_LOTTERY}"
+        --build-arg "MAINTENANCE_WINDOW=${MAINTENANCE_WINDOW}"
         --build-arg "API_PASS_KEY=${API_PASS_KEY}"
-        --build-arg "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}"
-        --build-arg "GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID}"
-        --build-arg "SHOW_ALL_MAP_PINS=${SHOW_ALL_MAP_PINS}"
-        --target run
-        -t sites/public:run-candidate
-        .
+        --build-arg "SHOW_LOTTERY=${SHOW_LOTTERY}"
+        --build-arg "LOTTERY_DAYS_TILL_EXPIRY=${LOTTERY_DAYS_TILL_EXPIRY}"
+        --build-arg "LIMIT_CLOSED_LISTING_ACTIONS=${LIMIT_CLOSED_LISTING_ACTIONS}"
+        --build-arg "USE_SECURE_DOWNLOAD_PATHWAY=${USE_SECURE_DOWNLOAD_PATHWAY}"
+        -t sites/partners:run-candidate
 
       # Tag the run image
-      - docker tag sites/public:run-candidate "${ECR_REPO}/public:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker tag sites/partners:run-candidate "${ECR_REPO}/partners:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 
       # Push the run image to ECR
-      - docker push "${ECR_REPO}/public:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker push "${ECR_REPO}/partners:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"

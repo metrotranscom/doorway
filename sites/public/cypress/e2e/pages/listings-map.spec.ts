@@ -24,7 +24,7 @@ describe("Listings map", function () {
     cy.getByTestId("map-total-results")
       .invoke("text")
       .then((innerTextValue) => {
-        console.log("MAP RESULTS EQUAL: ", innerTextValue)
+        cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
       })
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
@@ -104,7 +104,7 @@ describe("Listings map", function () {
     cy.getByTestId("map-total-results")
       .invoke("text")
       .then((innerTextValue) => {
-        console.log("MAP RESULTS EQUAL: ", innerTextValue)
+        cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
       })
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")

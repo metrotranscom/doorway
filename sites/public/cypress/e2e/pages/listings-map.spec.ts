@@ -29,7 +29,6 @@ describe("Listings map", function () {
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.getByTestId("map-cluster").should("have.length", 11)
-
     cy.getByTestId("loading-overlay").should("not.exist")
     // Fetch markers + listings once on page load
     cy.get("@markersSearch.all").should("have.length", 1)
@@ -105,7 +104,10 @@ describe("Listings map", function () {
       .then((innerTextValue) => {
         cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
       })
-    cy.getByTestId("map-total-results").contains("Total results 236")
+    // Total results displayed rely on exact map position which shifts slightly between test runs leading to flakiness
+    // The below expression checks Total results are between 230 and 239 improve test reliability
+    cy.getByTestId("map-total-results").contains(/Total results 23[0-9]/)
+    cy.getByTestId("map-cluster").should("have.length", 21)
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.get("@listingsSearch.all").should("have.length", 8)

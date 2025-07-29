@@ -1,4 +1,12 @@
 // When testing this locally outside of a test run, ensure your screen size compares to Cypress's screen size as it will affect the way the map creates clusters
+
+// There is a delay before the loading overlay appears. To make sure cypress does not try to trigger event before the overlay appears
+// wait for it to appear first then disappear before triggering next cypress action
+function waitForLoading() {
+  cy.getByTestId("loading-overlay").should("exist")
+  cy.getByTestId("loading-overlay").should("not.exist")
+}
+
 describe("Listings map", function () {
   it("renders the listing map", function () {
     cy.viewport(1500, 800)
@@ -18,14 +26,6 @@ describe("Listings map", function () {
 
     // Initial map load
     cy.getByTestId("map-total-results").contains("Total results 249")
-
-    // Troubleshooting Log out what map-total-results actually contains
-    // TODO - change logging so it works with github actions
-    cy.getByTestId("map-total-results")
-      .invoke("text")
-      .then((innerTextValue) => {
-        cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
-      })
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.getByTestId("map-cluster").should("have.length", 11)
@@ -91,14 +91,13 @@ describe("Listings map", function () {
 
     // Zoom out with buttons
     cy.getByTestId("map-zoom-out").click()
-    cy.getByTestId("loading-overlay").should("not.exist")
+    waitForLoading()
     cy.getByTestId("map-zoom-out").click()
-    cy.getByTestId("loading-overlay").should("not.exist")
+    waitForLoading()
     cy.getByTestId("map-zoom-out").click()
-    cy.getByTestId("loading-overlay").should("not.exist")
+    waitForLoading()
     cy.getByTestId("map-zoom-out").click()
-    cy.getByTestId("loading-overlay").should("not.exist")
-    cy.getByTestId("map-total-results").contains("Total results 236")
+    waitForLoading()
 
     // Troubleshooting Log out what map-total-results actually contains
     cy.getByTestId("map-total-results")
@@ -106,15 +105,16 @@ describe("Listings map", function () {
       .then((innerTextValue) => {
         cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
       })
+    cy.getByTestId("map-total-results").contains("Total results 236")
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
-    cy.get("@listingsSearch.all").should("have.length", 5)
+    cy.get("@listingsSearch.all").should("have.length", 8)
 
     // Paginate
     cy.getByID("pagination-2").click()
     cy.getByTestId("map-pagination").contains("Page 2 of 10")
     cy.get("@markersSearch.all").should("have.length", 3)
-    cy.get("@listingsSearch.all").should("have.length", 6)
+    cy.get("@listingsSearch.all").should("have.length", 9)
 
     // Recenter
     cy.getByID("map-recenter-button").click()
@@ -122,6 +122,6 @@ describe("Listings map", function () {
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.getByTestId("map-cluster").should("have.length", 11)
     cy.get("@markersSearch.all").should("have.length", 3)
-    cy.get("@listingsSearch.all").should("have.length", 7)
+    cy.get("@listingsSearch.all").should("have.length", 10)
   })
 })

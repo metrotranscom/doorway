@@ -7,9 +7,13 @@ import {
   PrismaClient,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
+import axios from 'axios';
+import dayjs from 'dayjs';
 import { Request as ExpressRequest } from 'express';
+import https from 'https';
 import { AmiChartService } from './ami-chart.service';
 import { FeatureFlagService } from './feature-flag.service';
+import { MultiselectQuestionService } from './multiselect-question.service';
 import { PrismaService } from './prisma.service';
 import { SuccessDTO } from '../dtos/shared/success.dto';
 import { User } from '../dtos/users/user.dto';
@@ -18,9 +22,14 @@ import { DataTransferDTO } from '../dtos/script-runner/data-transfer.dto';
 import { AmiChartImportDTO } from '../dtos/script-runner/ami-chart-import.dto';
 import { AmiChartCreate } from '../dtos/ami-charts/ami-chart-create.dto';
 import { AmiChartUpdate } from '../dtos/ami-charts/ami-chart-update.dto';
+import MultiselectQuestion from '../dtos/multiselect-questions/multiselect-question.dto';
 import { AmiChartUpdateImportDTO } from '../dtos/script-runner/ami-chart-update-import.dto';
+import { Compare } from '../dtos/shared/base-filter.dto';
 import { HouseholdMemberRelationship } from '../../src/enums/applications/household-member-relationship-enum';
 import { calculateSkip, calculateTake } from '../utilities/pagination-helpers';
+import { AssetTransferDTO } from '../dtos/script-runner/asset-transfer.dto';
+import { AssetService } from './asset.service';
+import { OrderByEnum } from '../enums/shared/order-by-enum';
 
 /**
   this is the service for running scripts
@@ -31,6 +40,8 @@ export class ScriptRunnerService {
   constructor(
     private amiChartService: AmiChartService,
     private featureFlagService: FeatureFlagService,
+    private assetService: AssetService,
+    private multiselectQuestionService: MultiselectQuestionService,
     private prisma: PrismaService,
   ) {}
 
@@ -438,6 +449,13 @@ export class ScriptRunnerService {
           },
         });
 
+        await this.prisma.listingTransferMap.create({
+          data: {
+            listingId: createdListing.id,
+            oldId: listing['id'],
+          },
+        });
+
         // upload units
         const units: any[] = await client.$queryRawUnsafe(
           `SELECT u.*, ut.name FROM units u, unit_types ut WHERE ut.id = u.unit_type_id AND u.listing_id = '${listing['id']}'`,
@@ -600,6 +618,158 @@ export class ScriptRunnerService {
     // script runner standard spin down
     await this.markScriptAsComplete(
       `data transfer listings ${dataTransferDTO.jurisdiction}`,
+      requestingUser,
+    );
+    return { success: true };
+  }
+
+  /**
+   *
+   * @param req incoming request object
+   * @param dataTransferDTO data transfer endpoint args. Should contain foreign db connection string
+   * @returns successDTO
+   * @description transfers assets for listings in the specified space into the new space
+   */
+  async transferListingAssetData(
+    req: ExpressRequest,
+    dataTransferDTO: AssetTransferDTO,
+    prisma?: PrismaClient,
+  ): Promise<SuccessDTO> {
+    // script runner standard start up
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      `data transfer assets ${dataTransferDTO.jurisdiction} page: ${
+        dataTransferDTO.page || 1
+      }`,
+      requestingUser,
+    );
+
+    // connect to foreign db based on incoming connection string
+    const client =
+      prisma ||
+      new PrismaClient({
+        datasources: {
+          db: {
+            url: dataTransferDTO.connectionString,
+          },
+        },
+      });
+    await client.$connect();
+
+    const doorwayJurisdiction = await this.prisma.jurisdictions.findFirst({
+      where: { name: dataTransferDTO.jurisdiction },
+    });
+
+    if (!doorwayJurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in Doorway database`,
+      );
+    }
+
+    // get jurisdiction
+    const jurisdiction: { id: string }[] =
+      await client.$queryRaw`SELECT id, name FROM jurisdictions WHERE name = ${dataTransferDTO.jurisdiction}`;
+
+    if (!jurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in foreign database`,
+      );
+    }
+
+    const take = calculateTake(40);
+    const skip = calculateSkip(take, dataTransferDTO.page || 1);
+    const listingTransferMap = await this.prisma.listingTransferMap.findMany({
+      take,
+      skip,
+      orderBy: {
+        listingId: OrderByEnum.ASC,
+      },
+    });
+    console.log(
+      `Found ${listingTransferMap.length} listings on page ${
+        dataTransferDTO.page || 1
+      } out of a possible 40 for this page`,
+    );
+    // loop over each new listing id <-> old listing id relation
+    for (let i = 0; i < listingTransferMap.length; i++) {
+      const oldAssetInfo: {
+        ordinal: number;
+        created_at: Date;
+        updated_at: Date;
+        file_id: string;
+        label: string;
+      }[] = await client.$queryRaw`SELECT
+            li.ordinal,
+            a.created_at,
+            a.updated_at,
+            a.file_id,
+            label
+        FROM listing_images li
+            JOIN assets a ON a.id = li.image_id
+        WHERE li.listing_id = ${listingTransferMap[i].oldId} :: UUID
+          AND a.file_id IS NOT NULL AND a.file_id != ''`;
+      console.log(
+        `moving ${oldAssetInfo.length || 0} assets for listing: ${
+          listingTransferMap[i].oldId
+        }:`,
+      );
+      // loop over each listing image on the old listing
+      for (let j = 0; j < oldAssetInfo.length; j++) {
+        // pull down image from cloudinary
+        const image = await axios.get(
+          `https://res.cloudinary.com/${dataTransferDTO.cloudinaryName}/image/upload/${oldAssetInfo[j].file_id}.jpg`,
+          {
+            responseType: 'arraybuffer',
+          },
+        );
+        const newFileId = (oldAssetInfo[j].file_id as string)
+          .replace('housingbayarea/', '')
+          .replace('dev/', '');
+
+        // upload image to s3
+        const res = await this.assetService.upload(newFileId, {
+          filename: null,
+          buffer: image.data,
+          fieldname: null,
+          originalname: `${newFileId}.jpg`,
+          encoding: null,
+          mimetype: 'image/jpeg',
+          size: image.data.length,
+          destination: null,
+          path: null,
+          stream: null,
+        });
+
+        // update new listing with these assets
+        await this.prisma.listings.update({
+          where: {
+            id: listingTransferMap[i].listingId,
+          },
+          data: {
+            listingImages: {
+              create: {
+                assets: {
+                  create: {
+                    fileId: res.url,
+                    label: 'cloudinaryBuilding',
+                  },
+                },
+                ordinal: oldAssetInfo[j].ordinal,
+              },
+            },
+          },
+        });
+      }
+    }
+
+    // disconnect from foreign db
+    await client.$disconnect();
+
+    // script runner standard spin down
+    await this.markScriptAsComplete(
+      `data transfer assets ${dataTransferDTO.jurisdiction} page: ${
+        dataTransferDTO.page || 1
+      }`,
       requestingUser,
     );
     return { success: true };
@@ -828,10 +998,12 @@ export class ScriptRunnerService {
           some: { id: jurisdiction[0].id },
         },
         userRoles: null,
-        applications: { some: {} },
       },
       skip,
       take,
+      orderBy: {
+        id: OrderByEnum.ASC,
+      },
     });
 
     if (publicUsers?.length) {
@@ -931,6 +1103,10 @@ export class ScriptRunnerService {
    *
    * @param amiChartImportDTO this is a string in a very specific format like:
    * percentOfAmiValue_1 householdSize_1_income_value householdSize_2_income_value \n percentOfAmiValue_2 householdSize_1_income_value householdSize_2_income_value
+   *
+   * Copying and pasting from google sheets will not match the format above. You will need to perform the following:
+   * 1) Find and delete all instances of "%"
+   * 2) Using the Regex option in the Find and Replace tool, replace /\t with " " and /\n with "\\n"
    * @returns successDTO
    * @description takes the incoming AMI Chart string and stores it as a new AMI Chart in the database
    */
@@ -1519,6 +1695,465 @@ export class ScriptRunnerService {
   }
 
   /**
+   *
+   * @param req incoming request object
+   * @returns successDTO
+   * @description updates forgot email translations to match new Doorway copy
+   */
+  async updateForgotEmailTranslations(
+    req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      'update forgot email translations',
+      requestingUser,
+    );
+
+    const translationsEN = await this.prisma.translations.findFirst({
+      where: { language: 'en', jurisdictionId: null },
+    });
+    const translationsENJSON =
+      translationsEN.translations as unknown as Prisma.JsonArray;
+
+    await this.prisma.translations.update({
+      where: { id: translationsEN.id },
+      data: {
+        translations: {
+          ...translationsENJSON,
+          forgotPassword: {
+            subject: 'Forgot your password?',
+            callToAction:
+              'If you did make this request, please click on the following link to choose a new password:',
+            passwordInfo:
+              "Note your password won't change until you click that link.",
+            resetRequest:
+              'We received a request to reset your Doorway Housing Portal password.',
+            ignoreRequest:
+              "If you didn't request this, please ignore this email.",
+            changePassword: 'Change my password',
+          },
+        },
+      },
+    });
+
+    const translationsES = await this.prisma.translations.findFirst({
+      where: { language: 'es', jurisdictionId: null },
+    });
+    const translationsESJSON =
+      translationsES.translations as unknown as Prisma.JsonArray;
+
+    await this.prisma.translations.update({
+      where: { id: translationsES.id },
+      data: {
+        translations: {
+          ...translationsESJSON,
+          forgotPassword: {
+            subject: '¿Olvidaste tu contraseña?',
+            callToAction:
+              'Si realizó esta solicitud, haga clic en el siguiente enlace para elegir una nueva contraseña:',
+            passwordInfo:
+              'Tenga en cuenta que su contraseña no cambiará hasta que haga clic en ese enlace.',
+            resetRequest:
+              'Recibimos una solicitud para restablecer su contraseña de Doorway Housing Portal.',
+            ignoreRequest:
+              'Si no solicitó esto, ignore este correo electrónico.',
+            changePassword: 'Cambiar mi contraseña',
+          },
+        },
+      },
+    });
+
+    const translationsTL = await this.prisma.translations.findFirst({
+      where: { language: 'tl', jurisdictionId: null },
+    });
+    const translationsTLJSON =
+      translationsTL.translations as unknown as Prisma.JsonArray;
+
+    await this.prisma.translations.update({
+      where: { id: translationsTL.id },
+      data: {
+        translations: {
+          ...translationsTLJSON,
+          forgotPassword: {
+            subject: 'Nakalimutan ang iyong password?',
+            callToAction:
+              'Kung ginawa mo ang kahilingan na ito, mangyaring mag -click sa sumusunod na link upang pumili ng isang bagong password:',
+            passwordInfo:
+              'Tandaan ang iyong password ay hindi magbabago hanggang sa i -click mo ang link na iyon.',
+            resetRequest:
+              'Nakatanggap kami ng isang kahilingan upang i -reset ang iyong Doorway Housing Portal password.',
+            ignoreRequest:
+              'Kung hindi mo ito hiniling, mangyaring huwag pansinin ang email na ito.',
+            changePassword: 'Baguhin ang aking password',
+          },
+        },
+      },
+    });
+
+    const translationsVI = await this.prisma.translations.findFirst({
+      where: { language: 'vi', jurisdictionId: null },
+    });
+    const translationsVIJSON =
+      translationsVI.translations as unknown as Prisma.JsonArray;
+
+    await this.prisma.translations.update({
+      where: { id: translationsVI.id },
+      data: {
+        translations: {
+          ...translationsVIJSON,
+          forgotPassword: {
+            subject: 'Quên mật khẩu của bạn?',
+            callToAction:
+              'Nếu bạn đã thực hiện yêu cầu này, vui lòng nhấp vào liên kết sau để chọn mật khẩu mới:',
+            passwordInfo:
+              'Lưu ý mật khẩu của bạn sẽ không thay đổi cho đến khi bạn nhấp vào liên kết đó.',
+            resetRequest:
+              'Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu Doorway Housing Portal của bạn.',
+            ignoreRequest:
+              'Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này.',
+            changePassword: 'Thay đổi mật khẩu của tôi',
+          },
+        },
+      },
+    });
+
+    const translationsZH = await this.prisma.translations.findFirst({
+      where: { language: 'zh', jurisdictionId: null },
+    });
+    const translationsZHJSON =
+      translationsZH.translations as unknown as Prisma.JsonArray;
+
+    await this.prisma.translations.update({
+      where: { id: translationsZH.id },
+      data: {
+        translations: {
+          ...translationsZHJSON,
+          forgotPassword: {
+            subject: '忘記密碼了嗎?',
+            callToAction:
+              '如果您確實提出了此請求, 請單擊以下鏈接以選擇一個新密碼:',
+            passwordInfo: '注意, 直到您單擊該鏈接, 您的密碼才會更改。',
+            resetRequest:
+              '我們收到了一個請求, 以重置您的Doorway Housing Portal密碼。',
+            ignoreRequest: '如果您沒有要求此信息, 請忽略此電子郵件。',
+            changePassword: '更改我的密碼',
+          },
+        },
+      },
+    });
+
+    await this.markScriptAsComplete(
+      'update forgot email translations',
+      requestingUser,
+    );
+    return { success: true };
+  }
+
+  /**
+   *
+   * @param req incoming request object
+   * @returns successDTO
+   * @description migrates the preferences and programs in Detroit to the multiselectQuestions table
+   */
+  async migrateDetroitToMultiselectQuestions(
+    req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      'migrate Detroit to multiselect questions',
+      requestingUser,
+    );
+    const translationURLs = [
+      {
+        url: 'https://raw.githubusercontent.com/bloom-housing/bloom/dev/ui-components/src/locales/general.json',
+        key: 'generalCore',
+      },
+      {
+        url: 'https://raw.githubusercontent.com/bloom-housing/bloom/dev/sites/partners/page_content/locale_overrides/general.json',
+        key: 'generalPartners',
+      },
+      {
+        url: 'https://raw.githubusercontent.com/bloom-housing/bloom/dev/sites/public/page_content/locale_overrides/general.json',
+        key: 'generalPublic',
+      },
+      {
+        url: 'https://raw.githubusercontent.com/CityOfDetroit/bloom/9f2084c107ec865e3c13393e600a5ac45ee5f424/detroit-ui-components/src/locales/general.json',
+        key: 'detroitCore',
+      },
+      {
+        url: 'https://raw.githubusercontent.com/CityOfDetroit/bloom/dev/sites/partners/src/page_content/locale_overrides/general.json',
+        key: 'detroitPartners',
+      },
+      {
+        url: 'https://raw.githubusercontent.com/CityOfDetroit/bloom/dev/sites/public/src/page_content/locale_overrides/general.json',
+        key: 'detroitPublic',
+      },
+    ];
+
+    const translations = {};
+
+    for (let i = 0; i < translationURLs.length; i++) {
+      const { url, key } = translationURLs[i];
+      translations[key] = await this.getTranslationFile(url);
+    }
+
+    // begin migration from preferences
+    const preferences: {
+      id;
+      title;
+      subtitle;
+      description;
+      links;
+      form_metadata;
+    }[] = await this.prisma.$queryRawUnsafe(`
+      SELECT 
+        p.id,
+        p.title,
+        p.subtitle,
+        p.description,
+        p.links,
+        p.form_metadata
+      FROM preferences p
+    `);
+
+    for (let i = 0; i < preferences.length; i++) {
+      const pref = preferences[i];
+      const jurisInfo: { id; name }[] = await this.prisma.$queryRawUnsafe(`
+          SELECT
+            j.id,
+            j.name
+          FROM jurisdictions_preferences_preferences jp
+            JOIN jurisdictions j ON jp.jurisdictions_id = j.id
+          WHERE jp.preferences_id = '${pref.id}'
+      `);
+      const { optOutText, options } = this.resolveOptionValues(
+        pref.form_metadata,
+        'preferences',
+        jurisInfo?.length ? jurisInfo[0].name : '',
+        translations,
+      );
+      await this.multiselectQuestionService.create({
+        text: pref.title,
+        subText: pref.subtitle,
+        description: pref.description,
+        links: pref.links ?? null,
+        hideFromListing: this.resolveHideFromListings(pref),
+        optOutText: optOutText ?? null,
+        options: options,
+        applicationSection:
+          MultiselectQuestionsApplicationSectionEnum.preferences,
+        jurisdictions: jurisInfo.map((juris) => {
+          return { id: juris.id };
+        }),
+      });
+    }
+
+    // begin migration from programs
+    const programs: {
+      id;
+      title;
+      subtitle;
+      description;
+      form_metadata;
+    }[] = await this.prisma.$queryRawUnsafe(`
+      SELECT 
+        p.id,
+        p.title,
+        p.subtitle,
+        p.description,
+        p.form_metadata
+      FROM programs p
+    `);
+
+    for (let i = 0; i < programs.length; i++) {
+      const prog = programs[i];
+      const jurisInfo: { id; name }[] = await this.prisma.$queryRawUnsafe(`
+          SELECT
+            j.id,
+            j.name
+          FROM jurisdictions_programs_programs jp
+            JOIN jurisdictions j ON jp.jurisdictions_id = j.id
+          WHERE jp.programs_id = '${prog.id}'
+        `);
+
+      const res: MultiselectQuestion =
+        await this.multiselectQuestionService.create({
+          text: prog.title,
+          subText: prog.subtitle,
+          description: prog.description,
+          links: null,
+          hideFromListing: this.resolveHideFromListings(prog),
+          optOutText: null,
+          options: null,
+          applicationSection:
+            MultiselectQuestionsApplicationSectionEnum.programs,
+          jurisdictions: jurisInfo.map((juris) => {
+            return { id: juris.id };
+          }),
+        });
+
+      const listingsInfo: { ordinal; listing_id }[] = await this.prisma
+        .$queryRawUnsafe(`
+        SELECT
+          ordinal,
+          listing_id
+        FROM listing_programs
+        WHERE program_id = '${prog.id}';
+      `);
+      for (const listingInfo of listingsInfo) {
+        await this.prisma.listings.update({
+          data: {
+            listingMultiselectQuestions: {
+              create: {
+                ordinal: listingInfo.ordinal,
+                multiselectQuestionId: res.id,
+              },
+            },
+          },
+          where: {
+            id: listingInfo.listing_id,
+          },
+        });
+      }
+    }
+
+    await this.markScriptAsComplete(
+      'migrate Detroit to multiselect questions',
+      requestingUser,
+    );
+    return { success: true };
+  }
+
+  /**
+   *
+   * @param req incoming request object
+   * @returns successDTO
+   * @description marks transferred data in Doorway as externally created
+   */
+  async markTransferedData(req: ExpressRequest): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart('mark transfered data', requestingUser);
+
+    // Alameda ==========================================================
+    const alamedaMigrationDate = dayjs(
+      '2025-05-05 00:00',
+      'YYYY-MM-DD HH:mm Z',
+    ).toDate();
+
+    const alamedaJurisdiction =
+      await this.prisma.jurisdictions.findFirstOrThrow({
+        select: { id: true },
+        where: { name: 'Alameda' },
+      });
+
+    const alamedaAppsCount = await this.prisma.applications.updateMany({
+      data: { wasCreatedExternally: true },
+      where: {
+        appUrl: 'https://housing.acgov.org',
+      },
+    });
+
+    console.log(`Alameda applications updated: ${alamedaAppsCount}`);
+
+    const alamedaListingsCount = await this.prisma.listings.updateMany({
+      data: { wasCreatedExternally: true },
+      where: {
+        createdAt: { lt: alamedaMigrationDate },
+        jurisdictionId: alamedaJurisdiction.id,
+      },
+    });
+
+    console.log(`Alameda listings updated: ${alamedaListingsCount}`);
+
+    const alamedaMultiSelectQuestionIds = (
+      await this.multiselectQuestionService.list({
+        filter: [
+          {
+            $comparison: Compare['IN'],
+            jurisdiction: alamedaJurisdiction.id,
+          },
+        ],
+      })
+    )
+      .filter((question) => question.createdAt < alamedaMigrationDate)
+      .map((question) => question.id);
+
+    const alamedaMultiselectCount =
+      await this.prisma.multiselectQuestions.updateMany({
+        data: { wasCreatedExternally: true },
+        where: {
+          id: { in: alamedaMultiSelectQuestionIds },
+        },
+      });
+
+    console.log(
+      `Alameda multiselectQuestions updated: ${alamedaMultiselectCount}`,
+    );
+
+    console.log('Alameda data has been updated');
+
+    // San Mateo ==========================================================
+    const sanMateoBase = dayjs('2024-10-22 00:00', 'YYYY-MM-DD HH:mm Z');
+    const sanMateo22 = sanMateoBase.toDate();
+    const sanMateo25 = sanMateoBase.add(3, 'day').toDate();
+
+    const sanMateoJurisdiction =
+      await this.prisma.jurisdictions.findFirstOrThrow({
+        select: { id: true },
+        where: { name: 'San Mateo' },
+      });
+
+    const sanMateoAppsCount = await this.prisma.applications.updateMany({
+      data: { wasCreatedExternally: true },
+      where: {
+        appUrl: 'https://smc.housingbayarea.org',
+      },
+    });
+
+    console.log(`San Mateo applications updated: ${sanMateoAppsCount}`);
+
+    const sanMateoListingsCount = await this.prisma.listings.updateMany({
+      data: { wasCreatedExternally: true },
+      where: {
+        createdAt: { lt: sanMateo25 },
+        jurisdictionId: sanMateoJurisdiction.id,
+      },
+    });
+
+    console.log(`San Mateo listings updated: ${sanMateoListingsCount}`);
+
+    const sanMateoMultiSelectQuestionIds = (
+      await this.multiselectQuestionService.list({
+        filter: [
+          {
+            $comparison: Compare['IN'],
+            jurisdiction: sanMateoJurisdiction.id,
+          },
+        ],
+      })
+    )
+      .filter((question) => question.createdAt < sanMateo22)
+      .map((question) => question.id);
+
+    const sanMateoMultiselectCount =
+      await this.prisma.multiselectQuestions.updateMany({
+        data: { wasCreatedExternally: true },
+        where: {
+          id: { in: sanMateoMultiSelectQuestionIds },
+        },
+      });
+
+    console.log(
+      `San Mateo multiselectQuestions updated: ${sanMateoMultiselectCount}`,
+    );
+
+    console.log('San Mateo data has been updated');
+
+    await this.markScriptAsComplete('mark transfered data', requestingUser);
+    return { success: true };
+  }
+
+  /**
     this is simply an example
   */
   async example(req: ExpressRequest): Promise<SuccessDTO> {
@@ -1919,6 +2554,12 @@ export class ScriptRunnerService {
       name: 'enableUtilitiesIncluded',
       description:
         "When true, the 'utilities included' section is displayed in listing creation/edit and the public listing view",
+      active: false,
+    },
+    {
+      name: 'enableNeighborhoodAmenities',
+      description:
+        "When true, the 'neighborhood amenities' section is displayed in listing creation/edit and the public listing view",
       active: false,
     },
     {
@@ -2529,5 +3170,141 @@ export class ScriptRunnerService {
       requestingUser,
     );
     return { success: true };
+  }
+
+  resolveHideFromListings(pref): boolean {
+    if (pref.form_metadata && 'hideFromListing' in pref.form_metadata) {
+      if (pref.form_metadata.hideFromListing) {
+        return true;
+      }
+      return false;
+    }
+    return null;
+  }
+
+  resolveOptionValues(formMetaData, type, juris, translations) {
+    let optOutText = null;
+    const options = [];
+    let shouldPush = true;
+
+    formMetaData?.options?.forEach((option, index) => {
+      const toPush: Record<string, any> = {
+        ordinal: index + 1,
+        text: this.getTranslated(
+          type,
+          formMetaData.key,
+          option.key === 'preferNotToSay'
+            ? 'preferNotToSay'
+            : `${option.key}.label`,
+          juris,
+          translations,
+        ),
+      };
+
+      if (
+        option.exclusive &&
+        formMetaData.hideGenericDecline &&
+        index !== formMetaData.options.length - 1
+      ) {
+        // for all but the last exlusive option push into options array
+        toPush.exclusive = true;
+      } else if (
+        option.exclusive &&
+        formMetaData.hideGenericDecline &&
+        index === formMetaData.options.length - 1
+      ) {
+        // for the last exclusive option add as optOutText
+        optOutText = this.getTranslated(
+          type,
+          formMetaData.key,
+          option.key === 'preferNotToSay'
+            ? 'preferNotToSay'
+            : `${option.key}.label`,
+          juris,
+          translations,
+        );
+        shouldPush = false;
+      }
+
+      if (option.description) {
+        toPush.description = this.getTranslated(
+          type,
+          formMetaData.key,
+          option.key === 'preferNotToSay'
+            ? 'preferNotToSay'
+            : `${option.key}.description`,
+          juris,
+          translations,
+        );
+      }
+
+      if (option?.extraData.some((extraData) => extraData.type === 'address')) {
+        toPush.collectAddress = true;
+      }
+
+      if (shouldPush) {
+        options.push(toPush);
+      } else {
+        shouldPush = true;
+      }
+    });
+
+    return {
+      optOutText,
+      options: options.length ? options : null,
+    };
+  }
+
+  getTranslated(type, prefKey, translationKey, juris, translations) {
+    let searchKey = `application.${type}.${prefKey}.${translationKey}`;
+    if (translationKey === 'preferNotToSay') {
+      searchKey = 't.preferNotToSay';
+    }
+
+    if (juris === 'Detroit') {
+      if (translations['detroitPublic'][searchKey]) {
+        return translations['detroitPublic'][searchKey];
+      } else if (translations['detroitPartners'][searchKey]) {
+        return translations['detroitPartners'][searchKey];
+      } else if (translations['detroitCore'][searchKey]) {
+        return translations['detroitCore'][searchKey];
+      }
+    }
+
+    if (translations['generalPublic'][searchKey]) {
+      return translations['generalPublic'][searchKey];
+    } else if (translations['generalPartners'][searchKey]) {
+      return translations['generalPartners'][searchKey];
+    } else if (translations['generalCore'][searchKey]) {
+      return translations['generalCore'][searchKey];
+    }
+    return 'no translation';
+  }
+
+  getTranslationFile(url) {
+    return new Promise((resolve, reject) =>
+      https
+        .get(url, (res) => {
+          let body = '';
+
+          res.on('data', (chunk) => {
+            body += chunk;
+          });
+
+          res.on('end', () => {
+            try {
+              const json = JSON.parse(body);
+              resolve(json);
+            } catch (error) {
+              console.error('on end error:', error.message);
+              reject(`parsing broke: ${url}`);
+            }
+          });
+        })
+        .on('error', (error) => {
+          console.error('on error error:', error.message);
+          reject(`getting broke: ${url}`);
+        }),
+    );
   }
 }

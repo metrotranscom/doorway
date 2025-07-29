@@ -33,6 +33,8 @@ import {
   serviceOptions,
   SuccessDTO,
   LotteryService,
+  LanguagesEnum,
+  FeatureFlagsService,
 } from "../types/backend-swagger"
 import { getListingRedirectUrl } from "../utilities/getListingRedirectUrl"
 import { useRouter } from "next/router"
@@ -47,6 +49,7 @@ type ContextProps = {
   authService: AuthService
   multiselectQuestionsService: MultiselectQuestionsService
   unitTypesService: UnitTypesService
+  featureFlagService: FeatureFlagsService
   reservedCommunityTypeService: ReservedCommunityTypesService
   unitPriorityService: UnitAccessibilityPriorityTypesService
   mapLayersService: MapLayersService
@@ -87,7 +90,12 @@ type ContextProps = {
     singleUseCode: string,
     agreedToTermsOfService?: boolean
   ) => Promise<User | undefined>
-  doJurisdictionsHaveFeatureFlagOn: (featureFlag: string, jurisdiction?: string) => boolean
+  doJurisdictionsHaveFeatureFlagOn: (
+    featureFlag: string,
+    jurisdiction?: string,
+    onlyIfAllJurisdictionsHaveItEnabled?: boolean
+  ) => boolean
+  getJurisdictionLanguages: (jurisdictionId: string) => LanguagesEnum[]
 }
 
 // Internal Provider State
@@ -230,6 +238,7 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
     reservedCommunityTypeService: new ReservedCommunityTypesService(),
     unitPriorityService: new UnitAccessibilityPriorityTypesService(),
     unitTypesService: new UnitTypesService(),
+    featureFlagService: new FeatureFlagsService(),
     loading: state.loading,
     initialStateLoaded: state.initialStateLoaded,
     profile: state.profile,
@@ -390,14 +399,29 @@ export const AuthProvider: FunctionComponent<React.PropsWithChildren> = ({ child
         dispatch(stopLoading())
       }
     },
-    doJurisdictionsHaveFeatureFlagOn: (featureFlag: string, jurisdictionId?: string) => {
+    doJurisdictionsHaveFeatureFlagOn: (
+      featureFlag: string,
+      jurisdictionId?: string,
+      onlyIfAllJurisdictionsHaveItEnabled?: boolean
+    ) => {
       let jurisdictions = state.profile?.jurisdictions || []
       if (jurisdictionId) {
         jurisdictions = jurisdictions?.filter((j) => j.id === jurisdictionId)
       }
+      // Return true only if all jurisdictions have the flag turned on
+      if (onlyIfAllJurisdictionsHaveItEnabled) {
+        return jurisdictions.every(
+          (j) => j.featureFlags.find((flag) => flag.name === featureFlag)?.active || false
+        )
+      }
+      // Otherwise return true if at least one jurisdiction has the flag turned on
       return jurisdictions.some(
         (j) => j.featureFlags.find((flag) => flag.name === featureFlag)?.active || false
       )
+    },
+    getJurisdictionLanguages: (jurisdictionId: string) => {
+      const jurisdictions = state.profile?.jurisdictions || []
+      return jurisdictions.find((j) => j.id === jurisdictionId)?.languages || []
     },
   }
   return createElement(AuthContext.Provider, { value: contextValues }, children)

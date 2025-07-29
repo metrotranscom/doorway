@@ -9,12 +9,13 @@ import {
   PageView,
   pushGtmEvent,
   AuthContext,
-  MessageContext,
+  useToastyRef,
   listingSectionQuestions,
 } from "@bloom-housing/shared-helpers"
 import {
   ApplicationCreate,
   ApplicationReviewStatusEnum,
+  FeatureFlagEnum,
   ListingsStatusEnum,
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -25,11 +26,12 @@ import { UserStatus } from "../../../lib/constants"
 import ApplicationFormLayout from "../../../layouts/application-form"
 import styles from "../../../layouts/application-form.module.scss"
 import dayjs from "dayjs"
+import { isFeatureFlagOn } from "../../../lib/helpers"
 
 const ApplicationSummary = () => {
   const router = useRouter()
   const { profile, applicationsService } = useContext(AuthContext)
-  const { addToast } = useContext(MessageContext)
+  const toastyRef = useToastyRef()
   const [validationError, setValidationError] = useState(false)
   const { conductor, application, listing } = useFormConductor("summary")
   let currentPageSection = 4
@@ -51,6 +53,8 @@ const ApplicationSummary = () => {
   }, [profile])
 
   useEffect(() => {
+    const { addToast } = toastyRef.current
+
     if (listing && router.isReady) {
       const currentDate = dayjs()
       if (conductor.config.isPreview) {
@@ -60,11 +64,11 @@ const ApplicationSummary = () => {
         listing?.status !== ListingsStatusEnum.active ||
         (listing?.applicationDueDate && currentDate > dayjs(listing.applicationDueDate))
       ) {
-        // addToast(t("listings.applicationsClosedRedirect"), { variant: "alert" })
+        addToast(t("listings.applicationsClosedRedirect"), { variant: "alert" })
         void router.push(`/${router.locale}/listing/${listing?.id}/${listing.urlSlug}`)
       }
     }
-  }, [conductor.config.isPreview, listing, router, addToast])
+  }, [conductor.config.isPreview, listing, router, toastyRef])
 
   useEffect(() => {
     conductor.application.reachedReviewStep = true
@@ -140,13 +144,14 @@ const ApplicationSummary = () => {
             }
             editMode
             validationError={validationError}
+            enableUnitGroups={isFeatureFlagOn(conductor.config, FeatureFlagEnum.enableUnitGroups)}
           />
 
           <CardSection divider={"flush"} className={"border-none"}>
             <p className="field-note text-gray-800">{t("application.review.lastChanceToEdit")}</p>
           </CardSection>
 
-          <CardSection className={"bg-primary-lighter"}>
+          <CardSection className={styles["application-form-action-footer"]}>
             <Button
               variant={"primary"}
               id={"app-summary-confirm"}

@@ -59,7 +59,7 @@ export const countyKeys = [
   // Removing options due to existing Bay Area Bloom sites
   // TODO add back in (uncomment) when the other BA Bloom sites are shutdown
   "",
-  // "Alameda",
+  "Alameda",
   "Contra Costa",
   "Marin",
   "Napa",
@@ -312,6 +312,11 @@ export const listingFeatures = [
   "hearing",
   "mobility",
   "visual",
+  "barrierFreeUnitEntrance",
+  "loweredLightSwitch",
+  "barrierFreeBathroom",
+  "wideDoorways",
+  "loweredCabinets",
 ]
 
 export enum RoleOption {

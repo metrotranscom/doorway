@@ -25,6 +25,7 @@ phases:
       - >
         docker build . -f build/docker/Dockerfile.sites-generic
         --target test
+        --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID}
         --build-arg SITE=partners
         --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
         --build-arg "FILE_SERVICE=${FILE_SERVICE}"
@@ -38,6 +39,7 @@ phases:
         --build-arg "SHOW_LOTTERY=${SHOW_LOTTERY}"
         --build-arg "LOTTERY_DAYS_TILL_EXPIRY=${LOTTERY_DAYS_TILL_EXPIRY}"
         --build-arg "LIMIT_CLOSED_LISTING_ACTIONS=${LIMIT_CLOSED_LISTING_ACTIONS}"
+        --build-arg "USE_SECURE_DOWNLOAD_PATHWAY=${USE_SECURE_DOWNLOAD_PATHWAY}"
         -t sites/partners:test
 
       # Run tests
@@ -47,6 +49,7 @@ phases:
       - >
         docker build . -f build/docker/Dockerfile.sites-generic
         --target run
+        --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID}
         --build-arg SITE=partners
         --build-arg "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}"
         --build-arg "FILE_SERVICE=${FILE_SERVICE}"
@@ -60,6 +63,7 @@ phases:
         --build-arg "SHOW_LOTTERY=${SHOW_LOTTERY}"
         --build-arg "LOTTERY_DAYS_TILL_EXPIRY=${LOTTERY_DAYS_TILL_EXPIRY}"
         --build-arg "LIMIT_CLOSED_LISTING_ACTIONS=${LIMIT_CLOSED_LISTING_ACTIONS}"
+        --build-arg "USE_SECURE_DOWNLOAD_PATHWAY=${USE_SECURE_DOWNLOAD_PATHWAY}"
         -t sites/partners:run-candidate
 
       # Tag the run image

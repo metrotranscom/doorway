@@ -19,12 +19,13 @@ import { AmiChartImportDTO } from '../dtos/script-runner/ami-chart-import.dto';
 import { AmiChartUpdateImportDTO } from '../dtos/script-runner/ami-chart-update-import.dto';
 import { CommunityTypeDTO } from '../dtos/script-runner/community-type.dto';
 import { ApiKeyGuard } from '../guards/api-key.guard';
+import { AssetTransferDTO } from '../dtos/script-runner/asset-transfer.dto';
 
 @Controller('scriptRunner')
 @ApiTags('scriptRunner')
 @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
 @UseGuards(ApiKeyGuard, OptionalAuthGuard, AdminOrJurisdictionalAdminGuard)
-export class ScirptRunnerController {
+export class ScriptRunnerController {
   constructor(private readonly scriptRunnerService: ScriptRunnerService) {}
 
   @Put('exampleScript')
@@ -66,6 +67,23 @@ export class ScirptRunnerController {
     @Request() req: ExpressRequest,
   ): Promise<SuccessDTO> {
     return await this.scriptRunnerService.transferJurisdictionListingData(
+      req,
+      dataTransferDTO,
+    );
+  }
+
+  @Put('transferListingAssetData')
+  @ApiOperation({
+    summary:
+      'A script that pulls listing asset data from one source into the current db',
+    operationId: 'transferListingAssetData',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async transferListingAssetData(
+    @Body() dataTransferDTO: AssetTransferDTO,
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.transferListingAssetData(
       req,
       dataTransferDTO,
     );
@@ -325,5 +343,45 @@ export class ScirptRunnerController {
     @Request() req: ExpressRequest,
   ): Promise<SuccessDTO> {
     return await this.scriptRunnerService.resetMissingTranslations(req);
+  }
+
+  @Put('updateForgotEmailTranslations')
+  @ApiOperation({
+    summary: 'Script to update the forgot email translations',
+    operationId: 'updateForgotEmailTranslations',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async updateForgotEmailTranslations(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.updateForgotEmailTranslations(req);
+  }
+
+  @Put('migrateDetroitToMultiselectQuestions')
+  @ApiOperation({
+    summary:
+      'A script that moves preferences and programs to multiselect questions in Detroit db',
+    operationId: 'migrateDetroitToMultiselectQuestions',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async migrateDetroitToMultiselectQuestions(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.migrateDetroitToMultiselectQuestions(
+      req,
+    );
+  }
+
+  @Put('markTransferedData')
+  @ApiOperation({
+    summary:
+      'A script that marks transferred data in Doorway as externally created',
+    operationId: 'markTransferedData',
+  })
+  @ApiOkResponse({ type: SuccessDTO })
+  async markTransferedData(
+    @Request() req: ExpressRequest,
+  ): Promise<SuccessDTO> {
+    return await this.scriptRunnerService.markTransferedData(req);
   }
 }

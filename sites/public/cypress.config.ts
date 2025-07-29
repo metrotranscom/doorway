@@ -32,9 +32,7 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config)
     },
     baseUrl: "http://localhost:3000",
-    // specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
-    // TODO - when done troubleshooting delete below line and uncomment out above line
-    specPattern: "cypress/e2e/pages/listings-map.spec.ts",
+    specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
     experimentalRunAllSpecs: true,
     env: {
       showSeedsDesign: process.env.SHOW_NEW_SEEDS_DESIGNS,

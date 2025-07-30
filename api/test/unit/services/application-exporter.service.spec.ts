@@ -539,7 +539,6 @@ describe('Testing application export service', () => {
         'applicant.middleName': 'application 1 middleName',
         'applicant.phoneNumber': 'application 1 phoneNumber',
         'applicant.phoneNumberType': 'application 1 phoneNumberType',
-        'applicant.workInRegion': 'yes',
         applicationFlaggedSet: 'true',
         'applicationsMailingAddress.city': 'application 1 mailingAddress city',
         'applicationsMailingAddress.state':

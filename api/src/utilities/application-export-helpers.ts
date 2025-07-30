@@ -117,14 +117,6 @@ export const getExportHeaders = (
         path: 'additionalPhoneNumber',
         label: 'Primary Applicant Additional Phone Number',
       },
-      {
-        path: 'contactPreferences',
-        label: 'Primary Applicant Preferred Contact Type',
-      },
-      {
-        path: 'applicant.workInRegion',
-        label: 'Primary Applicant Work in Region',
-      },
     ],
   );
 

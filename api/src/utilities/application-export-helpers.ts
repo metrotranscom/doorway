@@ -545,10 +545,6 @@ export const getHouseholdCsvHeaders = (
         path: `householdMember.${i}.sameAddress`,
         label: `Household Member (${j}) Same as Primary Applicant`,
       },
-      {
-        path: `householdMember.${i}.workInRegion`,
-        label: `Household Member (${j}) Work in Region`,
-      },
     );
     if (enableFullTimeStudentQuestion) {
       headers.push({

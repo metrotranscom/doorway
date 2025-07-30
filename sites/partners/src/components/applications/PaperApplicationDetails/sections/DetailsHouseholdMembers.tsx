@@ -22,7 +22,6 @@ const DetailsHouseholdMembers = ({
     birth: "application.household.member.dateOfBirth",
     relationship: "t.relationship",
     sameResidence: "application.add.sameResidence",
-    workInRegion: "application.details.workInRegion",
     ...(enableFullTimeStudentQuestion && {
       fullTimeStudent: "application.details.fullTimeStudent",
     }),
@@ -56,7 +55,6 @@ const DetailsHouseholdMembers = ({
           : t("t.n/a"),
       },
       sameResidence: { content: checkAvailablility(item.sameAddress) },
-      workInRegion: { content: checkAvailablility(item.workInRegion) },
       ...(enableFullTimeStudentQuestion && {
         fullTimeStudent: { content: checkAvailablility(item.fullTimeStudent) },
       }),

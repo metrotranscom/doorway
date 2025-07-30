@@ -288,7 +288,8 @@ describe("partners_application_index", () => {
     expect(dob).toHaveTextContent(/date of birth/i)
     expect(relationship).toHaveTextContent(/relationship/i)
     expect(residence).toHaveTextContent(/same residence/i)
-    expect(work).toHaveTextContent(/work in region/i)
+    // work in region is not asked in Doorway
+    // expect(work).toHaveTextContent(/work in region/i)
     expect(student).toHaveTextContent("Full-time Student")
     expect(actions).toHaveTextContent(/actions/i)
 

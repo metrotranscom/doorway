@@ -285,18 +285,6 @@ export function getColDefs(
         return value ? t(`application.contact.phoneNumberTypes.${value}`) : t("t.none")
       },
     },
-    {
-      headerName: t("application.details.workInRegion"),
-      field: "applicant.workInRegion",
-      sortable: false,
-      filter: false,
-      width: 110,
-      minWidth: 50,
-      valueFormatter: ({ value }) => {
-        if (!value) return ""
-        return formatYesNoLabel(value)
-      },
-    },
   ]
 
   if (enableFullTimeStudentQuestion) {

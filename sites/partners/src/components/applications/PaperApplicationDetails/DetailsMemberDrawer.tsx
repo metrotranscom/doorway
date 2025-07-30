@@ -82,17 +82,6 @@ const DetailsMemberDrawer = ({
                   }
                 />
 
-                <FieldValue
-                  label={t("application.add.workInRegion")}
-                  children={
-                    membersDrawer?.workInRegion === YesNoEnum.yes
-                      ? t("t.yes")
-                      : membersDrawer?.workInRegion === YesNoEnum.no
-                      ? t("t.no")
-                      : t("t.n/a")
-                  }
-                />
-
                 {enableFullTimeStudentQuestion && (
                   <FieldValue
                     label={t("application.details.fullTimeStudent")}

@@ -26,7 +26,6 @@ export const blankApplication = {
     phoneNumber: "",
     phoneNumberType: "",
     noPhone: false,
-    workInRegion: null,
     fullTimeStudent: null,
     applicantAddress: {
       street: "",

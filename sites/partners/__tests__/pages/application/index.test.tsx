@@ -155,15 +155,13 @@ describe("partners_application_index", () => {
     expect(getByText("Email")).toBeInTheDocument()
     expect(getByText("Phone")).toBeInTheDocument()
     expect(getByText("Second Phone")).toBeInTheDocument()
-    expect(getByText("Preferred Contact")).toBeInTheDocument()
     expect(getByText("Residence Address")).toBeInTheDocument()
     expect(getByText("Mailing Address")).toBeInTheDocument()
-    expect(getByText("Work Address")).toBeInTheDocument()
-    expect(getAllByText("Street Address")).toHaveLength(3)
-    expect(getAllByText("Apt or Unit #")).toHaveLength(3)
-    expect(getAllByText("City")).toHaveLength(3)
-    expect(getAllByText("State")).toHaveLength(3)
-    expect(getAllByText("Zip Code")).toHaveLength(3)
+    expect(getAllByText("Street Address")).toHaveLength(2)
+    expect(getAllByText("Apt or Unit #")).toHaveLength(2)
+    expect(getAllByText("City")).toHaveLength(2)
+    expect(getAllByText("State")).toHaveLength(2)
+    expect(getAllByText("Zip Code")).toHaveLength(2)
     expect(getByText("Full-time Student")).toBeInTheDocument()
     expect(getByText("No")).toBeInTheDocument()
   })
@@ -281,7 +279,7 @@ describe("partners_application_index", () => {
     // Get the table and check headers
     const table = getByRole("table")
     const tableHeaders = within(table).getAllByRole("columnheader")
-    expect(tableHeaders).toHaveLength(7)
+    expect(tableHeaders).toHaveLength(6)
 
     const [name, dob, relationship, residence, student, actions] = tableHeaders
     expect(name).toHaveTextContent(/name/i)
@@ -297,14 +295,14 @@ describe("partners_application_index", () => {
     const tableBodyRows = within(table).getAllByRole("row")
     expect(tableBodyRows).toHaveLength(2) // 1 for the header row + 1 for the Household member row
 
-    const [nameVal, dobVal, relationshipVal, residenceVal, workVal, studentVal, actionsVal] =
-      within(tableBodyRows[1]).getAllByRole("cell")
+    const [nameVal, dobVal, relationshipVal, residenceVal, studentVal, actionsVal] = within(
+      tableBodyRows[1]
+    ).getAllByRole("cell")
 
     expect(nameVal).toHaveTextContent("Household First Household Last")
     expect(dobVal).toHaveTextContent("11/25/1966")
     expect(relationshipVal).toHaveTextContent("Friend")
     expect(residenceVal).toHaveTextContent("No")
-    expect(workVal).toHaveTextContent("Yes")
     expect(studentVal).toHaveTextContent("No")
     expect(within(actionsVal).getByText("View")).toBeInTheDocument()
   })

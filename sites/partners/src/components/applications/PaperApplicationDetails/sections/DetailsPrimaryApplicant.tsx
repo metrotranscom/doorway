@@ -1,5 +1,6 @@
 import React, { useContext } from "react"
 import { t } from "@bloom-housing/ui-components"
+import { YesNoEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import { ApplicationContext } from "../../ApplicationContext"
 import { DetailsAddressColumns, AddressColsType } from "../DetailsAddressColumns"

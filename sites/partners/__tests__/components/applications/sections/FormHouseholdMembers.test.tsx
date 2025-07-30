@@ -211,7 +211,7 @@ describe("<FormHouseholdMembers>", () => {
 
     const tableHeaders = within(head).getAllByRole("columnheader")
     expect(tableHeaders).toHaveLength(5)
-    const [name, relationship, dob, residence, action] = tableHeaders
+    const [name, dob, relationship, residence, action] = tableHeaders
     expect(name).toHaveTextContent(/name/i)
     expect(relationship).toHaveTextContent(/relationship/i)
     expect(dob).toHaveTextContent(/date of birth/i)
@@ -222,7 +222,7 @@ describe("<FormHouseholdMembers>", () => {
 
     const tableBodyRows = within(body).getAllByRole("row")
     expect(tableBodyRows).toHaveLength(1)
-    const [nameVal, relationshipVal, dobVal, residenceVal, actionVal] = within(
+    const [nameVal, dobVal, relationshipVal, residenceVal, actionVal] = within(
       tableBodyRows[0]
     ).getAllByRole("cell")
     expect(nameVal).toHaveTextContent("John Smith")
@@ -355,7 +355,7 @@ describe("<FormHouseholdMembers>", () => {
 
     const drawerContainer = drawerTitle.parentElement.parentElement
     expect(within(drawerContainer).getByText(/Full-time Student/i)).toBeInTheDocument()
-    expect(within(drawerContainer).getAllByLabelText(/yes/i)).toHaveLength(3)
-    expect(within(drawerContainer).getAllByLabelText(/no/i)).toHaveLength(3)
+    expect(within(drawerContainer).getAllByLabelText(/yes/i)).toHaveLength(2)
+    expect(within(drawerContainer).getAllByLabelText(/no/i)).toHaveLength(2)
   })
 })

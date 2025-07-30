@@ -7,13 +7,27 @@ function waitForLoading() {
   cy.getByTestId("loading-overlay").should("not.exist")
 }
 
+// Troubleshooting Log out what map-total-results actually contains
 function logTotalMapResults() {
-  // Troubleshooting Log out what map-total-results actually contains
   cy.getByTestId("map-total-results")
     .invoke("text")
     .then((innerTextValue) => {
       cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
     })
+}
+
+// For troubleshooting which listing results are returned
+function logListingResults() {
+  cy.get(`[data-testid="listing-card-component"]`).then(($items) => {
+    $items.each((index, el) => {
+      cy.wrap(el)
+        .find("a")
+        .invoke("text")
+        .then((innerTextValue) => {
+          cy.task("log", `LISTING NAME RETURNED: ${innerTextValue}`)
+        })
+    })
+  })
 }
 
 describe("Listings map", function () {
@@ -45,10 +59,10 @@ describe("Listings map", function () {
 
     // Click into one cluster
     cy.get('[aria-label="10 listings in this cluster"]').contains("10").click({ force: true })
+    waitForLoading()
     cy.getByTestId("map-total-results").contains("Total results 14")
     cy.getByTestId("map-pagination").contains("Page 1 of 1")
 
-    cy.getByTestId("loading-overlay").should("not.exist")
     // Not filtering, just panning - only fetch listings
     cy.get("@markersSearch.all").should("have.length", 1)
     cy.get("@listingsSearch.all").should("have.length", 2)
@@ -56,7 +70,10 @@ describe("Listings map", function () {
     // Click into another cluster
     cy.get('[aria-label="3 listings in this cluster"]').contains("3").click({ force: true })
     waitForLoading()
+
+    // Flaky area of test, logging results to help troubleshoot when it fails
     logTotalMapResults()
+    logListingResults()
     cy.getByTestId("map-total-results").contains("Total results 6")
     cy.getByTestId("map-pagination").contains("Page 1 of 1")
 
@@ -108,9 +125,8 @@ describe("Listings map", function () {
     waitForLoading()
     cy.getByTestId("map-zoom-out").click()
     waitForLoading()
-
-    // Troubleshooting Log out what map-total-results actually contains
     logTotalMapResults()
+
     // Total results displayed rely on exact map position which shifts slightly between test runs leading to flakiness
     // The below expression checks Total results are between 230 and 239 improve test reliability
     cy.getByTestId("map-total-results").contains(/Total results 23[0-9]/)

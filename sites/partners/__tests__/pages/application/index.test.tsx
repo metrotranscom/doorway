@@ -283,7 +283,7 @@ describe("partners_application_index", () => {
     const tableHeaders = within(table).getAllByRole("columnheader")
     expect(tableHeaders).toHaveLength(7)
 
-    const [name, dob, relationship, residence, work, student, actions] = tableHeaders
+    const [name, dob, relationship, residence, student, actions] = tableHeaders
     expect(name).toHaveTextContent(/name/i)
     expect(dob).toHaveTextContent(/date of birth/i)
     expect(relationship).toHaveTextContent(/relationship/i)

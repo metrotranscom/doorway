@@ -7,6 +7,15 @@ function waitForLoading() {
   cy.getByTestId("loading-overlay").should("not.exist")
 }
 
+function logTotalMapResults() {
+  // Troubleshooting Log out what map-total-results actually contains
+  cy.getByTestId("map-total-results")
+    .invoke("text")
+    .then((innerTextValue) => {
+      cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
+    })
+}
+
 describe("Listings map", function () {
   it("renders the listing map", function () {
     cy.viewport(1500, 800)
@@ -46,6 +55,8 @@ describe("Listings map", function () {
 
     // Click into another cluster
     cy.get('[aria-label="3 listings in this cluster"]').contains("3").click({ force: true })
+    waitForLoading()
+    logTotalMapResults()
     cy.getByTestId("map-total-results").contains("Total results 6")
     cy.getByTestId("map-pagination").contains("Page 1 of 1")
 
@@ -99,11 +110,7 @@ describe("Listings map", function () {
     waitForLoading()
 
     // Troubleshooting Log out what map-total-results actually contains
-    cy.getByTestId("map-total-results")
-      .invoke("text")
-      .then((innerTextValue) => {
-        cy.task("log", `MAP RESULTS EQUAL: ${innerTextValue}`)
-      })
+    logTotalMapResults()
     // Total results displayed rely on exact map position which shifts slightly between test runs leading to flakiness
     // The below expression checks Total results are between 230 and 239 improve test reliability
     cy.getByTestId("map-total-results").contains(/Total results 23[0-9]/)

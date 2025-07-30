@@ -2735,6 +2735,38 @@ export class ScriptRunnerService {
       axios(configs, resolve, reject)
     })
   }
+  /**
+   * A script that moves preferences and programs to multiselect questions in Detroit db
+   */
+  migrateDetroitToMultiselectQuestions(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/migrateDetroitToMultiselectQuestions"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * A script that marks transferred data in Doorway as externally created
+   */
+  markTransferedData(options: IRequestOptions = {}): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/scriptRunner/markTransferedData"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = null
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
 }
 
 export class FeatureFlagsService {
@@ -5434,6 +5466,9 @@ export interface Applicant {
   workInRegion?: YesNoEnum
 
   /**  */
+  fullTimeStudent?: YesNoEnum
+
+  /**  */
   applicantWorkAddress: Address
 
   /**  */
@@ -5514,6 +5549,9 @@ export interface HouseholdMember {
 
   /**  */
   workInRegion?: YesNoEnum
+
+  /**  */
+  fullTimeStudent?: YesNoEnum
 
   /**  */
   householdMemberWorkAddress?: Address
@@ -6387,6 +6425,9 @@ export interface ApplicantUpdate {
   workInRegion?: YesNoEnum
 
   /**  */
+  fullTimeStudent?: YesNoEnum
+
+  /**  */
   applicantAddress: AddressCreate
 
   /**  */
@@ -6480,6 +6521,9 @@ export interface HouseholdMemberUpdate {
 
   /**  */
   workInRegion?: YesNoEnum
+
+  /**  */
+  fullTimeStudent?: YesNoEnum
 
   /**  */
   id?: string
@@ -6715,6 +6759,9 @@ export interface UserRole {
 
   /**  */
   isPartner?: boolean
+
+  /**  */
+  isSuperAdmin?: boolean
 }
 
 export interface User {
@@ -7231,11 +7278,12 @@ export enum EnumListingFilterParamsComparison {
   "NA" = "NA",
 }
 export enum ListingViews {
-  "fundamentals" = "fundamentals",
   "base" = "base",
-  "full" = "full",
-  "details" = "details",
   "csv" = "csv",
+  "details" = "details",
+  "full" = "full",
+  "fundamentals" = "fundamentals",
+  "name" = "name",
 }
 
 export enum ListingOrderByKeys {
@@ -7474,6 +7522,7 @@ export enum FeatureFlagEnum {
   "hideCloseListingButton" = "hideCloseListingButton",
   "swapCommunityTypeWithPrograms" = "swapCommunityTypeWithPrograms",
   "enableWaitlistAdditionalFields" = "enableWaitlistAdditionalFields",
+  "enableFullTimeStudentQuestion" = "enableFullTimeStudentQuestion",
 }
 export enum EnumMultiselectQuestionFilterParamsComparison {
   "=" = "=",

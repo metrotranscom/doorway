@@ -570,7 +570,9 @@ export class ScriptRunnerService {
           console.log(
             `migrating ${listingMultiselectQuestions.length} listing multiselect questions`,
           );
-          listingMultiselectQuestions.forEach(async (lmq) => {
+          for (let i = 0; i < listingMultiselectQuestions.length; i++) {
+            const lmq = listingMultiselectQuestions[i];
+
             try {
               await this.prisma.listingMultiselectQuestions.create({
                 data: {
@@ -585,7 +587,7 @@ export class ScriptRunnerService {
                 `unable to migrate listing multiselect question ${lmq.multiselect_question_id} to listing ${createdListing.id}`,
               );
             }
-          });
+          }
         }
 
         // Migrate all events that don't have a file associated to it
@@ -1103,6 +1105,10 @@ export class ScriptRunnerService {
    *
    * @param amiChartImportDTO this is a string in a very specific format like:
    * percentOfAmiValue_1 householdSize_1_income_value householdSize_2_income_value \n percentOfAmiValue_2 householdSize_1_income_value householdSize_2_income_value
+   *
+   * Copying and pasting from google sheets will not match the format above. You will need to perform the following:
+   * 1) Find and delete all instances of "%"
+   * 2) Using the Regex option in the Find and Replace tool, replace /\t with " " and /\n with "\\n"
    * @returns successDTO
    * @description takes the incoming AMI Chart string and stores it as a new AMI Chart in the database
    */

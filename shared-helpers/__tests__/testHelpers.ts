@@ -20,6 +20,8 @@ import {
   ListingEventsTypeEnum,
   ApplicationReviewStatusEnum,
   InputType,
+  UnitGroup,
+  EnumUnitGroupAmiLevelMonthlyRentDeterminationType,
 } from "../src/types/backend-swagger"
 
 export const multiselectQuestionPreference: MultiselectQuestion = {
@@ -395,6 +397,87 @@ export const unit: Unit = {
   createdAt: new Date("2019-07-09T21:20:05.783Z"),
   updatedAt: new Date("2019-08-14T23:05:43.913Z"),
   monthlyRentAsPercentOfIncome: undefined,
+}
+
+export const unitGroup: UnitGroup = {
+  id: "unit_group_id",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  maxOccupancy: 3,
+  minOccupancy: 1,
+  floorMin: 1,
+  floorMax: 4,
+  totalCount: 5,
+  totalAvailable: 5,
+  bathroomMin: 1,
+  bathroomMax: 2,
+  openWaitlist: true,
+  sqFeetMin: 370,
+  sqFeetMax: 840,
+  unitGroupAmiLevels: [
+    {
+      id: "4e64914b-3169-4d6f-a8ef-d4b11b34ebcd",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      amiPercentage: 30,
+      monthlyRentDeterminationType: EnumUnitGroupAmiLevelMonthlyRentDeterminationType.flatRent,
+      flatRentValue: 1500,
+      amiChart: {
+        id: "4e64914b-3169-4d6f-a8ef-d4b11b34ebcd",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        items: [],
+        name: "Mock AMI ",
+        jurisdictions: {
+          id: "Uvbk5qurpB2WI9V6WnNdH",
+          name: "Test City",
+        },
+      },
+    },
+    {
+      id: "mock_ami_id_2",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      amiPercentage: 10,
+      monthlyRentDeterminationType:
+        EnumUnitGroupAmiLevelMonthlyRentDeterminationType.percentageOfIncome,
+      percentageOfIncomeValue: 20,
+      amiChart: {
+        id: "4e64914b-3169-4d6f-a8ef-d4b11b34ebcd",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        items: [],
+        name: "Mock AMI",
+        jurisdictions: {
+          id: "Uvbk5qurpB2WI9V6WnNdH",
+          name: "Bloomington",
+        },
+      },
+    },
+  ],
+  unitTypes: [
+    {
+      id: "unit_id_1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      name: UnitTypeEnum.studio,
+      numBedrooms: 0,
+    },
+    {
+      id: "unit_id_2",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      name: UnitTypeEnum.oneBdrm,
+      numBedrooms: 1,
+    },
+    {
+      id: "unit_id_3",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      name: UnitTypeEnum.twoBdrm,
+      numBedrooms: 2,
+    },
+  ],
 }
 
 export const jurisdiction: Jurisdiction = {

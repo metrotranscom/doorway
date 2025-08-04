@@ -130,8 +130,9 @@ RUN chmod 777 ./src/temp
 USER node
 
 RUN yarn prisma generate
+COPY --chown=node:node /usr/local/bin ./build/docker/entrypoint-run.sh
 
-CMD yarn start:prod
+ENTRYPOINT /usr/local/bin/entrypoint-run.sh
 
 #####################
 ##### NEW STAGE #####
@@ -162,7 +163,4 @@ COPY --from=source --chown=node:node /app/api/scripts ./scripts
 ## This CMD should be run as the node user
 USER node
 
-# We need to skip all migrations that are just for local development (changes already exist in deployed environment)
-CMD if [ "$SKIP_MIGRATIONS" = TRUE ]; then yarn db:migration:skip 00_init || true && yarn db:migration:skip 02_hba_to_prisma || true && yarn db:migration:skip 03_0_external_listing || true && yarn db:migration:run; \
-    else yarn db:migration:run; \
-    fi
+ENTRYPOINT /usr/local/bin/entrypoint-migrate.sh

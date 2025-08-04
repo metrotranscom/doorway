@@ -130,9 +130,9 @@ RUN chmod 777 ./src/temp
 USER node
 
 RUN yarn prisma generate
-COPY --chown=node:node /usr/local/bin ./build/docker/entrypoint-run.sh
+COPY --chown=node:node  ./build/docker/entrypoint-run.sh /app/
 
-ENTRYPOINT /usr/local/bin/entrypoint-run.sh
+ENTRYPOINT /app/entrypoint-run.sh
 
 #####################
 ##### NEW STAGE #####
@@ -162,5 +162,5 @@ COPY --from=source --chown=node:node /app/api/scripts ./scripts
 
 ## This CMD should be run as the node user
 USER node
-
-ENTRYPOINT /usr/local/bin/entrypoint-migrate.sh
+COPY --chown=node:node  ./build/docker/entrypoint-migrate.sh /app/
+ENTRYPOINT /app/entrypoint-migrate.sh

@@ -6,11 +6,9 @@ import { ListingBrowse, TabsIndexEnum } from "../../../src/components/browse/Lis
 import { mockNextRouter } from "../../testUtils"
 import {
   EnumUnitGroupAmiLevelMonthlyRentDeterminationType,
-  FeatureFlag,
   FeatureFlagEnum,
   UnitTypeEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import userEvent from "@testing-library/user-event"
 
 const server = setupServer()
 

@@ -6,12 +6,12 @@ version: 0.2
 env:
   shell: bash
   secrets-manager:
-    PGUSER: "${DB_CREDS_ARN}:user"
+    PGUSER: "${DB_CREDS_ARN}:username"
     PGPASSWORD: "${DB_CREDS_ARN}:password"
     PGHOST: "${DB_CREDS_ARN}:host"
     PGDATABASE: "${DB_CREDS_ARN}:db_name"
     PGPORT: "${DB_CREDS_ARN}:port"
-    DATABASE_URL: "${DB_CREDS_ARN}:uri"
+
 phases:
   pre_build:
     commands:
@@ -61,6 +61,3 @@ phases:
         --env PARTNERS_PORTAL_URL="${PARTNERS_PORTAL_URL:-http://localhost:3001/not-used}"
         --env SKIP_MIGRATIONS=FALSE
         "${MIGRATION_IMAGE}" sh -c "yarn ${MIGRATION_CMD}"
-      # Start the backend back up with the previous number of desired containers
-      - aws ecs update-service --cluster "${ECS_BACKEND_CLUSTER}" --service "${ECS_BACKEND_SERVICE}" --desired-count $BACKEND_COUNT
-      - if [[ ! -z "${ECS_PRIVATE_BACKEND_SERVICE}" ]]; then aws ecs update-service --cluster "${ECS_BACKEND_CLUSTER}" --service "${ECS_PRIVATE_BACKEND_SERVICE}" --desired-count $BACKEND_COUNT; fi

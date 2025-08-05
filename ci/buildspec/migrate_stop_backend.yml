@@ -9,7 +9,7 @@ env:
     PGUSER: "${DB_CREDS_ARN}:username"
     PGPASSWORD: "${DB_CREDS_ARN}:password"
     PGHOST: "${DB_CREDS_ARN}:host"
-    PGDATABASE: "${DB_CREDS_ARN}:db_name"
+    PGDATABASE: "doorway"
     PGPORT: "${DB_CREDS_ARN}:port"
 
 phases:

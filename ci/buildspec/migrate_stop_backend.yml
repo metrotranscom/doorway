@@ -9,7 +9,6 @@ env:
     PGUSER: "${DB_CREDS_ARN}:username"
     PGPASSWORD: "${DB_CREDS_ARN}:password"
     PGHOST: "${DB_CREDS_ARN}:host"
-    PGDATABASE: "doorway"
     PGPORT: "${DB_CREDS_ARN}:port"
 
 phases:
@@ -46,8 +45,7 @@ phases:
         --env PGPASSWORD="${PGPASSWORD}"
         --env PGHOST="${PGHOST}"
         --env PGDATABASE=template1
-        --env PGPORT="${PGPORT}"
-        --env DATABASE_URL="${DATABASE_URL}"
+        --env PGPORT="postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/doorway"
         --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
         --env LISTINGS_QUERY="${LISTINGS_QUERY}"
         --env FILE_SERVICE="${FILE_SERVICE:-cloudinary}"

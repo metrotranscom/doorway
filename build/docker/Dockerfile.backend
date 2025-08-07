@@ -131,7 +131,7 @@ USER node
 
 RUN yarn prisma generate
 COPY --chown=node:node  ./build/docker/entrypoint-run.sh /app/
-RUN chown 755 /app/entrypoint-run.sh
+RUN chmod 755 /app/entrypoint-run.sh
 ENTRYPOINT /app/entrypoint-run.sh
 
 #####################
@@ -163,5 +163,5 @@ COPY --from=source --chown=node:node /app/api/scripts ./scripts
 ## This CMD should be run as the node user
 USER node
 COPY --chown=node:node  ./build/docker/entrypoint-migrate.sh /app/
-RUN chown 755 /app/entrypoint-migrate.sh
+RUN chmod 755 /app/entrypoint-migrate.sh
 ENTRYPOINT /app/entrypoint-migrate.sh

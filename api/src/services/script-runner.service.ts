@@ -1103,6 +1103,257 @@ export class ScriptRunnerService {
 
   /**
    *
+   * @param req incoming request object
+   * @param dataTransferDTO data transfer endpoint args. Should contain foreign db connection string
+   * @returns successDTO
+   * @description transfers missing application data after transferJurisdictionPublicUserAndApplicationData
+   * from foreign data into the database this api normally connects to
+   */
+  async transferJurisdictionAdditionalApplicationData(
+    req: ExpressRequest,
+    dataTransferDTO: DataTransferDTO,
+    prisma?: PrismaClient,
+  ): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+    await this.markScriptAsRunStart(
+      `data transfer additional application data ${
+        dataTransferDTO.jurisdiction
+      } page ${dataTransferDTO.page || 1}`,
+      requestingUser,
+    );
+
+    // connect to foreign db based on incoming connection string
+    const client =
+      prisma ||
+      new PrismaClient({
+        datasources: {
+          db: {
+            url: dataTransferDTO.connectionString,
+          },
+        },
+      });
+    await client.$connect();
+
+    const doorwayJurisdiction = await this.prisma.jurisdictions.findFirst({
+      where: { name: dataTransferDTO.jurisdiction },
+    });
+
+    if (!doorwayJurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in Doorway database`,
+      );
+    }
+
+    // get jurisdiction
+    const jurisdiction: { id: string }[] =
+      await client.$queryRaw`SELECT id, name FROM jurisdictions WHERE name = ${dataTransferDTO.jurisdiction}`;
+
+    if (!jurisdiction) {
+      throw new Error(
+        `${dataTransferDTO.jurisdiction} county doesn't exist in foreign database`,
+      );
+    }
+
+    const skip = calculateSkip(10, dataTransferDTO.page || 1);
+    const take = calculateTake(10);
+
+    const listings = await client.listings.findMany({
+      select: {
+        id: true,
+      },
+      where: {
+        jurisdictionId: jurisdiction[0].id,
+      },
+    });
+
+    const applications = await client.applications.findMany({
+      select: {
+        id: true,
+        language: true,
+        contactPreferences: true,
+        sendMailToMailingAddress: true,
+        acceptedTerms: true,
+        additionalPhone: true,
+        additionalPhoneNumberType: true,
+        income: true,
+        incomePeriod: true,
+        // TODO: we can't retrieve income vouchers because its a boolean vs an array of strings
+        // incomeVouchers: true,
+        housingStatus: true,
+        householdStudent: true,
+        status: true,
+        householdExpectingChanges: true,
+        programs: true,
+        preferences: true,
+        // sub tables
+        applicationsAlternateAddress: true,
+        accessibility: true,
+        alternateContact: {
+          select: {
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+            type: true,
+            agency: true,
+            otherType: true,
+          },
+        },
+        applicant: {
+          select: {
+            id: true,
+            noEmail: true,
+            noPhone: true,
+            phoneNumberType: true,
+            workInRegion: true,
+            createdAt: true,
+            updatedAt: true,
+            applicantWorkAddress: true,
+            applicantAddress: true,
+          },
+        },
+        demographics: {
+          select: {
+            ethnicity: true,
+            gender: true,
+            sexualOrientation: true,
+            howDidYouHear: true,
+            race: true,
+          },
+        },
+        applicationsMailingAddress: true,
+      },
+      where: {
+        listingId: {
+          in: listings.map((listing) => listing.id),
+        },
+      },
+      skip,
+      take,
+      orderBy: [
+        // Sort by listings and then application id so that we can go listing by listing
+        { listingId: OrderByEnum.ASC },
+        { id: OrderByEnum.ASC },
+      ],
+    });
+
+    let currentApplicationCount = 0;
+    for (const application of applications) {
+      try {
+        await this.prisma.applications.update({
+          data: {
+            id: application.id,
+            language: application.language,
+            contactPreferences: application.contactPreferences,
+            sendMailToMailingAddress: application.sendMailToMailingAddress,
+            acceptedTerms: application.acceptedTerms,
+            additionalPhone: application.additionalPhone,
+            additionalPhoneNumberType: application.additionalPhoneNumberType,
+            income: application.income,
+            incomePeriod: application.incomePeriod,
+            // TODO: we need to convert to a different type
+            // incomeVouchers: application.incomeVouchers,
+            housingStatus: application.housingStatus,
+            householdStudent: application.householdStudent,
+            status: application.status, // This will always be "submitted"
+            householdExpectingChanges: application.householdExpectingChanges,
+            programs: application.programs,
+            preferences: application.preferences,
+            applicationsAlternateAddress: {
+              create: {
+                ...application.applicationsAlternateAddress,
+              },
+            },
+            accessibility: {
+              create: {
+                ...application.accessibility,
+              },
+            },
+            alternateContact: {
+              create: {
+                ...application.alternateContact,
+              },
+            },
+            applicant: {
+              create: {
+                ...application.applicant,
+                applicantAddress: {
+                  create: {
+                    ...application.applicant.applicantAddress,
+                  },
+                },
+                applicantWorkAddress: {
+                  create: {
+                    ...application.applicant.applicantWorkAddress,
+                  },
+                },
+              },
+            },
+            demographics: {
+              create: {
+                ...application.demographics,
+              },
+            },
+            applicationsMailingAddress: {
+              create: {
+                ...application.applicationsMailingAddress,
+              },
+            },
+          },
+          where: {
+            id: application.id,
+          },
+        });
+        const applicationHouseholdMembers =
+          await client.householdMember.findMany({
+            where: {
+              applicationId: application.id,
+            },
+          });
+        if (applicationHouseholdMembers?.length) {
+          await this.prisma.householdMember.createMany({
+            data: applicationHouseholdMembers,
+          });
+        }
+      } catch (e) {
+        // If the update fails because the application doesn't exist we want a different log to easier separate the issues out
+        if (e['code'] !== 'P2025') {
+          console.log(
+            `application ${application.id} does not exist in the system`,
+          );
+          // TODO: verify this only happens at the application level
+          console.log(e);
+        } else {
+          console.log('e', e);
+          console.log(`unable to migrate application ${application.id}`);
+        }
+      }
+      currentApplicationCount++;
+      // console logs for progress of migration
+      if (currentApplicationCount % 500 === 0) {
+        console.log(
+          `Progress: ${currentApplicationCount} applications migrated`,
+        );
+      }
+    }
+
+    console.log(`migrated page ${dataTransferDTO.page || 1} of applications`);
+
+    // disconnect from foreign db
+    await client.$disconnect();
+
+    // script runner standard spin down
+    await this.markScriptAsComplete(
+      `data transfer additional application data ${
+        dataTransferDTO.jurisdiction
+      } page ${dataTransferDTO.page || 1}`,
+      requestingUser,
+    );
+
+    return { success: true };
+  }
+
+  /**
+   *
    * @param amiChartImportDTO this is a string in a very specific format like:
    * percentOfAmiValue_1 householdSize_1_income_value householdSize_2_income_value \n percentOfAmiValue_2 householdSize_1_income_value householdSize_2_income_value
    *

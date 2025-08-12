@@ -68,7 +68,7 @@ describe("Listings map", function () {
     cy.get("@listingsSearch.all").should("have.length", 2)
 
     // Click into another cluster
-    cy.get('[position="38.00311508029071,-121.8022781610489"]').contains("3").click({ force: true })
+    cy.get('[position="38.00311508029071,-121.8022781610489"]').contains("3").click()
     waitForLoading()
     // Flaky area of test, logging results to help troubleshoot when it fails
     logTotalMapResults()

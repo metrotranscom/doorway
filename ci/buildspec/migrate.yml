@@ -8,11 +8,11 @@ version: 0.2
 env:
   shell: bash
   secrets-manager:
-    PGUSER: "${DB_CREDS_ARN}:user"
+    PGUSER: "${DB_CREDS_ARN}:username"
     PGPASSWORD: "${DB_CREDS_ARN}:password"
     PGHOST: "${DB_CREDS_ARN}:host"
-    PGDATABASE: "${DB_CREDS_ARN}:db_name"
     PGPORT: "${DB_CREDS_ARN}:port"
+    PGDATABASE: "${DB_CREDS_ARN}:dbname"
 
 phases:
   pre_build:

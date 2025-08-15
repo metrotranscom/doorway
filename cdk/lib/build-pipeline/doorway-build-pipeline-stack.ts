@@ -5,6 +5,7 @@ import { PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
+import { DoorwayDatabaseMigrate } from "./doorway-database-migrate"
 import { DoorwayDockerBuild } from "./doorway-docker-build"
 
 export class DoorwayBuildPipelineStack extends Stack {
@@ -100,6 +101,17 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
+        }).action,
+      ],
+    })
+    pipeline.addStage({
+      stageName: "Dev",
+      actions: [
+        new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
+          ecrNamespace: "doorway/backend",
+          environment: "dev2",
+          buildspec: "./ci/buildspec/migrate_stop_backend.yml",
+          source: sourceArtifact,
         }).action,
       ],
     })

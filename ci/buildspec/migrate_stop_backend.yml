@@ -10,6 +10,7 @@ env:
     PGPASSWORD: "${DB_CREDS_ARN}:password"
     PGHOST: "${DB_CREDS_ARN}:host"
     PGPORT: "${DB_CREDS_ARN}:port"
+    PGDATABASE: "${DB_CREDS_ARN}:dbname"
 
 phases:
   pre_build:

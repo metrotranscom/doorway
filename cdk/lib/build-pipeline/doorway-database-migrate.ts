@@ -1,9 +1,10 @@
-import { Aws, Fn, Stack } from "aws-cdk-lib"
+import { Aws, Fn } from "aws-cdk-lib"
 import { BuildSpec, ComputeType, LinuxBuildImage, PipelineProject } from "aws-cdk-lib/aws-codebuild"
 import { Artifact } from "aws-cdk-lib/aws-codepipeline"
 import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { SecurityGroup, Subnet, Vpc } from "aws-cdk-lib/aws-ec2"
-import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
+import { Role } from "aws-cdk-lib/aws-iam"
+import { Construct } from "constructs"
 
 // Removed fs and YAML imports since we're using BuildSpec.fromSourceFilename
 
@@ -13,63 +14,27 @@ export interface DoorwayDatabaseMigrateProps {
   environment: string
   buildspec: string
   source: Artifact
+  buildRole: Role
 }
 
 export class DoorwayDatabaseMigrate {
   public readonly action: CodeBuildAction
-  constructor(stack: Stack, id: string, props: DoorwayDatabaseMigrateProps) {
+  constructor(scope: Construct, id: string, props: DoorwayDatabaseMigrateProps) {
     const vpcId = Fn.importValue(`doorway-vpc-id-${props.environment}`)
     const subnetId = Fn.importValue(`doorway-app-subnet-1-${props.environment}`)
     const securityGroupId = Fn.importValue(`doorway-app-sg-${props.environment}`)
     const dbSecretArn = Fn.importValue(`doorwayDBSecret-${props.environment}`)
     const azs = Fn.importValue(`doorway-azs-${props.environment}`).split(", ")
-    const vpc = Vpc.fromVpcAttributes(stack, "vpc", {
+    const vpc = Vpc.fromVpcAttributes(scope, "vpc", {
       vpcId: vpcId,
       availabilityZones: azs,
     })
-    const subnet = Subnet.fromSubnetAttributes(stack, "subnet", {
+    const subnet = Subnet.fromSubnetAttributes(scope, "subnet", {
       subnetId: subnetId,
     })
-    const sg = SecurityGroup.fromSecurityGroupId(stack, "sg", securityGroupId)
+    const sg = SecurityGroup.fromSecurityGroupId(scope, "sg", securityGroupId)
 
-    const buildRole = new Role(stack, "doorway-app-build-role", {
-      assumedBy: new ServicePrincipal("codebuild.amazonaws.com"),
-      managedPolicies: [
-        {
-          managedPolicyArn: "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
-        },
-        {
-          managedPolicyArn: "arn:aws:iam::aws:policy/AmazonS3FullAccess",
-        },
-      ],
-      inlinePolicies: {
-        ECRPolicies: new PolicyDocument({
-          statements: [
-            new PolicyStatement({
-              actions: ["ecr:*"],
-              resources: [`arn:aws:ecr:${Aws.REGION}:${Aws.ACCOUNT_ID}:repository/*`],
-            }),
-            new PolicyStatement({
-              actions: ["secretsmanager:GetSecretValue"],
-              resources: [dbSecretArn],
-            }),
-            new PolicyStatement({
-              actions: [
-                "cloudformation:*",
-                "ec2:*",
-                "ssm:*",
-                "codebuild:*",
-                "logs:*",
-                "iam:AssumeRole",
-                "iam:PassRole",
-              ],
-              resources: ["*"],
-            }),
-          ],
-        }),
-      },
-    })
-    const project = new PipelineProject(stack, `doorway-dbMigrate-${props.environment}`, {
+    const project = new PipelineProject(scope, `doorway-dbMigrate-${props.environment}`, {
       vpc: vpc,
       subnetSelection: { subnets: [subnet] },
       securityGroups: [sg],
@@ -86,7 +51,7 @@ export class DoorwayDatabaseMigrate {
         ECR_NAMESPACE: { value: props.ecrNamespace || "doorway" },
         PGDATABASE: { value: props.databaseName || "bloom" },
       },
-      role: buildRole,
+      role: props.buildRole,
     })
     // Create the CodeBuild action
     this.action = new CodeBuildAction({

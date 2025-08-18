@@ -158,6 +158,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           environment: "dev2",
           buildspec: "./ci/buildspec/migrate.yml",
           source: sourceArtifact,
+          buildRole: buildRole,
         }).action,
       ],
     })

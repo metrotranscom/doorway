@@ -1,7 +1,7 @@
 import { Stack, StackProps } from "aws-cdk-lib"
 import { Artifact, Pipeline } from "aws-cdk-lib/aws-codepipeline"
 import { GitHubSourceAction } from "aws-cdk-lib/aws-codepipeline-actions"
-import { PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
+import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
@@ -32,6 +32,49 @@ export class DoorwayBuildPipelineStack extends Stack {
         resources: ["*"],
       })
     )
+    const buildRole = new Role(this, `${id}-doorway-app-build-role`, {
+      assumedBy: new ServicePrincipal("codebuild.amazonaws.com"),
+      managedPolicies: [
+        {
+          managedPolicyArn: "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
+        },
+        {
+          managedPolicyArn: "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+        },
+      ],
+      inlinePolicies: {
+        ECRPolicies: new PolicyDocument({
+          statements: [
+            new PolicyStatement({
+              actions: [
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchCheckLayerAvailability",
+              ],
+              resources: [`arn:aws:ecr:${this.region}:${this.account}:repository/*`],
+            }),
+            new PolicyStatement({
+              actions: ["secretsmanager:GetSecretValue"],
+              resources: [
+                `arn:aws:secretsmanager:${this.region}:${this.account}:secret:mtc/dockerHub*`,
+              ],
+            }),
+            new PolicyStatement({
+              actions: [
+                "cloudformation:*",
+                "ec2:*",
+                "ssm:*",
+                "codebuild:*",
+                "logs:*",
+                "iam:AssumeRole",
+                "iam:PassRole",
+              ],
+              resources: ["*"],
+            }),
+          ],
+        }),
+      },
+    })
 
     const dockerSecret = Secret.fromSecretNameV2(
       this,
@@ -80,6 +123,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
+          buildRole: buildRole,
         }).action,
         new DoorwayDockerBuild(this, "doorway-import-listings", {
           buildspec: "../ci/buildspec/build_import_listings.yml",
@@ -87,6 +131,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
+          buildRole: buildRole,
         }).action,
         new DoorwayDockerBuild(this, `doorway-partners`, {
           buildspec: "../ci/buildspec/build_partners.yml",
@@ -94,6 +139,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
+          buildRole: buildRole,
         }).action,
         new DoorwayDockerBuild(this, "doorway-public", {
           buildspec: "../ci/buildspec/build_public.yml",
@@ -101,6 +147,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
+          buildRole: buildRole,
         }).action,
       ],
     })

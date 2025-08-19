@@ -26,8 +26,8 @@ abstract class DoorwayService {
   protected privateSG: ISecurityGroup
   protected publicSG: ISecurityGroup
   protected vpc: IVpc
-  protected appsubnets: ISubnet[]
-  protected publicSubnets: ISubnet[]
+  protected appsubnets: ISubnet[] = []
+  protected publicSubnets: ISubnet[] = []
   protected publicUploads: IBucket
   protected secureUploads: IBucket
 
@@ -142,11 +142,12 @@ export class DoorwayApiService extends DoorwayService {
       PGHOST: Secret.fromSecretsManager(dbSecret, "host"),
       PGDATABASE: Secret.fromSecretsManager(dbSecret, "dbname"),
     }
-    process.env.BACKEND_SECRETS?.split(",").forEach((secretName) => {
-      secrets[secretName] = Secret.fromSecretsManager(
-        secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${secretName}`)
-      )
-    })
+    process.env.BACKEND_SECRETS ||
+      "".split(",").forEach((secretName) => {
+        secrets[secretName] = Secret.fromSecretsManager(
+          secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${secretName}`)
+        )
+      })
     // Grant write access to the uploads buckets.
     this.publicUploads.grantReadWrite(this.executionRole)
     this.publicUploads.grantPut(this.executionRole)

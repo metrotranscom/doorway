@@ -16,7 +16,7 @@ export interface DoorwayECSDeployProps {
 export class DoorwayECSDeploy {
   public readonly action: CodeBuildAction
   constructor(scope: Construct, id: string, props: DoorwayECSDeployProps) {
-    const project = new PipelineProject(scope, `doorway-dbMigrate-${props.environment}`, {
+    const project = new PipelineProject(scope, `doorway-ecsDeploy-${props.environment}`, {
       buildSpec: BuildSpec.fromSourceFilename(props.buildspec),
       environment: {
         buildImage: LinuxBuildImage.STANDARD_7_0,

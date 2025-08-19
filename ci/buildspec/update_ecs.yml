@@ -7,8 +7,9 @@ env:
   shell: bash
 phases:
   build:
-    commands: npm install -g  yarn
-      npm install -g aws-cdk
-      cd ${CODEBUILD_SRC_DIR}/cdk
-      yarn install
-      cdk deploy DoorwayAppEnvironmentStack --require-approval never
+    commands:
+      - npm install -g  yarn
+      - npm install -g aws-cdk
+      - cd ${CODEBUILD_SRC_DIR}/cdk
+      - yarn install
+      - cdk deploy DoorwayAppEnvironmentStack --require-approval never

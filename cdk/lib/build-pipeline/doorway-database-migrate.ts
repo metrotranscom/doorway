@@ -4,6 +4,7 @@ import { Artifact } from "aws-cdk-lib/aws-codepipeline"
 import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { SecurityGroup, Subnet, Vpc } from "aws-cdk-lib/aws-ec2"
 import { Role } from "aws-cdk-lib/aws-iam"
+import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
 // Removed fs and YAML imports since we're using BuildSpec.fromSourceFilename
@@ -33,6 +34,7 @@ export class DoorwayDatabaseMigrate {
       subnetId: subnetId,
     })
     const sg = SecurityGroup.fromSecurityGroupId(scope, "sg", securityGroupId)
+    Secret.fromSecretCompleteArn(scope, "dbSecret", dbSecretArn).grantRead(props.buildRole)
 
     const project = new PipelineProject(scope, `doorway-dbMigrate-${props.environment}`, {
       vpc: vpc,
@@ -50,6 +52,7 @@ export class DoorwayDatabaseMigrate {
         ECR_ACCOUNT_ID: { value: Aws.ACCOUNT_ID },
         ECR_NAMESPACE: { value: props.ecrNamespace || "doorway" },
         PGDATABASE: { value: props.databaseName || "bloom" },
+        MIGRATION_CMD: { value: "db:reseed:ci" },
       },
       role: props.buildRole,
     })

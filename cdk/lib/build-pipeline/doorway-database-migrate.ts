@@ -52,6 +52,7 @@ export class DoorwayDatabaseMigrate {
         ECR_ACCOUNT_ID: { value: Aws.ACCOUNT_ID },
         ECR_NAMESPACE: { value: props.ecrNamespace || "doorway" },
         PGDATABASE: { value: props.databaseName || "bloom" },
+        SKIP_MIGRATIONS: { value: "TRUE" }, // Set to true to skip migrations
       },
       role: props.buildRole,
     })

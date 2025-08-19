@@ -7,6 +7,7 @@ import { Construct } from "constructs"
 
 import { DoorwayDatabaseMigrate } from "./doorway-database-migrate"
 import { DoorwayDockerBuild } from "./doorway-docker-build"
+import { DoorwayECSDeploy } from "./doorway-ecs-deploy"
 
 export class DoorwayBuildPipelineStack extends Stack {
   constructor(scope: Construct, id: string, props: PipelineProps) {
@@ -159,6 +160,12 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildspec: "./ci/buildspec/migrate.yml",
           source: sourceArtifact,
           buildRole: buildRole,
+        }).action,
+        new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
+          buildspec: "./ci/buildspec/update_ecs.yml",
+          source: sourceArtifact,
+          buildRole: buildRole,
+          environment: "dev2",
         }).action,
       ],
     })

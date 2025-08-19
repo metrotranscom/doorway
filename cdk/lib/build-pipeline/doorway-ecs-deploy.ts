@@ -7,8 +7,6 @@ import { Construct } from "constructs"
 // Removed fs and YAML imports since we're using BuildSpec.fromSourceFilename
 
 export interface DoorwayECSDeployProps {
-  ecrNamespace?: string
-  databaseName?: string
   environment: string
   buildspec: string
   source: Artifact

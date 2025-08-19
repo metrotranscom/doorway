@@ -157,7 +157,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       actions: [
         new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
           environment: "dev2",
-          buildspec: "./ci/buildspec/migrate.yml",
+          buildspec: "./ci/buildspec/migrate_stop_backend.yml",
           source: sourceArtifact,
           buildRole: buildRole,
         }).action,

@@ -32,6 +32,7 @@ export class DoorwayECSDeploy {
       input: props.source,
       outputs: [new Artifact(`${id}-BuildOutput`)],
       project,
+      runOrder: 2,
     })
   }
 }

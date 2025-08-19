@@ -52,7 +52,16 @@ export class DoorwayDatabaseMigrate {
         ECR_ACCOUNT_ID: { value: Aws.ACCOUNT_ID },
         ECR_NAMESPACE: { value: props.ecrNamespace || "doorway" },
         PGDATABASE: { value: props.databaseName || "bloom" },
-        SKIP_MIGRATIONS: { value: "TRUE" }, // Set to true to skip migrations
+        CLOUDINARY_CLOUD_NAME: { value: "exygy" },
+        CACHE_REVALIDATE: { value: "60" },
+        LANGUAGES: { value: "en,es,zh,vi,tl" },
+        IDLE_TIMEOUT: { value: "5" },
+        ECS_BACKEND_SERVICE: {
+          value: `doorway-${props.environment}-internal-api`,
+        },
+        ECS_BACKEND_CLUSTER: {
+          value: `doorway-ecs-cluster-${props.environment}`,
+        },
       },
       role: props.buildRole,
     })
@@ -62,6 +71,7 @@ export class DoorwayDatabaseMigrate {
       input: props.source,
       outputs: [new Artifact(`${id}-BuildOutput`)],
       project,
+      runOrder: 1,
     })
   }
 }

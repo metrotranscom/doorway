@@ -69,6 +69,7 @@ export class DoorwayBuildPipelineStack extends Stack {
                 "logs:*",
                 "iam:AssumeRole",
                 "iam:PassRole",
+                "ecs:*",
               ],
               resources: ["*"],
             }),
@@ -152,22 +153,22 @@ export class DoorwayBuildPipelineStack extends Stack {
         }).action,
       ],
     })
+    const dbmigrate = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
+      environment: "dev2",
+      buildspec: "./ci/buildspec/migrate_stop_backend.yml",
+      source: sourceArtifact,
+      buildRole: buildRole,
+    }).action
+    const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
+      buildspec: "./ci/buildspec/update_ecs.yml",
+      source: sourceArtifact,
+      buildRole: buildRole,
+      environment: "dev2",
+    }).action
+
     pipeline.addStage({
       stageName: "Dev",
-      actions: [
-        new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
-          environment: "dev2",
-          buildspec: "./ci/buildspec/migrate_stop_backend.yml",
-          source: sourceArtifact,
-          buildRole: buildRole,
-        }).action,
-        new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
-          buildspec: "./ci/buildspec/update_ecs.yml",
-          source: sourceArtifact,
-          buildRole: buildRole,
-          environment: "dev2",
-        }).action,
-      ],
+      actions: [dbmigrate, ecsDeploy],
     })
   }
 }

@@ -7,9 +7,8 @@ env:
   shell: bash
 phases:
   build:
-    commands:
-      # Force ECS to use the new images
-      - aws ecs update-service --force-new-deployment --cluster "${ECS_BACKEND_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_BACKEND_SERVICE}"
-      - aws ecs update-service --force-new-deployment --cluster "${ECS_PUBLIC_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_PUBLIC_SERVICE}"
-      - aws ecs update-service --force-new-deployment --cluster "${ECS_PARTNER_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_PARTNER_SERVICE}"
-      - aws ecs update-service --force-new-deployment --cluster "${ECS_BACKEND_CLUSTER:-${ECS_DEFAULT_CLUSTER}}" --service "${ECS_PRIVATE_BACKEND_SERVICE}"
+    commands: npm install -g  yarn
+      npm install -g aws-cdk
+      cd ${CODEBUILD_SRC_DIR}/cdk
+      yarn install
+      cdk deploy DoorwayAppEnvironmentStack --require-approval never

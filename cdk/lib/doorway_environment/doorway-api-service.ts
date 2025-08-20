@@ -159,6 +159,9 @@ export class DoorwayApiService extends DoorwayService {
         },
       ],
     })
+    //Setting up ServiceConnect which will allow the partenr and public services
+    // to connect to the internal api service directly through ECS
+    // without a load balancer.
     const namespace = new PrivateDnsNamespace(
       scope,
       `doorway-${props.environment}-internal-api-namespace`,
@@ -168,6 +171,7 @@ export class DoorwayApiService extends DoorwayService {
         description: `Private DNS namespace for the Doorway ${props.environment} internal API`,
       }
     )
+    // The private CA is used for TLS encryption of ServiceConnect traffic.
     const privateCAArn = StringParameter.fromStringParameterAttributes(scope, "privateCAArn", {
       parameterName: `/doorway/privateCertAuthority`,
     }).stringValue
@@ -189,11 +193,7 @@ export class DoorwayApiService extends DoorwayService {
         namespace: namespace.namespaceName,
         logDriver: LogDrivers.awsLogs({
           streamPrefix: "internal-api-service-connect",
-          logGroup: LogGroup.fromLogGroupName(
-            scope,
-            "logGroup",
-            `doorway-${props.environment}-tasks`
-          ),
+          logGroup: logGroup,
         }),
         services: [
           {

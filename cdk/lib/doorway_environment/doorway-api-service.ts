@@ -206,9 +206,10 @@ export class DoorwayApiService extends DoorwayService {
         subnets: this.appsubnets,
       },
       securityGroups: [this.privateSG],
+
       desiredCount: Number(process.env.API_INSTANCES) || 3,
       serviceConnectConfiguration: {
-        namespace: namespace.namespaceName,
+        namespace: namespace.namespaceArn,
         logDriver: LogDrivers.awsLogs({
           streamPrefix: "internal-api-service-connect",
           logGroup: logGroup,
@@ -226,6 +227,9 @@ export class DoorwayApiService extends DoorwayService {
         ],
       },
     })
+
+    // Ensure the namespace is created before the service
+    service.node.addDependency(namespace)
 
     const scaling = service.autoScaleTaskCount({
       minCapacity: Number(process.env.API_INSTANCES) || 3,

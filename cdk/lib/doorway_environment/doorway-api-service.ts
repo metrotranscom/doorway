@@ -192,6 +192,12 @@ export class DoorwayApiService extends DoorwayService {
           "service-role/AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity"
         ),
       ],
+      inlinePolicies: {
+        pcaAuth: new PolicyStatement({
+          actions: ["acm-pca:*"],
+          resources: [privateCAArn],
+        }),
+      },
     })
 
     // Create the service in ECS

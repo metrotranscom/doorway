@@ -203,7 +203,6 @@ export class DoorwayApiService extends DoorwayService {
 
             tls: {
               awsPcaAuthorityArn: privateCAArn,
-              role: this.executionRole,
             },
           },
         ],

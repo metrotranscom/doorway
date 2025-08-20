@@ -1,6 +1,22 @@
 import { Aws, aws_logs, Duration, Fn, RemovalPolicy } from "aws-cdk-lib"
-import { Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, Secret, TaskDefinition } from "aws-cdk-lib/aws-ecs"
-import { CompositePrincipal, ManagedPolicy, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
+import {
+  Cluster,
+  Compatibility,
+  ContainerImage,
+  FargateService,
+  LogDrivers,
+  NetworkMode,
+  Protocol,
+  Secret,
+  TaskDefinition,
+} from "aws-cdk-lib/aws-ecs"
+import {
+  CompositePrincipal,
+  ManagedPolicy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from "aws-cdk-lib/aws-iam"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"

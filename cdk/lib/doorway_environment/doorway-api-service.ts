@@ -13,6 +13,7 @@ import {
 import {
   CompositePrincipal,
   ManagedPolicy,
+  PolicyDocument,
   PolicyStatement,
   Role,
   ServicePrincipal,
@@ -193,9 +194,13 @@ export class DoorwayApiService extends DoorwayService {
         ),
       ],
       inlinePolicies: {
-        pcaAuth: new PolicyStatement({
-          actions: ["acm-pca:*"],
-          resources: [privateCAArn],
+        pcaAuth: new PolicyDocument({
+          statements: [
+            new PolicyStatement({
+              actions: ["acm-pca:*"],
+              resources: [privateCAArn],
+            }),
+          ],
         }),
       },
     })

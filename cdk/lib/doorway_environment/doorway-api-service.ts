@@ -13,7 +13,9 @@ import {
 import { PolicyStatement } from "aws-cdk-lib/aws-iam"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
+import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
 import { EmailIdentity } from "aws-cdk-lib/aws-ses"
+import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
 import { DoorwayService } from "./doorway_services"
@@ -157,6 +159,19 @@ export class DoorwayApiService extends DoorwayService {
         },
       ],
     })
+    const namespace = new PrivateDnsNamespace(
+      scope,
+      `doorway-${props.environment}-internal-api-namespace`,
+      {
+        vpc: this.vpc,
+        name: `doorway-${props.environment}-internal-api`,
+        description: `Private DNS namespace for the Doorway ${props.environment} internal API`,
+      }
+    )
+    const privateCAArn = StringParameter.fromStringParameterAttributes(scope, "privateCAArn", {
+      parameterName: `/doorway/privateCertAuthority`,
+    }).stringValue
+
     // Create the service in ECS
     const service = new FargateService(scope, `doorway-${props.environment}-internal-api`, {
       taskDefinition: task,
@@ -170,6 +185,28 @@ export class DoorwayApiService extends DoorwayService {
       },
       securityGroups: [this.privateSG],
       desiredCount: Number(process.env.API_INSTANCES) || 3,
+      serviceConnectConfiguration: {
+        namespace: namespace.namespaceName,
+        logDriver: LogDrivers.awsLogs({
+          streamPrefix: "internal-api-service-connect",
+          logGroup: LogGroup.fromLogGroupName(
+            scope,
+            "logGroup",
+            `doorway-${props.environment}-tasks`
+          ),
+        }),
+        services: [
+          {
+            portMappingName: process.env.API_LOCAL_PORT || "3100",
+            dnsName: `backend.${props.environment}.housingbayarea.int`,
+
+            tls: {
+              awsPcaAuthorityArn: privateCAArn,
+              role: this.executionRole,
+            },
+          },
+        ],
+      },
     })
 
     const scaling = service.autoScaleTaskCount({

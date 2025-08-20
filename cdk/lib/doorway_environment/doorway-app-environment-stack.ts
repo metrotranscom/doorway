@@ -1,7 +1,9 @@
 import { Stack } from "aws-cdk-lib"
 import { Construct } from "constructs"
 import dotenv from "dotenv"
-import { DoorwayApiService } from "./doorway_services"
+
+import { DoorwayApiService } from "./doorway-api-service"
+
 export class DoorwayAppEnvironmentStack extends Stack {
   constructor(scope: Construct, id: string) {
     super(scope, id)

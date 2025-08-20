@@ -90,7 +90,7 @@ export class DoorwayApiService extends DoorwayService {
     process.env.BACKEND_SECRETS ||
       "".split(",").forEach((secretName) => {
         secrets[secretName] = Secret.fromSecretsManager(
-          secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${secretName}`)
+          secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${secretName}`),
         )
       })
     // Grant write access to the uploads buckets.
@@ -102,7 +102,7 @@ export class DoorwayApiService extends DoorwayService {
     const sesIdentity = EmailIdentity.fromEmailIdentityName(
       scope,
       "sesIdentity",
-      "housingbayarea2.org"
+      "housingbayarea2.org",
     )
     sesIdentity.grantSendEmail(this.executionRole)
     // Add a bunch of random SES grants that grantSendEmail doesn't set up
@@ -143,7 +143,7 @@ export class DoorwayApiService extends DoorwayService {
 
     task.addContainer("internal-api", {
       image: ContainerImage.fromRegistry(
-        `${Aws.ACCOUNT_ID}.dkr.ecr.${Aws.REGION}.amazonaws.com/doorway/backend:run-candidate`
+        `${Aws.ACCOUNT_ID}.dkr.ecr.${Aws.REGION}.amazonaws.com/doorway/backend:run-candidate`,
       ),
       cpu: 1,
       memoryLimitMiB: 1024,
@@ -153,7 +153,7 @@ export class DoorwayApiService extends DoorwayService {
         logGroup: LogGroup.fromLogGroupName(
           scope,
           "logGroup",
-          `doorway-${props.environment}-tasks`
+          `doorway-${props.environment}-tasks`,
         ),
       }),
       secrets: secrets,
@@ -178,7 +178,7 @@ export class DoorwayApiService extends DoorwayService {
         vpc: this.vpc,
         name: `doorway-${props.environment}-internal-api`,
         description: `Private DNS namespace for the Doorway ${props.environment} internal API`,
-      }
+      },
     )
     // The private CA is used for TLS encryption of ServiceConnect traffic.
     const privateCAArn = StringParameter.fromStringParameterAttributes(scope, "privateCAArn", {
@@ -187,11 +187,11 @@ export class DoorwayApiService extends DoorwayService {
     const scRole = new Role(scope, `doorway-${props.environment}-internal-api-sc-role`, {
       assumedBy: new CompositePrincipal(
         new ServicePrincipal("ecs.amazonaws.com"),
-        new ServicePrincipal("ecs-tasks.amazonaws.com")
+        new ServicePrincipal("ecs-tasks.amazonaws.com"),
       ),
       managedPolicies: [
         ManagedPolicy.fromAwsManagedPolicyName(
-          "service-role/AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity"
+          "service-role/AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity",
         ),
       ],
       inlinePolicies: {

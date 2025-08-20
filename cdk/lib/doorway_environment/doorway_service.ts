@@ -25,16 +25,16 @@ export abstract class DoorwayService {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
     this.executionRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy")
+      ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
     )
     this.executionRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess")
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess"),
     )
     this.executionRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonRDSReadOnlyAccess")
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonRDSReadOnlyAccess"),
     )
     this.executionRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonEC2ContainerRegistryReadOnly")
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonEC2ContainerRegistryReadOnly"),
     )
     // Get Network setup
     const vpcId = cdk.Fn.importValue(`doorway-vpc-id-${props.environment}`)
@@ -54,19 +54,19 @@ export abstract class DoorwayService {
     this.privateSG = cdk.aws_ec2.SecurityGroup.fromSecurityGroupId(
       scope,
       "appTierPrivateSG",
-      appTierPrivateSGId
+      appTierPrivateSGId,
     )
 
     //Uploads Buckets
     this.publicUploads = Bucket.fromBucketArn(
       scope,
       `publicUploadsBucket`,
-      Fn.importValue(`doorway-public-uploads-${props.environment}`)
+      Fn.importValue(`doorway-public-uploads-${props.environment}`),
     )
     this.secureUploads = Bucket.fromBucketArn(
       scope,
       `secureUploadsBucket`,
-      Fn.importValue(`doorway-secure-uploads-${props.environment}`)
+      Fn.importValue(`doorway-secure-uploads-${props.environment}`),
     )
   }
 }

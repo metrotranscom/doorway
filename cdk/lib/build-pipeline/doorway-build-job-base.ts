@@ -105,7 +105,7 @@ export class DoorwayBuildJobBase {
     const project = new PipelineProject(
       stack,
       `doorway-dbMigrate-${props.environment}`,
-      projectProps
+      projectProps,
     )
     // Create the CodeBuild action
     this.action = new CodeBuildAction({

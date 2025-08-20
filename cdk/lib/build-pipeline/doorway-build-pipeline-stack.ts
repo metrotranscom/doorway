@@ -31,7 +31,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           "iam:PassRole",
         ],
         resources: ["*"],
-      })
+      }),
     )
     const buildRole = new Role(this, `${id}-doorway-app-build-role`, {
       assumedBy: new ServicePrincipal("codebuild.amazonaws.com"),
@@ -81,13 +81,13 @@ export class DoorwayBuildPipelineStack extends Stack {
     const dockerSecret = Secret.fromSecretNameV2(
       this,
       "dockerSecret",
-      props.dockerHubSecret
+      props.dockerHubSecret,
     ).secretArn
 
     const githubSecret = Secret.fromSecretNameV2(
       this,
       "githubSecret",
-      props.githubSecret
+      props.githubSecret,
     ).secretValue
     const pipeline = new Pipeline(this, "doorway-app-pipeline", {
       role: pipelineRole,

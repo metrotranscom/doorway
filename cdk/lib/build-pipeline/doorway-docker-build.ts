@@ -12,7 +12,6 @@ export interface DoorwayDockerBuildProps {
   buildspec: string
   imageName: string
   source: Artifact
-  configSource?: Artifact
   dockerHubSecret: string
   buildRole: Role
 }
@@ -49,7 +48,6 @@ export class DoorwayDockerBuild {
     this.action = new CodeBuildAction({
       actionName: `${id}-DockerBuild`,
       input: props.source,
-      extraInputs: props.configSource ? [props.configSource] : undefined,
       outputs: [new Artifact(`${id}-BuildOutput`)],
       project,
     })

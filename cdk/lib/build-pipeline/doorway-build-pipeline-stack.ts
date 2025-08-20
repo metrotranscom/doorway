@@ -102,19 +102,9 @@ export class DoorwayBuildPipelineStack extends Stack {
       branch: "feat/tf_to_cdk",
       output: sourceArtifact,
     })
-    const configSourceArtifact = new Artifact("ConfigSourceArtifact")
-    const doorwayConfigSource = new GitHubSourceAction({
-      actionName: "ConfigSource",
-      oauthToken: githubSecret,
-      owner: "metrotranscom",
-      repo: "doorway-config",
-      branch: "feat/cdk-terraform",
-      output: configSourceArtifact,
-    })
-
     pipeline.addStage({
       stageName: "Source",
-      actions: [doorwaySource, doorwayConfigSource],
+      actions: [doorwaySource],
     })
     pipeline.addStage({
       stageName: "Build",
@@ -123,7 +113,6 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildspec: "../ci/buildspec/build_backend.yml",
           imageName: "backend",
           source: sourceArtifact,
-          configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
         }).action,
@@ -131,7 +120,6 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildspec: "../ci/buildspec/build_import_listings.yml",
           imageName: "import-listings",
           source: sourceArtifact,
-          configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
         }).action,
@@ -139,7 +127,6 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildspec: "../ci/buildspec/build_partners.yml",
           imageName: "partners",
           source: sourceArtifact,
-          configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
         }).action,
@@ -147,7 +134,6 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildspec: "../ci/buildspec/build_public.yml",
           imageName: "public",
           source: sourceArtifact,
-          configSource: configSourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
         }).action,

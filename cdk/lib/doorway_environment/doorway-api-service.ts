@@ -153,6 +153,7 @@ export class DoorwayApiService extends DoorwayService {
       entryPoint: [],
       portMappings: [
         {
+          name: "internal-api-port",
           containerPort: Number(process.env.API_LOCAL_PORT) || 3100,
           protocol: Protocol.TCP,
           hostPort: Number(process.env.API_LOCAL_PORT) || 3100,
@@ -197,7 +198,7 @@ export class DoorwayApiService extends DoorwayService {
         }),
         services: [
           {
-            portMappingName: process.env.API_LOCAL_PORT || "3100",
+            portMappingName: "internal-api-port",
             dnsName: `backend.${props.environment}.housingbayarea.int`,
 
             tls: {

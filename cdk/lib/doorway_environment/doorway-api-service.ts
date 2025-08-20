@@ -1,22 +1,6 @@
 import { Aws, aws_logs, Duration, Fn, RemovalPolicy } from "aws-cdk-lib"
-import {
-  Cluster,
-  Compatibility,
-  ContainerImage,
-  FargateService,
-  LogDrivers,
-  NetworkMode,
-  Protocol,
-  Secret,
-  TaskDefinition,
-} from "aws-cdk-lib/aws-ecs"
-import {
-  CompositePrincipal,
-  ManagedPolicy,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from "aws-cdk-lib/aws-iam"
+import { Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, Secret, TaskDefinition } from "aws-cdk-lib/aws-ecs"
+import { CompositePrincipal, ManagedPolicy, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
@@ -24,8 +8,8 @@ import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
-import { DoorwayServiceProps } from "./doorway-service-props"
 import { DoorwayService } from "./doorway_services"
+import { DoorwayServiceProps } from "./doorway-service-props"
 
 export class DoorwayApiService extends DoorwayService {
   public constructor(scope: Construct, id: string, props: DoorwayServiceProps) {
@@ -189,7 +173,7 @@ export class DoorwayApiService extends DoorwayService {
       ),
       managedPolicies: [
         ManagedPolicy.fromAwsManagedPolicyName(
-          "AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity"
+          "service-role/AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity"
         ),
       ],
     })

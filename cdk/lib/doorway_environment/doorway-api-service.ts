@@ -10,7 +10,13 @@ import {
   Secret,
   TaskDefinition,
 } from "aws-cdk-lib/aws-ecs"
-import { PolicyStatement } from "aws-cdk-lib/aws-iam"
+import {
+  CompositePrincipal,
+  ManagedPolicy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from "aws-cdk-lib/aws-iam"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
@@ -18,8 +24,8 @@ import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
-import { DoorwayService } from "./doorway_services"
 import { DoorwayServiceProps } from "./doorway-service-props"
+import { DoorwayService } from "./doorway_services"
 
 export class DoorwayApiService extends DoorwayService {
   public constructor(scope: Construct, id: string, props: DoorwayServiceProps) {
@@ -176,6 +182,17 @@ export class DoorwayApiService extends DoorwayService {
     const privateCAArn = StringParameter.fromStringParameterAttributes(scope, "privateCAArn", {
       parameterName: `/doorway/privateCertAuthority`,
     }).stringValue
+    const scRole = new Role(scope, `doorway-${props.environment}-internal-api-sc-role`, {
+      assumedBy: new CompositePrincipal(
+        new ServicePrincipal("ecs.amazonaws.com"),
+        new ServicePrincipal("ecs-tasks.amazonaws.com")
+      ),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName(
+          "AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity"
+        ),
+      ],
+    })
 
     // Create the service in ECS
     const service = new FargateService(scope, `doorway-${props.environment}-internal-api`, {
@@ -203,6 +220,7 @@ export class DoorwayApiService extends DoorwayService {
 
             tls: {
               awsPcaAuthorityArn: privateCAArn,
+              role: scRole,
             },
           },
         ],

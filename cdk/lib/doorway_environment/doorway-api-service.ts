@@ -75,6 +75,7 @@ export class DoorwayApiService extends DoorwayService {
       DUPLICATES_CLOSE_DATE: process.env.DUPLICATES_CLOSE_DATE || "2024-10-08 00:00 -08:00",
       HTTPS_OFF: process.env.HTTPS_OFF || "TRUE",
       SAME_SITE: process.env.SAME_SITE || "false",
+      API_KEY: process.env.API_KEY || "doorway-api-key",
     }
     const dbSecretArn = Fn.importValue(`doorwayDBSecret-${props.environment}`)
     const dbSecret = secret.Secret.fromSecretCompleteArn(scope, "dbSecret", dbSecretArn)

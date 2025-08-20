@@ -21,7 +21,7 @@ export abstract class DoorwayService {
   constructor(scope: Construct, id: string, props: DoorwayServiceProps) {
     // Initial Execution Role Setup
     // Create the execution role for the doorway API service
-    this.executionRole = new Role(scope, "executionRole", {
+    this.executionRole = new Role(scope, `executionRole-${id}`, {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
     this.executionRole.addManagedPolicy(
@@ -39,7 +39,7 @@ export abstract class DoorwayService {
     // Get Network setup
     const vpcId = cdk.Fn.importValue(`doorway-vpc-id-${props.environment}`)
     const azs = cdk.Fn.importValue(`doorway-azs-${props.environment}`).split(",")
-    this.vpc = cdk.aws_ec2.Vpc.fromVpcAttributes(scope, "vpc", {
+    this.vpc = cdk.aws_ec2.Vpc.fromVpcAttributes(scope, `vpc-${id}`, {
       vpcId: vpcId,
       availabilityZones: azs,
     })
@@ -53,19 +53,19 @@ export abstract class DoorwayService {
     const appTierPrivateSGId = cdk.Fn.importValue(`doorway-app-sg-${props.environment}`)
     this.privateSG = cdk.aws_ec2.SecurityGroup.fromSecurityGroupId(
       scope,
-      "appTierPrivateSG",
+      `appTierPrivateSG-${id}`,
       appTierPrivateSGId,
     )
 
     //Uploads Buckets
     this.publicUploads = Bucket.fromBucketArn(
       scope,
-      `publicUploadsBucket`,
+      `publicUploadsBucket-${id}`,
       Fn.importValue(`doorway-public-uploads-${props.environment}`),
     )
     this.secureUploads = Bucket.fromBucketArn(
       scope,
-      `secureUploadsBucket`,
+      `secureUploadsBucket-${id}`,
       Fn.importValue(`doorway-secure-uploads-${props.environment}`),
     )
   }

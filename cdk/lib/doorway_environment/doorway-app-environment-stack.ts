@@ -3,7 +3,7 @@ import { Construct } from "constructs"
 import dotenv from "dotenv"
 
 import { DoorwayApiService } from "./doorway-api-service"
-import { DoorwayPublicService } from "./doorway-public-service"
+import { DoorwayPublicSite } from "./doorway-public-site"
 
 export class DoorwayAppEnvironmentStack extends Stack {
   constructor(scope: Construct, id: string) {
@@ -14,7 +14,7 @@ export class DoorwayAppEnvironmentStack extends Stack {
     new DoorwayApiService(this, `doorway-api-service-${environment}`, {
       environment: environment,
     })
-    new DoorwayPublicService(this, `doorway-public-service-${environment}`, {
+    new DoorwayPublicSite(this, `doorway-public-service-${environment}`, {
       environment: environment,
     })
   }

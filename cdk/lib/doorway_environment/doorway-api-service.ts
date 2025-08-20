@@ -25,7 +25,7 @@ import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
-import { DoorwayService } from "./doorway_services"
+import { DoorwayService } from "./doorway_service"
 import { DoorwayServiceProps } from "./doorway-service-props"
 
 export class DoorwayApiService extends DoorwayService {

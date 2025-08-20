@@ -11,8 +11,8 @@ import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
+import { DoorwayService } from "./doorway_service"
 import { DoorwayServiceProps } from "./doorway-service-props"
-import { DoorwayService } from "./doorway_services"
 
 export class DoorwayPublicSite extends DoorwayService {
   constructor(scope: Construct, id: string, props: DoorwayServiceProps) {

@@ -1,22 +1,29 @@
-import { Fn } from "aws-cdk-lib"
-import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager"
-import { SecurityGroup, Subnet, Vpc } from "aws-cdk-lib/aws-ec2"
-import { Repository } from "aws-cdk-lib/aws-ecr"
-import { AwsLogDriver, Cluster, ContainerImage, Secret } from "aws-cdk-lib/aws-ecs"
-import { ApplicationLoadBalancedFargateService } from "aws-cdk-lib/aws-ecs-patterns"
-import { SslPolicy } from "aws-cdk-lib/aws-elasticloadbalancingv2"
-import { LogGroup } from "aws-cdk-lib/aws-logs"
-import { PublicHostedZone } from "aws-cdk-lib/aws-route53"
+import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
-import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
+import { Fn } from "aws-cdk-lib"
+import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
+import { Bucket } from "aws-cdk-lib/aws-s3"
+import { DoorwayProps } from "./doorway-service-props"
 import { DoorwayService } from "./doorway_service"
-import { DoorwayServiceProps } from "./doorway-service-props"
 
-export class DoorwayPublicSite extends DoorwayService {
-  constructor(scope: Construct, id: string, props: DoorwayServiceProps) {
-    super(scope, id, props)
+export class DoorwayPublicSite {
+  public service: FargateService
+  constructor(scope: Construct, id: string, props: DoorwayProps) {
+    const executionRole = new Role(scope, `executionRole-${id}`, {
+      assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
+    })
+    const publicUploads = Bucket.fromBucketArn(
+      scope,
+      `publicUploadsBucket-${id}`,
+      Fn.importValue(`doorway-public-uploads-${props.environment}`),
+    )
+    const secureUploads = Bucket.fromBucketArn(
+      scope,
+      `secureUploadsBucket-${id}`,
+      Fn.importValue(`doorway-secure-uploads-${props.environment}`),
+    )
     const environmentVariables: { [key: string]: string } = {
       BACKEND_API_BASE:
         process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
@@ -27,7 +34,7 @@ export class DoorwayPublicSite extends DoorwayService {
       JURISDICTION_NAME: process.env.JURISDICTION_NAME || "Bay Area",
       LANGUAGES: process.env.LANGUAGES || "en,es,zh,vi,tl",
       LISTINGS_QUERY: process.env.LISTINGS_QUERY || "/listings",
-      NEXTJS_PORT: process.env.PUBLIC_PORT || "3000",
+      NEXTJS_PORT: process.env.PUBLIC_PORTAL_PORT || "3000",
       NODE_ENV: process.env.NODE_ENV || "development",
       NOTIFICATIONS_SIGNUP_URL:
         process.env.NOTIFICATIONS_SIGNUP_URL ||
@@ -36,122 +43,37 @@ export class DoorwayPublicSite extends DoorwayService {
       SHOW_PROFESSIONAL_PARTNERS: process.env.SHOW_PROFESSIONAL_PARTNERS || "true",
     }
     const secrets: { [key: string]: Secret } = {}
-    process.env.PUBLIC_SITE_SECRETS ||
+    process.env.PUBLIC_PORTAL_SECRETS ||
       "".split(",").forEach((secretName) => {
         secrets[secretName] = Secret.fromSecretsManager(
-          secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${secretName}`),
+          secret.Secret.fromSecretNameV2(scope, `${secretName}-${id}`, `/doorway/${secretName}`),
         )
       })
+    this.service = new DoorwayService(scope, `${id}-service`, {
+      ...props,
+      memory: Number(process.env.PUBLIC_PORTAL_MEMORY || 4096),
+      cpu: Number(process.env.PUBLIC_PORTAL_CPU || 2),
+      instances: Number(process.env.PUBLIC_PORTAL_INSTANCES || 3),
+      port: Number(process.env.PUBLIC_PORTAL_PORT || 3000),
+      secrets: secrets,
+      environmentVariables: environmentVariables,
+      serviceConnectServer: false,
+      domainName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
+      executionRole: executionRole,
+      publicUploads: publicUploads,
+      secureUploads: secureUploads,
+      logGroup: props.logGroup,
+      apiTargetDomainName: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
+      apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
+      container: "doorway/public:run-candidate"
 
-    const hostedZone = PublicHostedZone.fromHostedZoneAttributes(
-      scope,
-      `doorway-public-hosted-zone-${props.environment}`,
-      {
-        hostedZoneId: StringParameter.valueForStringParameter(scope, `/doorway/public-hosted-zone`),
-        zoneName: `housingbayarea.mtc.ca.gov`,
-      },
-    )
-    const cert = new Certificate(scope, "doorwayPublicCert", {
-      domainName:
-        process.env.PUBLIC_DOMAIN_NAME || `${props.environment}.housingbayarea.mtc.ca.gov`,
-      validation: {
-        method: CertificateValidation.fromDns().method,
-        props: {
-          hostedZone: hostedZone,
-        },
-      },
-    })
+    }).service
 
-    const publicService = new ApplicationLoadBalancedFargateService(
-      scope,
-      `doorway-public-portal-service-${props.environment}`,
-      {
-        cluster: Cluster.fromClusterAttributes(scope, `doorway-ecs-cluster-${props.environment}`, {
-          clusterName: `doorway-ecs-cluster-${props.environment}`,
-          vpc: Vpc.fromVpcAttributes(scope, "vpc", {
-            vpcId: Fn.importValue(`doorway-vpc-id-${props.environment}`),
-            availabilityZones: Fn.importValue(`doorway-azs-${props.environment}`).split(","),
-            publicSubnetIds: [
-              Fn.importValue(`doorway-public-subnet-1-${props.environment}`),
-              Fn.importValue(`doorway-public-subnet-2-${props.environment}`),
-            ],
-          }),
-          securityGroups: [
-            SecurityGroup.fromSecurityGroupId(
-              scope,
-              `doorway-app-sg-${props.environment}`,
-              Fn.importValue(`doorway-app-sg-${props.environment}`),
-            ),
-          ],
-        }),
-        taskSubnets: {
-          subnets: [
-            Subnet.fromSubnetId(
-              scope,
-              `doorway-app-subnet-1-${props.environment}`,
-              Fn.importValue(`doorway-app-subnet-1-${props.environment}`),
-            ),
-            Subnet.fromSubnetId(
-              scope,
-              `doorway-app-subnet-2-${props.environment}`,
-              Fn.importValue(`doorway-app-subnet-2-${props.environment}`),
-            ),
-          ],
-        },
 
-        assignPublicIp: true,
-        publicLoadBalancer: true,
-        taskImageOptions: {
-          image: ContainerImage.fromEcrRepository(
-            Repository.fromRepositoryName(
-              scope,
-              `doorway-public-portal-repo-${props.environment}`,
-              `doorway/public`,
-            ),
-            "run-f21478f5",
-          ),
-          enableLogging: true,
-          containerPort: 3000,
-          executionRole: this.executionRole,
-          taskRole: this.executionRole,
-          secrets: secrets,
-          environment: environmentVariables,
-          logDriver: AwsLogDriver.awsLogs({
-            streamPrefix: "doorway-public-portal",
-            logGroup: new LogGroup(scope, `doorway-${props.environment}-tasks`, {
-              logGroupName: `doorway-${props.environment}-tasks`,
-            }),
-          }),
-        },
 
-        certificate: cert,
-        listenerPort: 443,
-        redirectHTTP: true,
-        sslPolicy: SslPolicy.RECOMMENDED,
-        serviceName: `doorway-public-portal-service-${props.environment}`,
-        loadBalancerName: `doorway-public-lb-${props.environment}`,
-        cpu: 1024,
-        memoryLimitMiB: 2048,
-        domainName: `${props.environment}.housingbayarea.mtc.ca.gov`,
-        domainZone: hostedZone,
-      },
-    )
 
-    // Configure Service Connect on the underlying Fargate service
-    const cfnService = publicService.service.node.defaultChild as any
-    cfnService.serviceConnectConfiguration = {
-      enabled: true,
-      namespace: `doorway-${props.environment}-internal-api`,
-      services: [
-        {
-          clientAliases: [
-            {
-              dnsName: `backend.${props.environment}.housingbayarea.int`,
-              port: 3100,
-            },
-          ],
-        },
-      ],
-    }
+
+
+
   }
 }

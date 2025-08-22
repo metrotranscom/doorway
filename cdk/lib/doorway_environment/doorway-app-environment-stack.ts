@@ -4,6 +4,7 @@ import { Construct } from "constructs"
 import dotenv from "dotenv"
 
 import { DoorwayApiService } from "./doorway-api-service"
+import { DoorwayPublicLoadBalancer } from "./doorway-public-load-balancer"
 import { DoorwayPublicSite } from "./doorway-public-site"
 
 export class DoorwayAppEnvironmentStack extends Stack {
@@ -27,5 +28,12 @@ export class DoorwayAppEnvironmentStack extends Stack {
       logGroup: logGroup
     })
     publicSite.service.node.addDependency(api.service)
+    const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, {
+      environment: environment,
+      publicService: publicSite.service,
+      partnersService: publicSite.service,
+      logGroup: logGroup
+    }).loadBalancer;
+    lb.node.addDependency(publicSite.service)
   }
 }

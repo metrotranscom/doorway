@@ -6,7 +6,7 @@ import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { Construct } from "constructs"
 
-import { DoorwayProps } from "./doorway-service-props"
+import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
 
 export class DoorwayApiService {

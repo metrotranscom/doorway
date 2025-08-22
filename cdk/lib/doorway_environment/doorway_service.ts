@@ -8,7 +8,7 @@ import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
 import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
-import { DoorwayServiceProps } from "./doorway-service-props"
+import { DoorwayServiceProps } from "./doorway-props"
 
 export class DoorwayService {
 
@@ -52,10 +52,6 @@ export class DoorwayService {
       `appTierPrivateSG-${id}`,
       appTierPrivateSGId,
     )
-
-
-
-
     const task = new TaskDefinition(scope, `${id}-task`, {
       compatibility: Compatibility.FARGATE,
       executionRole: props.executionRole,

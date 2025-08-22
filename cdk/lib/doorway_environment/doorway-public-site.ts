@@ -1,12 +1,13 @@
 import { Fn } from "aws-cdk-lib"
 import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
+import { ApplicationProtocol, ApplicationTargetGroup } from "aws-cdk-lib/aws-elasticloadbalancingv2"
 import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
+import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
-import { DoorwayProps } from "./doorway-service-props"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -24,6 +25,7 @@ export class DoorwayPublicSite {
       `secureUploadsBucket-${id}`,
       Fn.importValue(`doorway-secure-uploads-${props.environment}`),
     )
+    const port = process.env.PUBLIC_PORTAL_PORT || "3000"
     const environmentVariables: { [key: string]: string } = {
       BACKEND_API_BASE:
         process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
@@ -34,7 +36,7 @@ export class DoorwayPublicSite {
       JURISDICTION_NAME: process.env.JURISDICTION_NAME || "Bay Area",
       LANGUAGES: process.env.LANGUAGES || "en,es,zh,vi,tl",
       LISTINGS_QUERY: process.env.LISTINGS_QUERY || "/listings",
-      NEXTJS_PORT: process.env.PUBLIC_PORTAL_PORT || "3000",
+      NEXTJS_PORT: port,
       NODE_ENV: process.env.NODE_ENV || "development",
       NOTIFICATIONS_SIGNUP_URL:
         process.env.NOTIFICATIONS_SIGNUP_URL ||
@@ -68,6 +70,14 @@ export class DoorwayPublicSite {
       container: `doorway/public:run-${process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"}`
 
     }).service
+    const publicTG = new ApplicationTargetGroup(scope, `publicTG-${id}`, {
+      port: Number(port),
+      protocol: ApplicationProtocol.HTTP,
+      vpc: this.service.cluster.vpc,
+      targets: [this.service],
+      targetGroupName: `public-${props.environment}`,
+    });
+
 
 
 

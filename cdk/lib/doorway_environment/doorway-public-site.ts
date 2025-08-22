@@ -1,12 +1,12 @@
+import { Fn } from "aws-cdk-lib"
 import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
+import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
+import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
-import { Fn } from "aws-cdk-lib"
-import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
-import { Bucket } from "aws-cdk-lib/aws-s3"
-import { DoorwayProps } from "./doorway-service-props"
 import { DoorwayService } from "./doorway_service"
+import { DoorwayProps } from "./doorway-service-props"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -65,7 +65,7 @@ export class DoorwayPublicSite {
       logGroup: props.logGroup,
       apiTargetDomainName: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
-      container: "doorway/public:run-candidate"
+      container: `doorway/public:run-${process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"}`
 
     }).service
 

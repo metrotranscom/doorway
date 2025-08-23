@@ -6,8 +6,8 @@ import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
-import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
+import { DoorwayProps } from "./doorway-props"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -70,13 +70,6 @@ export class DoorwayPublicSite {
       container: `doorway/public:run-${process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"}`
 
     }).service
-    const publicTG = new ApplicationTargetGroup(scope, `publicTG-${id}`, {
-      port: Number(port),
-      protocol: ApplicationProtocol.HTTP,
-      vpc: this.service.cluster.vpc,
-      targets: [this.service],
-      targetGroupName: `public-${props.environment}`,
-    });
 
 
 

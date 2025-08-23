@@ -1,17 +1,17 @@
 import { aws_ec2, Duration, Fn } from "aws-cdk-lib";
 import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
-import { ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
-import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
-import { LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
+import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import { HostedZone } from "aws-cdk-lib/aws-route53";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
-import { DoorwayLoadBalancerProps } from "./doorway-props";
+import { DoorwayProps } from "./doorway-props";
 
 export class DoorwayPublicLoadBalancer {
   public loadBalancer: ApplicationLoadBalancer
-  constructor(scope: Construct, id: string, props: DoorwayLoadBalancerProps) {
+  public targetGroup: ApplicationTargetGroup;
+  constructor(scope: Construct, id: string, props: DoorwayProps) {
 
     // Get Network setup
     const vpcId = Fn.importValue(`doorway-vpc-id-${props.environment}`)
@@ -42,28 +42,26 @@ export class DoorwayPublicLoadBalancer {
 
     });
     const dnsZone = StringParameter.fromStringParameterName(scope, `publicDnsZoneId-${props.environment}`, `/doorway/public-hosted-zone`).stringValue;
-    new ARecord(scope, `publicDnsName-${props.environment}`, {
-      zone: HostedZone.fromHostedZoneAttributes(scope, `publicDnsZone-${props.environment}`, {
+
+    const cert = new Certificate(scope, "PublicCertificate", {
+      domainName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
+
+      validation: CertificateValidation.fromDns(HostedZone.fromHostedZoneAttributes(scope, "PublicHostedZone", {
         hostedZoneId: dnsZone,
         zoneName: 'housingbayarea.mtc.ca.gov',
-      }),
-      recordName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
-      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer, {
-        evaluateTargetHealth: true
-      }))
+      })),
     })
     const httpListener = this.loadBalancer.addListener("HttpListener", {
       port: 80,
       open: true,
     });
-    const httpsListener = this.loadBalancer.addListener("HttpsListener", {
+    const httpsListener = new ApplicationListener(scope, "HttpsListener", {
+      loadBalancer: this.loadBalancer,
       port: 443,
-      open: true,
-      certificates: [new Certificate(scope, "PublicCertificate", {
-        domainName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
-        validation: CertificateValidation.fromDns()
-      })]
-    });
+      certificates: [cert],
+      protocol: ApplicationProtocol.HTTPS,
+      open: true
+    })
     httpListener.addAction("DefaultAction", {
       action: ListenerAction.redirect({
         protocol: "HTTPS",
@@ -73,34 +71,39 @@ export class DoorwayPublicLoadBalancer {
       }),
     })
     httpsListener.addAction("DefaultAction", {
-      action: ListenerAction.fixedResponse(200, {
+      action: ListenerAction.fixedResponse(403, {
         contentType: "text/plain",
-        messageBody: "OK",
+        messageBody: "Forbidden",
       })
     })
-    new ApplicationListenerRule(scope, "PublicDomainRule", {
+    this.targetGroup = new ApplicationTargetGroup(scope, "PublicTargetGroup", {
+      port: Number(process.env.PUBLIC_PORTAL_PORT) || 3000,
+      protocol: ApplicationProtocol.HTTP,
+      vpc: vpc,
+      targetGroupName: `public-tg-${props.environment}`,
+      targetType: TargetType.IP,
+
+
+
+      healthCheck: {
+        enabled: true,
+        healthyThresholdCount: 2,
+        interval: Duration.seconds(10),
+        path: "/",
+        timeout: Duration.seconds(5),
+        unhealthyThresholdCount: 2,
+      },
+    })
+    const listenerRule = new ApplicationListenerRule(scope, "PublicDomainRule", {
       listener: httpsListener,
-      priority: 1,
-      action: ListenerAction.forward([new ApplicationTargetGroup(scope, "PublicTargetGroup", {
-        port: Number(process.env.PUBLIC_PORTAL_PORT) || 3000,
-        protocol: ApplicationProtocol.HTTP,
-        vpc: vpc,
-        targetGroupName: `public-tg-${props.environment}`,
-        targetType: TargetType.IP,
-        targets: [props.publicService],
-        healthCheck: {
-          enabled: true,
-          healthyThresholdCount: 2,
-          interval: Duration.seconds(10),
-          path: "/",
-          timeout: Duration.seconds(5),
-          unhealthyThresholdCount: 2,
-        },
-      })]),
+      priority: 100,
+      action: ListenerAction.forward([this.targetGroup]),
       conditions: [ListenerCondition.hostHeaders([process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`])
       ]
 
 
     });
+
+
   }
 }

@@ -23,17 +23,20 @@ export class DoorwayAppEnvironmentStack extends Stack {
       logGroup: logGroup,
 
     })
+    const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, {
+      environment: environment,
+
+      logGroup: logGroup
+    });
     const publicSite = new DoorwayPublicSite(this, `doorway-public-service-${environment}`, {
       environment: environment,
       logGroup: logGroup
     })
     publicSite.service.node.addDependency(api.service)
-    const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, {
-      environment: environment,
-      publicService: publicSite.service,
-      partnersService: publicSite.service,
-      logGroup: logGroup
-    }).loadBalancer;
-    lb.node.addDependency(publicSite.service)
+    publicSite.service.node.addDependency(lb.loadBalancer)
+    lb.targetGroup.addTarget(publicSite.service)
+
+
+
   }
 }

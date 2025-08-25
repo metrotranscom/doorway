@@ -44,7 +44,7 @@ export class DoorwayPublicLoadBalancer {
     });
     const dnsZoneName = StringParameter.fromStringParameterName(scope, `publicDnsZoneId-${props.environment}`, `/doorway/public-hosted-zone`).stringValue;
     const dnsZone = HostedZone.fromLookup(scope, `publicDnsZone-${props.environment}`, {
-      domainName: dnsZoneName,
+      domainName: "housingbayarea.mtc.ca.gov",
     });
     const cert = new Certificate(scope, "PublicCertificate", {
       domainName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,

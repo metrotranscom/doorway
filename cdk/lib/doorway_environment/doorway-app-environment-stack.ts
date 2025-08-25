@@ -9,7 +9,12 @@ import { DoorwayPublicSite } from "./doorway-public-site"
 
 export class DoorwayAppEnvironmentStack extends Stack {
   constructor(scope: Construct, id: string) {
-    super(scope, id)
+    super(scope, id, {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT || "364076391763",
+        region: process.env.CDK_DEFAULT_REGION || "us-west-2",
+      },
+    })
     const environment = process.env.ENVIRONMENT || "dev2"
     dotenv.config({ path: `${environment}.env` })
     const logGroup = new LogGroup(this, `doorway-${environment}-tasks`, {

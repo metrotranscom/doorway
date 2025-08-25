@@ -1,3 +1,9 @@
 {
-  "acknowledged-issue-numbers": [34892]
+  "acknowledged-issue-numbers": [
+    34892
+  ],
+  "hosted-zone:account=364076391763:domainName=housingbayarea.mtc.ca.gov:region=us-west-2": {
+    "Id": "/hostedzone/Z01682742VM0KIXZ4Y3W5",
+    "Name": "housingbayarea.mtc.ca.gov."
+  }
 }

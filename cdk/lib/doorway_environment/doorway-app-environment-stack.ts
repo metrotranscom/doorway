@@ -3,7 +3,7 @@ import { LogGroup } from "aws-cdk-lib/aws-logs"
 import { Construct } from "constructs"
 import dotenv from "dotenv"
 
-import { DoorwayApiService } from "./doorway-api-service"
+import { DoorwayBackendService } from "./doorway-backend-service"
 import { DoorwayPublicLoadBalancer } from "./doorway-public-load-balancer"
 import { DoorwayPublicSite } from "./doorway-public-site"
 
@@ -18,7 +18,7 @@ export class DoorwayAppEnvironmentStack extends Stack {
       retention: aws_logs.RetentionDays.ONE_WEEK,
     })
 
-    const api = new DoorwayApiService(this, `doorway-api-service-${environment}`, {
+    const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, {
       environment: environment,
       logGroup: logGroup,
 
@@ -35,6 +35,7 @@ export class DoorwayAppEnvironmentStack extends Stack {
     publicSite.service.node.addDependency(api.service)
     publicSite.service.node.addDependency(lb.loadBalancer)
     lb.targetGroup.addTarget(publicSite.service)
+
 
 
 

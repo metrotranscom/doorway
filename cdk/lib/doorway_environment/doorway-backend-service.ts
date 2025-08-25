@@ -9,7 +9,7 @@ import { Construct } from "constructs"
 import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
 
-export class DoorwayApiService {
+export class DoorwayBackendService {
   public service: FargateService
   public constructor(scope: Construct, id: string, props: DoorwayProps) {
     const executionRole = new Role(scope, `executionRole-${id}`, {

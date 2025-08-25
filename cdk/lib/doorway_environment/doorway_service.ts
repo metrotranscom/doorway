@@ -1,7 +1,7 @@
 import * as cdk from "aws-cdk-lib"
 import { Fn } from "aws-cdk-lib"
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2"
-import { Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, ServiceConnectProps, TaskDefinition } from "aws-cdk-lib/aws-ecs"
+import { AppProtocol, Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, ServiceConnectProps, TaskDefinition } from "aws-cdk-lib/aws-ecs"
 //import * as ecs from "aws-cdk-lib/aws-ecs";
 import { CompositePrincipal, ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
@@ -79,6 +79,7 @@ export class DoorwayService {
           name: `${id}-port-mapping`,
           containerPort: props.port,
           protocol: Protocol.TCP,
+          appProtocol: AppProtocol.http,
           hostPort: props.port,
         },
       ],
@@ -93,15 +94,8 @@ export class DoorwayService {
         logGroup: props.logGroup,
         streamPrefix: `${id}-service-connect`,
       }),
-      services: [{
 
-        portMappingName: `${id}-port-mapping`,
-        dnsName: props.domainName,
-
-      }]
     }
-
-
     if (props.serviceConnectServer) {
 
       const namespace = new PrivateDnsNamespace(
@@ -109,6 +103,7 @@ export class DoorwayService {
         `doorway-${props.environment}-internal-api-namespace`,
         {
           vpc: vpc,
+
           name: `doorway-${props.environment}-internal-api`,
           description: `Private DNS namespace for the Doorway ${props.environment} internal API`,
         },
@@ -150,7 +145,6 @@ export class DoorwayService {
           tls: {
             role: scRole,
             awsPcaAuthorityArn: privateCAArn,
-
           },
           portMappingName: `${id}-port-mapping`,
           dnsName: props.domainName,

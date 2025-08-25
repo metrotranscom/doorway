@@ -42,15 +42,14 @@ export class DoorwayPublicLoadBalancer {
       },
 
     });
-    const dnsZone = StringParameter.fromStringParameterName(scope, `publicDnsZoneId-${props.environment}`, `/doorway/public-hosted-zone`).stringValue;
-
+    const dnsZoneName = StringParameter.fromStringParameterName(scope, `publicDnsZoneId-${props.environment}`, `/doorway/public-hosted-zone`).stringValue;
+    const dnsZone = HostedZone.fromLookup(scope, `publicDnsZone-${props.environment}`, {
+      domainName: dnsZoneName,
+    });
     const cert = new Certificate(scope, "PublicCertificate", {
       domainName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
 
-      validation: CertificateValidation.fromDns(HostedZone.fromHostedZoneAttributes(scope, "PublicHostedZone", {
-        hostedZoneId: dnsZone,
-        zoneName: 'housingbayarea.mtc.ca.gov',
-      })),
+      validation: CertificateValidation.fromDns(dnsZone),
     })
     const httpListener = this.loadBalancer.addListener("HttpListener", {
       port: 80,
@@ -105,10 +104,7 @@ export class DoorwayPublicLoadBalancer {
 
     });
     new ARecord(scope, "PublicARecord", {
-      zone: HostedZone.fromHostedZoneAttributes(scope, "PublicHostedZone", {
-        hostedZoneId: dnsZone,
-        zoneName: 'housingbayarea.mtc.ca.gov',
-      }),
+      zone: dnsZone,
       recordName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
     });

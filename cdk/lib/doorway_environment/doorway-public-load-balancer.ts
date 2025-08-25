@@ -2,7 +2,8 @@ import { aws_ec2, Duration, Fn } from "aws-cdk-lib";
 import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
 import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
-import { HostedZone } from "aws-cdk-lib/aws-route53";
+import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
+import { LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
@@ -94,7 +95,7 @@ export class DoorwayPublicLoadBalancer {
         unhealthyThresholdCount: 2,
       },
     })
-    const listenerRule = new ApplicationListenerRule(scope, "PublicDomainRule", {
+    new ApplicationListenerRule(scope, "PublicDomainRule", {
       listener: httpsListener,
       priority: 100,
       action: ListenerAction.forward([this.targetGroup]),
@@ -102,6 +103,14 @@ export class DoorwayPublicLoadBalancer {
       ]
 
 
+    });
+    new ARecord(scope, "PublicARecord", {
+      zone: HostedZone.fromHostedZoneAttributes(scope, "PublicHostedZone", {
+        hostedZoneId: dnsZone,
+        zoneName: 'housingbayarea.mtc.ca.gov',
+      }),
+      recordName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
     });
 
 

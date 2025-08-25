@@ -1,13 +1,12 @@
 import { Fn } from "aws-cdk-lib"
 import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
-import { ApplicationProtocol, ApplicationTargetGroup } from "aws-cdk-lib/aws-elasticloadbalancingv2"
 import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
-import { DoorwayService } from "./doorway_service"
 import { DoorwayProps } from "./doorway-props"
+import { DoorwayService } from "./doorway_service"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -44,13 +43,13 @@ export class DoorwayPublicSite {
       SHOW_ALL_MAP_PINS: process.env.SHOW_ALL_MAP_PINS || "true",
       SHOW_PROFESSIONAL_PARTNERS: process.env.SHOW_PROFESSIONAL_PARTNERS || "true",
     }
+    const secretNames = (process.env.PUBLIC_PORTAL_SECRETS || "").split(",")
     const secrets: { [key: string]: Secret } = {}
-    process.env.PUBLIC_PORTAL_SECRETS ||
-      "".split(",").forEach((secretName) => {
-        secrets[secretName] = Secret.fromSecretsManager(
-          secret.Secret.fromSecretNameV2(scope, `${secretName}-${id}`, `/doorway/${secretName}`),
-        )
-      })
+    secretNames.forEach((secretName) => {
+      secrets[secretName] = Secret.fromSecretsManager(
+        secret.Secret.fromSecretNameV2(scope, `${secretName}-${id}`, `/doorway/${secretName}`),
+      )
+    })
     this.service = new DoorwayService(scope, `${id}-service`, {
       ...props,
       memory: Number(process.env.PUBLIC_PORTAL_MEMORY || 4096),

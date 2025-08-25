@@ -83,12 +83,12 @@ export class DoorwayBackendService {
       PGHOST: Secret.fromSecretsManager(dbSecret, "host"),
       PGDATABASE: Secret.fromSecretsManager(dbSecret, "dbname"),
     }
-    process.env.BACKEND_API_SECRETS ||
-      "".split(",").forEach((secretName) => {
-        secrets[secretName] = Secret.fromSecretsManager(
-          secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${secretName}`),
-        )
-      })
+    const secretNames = process.env.BACKEND_API_SECRETS || ""
+    secretNames.split(",").forEach((secretName) => {
+      secrets[secretName] = Secret.fromSecretsManager(
+        secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${secretName}`),
+      )
+    })
 
     // Grant write access to the uploads buckets.
     publicUploads.grantReadWrite(executionRole)

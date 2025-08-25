@@ -1,0 +1,22 @@
+{
+  "plugins": [
+    "plugins/markdown",
+    "node_modules/jsdoc-plugin-typescript"
+  ],
+  "source": {
+    "include": [
+      "./lib",
+      "./bin",
+      "./README.md"
+    ],
+    "includePattern": ".+\\.(js|jsx|ts|tsx)$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": true
+    }
+  }
+}

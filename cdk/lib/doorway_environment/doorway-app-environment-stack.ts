@@ -2,6 +2,8 @@ import { aws_logs, RemovalPolicy, Stack } from "aws-cdk-lib"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import { Construct } from "constructs"
 import dotenv from "dotenv"
+import path from "path"
+
 
 import { DoorwayBackendService } from "./doorway-backend-service"
 import { DoorwayPublicLoadBalancer } from "./doorway-public-load-balancer"
@@ -16,7 +18,9 @@ export class DoorwayAppEnvironmentStack extends Stack {
       },
     })
     const environment = process.env.ENVIRONMENT || "dev2"
-    dotenv.config({ path: `${environment}.env` })
+    dotenv.config({ path: path.resolve(__dirname, `../../${environment}.env`) })
+
+
     const logGroup = new LogGroup(this, `doorway-${environment}-tasks`, {
       logGroupName: `doorway-${environment}-tasks`,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -30,7 +34,6 @@ export class DoorwayAppEnvironmentStack extends Stack {
     })
     const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, {
       environment: environment,
-
       logGroup: logGroup
     });
     const publicSite = new DoorwayPublicSite(this, `doorway-public-service-${environment}`, {

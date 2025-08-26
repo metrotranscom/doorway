@@ -1155,8 +1155,8 @@ export class ScriptRunnerService {
       );
     }
 
-    const skip = calculateSkip(5000, dataTransferDTO.page || 1);
-    const take = calculateTake(5000);
+    const skip = calculateSkip(25, dataTransferDTO.page || 1);
+    const take = calculateTake(25);
 
     const listings = await client.listings.findMany({
       select: {
@@ -1167,6 +1167,10 @@ export class ScriptRunnerService {
       },
     });
 
+    console.log('listings', listings.length);
+
+    // Retrieve all applications from the incoming DB that have a user attached and
+    // connected to one of the jurisdiction's listings
     const applications = await client.applications.findMany({
       select: {
         id: true,
@@ -1178,7 +1182,7 @@ export class ScriptRunnerService {
         additionalPhoneNumberType: true,
         income: true,
         incomePeriod: true,
-        // TODO: we can't retrieve income vouchers because its a boolean vs an array of strings
+        // we can't retrieve income vouchers because its a boolean vs an array of strings
         // incomeVouchers: true,
         housingStatus: true,
         householdStudent: true,
@@ -1238,7 +1242,9 @@ export class ScriptRunnerService {
       ],
     });
 
-    console.log(`migrating ${applications.length} applications....`);
+    console.log(
+      `adding additional fields to ${applications.length} applications....`,
+    );
 
     // income voucher is a boolean in HBA so we have to manually get it separately
     const incomeVouchersQuery = `select id, income_vouchers from applications where id in (${applications.map(
@@ -1248,6 +1254,7 @@ export class ScriptRunnerService {
       await client.$queryRawUnsafe(incomeVouchersQuery);
 
     let currentApplicationCount = 0;
+    let currentFailureCount = 0;
     for (const application of applications) {
       const incomeVoucher = !!incomeVouchers?.find(
         (voucher) => voucher.id === application.id,
@@ -1275,17 +1282,25 @@ export class ScriptRunnerService {
             preferences: application.preferences,
             applicationsAlternateAddress: {
               create: {
-                ...application.applicationsAlternateAddress,
+                // Only non-PII address data (no lat/long or street)
+                city: application.applicationsAlternateAddress?.city,
+                county: application.applicationsAlternateAddress?.county,
+                state: application.applicationsAlternateAddress?.state,
+                zipCode: application.applicationsAlternateAddress?.zipCode,
               },
             },
             accessibility: {
               create: {
-                ...application.accessibility,
+                mobility: application.accessibility?.mobility,
+                vision: application.accessibility?.vision,
+                hearing: application.accessibility?.hearing,
               },
             },
             alternateContact: {
               create: {
-                ...application.alternateContact,
+                type: application.alternateContact.type,
+                agency: application.alternateContact.agency,
+                otherType: application.alternateContact.otherType,
               },
             },
             applicant: {
@@ -1293,24 +1308,41 @@ export class ScriptRunnerService {
                 ...application.applicant,
                 applicantAddress: {
                   create: {
-                    ...application.applicant.applicantAddress,
+                    // Only non-PII address data (no lat/long or street)
+                    city: application.applicant.applicantAddress?.city,
+                    county: application.applicant.applicantAddress?.county,
+                    state: application.applicant.applicantAddress?.state,
+                    zipCode: application.applicant.applicantAddress?.zipCode,
                   },
                 },
                 applicantWorkAddress: {
                   create: {
-                    ...application.applicant.applicantWorkAddress,
+                    // Only non-PII address data (no lat/long or street)
+                    city: application.applicant.applicantWorkAddress?.city,
+                    county: application.applicant.applicantWorkAddress?.county,
+                    state: application.applicant.applicantWorkAddress?.state,
+                    zipCode:
+                      application.applicant.applicantWorkAddress?.zipCode,
                   },
                 },
               },
             },
             demographics: {
               create: {
-                ...application.demographics,
+                gender: application.demographics?.gender,
+                sexualOrientation: application.demographics?.sexualOrientation,
+                race: application.demographics?.race,
+                ethnicity: application.demographics?.ethnicity,
+                howDidYouHear: application.demographics?.howDidYouHear,
               },
             },
             applicationsMailingAddress: {
               create: {
-                ...application.applicationsMailingAddress,
+                // Only non-PII address data (no lat/long or street)
+                city: application.applicationsMailingAddress?.city,
+                county: application.applicationsMailingAddress?.county,
+                state: application.applicationsMailingAddress?.state,
+                zipCode: application.applicationsMailingAddress?.zipCode,
               },
             },
           },
@@ -1320,23 +1352,66 @@ export class ScriptRunnerService {
         });
         const applicationHouseholdMembers =
           await client.householdMember.findMany({
+            select: {
+              id: true,
+              createdAt: true,
+              updatedAt: true,
+              orderId: true,
+              sameAddress: true,
+              relationship: true,
+              workInRegion: true,
+              fullTimeStudent: true,
+              applicationId: true,
+              householdMemberAddress: true,
+            },
             where: {
               applicationId: application.id,
             },
           });
         if (applicationHouseholdMembers?.length) {
-          await this.prisma.householdMember.createMany({
-            data: applicationHouseholdMembers,
-          });
+          for (const applicationHouseholdMember of applicationHouseholdMembers) {
+            await this.prisma.householdMember.create({
+              data: {
+                id: applicationHouseholdMember.id,
+                createdAt: applicationHouseholdMember.createdAt,
+                updatedAt: applicationHouseholdMember.updatedAt,
+                orderId: applicationHouseholdMember.orderId,
+                sameAddress: applicationHouseholdMember.sameAddress,
+                relationship: applicationHouseholdMember.relationship,
+                workInRegion: applicationHouseholdMember.workInRegion,
+                fullTimeStudent: applicationHouseholdMember.fullTimeStudent,
+                householdMemberWorkAddress: undefined,
+                applications: {
+                  connect: {
+                    id: applicationHouseholdMember.applicationId,
+                  },
+                },
+                householdMemberAddress: {
+                  // Only non-PII address data (no lat/long or street)
+
+                  create: {
+                    city: applicationHouseholdMember.householdMemberAddress
+                      ?.city,
+                    county:
+                      applicationHouseholdMember.householdMemberAddress?.county,
+                    state:
+                      applicationHouseholdMember.householdMemberAddress?.state,
+                    zipCode:
+                      applicationHouseholdMember.householdMemberAddress
+                        ?.zipCode,
+                  },
+                },
+              },
+            });
+          }
         }
       } catch (e) {
+        currentFailureCount++;
         // If the update fails because the application doesn't exist we want a different log to easier separate the issues out
-        if (e['code'] !== 'P2025') {
+        if (e['code'] === 'P2025') {
           console.log(
             `application ${application.id} does not exist in the system`,
           );
-          // TODO: verify this only happens at the application level
-          console.log(e);
         } else {
           console.log('e', e);
           console.log(`unable to migrate application ${application.id}`);
@@ -1351,6 +1426,11 @@ export class ScriptRunnerService {
       }
     }
 
+    console.log(
+      `migrated ${
+        currentApplicationCount - currentFailureCount
+      } applications with ${currentFailureCount} failures`,
+    );
     console.log(`migrated page ${dataTransferDTO.page || 1} of applications`);
 
     // disconnect from foreign db

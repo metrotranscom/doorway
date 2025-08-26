@@ -6,8 +6,8 @@ import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
-import { DoorwayService } from "./doorway_service"
 import { DoorwayProps } from "./doorway-props"
+import { DoorwayService } from "./doorway_service"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -69,7 +69,7 @@ export class DoorwayPublicSite {
     const secrets: { [key: string]: Secret } = {}
     secretNames.forEach((secretName) => {
       secrets[secretName] = Secret.fromSecretsManager(
-        secret.Secret.fromSecretNameV2(scope, `${secretName}-${id}`, `/doorway/${secretName}`),
+        secret.Secret.fromSecretNameV2(scope, `${secretName}-${id}`, `/doorway/${props.environment}/${secretName}`),
       )
     })
     this.service = new DoorwayService(scope, `${id}-service`, {

@@ -11,10 +11,7 @@ import { Construct } from "constructs"
 import { DoorwayServiceProps } from "./doorway-props"
 
 export class DoorwayService {
-
-
   public service: FargateService
-
   constructor(scope: Construct, id: string, props: DoorwayServiceProps) {
     // Initial Execution Role Setup
     // Create the execution role for the doorway API service
@@ -46,12 +43,7 @@ export class DoorwayService {
     appSubnetIds.forEach((id) => {
       appsubnets.push(Subnet.fromSubnetId(scope, id, id))
     })
-    const appTierPrivateSGId = cdk.Fn.importValue(`doorway-app-sg-${props.environment}`)
-    const privateSG = cdk.aws_ec2.SecurityGroup.fromSecurityGroupId(
-      scope,
-      `appTierPrivateSG-${id}`,
-      appTierPrivateSGId,
-    )
+
     const task = new TaskDefinition(scope, `${id}-task`, {
       compatibility: Compatibility.FARGATE,
       executionRole: props.executionRole,
@@ -160,6 +152,11 @@ export class DoorwayService {
     this.service = new FargateService(scope, `${id}-fargate-service`, {
       taskDefinition: task,
       serviceName: `${id}-service`,
+      circuitBreaker: {
+        enable: true,
+        rollback: true,
+      },
+
       cluster: Cluster.fromClusterAttributes(scope, `ecsCluster-${id}`, {
         clusterName: Fn.importValue(`doorway-ecs-cluster-${props.environment}`),
         vpc: vpc,
@@ -167,7 +164,7 @@ export class DoorwayService {
       vpcSubnets: {
         subnets: appsubnets,
       },
-      securityGroups: [privateSG],
+      securityGroups: [props.securityGroup],
       desiredCount: props.instances,
       serviceConnectConfiguration: serviceConnectProps,
 

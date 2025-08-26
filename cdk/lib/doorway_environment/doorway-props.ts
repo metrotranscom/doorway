@@ -1,3 +1,4 @@
+import { ISecurityGroup } from "aws-cdk-lib/aws-ec2"
 import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
 import { Role } from "aws-cdk-lib/aws-iam"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
@@ -23,6 +24,7 @@ export interface DoorwayServiceProps extends DoorwayProps {
   publicUploads: IBucket
   secureUploads: IBucket
   container: string
+  securityGroup: ISecurityGroup
 }
 export interface DoorwayLoadBalancerProps extends DoorwayProps {
   publicService: FargateService,

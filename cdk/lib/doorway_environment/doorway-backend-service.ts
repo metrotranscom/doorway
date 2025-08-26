@@ -1,4 +1,5 @@
 import { Aws, Fn } from "aws-cdk-lib"
+import { ISecurityGroup, Port, Protocol, SecurityGroup } from "aws-cdk-lib/aws-ec2"
 import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
 import { PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Bucket } from "aws-cdk-lib/aws-s3"
@@ -119,6 +120,27 @@ export class DoorwayBackendService {
         `arn:aws:ses:${Aws.REGION}:${Aws.ACCOUNT_ID}:identity/*`,
       ],
     })
+    const appTierPrivateSGId = Fn.importValue(`doorway-app-sg-${props.environment}`)
+    const privateSG: ISecurityGroup = SecurityGroup.fromSecurityGroupId(
+      scope,
+      `appTierPrivateSG-${id}`,
+      appTierPrivateSGId,
+    )
+    const publicSGId = Fn.importValue(`doorway-public-sg-${props.environment}`)
+    const publicSG: ISecurityGroup = SecurityGroup.fromSecurityGroupId(
+      scope,
+      `publicSG-${id}`,
+      publicSGId,
+    )
+    const inboundPort = Number(process.env.BACKEND_API_PORT || 3100)
+    privateSG.addIngressRule(privateSG, new Port({
+      protocol: Protocol.TCP,
+      stringRepresentation: "inbound-backend",
+      fromPort: inboundPort,
+      toPort: inboundPort
+
+
+    }), "Allow internal traffic from web app servers")
     executionRole.addToPolicy(policy)
     this.service = new DoorwayService(scope, `doorway-api-service-${props.environment}`, {
       memory: Number(process.env.BACKEND_MEMORY || 4096),
@@ -134,7 +156,8 @@ export class DoorwayBackendService {
       secureUploads: secureUploads,
       environment: props.environment,
       logGroup: props.logGroup,
-      container: "doorway/backend:run-candidate"
+      container: "doorway/backend:run-candidate",
+      securityGroup: privateSG,
     }).service
   }
 }

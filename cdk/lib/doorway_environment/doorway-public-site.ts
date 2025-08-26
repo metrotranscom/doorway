@@ -1,12 +1,13 @@
 import { Fn } from "aws-cdk-lib"
+import { ISecurityGroup, Port, Protocol, SecurityGroup } from "aws-cdk-lib/aws-ec2"
 import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
 import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
-import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
+import { DoorwayProps } from "./doorway-props"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -24,7 +25,28 @@ export class DoorwayPublicSite {
       `secureUploadsBucket-${id}`,
       Fn.importValue(`doorway-secure-uploads-${props.environment}`),
     )
-    const port = process.env.PUBLIC_PORTAL_PORT || "3000"
+    const port = Number(process.env.PUBLIC_PORTAL_PORT || "3000")
+    const appTierPrivateSGId = Fn.importValue(`doorway-app-sg-${props.environment}`)
+    const privateSG: ISecurityGroup = SecurityGroup.fromSecurityGroupId(
+      scope,
+      `appTierPrivateSG-${id}`,
+      appTierPrivateSGId,
+    )
+    const publicSGId = Fn.importValue(`doorway-public-sg-${props.environment}`)
+    const publicSG: ISecurityGroup = SecurityGroup.fromSecurityGroupId(
+      scope,
+      `publicSG-${id}`,
+      publicSGId,
+    )
+    const inboundPort = Number(process.env.BACKEND_API_PORT || 3000)
+    privateSG.addIngressRule(publicSG, new Port({
+      protocol: Protocol.TCP,
+      stringRepresentation: "inbound-backend",
+      fromPort: inboundPort,
+      toPort: inboundPort
+
+
+    }), "Allow internal traffic from web app servers")
     const environmentVariables: { [key: string]: string } = {
       BACKEND_API_BASE:
         process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
@@ -35,7 +57,7 @@ export class DoorwayPublicSite {
       JURISDICTION_NAME: process.env.JURISDICTION_NAME || "Bay Area",
       LANGUAGES: process.env.LANGUAGES || "en,es,zh,vi,tl",
       LISTINGS_QUERY: process.env.LISTINGS_QUERY || "/listings",
-      NEXTJS_PORT: port,
+      NEXTJS_PORT: String(port),
       NODE_ENV: process.env.NODE_ENV || "development",
       NOTIFICATIONS_SIGNUP_URL:
         process.env.NOTIFICATIONS_SIGNUP_URL ||
@@ -66,7 +88,8 @@ export class DoorwayPublicSite {
       logGroup: props.logGroup,
       apiTargetDomainName: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
-      container: `doorway/public:run-${process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"}`
+      container: `doorway/public:run-${process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"}`,
+      securityGroup: privateSG
 
     }).service
 

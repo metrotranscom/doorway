@@ -107,7 +107,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       actions: [doorwaySource],
     })
     pipeline.addStage({
-      stageName: "Build",
+      stageName: "Build-Dev",
       actions: [
         new DoorwayDockerBuild(this, `doorway-backend`, {
           buildspec: "../ci/buildspec/build_backend.yml",
@@ -115,6 +115,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
+          environment: "dev2"
         }).action,
         new DoorwayDockerBuild(this, "doorway-import-listings", {
           buildspec: "../ci/buildspec/build_import_listings.yml",
@@ -122,6 +123,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
+          environment: "dev2"
         }).action,
         new DoorwayDockerBuild(this, `doorway-partners`, {
           buildspec: "../ci/buildspec/build_partners.yml",
@@ -129,6 +131,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
+          environment: "dev2"
         }).action,
         new DoorwayDockerBuild(this, "doorway-public", {
           buildspec: "../ci/buildspec/build_public.yml",
@@ -136,6 +139,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
+          environment: "dev2"
         }).action,
       ],
     })

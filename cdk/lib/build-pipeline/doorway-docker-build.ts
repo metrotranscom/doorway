@@ -14,6 +14,7 @@ export interface DoorwayDockerBuildProps {
   source: Artifact
   dockerHubSecret: string
   buildRole: Role
+  environment: string
 }
 
 export class DoorwayDockerBuild {
@@ -40,6 +41,7 @@ export class DoorwayDockerBuild {
         ECR_NAMESPACE: { value: "doorway" },
         IMAGE_NAME: { value: props.imageName },
         DOCKER_HUB_SECRET_ARN: { value: props.dockerHubSecret },
+        ENVIRONMENT: { value: props.environment },
       },
       role: props.buildRole,
     })

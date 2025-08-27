@@ -6,8 +6,8 @@ import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
-import { DoorwayService } from "./doorway_service"
 import { DoorwayProps } from "./doorway-props"
+import { DoorwayService } from "./doorway_service"
 import { RestartServicesLambda } from "./restart-services-lambda"
 
 export class DoorwayPublicSite {
@@ -89,7 +89,7 @@ export class DoorwayPublicSite {
       logGroup: props.logGroup,
       apiTargetDomainName: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
-      container: `doorway/public:run-${process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"}`,
+      container: `doorway/public:run-${process.env.ENVIRONMENT || "dev2"}-candidate`,
       securityGroup: privateSG
 
     }).service
@@ -98,13 +98,5 @@ export class DoorwayPublicSite {
       secrets: secrets,
       environment: props.environment,
     })
-
-
-
-
-
-
-
-
   }
 }

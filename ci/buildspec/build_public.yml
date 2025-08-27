@@ -85,11 +85,12 @@ phases:
         --build-arg "GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID}"
         --build-arg "SHOW_ALL_MAP_PINS=${SHOW_ALL_MAP_PINS}"
         --target run
-        -t sites/public:run-candidate
+        -t sites/public:run-${ENVIRONMENT}-candidate
         .
 
       # Tag the run image
-      - docker tag sites/public:run-candidate "${ECR_REPO}/public:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker tag sites/public:run-candidate "${ECR_REPO}/public:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 
       # Push the run image to ECR
-      - docker push "${ECR_REPO}/public:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker push "${ECR_REPO}/public:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker push "${ECR_REPO}/public:run-${ENVIRONMENT}-candidate"

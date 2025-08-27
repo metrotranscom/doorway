@@ -9,6 +9,7 @@ import { Construct } from "constructs"
 
 import { DoorwayService } from "./doorway_service"
 import { DoorwayProps } from "./doorway-props"
+import { RestartServicesLambda } from "./restart-services-lambda"
 
 export class DoorwayBackendService {
   public service: FargateService
@@ -159,5 +160,10 @@ export class DoorwayBackendService {
       container: "doorway/backend:run-candidate",
       securityGroup: privateSG,
     }).service
+    new RestartServicesLambda(scope, `restart-backend-services-${props.environment}`, {
+      service: this.service,
+      secrets: secrets,
+      environment: props.environment,
+    })
   }
 }

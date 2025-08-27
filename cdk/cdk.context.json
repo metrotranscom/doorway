@@ -5,5 +5,9 @@
   "hosted-zone:account=364076391763:domainName=housingbayarea.mtc.ca.gov:region=us-west-2": {
     "Id": "/hostedzone/Z01682742VM0KIXZ4Y3W5",
     "Name": "housingbayarea.mtc.ca.gov."
+  },
+  "hosted-zone:account=364076391763:domainName=housingbayarea.mtc.ca.gov:region=us-west-1": {
+    "Id": "/hostedzone/Z01682742VM0KIXZ4Y3W5",
+    "Name": "housingbayarea.mtc.ca.gov."
   }
 }

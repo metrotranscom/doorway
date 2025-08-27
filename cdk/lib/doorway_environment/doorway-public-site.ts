@@ -6,8 +6,9 @@ import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
-import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
+import { DoorwayProps } from "./doorway-props"
+import { RestartServicesLambda } from "./restart-services-lambda"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -92,6 +93,11 @@ export class DoorwayPublicSite {
       securityGroup: privateSG
 
     }).service
+    new RestartServicesLambda(scope, `restart-public-services-${props.environment}`, {
+      service: this.service,
+      secrets: secrets,
+      environment: props.environment,
+    })
 
 
 

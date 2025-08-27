@@ -26,14 +26,18 @@ export class RestartServicesLambda {
     }
     const secretRule = new Rule(scope, `${id}-secret-change-rule`, {
       eventPattern: {
-        source: ["aws.secretsmanager"],
-        detail: {
+        "source": ["aws.cloudtrail"],
+        "detail": {
           "eventSource": ["secretsmanager.amazonaws.com"],
-          "eventName": ["SecretStringChanged"],
-          "secret-id": secretArns,
+          "eventName": ["PutSecretValue"],
+          "requestParameters": {
+            "secretId": [
+              secretArns
+            ]
+          }
+        }
+      }
 
-        },
-      },
     });
     const dwLambda = new DoorwayLambdaBaseClass(scope, `${id}-restart-lambda`, {
       name: `${id}-function`,

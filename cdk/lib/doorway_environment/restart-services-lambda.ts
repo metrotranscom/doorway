@@ -20,10 +20,14 @@ export interface ServiceRestartDetail {
 export class RestartServicesLambda {
   constructor(scope: Construct, id: string, props: DoorwayServiceMonitorLambdaProps) {
 
+
+
     let secretArns: string[] = [];
+
     for (const [key, secret] of Object.entries(props.secrets)) {
+      console.log("Processing secret: ", key, secret);
       // The service setup uses the secret definition from ECS. unfortunately it doesn't include the secret name, so we have to re-create the secret from the arn to get the name.
-      const secretName = secretmgr.Secret.fromSecretCompleteArn(scope, `${id}-secret-${key}`, secret.arn).secretName;
+      const secretName = secretmgr.Secret.fromSecretPartialArn(scope, `${id}-secret-${key}`, secret.arn).secretName;
       secretArns.push(secretName);
     }
     const secretRule = new Rule(scope, `${id}-secret-change-rule`, {

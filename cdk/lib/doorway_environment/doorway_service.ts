@@ -170,7 +170,7 @@ export class DoorwayService {
       serviceConnectConfiguration: serviceConnectProps,
 
     })
-    new RestartServicesLambda(scope, `restart-public-services-${props.environment}`, {
+    new RestartServicesLambda(scope, `restart-${id}-${props.environment}`, {
       service: this.service,
       secrets: props.secrets,
       environment: props.environment,

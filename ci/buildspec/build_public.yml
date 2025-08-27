@@ -89,7 +89,7 @@ phases:
         .
 
       # Tag the run image
-      - docker tag sites/public:run-candidate "${ECR_REPO}/public:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker tag sites/public:run-${ENVIRONMENT}-candidate "${ECR_REPO}/public:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 
       # Push the run image to ECR
       - docker push "${ECR_REPO}/public:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"

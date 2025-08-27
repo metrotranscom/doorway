@@ -1,8 +1,8 @@
 import { Rule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import * as secretmgr from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
-
 import { DoorwayServiceMonitorLambdaProps } from "./doorway-lambda-props";
 import { DoorwayLambdaBaseClass } from "./lambda-base-class";
 
@@ -22,7 +22,9 @@ export class RestartServicesLambda {
 
     let secretArns: string[] = [];
     for (const [key, secret] of Object.entries(props.secrets)) {
-      secretArns.push(secret.arn);
+      // The service setup uses the secret definition from ECS. unfortunately it doesn't include the secret name, so we have to re-create the secret from the arn to get the name.
+      const secretName = secretmgr.Secret.fromSecretCompleteArn(scope, `${id}-secret-${key}`, secret.arn).secretName;
+      secretArns.push(secretName);
     }
     const secretRule = new Rule(scope, `${id}-secret-change-rule`, {
       eventPattern: {

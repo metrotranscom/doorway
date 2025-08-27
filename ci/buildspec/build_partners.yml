@@ -68,7 +68,7 @@ phases:
 
       # Tag the run image
       - docker tag sites/partners:run-${ENVIRONMENT}-candidate "${ECR_REPO}/partners:run-${ENVIRONMENT}-candidate"
-      - docker tag sites/partners:run-${ENVIRONMENT}-candidate "${ECR_REPO}/partners:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}
+      - docker tag sites/partners:run-${ENVIRONMENT}-candidate "${ECR_REPO}/partners:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 
       # Push the run image to ECR
       - docker push "${ECR_REPO}/partners:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"

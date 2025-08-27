@@ -8,7 +8,6 @@ import { Construct } from "constructs"
 
 import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
-import { RestartServicesLambda } from "./restart-services-lambda"
 
 export class DoorwayPublicSite {
   public service: FargateService
@@ -45,8 +44,6 @@ export class DoorwayPublicSite {
       stringRepresentation: "inbound-backend",
       fromPort: inboundPort,
       toPort: inboundPort
-
-
     }), "Allow internal traffic from web app servers")
     const environmentVariables: { [key: string]: string } = {
       BACKEND_API_BASE:
@@ -93,10 +90,6 @@ export class DoorwayPublicSite {
       securityGroup: privateSG
 
     }).service
-    new RestartServicesLambda(scope, `restart-public-services-${props.environment}`, {
-      service: this.service,
-      secrets: secrets,
-      environment: props.environment,
-    })
+
   }
 }

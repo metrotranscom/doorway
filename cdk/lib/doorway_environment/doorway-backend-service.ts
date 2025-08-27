@@ -7,9 +7,8 @@ import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { Construct } from "constructs"
 
-import { DoorwayService } from "./doorway_service"
 import { DoorwayProps } from "./doorway-props"
-import { RestartServicesLambda } from "./restart-services-lambda"
+import { DoorwayService } from "./doorway_service"
 
 export class DoorwayBackendService {
   public service: FargateService
@@ -160,10 +159,5 @@ export class DoorwayBackendService {
       container: "doorway/backend:run-candidate",
       securityGroup: privateSG,
     }).service
-    new RestartServicesLambda(scope, `restart-backend-services-${props.environment}`, {
-      service: this.service,
-      secrets: secrets,
-      environment: props.environment,
-    })
   }
 }

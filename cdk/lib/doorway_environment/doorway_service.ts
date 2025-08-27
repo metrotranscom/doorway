@@ -9,6 +9,7 @@ import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
 import { DoorwayServiceProps } from "./doorway-props"
+import { RestartServicesLambda } from "./restart-services-lambda"
 
 export class DoorwayService {
   public service: FargateService
@@ -168,6 +169,11 @@ export class DoorwayService {
       desiredCount: props.instances,
       serviceConnectConfiguration: serviceConnectProps,
 
+    })
+    new RestartServicesLambda(scope, `restart-public-services-${props.environment}`, {
+      service: this.service,
+      secrets: props.secrets,
+      environment: props.environment,
     })
     props.logGroup.grantWrite(props.executionRole)
 

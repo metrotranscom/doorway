@@ -73,3 +73,4 @@ phases:
       # Push the run image to ECR
       - docker push "${ECR_REPO}/partners:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
       - docker push "${ECR_REPO}/partners:run-${ENVIRONMENT}-candidate"
+

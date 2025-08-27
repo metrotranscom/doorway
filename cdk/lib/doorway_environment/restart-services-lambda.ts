@@ -29,7 +29,7 @@ export class RestartServicesLambda {
         source: ["aws.secretsmanager"],
         detail: {
           "eventSource": ["secretsmanager.amazonaws.com"],
-          "eventName": ["PutSecretValue"],
+          "eventName": ["SecretStringChanged"],
           "secret-id": secretArns,
 
         },

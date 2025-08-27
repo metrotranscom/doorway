@@ -31,9 +31,8 @@ export class RestartServicesLambda {
           "eventSource": ["secretsmanager.amazonaws.com"],
           "eventName": ["PutSecretValue"],
           "requestParameters": {
-            "secretId": [
-              secretArns
-            ]
+            "secretId": secretArns
+
           }
         }
       }

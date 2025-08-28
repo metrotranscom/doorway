@@ -1,6 +1,6 @@
 import { Stack, StackProps } from "aws-cdk-lib"
 import { Artifact, Pipeline } from "aws-cdk-lib/aws-codepipeline"
-import { GitHubSourceAction } from "aws-cdk-lib/aws-codepipeline-actions"
+import { GitHubSourceAction, GitHubTrigger } from "aws-cdk-lib/aws-codepipeline-actions"
 import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
@@ -101,6 +101,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       repo: "doorway",
       branch: "feat/tf_to_cdk",
       output: sourceArtifact,
+      trigger: GitHubTrigger.WEBHOOK,
     })
     pipeline.addStage({
       stageName: "Source",

@@ -3,6 +3,7 @@ import { LogGroup } from "aws-cdk-lib/aws-logs"
 import { Construct } from "constructs"
 import dotenv from "dotenv"
 import path from "path"
+
 import { DoorwayBackendService } from "./doorway-backend-service"
 import { DoorwayPublicLoadBalancer } from "./doorway-public-load-balancer"
 import { DoorwayPublicSite } from "./doorway-public-site"
@@ -41,6 +42,13 @@ export class DoorwayAppEnvironmentStack extends Stack {
     publicSite.service.node.addDependency(api.service)
     publicSite.service.node.addDependency(lb.loadBalancer)
     lb.targetGroup.addTarget(publicSite.service)
+    const partnersSite = new DoorwayPublicSite(this, `doorway-partners-${environment}`, {
+      environment: environment,
+      logGroup: logGroup
+    })
+    partnersSite.service.node.addDependency(api.service)
+    partnersSite.service.node.addDependency(lb.loadBalancer)
+    lb.targetGroup.addTarget(partnersSite.service)
 
 
 

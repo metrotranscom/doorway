@@ -28,17 +28,20 @@ export class RestartServicesLambda {
     for (const [key, secret] of Object.entries(props.secrets)) {
       console.log("Processing secret: ", key, secret);
       // The service setup uses the secret definition from ECS. unfortunately it doesn't include the secret name, so we have to re-create the secret from the arn to get the name.
-      const secretName = secretmgr.Secret.fromSecretPartialArn(scope, `${id}-secret-${key}`, secret.arn).secretArn;
-      secretArns.push(secretName);
+      const secretArn = secretmgr.Secret.fromSecretPartialArn(scope, `${id}-secret-${key}`, secret.arn).secretArn;
+      secretArns.push(secretArn);
     }
     const secretRule = new Rule(scope, `${id}-secret-change-rule`, {
+      enabled: true,
+      description: `Rule to trigger a restart of the ${props.service.serviceName} service when a secret is changed`,
       eventPattern: {
-        "source": ["aws.cloudtrail"],
+        "source": ["aws.secretsmanager"],
+        "detailType": ["AWS API Call via CloudTrail"],
         "detail": {
           "eventSource": ["secretsmanager.amazonaws.com"],
           "eventName": ["PutSecretValue"],
           "requestParameters": {
-            "secretId": secretArns.map(arn => ({ "prefix": arn.split('-').slice(0, -1).join('-') }))
+            "secretId": secretArns
           }
         }
       }

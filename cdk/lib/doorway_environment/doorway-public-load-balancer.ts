@@ -105,7 +105,21 @@ export class DoorwayPublicLoadBalancer {
     });
     new ARecord(scope, "PublicARecord", {
       zone: dnsZone,
-      recordName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
+      recordName: process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`,
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
+    });
+    new ApplicationListenerRule(scope, "PartnersDomainRule", {
+      listener: httpsListener,
+      priority: 200,
+      action: ListenerAction.forward([this.targetGroup]),
+      conditions: [ListenerCondition.hostHeaders([process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`])
+      ]
+
+
+    });
+    new ARecord(scope, "PublicARecord", {
+      zone: dnsZone,
+      recordName: process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`,
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
     });
 

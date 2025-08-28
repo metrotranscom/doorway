@@ -117,7 +117,7 @@ export class DoorwayPublicLoadBalancer {
 
 
     });
-    new ARecord(scope, "PublicARecord", {
+    new ARecord(scope, "PartnersARecord", {
       zone: dnsZone,
       recordName: process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`,
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),

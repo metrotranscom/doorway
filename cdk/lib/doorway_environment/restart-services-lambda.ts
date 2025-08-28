@@ -3,6 +3,7 @@ import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import * as secretmgr from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
+
 import { DoorwayServiceMonitorLambdaProps } from "./doorway-lambda-props";
 import { DoorwayLambdaBaseClass } from "./lambda-base-class";
 
@@ -27,7 +28,7 @@ export class RestartServicesLambda {
     for (const [key, secret] of Object.entries(props.secrets)) {
       console.log("Processing secret: ", key, secret);
       // The service setup uses the secret definition from ECS. unfortunately it doesn't include the secret name, so we have to re-create the secret from the arn to get the name.
-      const secretName = secretmgr.Secret.fromSecretPartialArn(scope, `${id}-secret-${key}`, secret.arn).secretName;
+      const secretName = secretmgr.Secret.fromSecretPartialArn(scope, `${id}-secret-${key}`, secret.arn).secretArn;
       secretArns.push(secretName);
     }
     const secretRule = new Rule(scope, `${id}-secret-change-rule`, {
@@ -37,12 +38,10 @@ export class RestartServicesLambda {
           "eventSource": ["secretsmanager.amazonaws.com"],
           "eventName": ["PutSecretValue"],
           "requestParameters": {
-            "secretId": secretArns
-
+            "secretId": secretArns.map(arn => ({ "prefix": arn.split('-').slice(0, -1).join('-') }))
           }
         }
       }
-
     });
     const dwLambda = new DoorwayLambdaBaseClass(scope, `${id}-restart-lambda`, {
       name: `${id}-function`,

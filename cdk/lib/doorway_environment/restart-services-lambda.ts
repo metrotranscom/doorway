@@ -1,6 +1,6 @@
 import { Rule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
-import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Effect, PolicyStatement, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import * as secretmgr from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
 
@@ -31,21 +31,7 @@ export class RestartServicesLambda {
       const secretArn = secretmgr.Secret.fromSecretPartialArn(scope, `${id}-secret-${key}`, secret.arn).secretArn;
       secretArns.push(secretArn);
     }
-    const secretRule = new Rule(scope, `${id}-secret-change-rule`, {
-      enabled: true,
-      description: `Rule to trigger a restart of the ${props.service.serviceName} service when a secret is changed`,
-      eventPattern: {
-        "source": ["aws.secretsmanager"],
-        "detailType": ["AWS API Call via CloudTrail"],
-        "detail": {
-          "eventSource": ["secretsmanager.amazonaws.com"],
-          "eventName": ["PutSecretValue"],
-          "requestParameters": {
-            "secretId": secretArns
-          }
-        }
-      }
-    });
+
     const dwLambda = new DoorwayLambdaBaseClass(scope, `${id}-restart-lambda`, {
       name: `${id}-function`,
       environment: props.environment,
@@ -64,6 +50,26 @@ export class RestartServicesLambda {
       resources: [props.service.serviceArn],
       effect: Effect.ALLOW,
     }));
+    dwLambda.lambdaRole.addToPrincipalPolicy(new PolicyStatement({
+      actions: ["sts:AssumeRole"],
+      principals: [new ServicePrincipal("events.amazonaws.com"), new ServicePrincipal("lambda.amazonaws.com")]
+    }));
+    const secretRule = new Rule(scope, `${id}-secret-change-rule`, {
+      role: dwLambda.lambdaRole,
+      enabled: true,
+      description: `Rule to trigger a restart of the ${props.service.serviceName} service when a secret is changed`,
+      eventPattern: {
+        "source": ["aws.secretsmanager"],
+        "detailType": ["AWS API Call via CloudTrail"],
+        "detail": {
+          "eventSource": ["secretsmanager.amazonaws.com"],
+          "eventName": ["PutSecretValue"],
+          "requestParameters": {
+            "secretId": secretArns
+          }
+        }
+      }
+    });
     secretRule.addTarget(new LambdaFunction(dwLambda.lambdaFunction));
   }
 }

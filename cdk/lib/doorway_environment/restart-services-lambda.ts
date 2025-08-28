@@ -21,8 +21,6 @@ export interface ServiceRestartDetail {
 export class RestartServicesLambda {
   constructor(scope: Construct, id: string, props: DoorwayServiceMonitorLambdaProps) {
 
-
-
     let secretArns: string[] = [];
 
     for (const [key, secret] of Object.entries(props.secrets)) {

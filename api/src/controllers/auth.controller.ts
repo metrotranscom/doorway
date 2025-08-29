@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Put, Request, Response, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Logger, Post, Put, Request, Response, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../guards/jwt.guard';
 import { MfaAuthGuard } from '../guards/mfa.guard';
 import { OptionalAuthGuard } from '../guards/optional.guard';
 import { SingleUseCodeAuthGuard } from '../guards/single-use-code.guard';
-import { instance } from '../logger/winston.logger';
+
 import { AuthService, REFRESH_COOKIE_NAME } from '../services/auth.service';
 import { defaultValidationPipeOptions } from '../utilities/default-validation-pipe-options';
 import { mapTo } from '../utilities/mapTo';
@@ -25,6 +25,7 @@ import { mapTo } from '../utilities/mapTo';
 @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
 @UseGuards(ApiKeyGuard)
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) { }
 
   @Post('login')
@@ -38,9 +39,9 @@ export class AuthController {
     @Body() dto: Login,
   ): Promise<SuccessDTO> {
 
-    instance.info(`Login attempt for user: ${dto.email}`);
-    instance.info(`Origin: ${req.headers.origin}`);
-    instance.info(`Headers: ${JSON.stringify(req.headers)}`)
+    this.logger.log(`Login attempt for user: ${dto.email}`);
+    this.logger.log(`Origin: ${req.headers.origin}`);
+    this.logger.log(`Headers: ${JSON.stringify(req.headers)}`)
 
     return await this.authService.setCredentials(
       res,

@@ -1,44 +1,30 @@
-import {
-  Controller,
-  Get,
-  Request,
-  Response,
-  Post,
-  UsePipes,
-  ValidationPipe,
-  Body,
-  BadRequestException,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Put, Request, Response, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import {
-  Response as ExpressResponse,
-  Request as ExpressRequest,
-} from 'express';
-import { defaultValidationPipeOptions } from '../utilities/default-validation-pipe-options';
-import { SuccessDTO } from '../dtos/shared/success.dto';
-import { AuthService, REFRESH_COOKIE_NAME } from '../services/auth.service';
-import { RequestMfaCode } from '../dtos/mfa/request-mfa-code.dto';
-import { RequestMfaCodeResponse } from '../dtos/mfa/request-mfa-code-response.dto';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+
 import { Confirm } from '../dtos/auth/confirm.dto';
-import { UpdatePassword } from '../dtos/auth/update-password.dto';
-import { MfaAuthGuard } from '../guards/mfa.guard';
-import { JwtAuthGuard } from '../guards/jwt.guard';
-import { OptionalAuthGuard } from '../guards/optional.guard';
-import { Login } from '../dtos/auth/login.dto';
-import { mapTo } from '../utilities/mapTo';
-import { User } from '../dtos/users/user.dto';
 import { LoginViaSingleUseCode } from '../dtos/auth/login-single-use-code.dto';
+import { Login } from '../dtos/auth/login.dto';
+import { UpdatePassword } from '../dtos/auth/update-password.dto';
+import { RequestMfaCodeResponse } from '../dtos/mfa/request-mfa-code-response.dto';
+import { RequestMfaCode } from '../dtos/mfa/request-mfa-code.dto';
+import { SuccessDTO } from '../dtos/shared/success.dto';
+import { User } from '../dtos/users/user.dto';
 import { ApiKeyGuard } from '../guards/api-key.guard';
+import { JwtAuthGuard } from '../guards/jwt.guard';
+import { MfaAuthGuard } from '../guards/mfa.guard';
+import { OptionalAuthGuard } from '../guards/optional.guard';
 import { SingleUseCodeAuthGuard } from '../guards/single-use-code.guard';
+import { AuthService, REFRESH_COOKIE_NAME } from '../services/auth.service';
+import { defaultValidationPipeOptions } from '../utilities/default-validation-pipe-options';
+import { mapTo } from '../utilities/mapTo';
 
 @Controller('auth')
 @ApiTags('auth')
 @UsePipes(new ValidationPipe(defaultValidationPipeOptions))
 @UseGuards(ApiKeyGuard)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('login')
   @ApiOperation({ summary: 'Login', operationId: 'login' })
@@ -50,6 +36,8 @@ export class AuthController {
     @Response({ passthrough: true }) res: ExpressResponse,
     @Body() dto: Login,
   ): Promise<SuccessDTO> {
+    console.log('Login request received for user:', dto.email);
+    console.log(`Origin: ${req.headers.origin}`)
     return await this.authService.setCredentials(
       res,
       mapTo(User, req['user']),

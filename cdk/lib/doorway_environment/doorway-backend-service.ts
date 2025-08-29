@@ -66,8 +66,7 @@ export class DoorwayBackendService {
       AUTH_LOCK_LOGIN_AFTER_FAILED_ATTEMPTS:
         process.env.AUTH_LOCK_LOGIN_AFTER_FAILED_ATTEMPTS || "5",
       CORS_ORIGINS:
-        process.env.CORS_ORIGINS ||
-        "https://housingbayarea.mtc.ca.gov, https://partners.housingbayarea.mtc.ca.gov",
+        process.env.CORS_ORIGINS || "*",
       DUPLICATES_CLOSE_DATE: process.env.DUPLICATES_CLOSE_DATE || "2024-10-08 00:00 -08:00",
       HTTPS_OFF: process.env.HTTPS_OFF || "TRUE",
       SAME_SITE: process.env.SAME_SITE || "false",

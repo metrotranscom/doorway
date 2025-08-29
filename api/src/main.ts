@@ -54,6 +54,17 @@ async function bootstrap() {
     }
     cb(null, options);
   });
+  // Debug middleware to capture headers
+  app.use((req, res, next) => {
+    console.log('=== RAW REQUEST DEBUG ===');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Origin:', req.headers.origin);
+    console.log('Host:', req.headers.host);
+    console.log('All Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('========================');
+    next();
+  });
   app.use(logger);
   app.use(
     cookieParser(),

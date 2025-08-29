@@ -41,14 +41,14 @@ export class DoorwayAppEnvironmentStack extends Stack {
     })
     publicSite.service.node.addDependency(api.service)
     publicSite.service.node.addDependency(lb.loadBalancer)
-    lb.targetGroup.addTarget(publicSite.service)
+    lb.publicTargetGroup.addTarget(publicSite.service)
     const partnersSite = new DoorwayPublicSite(this, `doorway-partners-${environment}`, {
       environment: environment,
       logGroup: logGroup
     })
     partnersSite.service.node.addDependency(api.service)
     partnersSite.service.node.addDependency(lb.loadBalancer)
-    lb.targetGroup.addTarget(partnersSite.service)
+    lb.partnersTargetGroup.addTarget(partnersSite.service)
 
 
 

@@ -48,7 +48,11 @@ export class RestartServicesLambda {
       resources: [props.service.serviceArn],
       effect: Effect.ALLOW,
     }));
-    dwLambda.lambdaRole.grantAssumeRole(new ServicePrincipal("events.amazonaws.com"));
+    dwLambda.lambdaRole.assumeRolePolicy!.addStatements(new PolicyStatement({
+      actions: ["sts:AssumeRole"],
+      effect: Effect.ALLOW,
+      principals: [new ServicePrincipal("events.amazonaws.com")]
+    }))
     dwLambda.lambdaFunction.grantInvoke(new ServicePrincipal("events.amazonaws.com"));
 
     const secretRule = new Rule(scope, `${id}-secret-change-rule`, {

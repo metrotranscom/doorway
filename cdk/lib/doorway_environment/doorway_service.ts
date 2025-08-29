@@ -64,7 +64,7 @@ export class DoorwayService {
         streamPrefix: id,
         logGroup: props.logGroup,
       }),
-      secrets: props.secrets,
+      secrets: props.secrets || {},
       environment: props.environmentVariables,
       entryPoint: [],
       portMappings: [
@@ -82,12 +82,10 @@ export class DoorwayService {
     // without a load balancer.
     let serviceConnectProps: ServiceConnectProps = {
       namespace: `doorway-${props.environment}-internal-api`,
-
       logDriver: LogDrivers.awsLogs({
         logGroup: props.logGroup,
         streamPrefix: `${id}-service-connect`,
       }),
-
     }
     if (props.serviceConnectServer) {
 
@@ -96,7 +94,6 @@ export class DoorwayService {
         `doorway-${props.environment}-internal-api-namespace`,
         {
           vpc: vpc,
-
           name: `doorway-${props.environment}-internal-api`,
           description: `Private DNS namespace for the Doorway ${props.environment} internal API`,
         },
@@ -145,8 +142,6 @@ export class DoorwayService {
           port: props.port,
 
         }],
-
-
       }
     }
 
@@ -157,7 +152,6 @@ export class DoorwayService {
         enable: true,
         rollback: true,
       },
-
       cluster: Cluster.fromClusterAttributes(scope, `ecsCluster-${id}`, {
         clusterName: Fn.importValue(`doorway-ecs-cluster-${props.environment}`),
         vpc: vpc,
@@ -170,11 +164,13 @@ export class DoorwayService {
       serviceConnectConfiguration: serviceConnectProps,
 
     })
-    new RestartServicesLambda(scope, `restart-${id}-${props.environment}`, {
-      service: this.service,
-      secrets: props.secrets,
-      environment: props.environment,
-    })
+    if (Object.keys(props.secrets).length > 0) {
+      new RestartServicesLambda(scope, `restart-${id}-${props.environment}`, {
+        service: this.service,
+        secrets: props.secrets,
+        environment: props.environment,
+      })
+    }
     props.logGroup.grantWrite(props.executionRole)
 
   }

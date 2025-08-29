@@ -59,7 +59,7 @@ export class DoorwayPartnersSite {
       SHOW_LM_LINKS: process.env.SHOW_LM_LINKS || "TRUE",
       USE_SECURE_DOWNLOAD_PATHWAY: process.env.USE_SECURE_DOWNLOAD_PATHWAY || "TRUE",
     }
-    const secretNames = (process.env.PARTNERS_PORTAL_SECRETS || "").split(",")
+    const secretNames = process.env.PARTNERS_PORTAL_SECRETS != undefined ? process.env.PARTNERS_PORTAL_SECRETS.split(",") : []
     const secrets: { [key: string]: Secret } = {}
     secretNames.forEach((secretName) => {
       secrets[secretName] = Secret.fromSecretsManager(

@@ -48,9 +48,11 @@ export class DoorwayPublicLoadBalancer {
       domainName: "housingbayarea.mtc.ca.gov",
     });
     const cert = new Certificate(scope, "PublicCertificate", {
-      domainName: process.env.PUBLIC_PORTAL_DOMAIN != undefined ? `*.${process.env.PUBLIC_PORTAL_DOMAIN}` : `*.${props.environment}.housingbayarea.mtc.ca.gov`,
+      domainName: process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`,
       validation: CertificateValidation.fromDns(dnsZone),
+      subjectAlternativeNames: [process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`]
     })
+
     const httpListener = this.loadBalancer.addListener("HttpListener", {
       port: 80,
       open: true,

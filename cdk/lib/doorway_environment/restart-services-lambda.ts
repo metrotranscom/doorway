@@ -23,11 +23,12 @@ export class RestartServicesLambda {
     let secretArns: string[] = [];
 
     for (const [key, secret] of Object.entries(props.secrets)) {
-      console.log("Processing secret: ", key, secret);
-      // The service setup uses the secret definition from ECS. unfortunately it doesn't include the secret name, so we have to re-create the secret from the arn to get the name.
-      const secretArn = secret.arn
-      secretArns.push(secretArn);
+      console.log("Processing secret key:", key);
+      console.log("Secret ARN:", secret.arn);
+      console.log("Secret object:", JSON.stringify(secret, null, 2));
+      secretArns.push(secret.arn);
     }
+    console.log("All secret ARNs:", secretArns);
 
     const dwLambda = new DoorwayLambdaBaseClass(scope, `${id}-restart-lambda`, {
       name: `${id}-function`,
@@ -65,7 +66,7 @@ export class RestartServicesLambda {
           "eventSource": ["secretsmanager.amazonaws.com"],
           "eventName": ["PutSecretValue"],
           "requestParameters": {
-            "secretId": secretArns
+            "secretId": secretArns.map(arn => ({ "prefix": arn }))
           }
         }
       }

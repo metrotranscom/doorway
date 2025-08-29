@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../guards/jwt.guard';
 import { MfaAuthGuard } from '../guards/mfa.guard';
 import { OptionalAuthGuard } from '../guards/optional.guard';
 import { SingleUseCodeAuthGuard } from '../guards/single-use-code.guard';
+import { instance } from '../logger/winston.logger';
 import { AuthService, REFRESH_COOKIE_NAME } from '../services/auth.service';
 import { defaultValidationPipeOptions } from '../utilities/default-validation-pipe-options';
 import { mapTo } from '../utilities/mapTo';
@@ -36,8 +37,11 @@ export class AuthController {
     @Response({ passthrough: true }) res: ExpressResponse,
     @Body() dto: Login,
   ): Promise<SuccessDTO> {
-    console.log('Login request received for user:', dto.email);
-    console.log(`Origin: ${req.headers.origin}`)
+
+    instance.info(`Login attempt for user: ${dto.email}`);
+    instance.info(`Origin: ${req.headers.origin}`);
+    instance.info(`Headers: ${JSON.stringify(req.headers)}`)
+
     return await this.authService.setCredentials(
       res,
       mapTo(User, req['user']),

@@ -113,7 +113,7 @@ export class DoorwayPublicLoadBalancer {
       port: Number(process.env.PUBLIC_PORTAL_PORT) || 3000,
       protocol: ApplicationProtocol.HTTP,
       vpc: vpc,
-      targetGroupName: `public-tg-${props.environment}`,
+      targetGroupName: `partners-tg-${props.environment}`,
       targetType: TargetType.IP,
       healthCheck: {
         enabled: true,

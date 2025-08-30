@@ -55,6 +55,7 @@ async function bootstrap() {
       (origin && (allowList.indexOf(origin) !== -1 || regexAllowList.some((regex) => regex.test(origin)))) ||
       (appUrl && (allowList.indexOf(appUrl) !== -1 || regexAllowList.some((regex) => regex.test(appUrl))))
     ) {
+      inUselogger.debug(`CORS enabled for origin: ${origin || appUrl}`);
       options.origin = true;
     }
     cb(null, options);

@@ -39,22 +39,26 @@ async function bootstrap() {
   const { httpAdapter } = app.get(HttpAdapterHost);
   const inUselogger: Logger = app.get(Logger);
   app.useGlobalFilters(new CustomExceptionFilter(httpAdapter, inUselogger));
-  app.enableCors((req, cb) => {
-    const options = {
-      credentials: true,
-      origin: false,
-    };
+  if (process.env.DISABLE_CORS === 'TRUE') {
+    inUselogger.warn('CORS is disabled');
+  } else {
 
-    if (
-      process.env.DISABLE_CORS === 'TRUE' ||
-      allowList.indexOf(req.header('Origin')) !== -1 ||
-      regexAllowList.some((regex) => regex.test(req.header('Origin')))
-    ) {
-      options.origin = true;
-    }
-    cb(null, options);
-  });
+    app.enableCors((req, cb) => {
+      const options = {
+        credentials: true,
+        origin: false,
+      };
 
+      if (
+
+        allowList.indexOf(req.header('Origin')) !== -1 ||
+        regexAllowList.some((regex) => regex.test(req.header('Origin')))
+      ) {
+        options.origin = true;
+      }
+      cb(null, options);
+    });
+  }
   app.use((req, res, next) => {
     inUselogger.debug('=== RAW REQUEST DEBUG ===');
     inUselogger.debug(`Method: ${req.method}`);

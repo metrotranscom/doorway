@@ -45,26 +45,31 @@ async function bootstrap() {
       origin: false,
     };
 
+    const origin = req.header('Origin');
+    const appUrl = req.header('appurl'); // Service Connect may strip Origin, check appurl
+    
     if (
       process.env.DISABLE_CORS === 'TRUE' ||
-      allowList.indexOf(req.header('Origin')) !== -1 ||
-      regexAllowList.some((regex) => regex.test(req.header('Origin')))
+      (origin && (allowList.indexOf(origin) !== -1 || regexAllowList.some((regex) => regex.test(origin)))) ||
+      (appUrl && (allowList.indexOf(appUrl) !== -1 || regexAllowList.some((regex) => regex.test(appUrl))))
     ) {
       options.origin = true;
     }
     cb(null, options);
   });
-  // Debug middleware to capture headers
-  app.use((req, res, next) => {
-    console.log('=== RAW REQUEST DEBUG ===');
-    console.log('Method:', req.method);
-    console.log('URL:', req.url);
-    console.log('Origin:', req.headers.origin);
-    console.log('Host:', req.headers.host);
-    console.log('All Headers:', JSON.stringify(req.headers, null, 2));
-    console.log('========================');
-    next();
-  });
+  // Debug middleware to capture headers (only when DEBUG_HEADERS=true)
+  if (process.env.DEBUG_HEADERS === 'true') {
+    app.use((req, res, next) => {
+      inUselogger.debug('=== RAW REQUEST DEBUG ===');
+      inUselogger.debug(`Method: ${req.method}`);
+      inUselogger.debug(`URL: ${req.url}`);
+      inUselogger.debug(`Origin: ${req.headers.origin}`);
+      inUselogger.debug(`Host: ${req.headers.host}`);
+      inUselogger.debug(`All Headers: ${JSON.stringify(req.headers, null, 2)}`);
+      inUselogger.debug('========================');
+      next();
+    });
+  }
   app.use(logger);
   app.use(
     cookieParser(),

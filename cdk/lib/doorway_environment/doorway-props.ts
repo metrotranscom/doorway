@@ -25,6 +25,7 @@ export interface DoorwayServiceProps extends DoorwayProps {
   secureUploads: IBucket
   container: string
   securityGroup: ISecurityGroup
+
 }
 export interface DoorwayLoadBalancerProps extends DoorwayProps {
   publicService: FargateService,

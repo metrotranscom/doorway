@@ -13,9 +13,11 @@ import { RestartServicesLambda } from "./restart-services-lambda"
 
 export class DoorwayService {
   public service: FargateService
+
   constructor(scope: Construct, id: string, props: DoorwayServiceProps) {
     // Initial Execution Role Setup
     // Create the execution role for the doorway API service
+
 
     props.executionRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),

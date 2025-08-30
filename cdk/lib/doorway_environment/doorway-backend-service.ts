@@ -13,6 +13,7 @@ import { DoorwayService } from "./doorway_service"
 export class DoorwayBackendService {
   public service: FargateService
   public constructor(scope: Construct, id: string, props: DoorwayProps) {
+    const gitHash = process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"
     const executionRole = new Role(scope, `executionRole-${id}`, {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
@@ -155,7 +156,7 @@ export class DoorwayBackendService {
       secureUploads: secureUploads,
       environment: props.environment,
       logGroup: props.logGroup,
-      container: "doorway/backend:run-candidate",
+      container: `doorway/backend:run-${gitHash}`,
       securityGroup: privateSG,
     }).service
   }

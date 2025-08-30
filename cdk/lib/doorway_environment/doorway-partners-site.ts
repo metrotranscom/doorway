@@ -12,9 +12,11 @@ import { DoorwayService } from "./doorway_service"
 export class DoorwayPartnersSite {
   public service: FargateService
   constructor(scope: Construct, id: string, props: DoorwayProps) {
+    const gitHash = process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"
     const executionRole = new Role(scope, `executionRole-${id}`, {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
+
     const publicUploads = Bucket.fromBucketArn(
       scope,
       `partnersUploadsBucket-${id}`,
@@ -82,8 +84,8 @@ export class DoorwayPartnersSite {
       logGroup: props.logGroup,
       apiTargetDomainName: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
-      container: `doorway/partners:run-${process.env.ENVIRONMENT || "dev2"}-candidate`,
-      securityGroup: privateSG
+      container: `doorway/partners:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
+      securityGroup: privateSG,
     }).service
 
   }

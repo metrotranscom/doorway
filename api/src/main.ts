@@ -5,18 +5,18 @@ try {
 } catch {
   // Pass
 }
-import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import cookieParser from 'cookie-parser';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import { json } from 'express';
-import { AppModule } from './modules/app.module';
-import { CustomExceptionFilter } from './utilities/custom-exception-filter';
-import { logger } from './middleware/logger.middleware';
 import { WinstonModule } from 'nest-winston';
 import { instance } from './logger/winston.logger';
+import { logger } from './middleware/logger.middleware';
+import { AppModule } from './modules/app.module';
+import { CustomExceptionFilter } from './utilities/custom-exception-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -25,8 +25,8 @@ async function bootstrap() {
       process.env.NODE_ENV === 'development'
         ? ['log']
         : WinstonModule.createLogger({
-            instance: instance,
-          }),
+          instance: instance,
+        }),
   });
   const allowList = process.env.CORS_ORIGINS || [];
   const allowListRegex = process.env.CORS_REGEX
@@ -47,7 +47,9 @@ async function bootstrap() {
 
     const origin = req.header('Origin');
     const appUrl = req.header('appurl'); // Service Connect may strip Origin, check appurl
-    
+    inUselogger.debug(`AppUrl: ${appUrl}, Origin: ${origin}`);
+    inUselogger.debug(`Allow List: ${allowList}`);
+
     if (
       process.env.DISABLE_CORS === 'TRUE' ||
       (origin && (allowList.indexOf(origin) !== -1 || regexAllowList.some((regex) => regex.test(origin)))) ||

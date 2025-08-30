@@ -73,7 +73,7 @@ export class DoorwayBackendService {
       SAME_SITE: process.env.SAME_SITE || "false",
       API_PASS_KEY: process.env.API_PASS_KEY || "doorway-api-key",
       APP_SECRET: process.env.APP_SECRET || "<fake key that is over 16 characters long>",
-      DEBUG_HEADERS: process.env.DEBUG_HEADERS || "false",
+      DISABLE_CORS: process.env.DISABLE_CORS || "FALSE",
     }
     const dbSecretArn = Fn.importValue(`doorwayDBSecret-${props.environment}`)
     const dbSecret = secret.Secret.fromSecretCompleteArn(scope, "dbSecret", dbSecretArn)

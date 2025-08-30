@@ -85,7 +85,7 @@ export class DoorwayService {
     let serviceConnectProps: ServiceConnectProps = {
       namespace: `doorway-${props.environment}-internal-api`,
       logDriver: LogDrivers.awsLogs({
-        logGroup: props.logGroup,
+        logGroup: props.serviceConnectLogGroup,
         streamPrefix: `${id}-service-connect`,
       }),
     }

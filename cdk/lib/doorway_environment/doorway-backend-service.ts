@@ -143,6 +143,7 @@ export class DoorwayBackendService {
     }), "Allow internal traffic from web app servers")
     executionRole.addToPolicy(policy)
     this.service = new DoorwayService(scope, `doorway-api-service-${props.environment}`, {
+      ...props,
       memory: Number(process.env.BACKEND_MEMORY || 4096),
       cpu: Number(process.env.BACKEND_CPU || 2),
       instances: Number(process.env.BACKEND_INSTANCES || 3),
@@ -155,7 +156,6 @@ export class DoorwayBackendService {
       publicUploads: publicUploads,
       secureUploads: secureUploads,
       environment: props.environment,
-      logGroup: props.logGroup,
       container: `doorway/backend:run-${gitHash}`,
       securityGroup: privateSG,
     }).service

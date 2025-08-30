@@ -7,6 +7,7 @@ import { IBucket } from "aws-cdk-lib/aws-s3"
 export interface DoorwayProps {
   environment: string,
   logGroup: LogGroup
+  serviceConnectLogGroup: LogGroup
 }
 
 export interface DoorwayServiceProps extends DoorwayProps {

@@ -26,26 +26,33 @@ export class DoorwayAppEnvironmentStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       retention: aws_logs.RetentionDays.ONE_WEEK,
     })
+    const scLogGroup = new LogGroup(this, `${id}-service-connect-log-group`, {
+      logGroupName: `/doorway/${environment}/service-connect`
+    })
 
     const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, {
       environment: environment,
       logGroup: logGroup,
+      serviceConnectLogGroup: scLogGroup
 
     })
     const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, {
       environment: environment,
-      logGroup: logGroup
+      logGroup: logGroup,
+      serviceConnectLogGroup: scLogGroup
     });
     const publicSite = new DoorwayPublicSite(this, `doorway-public-${environment}`, {
       environment: environment,
-      logGroup: logGroup
+      logGroup: logGroup,
+      serviceConnectLogGroup: scLogGroup
     })
     publicSite.service.node.addDependency(api.service)
     publicSite.service.node.addDependency(lb.loadBalancer)
     lb.publicTargetGroup.addTarget(publicSite.service)
     const partnersSite = new DoorwayPartnersSite(this, `doorway-partners-${environment}`, {
       environment: environment,
-      logGroup: logGroup
+      logGroup: logGroup,
+      serviceConnectLogGroup: scLogGroup
     })
     partnersSite.service.node.addDependency(api.service)
     partnersSite.service.node.addDependency(lb.loadBalancer)

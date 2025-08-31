@@ -48,6 +48,7 @@ export class DoorwayService {
     })
 
     const task = new TaskDefinition(scope, `${id}-task`, {
+
       compatibility: Compatibility.FARGATE,
       executionRole: props.executionRole,
       taskRole: props.executionRole,
@@ -140,7 +141,7 @@ export class DoorwayService {
           },
           portMappingName: `${id}-port-mapping`,
           dnsName: props.domainName,
-          discoveryName: `doorway-${props.environment}-internal-api`,
+          discoveryName: props.serviceName,
           port: props.port,
 
         }],
@@ -149,7 +150,7 @@ export class DoorwayService {
 
     this.service = new FargateService(scope, `${id}-fargate-service`, {
       taskDefinition: task,
-      serviceName: `${id}-service`,
+      serviceName: props.serviceName,
       circuitBreaker: {
         enable: true,
         rollback: true,

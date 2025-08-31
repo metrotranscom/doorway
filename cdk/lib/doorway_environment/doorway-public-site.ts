@@ -90,8 +90,8 @@ export class DoorwayPublicSite {
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
       container: `doorway/public:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
       securityGroup: privateSG,
-
-
+      serviceName: props.publicServiceName,
+      clusterName: props.clusterName
     }).service
 
   }

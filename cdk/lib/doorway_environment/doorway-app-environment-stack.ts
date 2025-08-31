@@ -1,4 +1,4 @@
-import { aws_logs, RemovalPolicy, Stack } from "aws-cdk-lib"
+import { aws_logs, Fn, RemovalPolicy, Stack } from "aws-cdk-lib"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import { Construct } from "constructs"
 import dotenv from "dotenv"
@@ -6,6 +6,7 @@ import path from "path"
 
 import { DoorwayBackendService } from "./doorway-backend-service"
 import { DoorwayPartnersSite } from "./doorway-partners-site"
+import { DoorwayProps } from "./doorway-props"
 import { DoorwayPublicLoadBalancer } from "./doorway-public-load-balancer"
 import { DoorwayPublicSite } from "./doorway-public-site"
 
@@ -29,31 +30,23 @@ export class DoorwayAppEnvironmentStack extends Stack {
     const scLogGroup = new LogGroup(this, `${id}-service-connect-log-group`, {
       logGroupName: `/doorway/${environment}/service-connect`
     })
+    const props: DoorwayProps = {
+      environment: environment,
+      serviceConnectLogGroup: scLogGroup,
+      logGroup: logGroup,
+      backendServiceName: `doorway-backend-${environment}`,
+      publicServiceName: `doorway-public-${environment}`,
+      partnersServiceName: `doorway-partners-${environment}`,
+      clusterName: Fn.importValue(`doorway-ecs-cluster-${environment}`),
+    }
 
-    const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, {
-      environment: environment,
-      logGroup: logGroup,
-      serviceConnectLogGroup: scLogGroup
-
-    })
-    const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, {
-      environment: environment,
-      logGroup: logGroup,
-      serviceConnectLogGroup: scLogGroup
-    });
-    const publicSite = new DoorwayPublicSite(this, `doorway-public-${environment}`, {
-      environment: environment,
-      logGroup: logGroup,
-      serviceConnectLogGroup: scLogGroup
-    })
+    const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, props)
+    const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, props);
+    const publicSite = new DoorwayPublicSite(this, `doorway-public-${environment}`, props)
     publicSite.service.node.addDependency(api.service)
     publicSite.service.node.addDependency(lb.loadBalancer)
     lb.publicTargetGroup.addTarget(publicSite.service)
-    const partnersSite = new DoorwayPartnersSite(this, `doorway-partners-${environment}`, {
-      environment: environment,
-      logGroup: logGroup,
-      serviceConnectLogGroup: scLogGroup
-    })
+    const partnersSite = new DoorwayPartnersSite(this, `doorway-partners-${environment}`, props)
     partnersSite.service.node.addDependency(api.service)
     partnersSite.service.node.addDependency(lb.loadBalancer)
     lb.partnersTargetGroup.addTarget(partnersSite.service)

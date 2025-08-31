@@ -159,6 +159,9 @@ export class DoorwayBackendService {
       environment: props.environment,
       container: `doorway/backend:run-${gitHash}`,
       securityGroup: privateSG,
+      serviceName: props.backendServiceName,
+      clusterName: props.clusterName
+
     }).service
   }
 }

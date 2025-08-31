@@ -8,6 +8,10 @@ export interface DoorwayProps {
   environment: string,
   logGroup: LogGroup
   serviceConnectLogGroup: LogGroup
+  clusterName: string
+  backendServiceName: string
+  publicServiceName: string
+  partnersServiceName: string
 }
 
 export interface DoorwayServiceProps extends DoorwayProps {
@@ -26,6 +30,8 @@ export interface DoorwayServiceProps extends DoorwayProps {
   secureUploads: IBucket
   container: string
   securityGroup: ISecurityGroup
+  serviceName: string
+  clusterName: string
 
 }
 export interface DoorwayLoadBalancerProps extends DoorwayProps {

@@ -9,6 +9,7 @@ import { Construct } from "constructs"
 
 // Removed fs and YAML imports since we're using BuildSpec.fromSourceFilename
 
+
 export interface DoorwayDatabaseMigrateProps {
   ecrNamespace?: string
   databaseName?: string
@@ -21,6 +22,8 @@ export interface DoorwayDatabaseMigrateProps {
 export class DoorwayDatabaseMigrate {
   public readonly action: CodeBuildAction
   constructor(scope: Construct, id: string, props: DoorwayDatabaseMigrateProps) {
+    const ecsClusterName = `doorway-ecs-cluster-${props.environment}`
+    const backendServiceName = `doorway-backend-${props.environment}`
     const vpcId = Fn.importValue(`doorway-vpc-id-${props.environment}`)
     const subnetId = Fn.importValue(`doorway-app-subnet-1-${props.environment}`)
     const securityGroupId = Fn.importValue(`doorway-app-sg-${props.environment}`)
@@ -57,10 +60,10 @@ export class DoorwayDatabaseMigrate {
         LANGUAGES: { value: "en,es,zh,vi,tl" },
         IDLE_TIMEOUT: { value: "5" },
         ECS_BACKEND_SERVICE: {
-          value: `doorway-${props.environment}-internal-api`,
+          value: backendServiceName,
         },
         ECS_BACKEND_CLUSTER: {
-          value: `doorway-ecs-cluster-${props.environment}`,
+          value: ecsClusterName,
         },
       },
       role: props.buildRole,

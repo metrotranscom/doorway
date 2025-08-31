@@ -86,6 +86,8 @@ export class DoorwayPartnersSite {
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
       container: `doorway/partners:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
       securityGroup: privateSG,
+      serviceName: props.partnersServiceName,
+      clusterName: props.clusterName
     }).service
 
   }

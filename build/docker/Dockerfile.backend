@@ -162,6 +162,7 @@ COPY --from=source --chown=node:node /app/api/scripts ./scripts
 
 ## This CMD should be run as the node user
 USER node
-COPY --chown=node:node  ./build/docker/entrypoint-migrate.sh /app/
-RUN chmod 755 /app/entrypoint-migrate.sh
-ENTRYPOINT /app/entrypoint-migrate.sh
+# We need to skip all migrations that are just for local development (changes already exist in deployed environment)
+CMD if [ "$SKIP_MIGRATIONS" = TRUE ]; then yarn db:migration:skip 00_init || true && yarn db:migration:skip 02_hba_to_prisma || true && yarn db:migration:skip 03_0_external_listing || true && yarn db:migration:run; \
+    else yarn db:migration:run; \
+    fi

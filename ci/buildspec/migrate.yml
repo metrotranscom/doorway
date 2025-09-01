@@ -21,8 +21,10 @@ phases:
   build:
     commands:
       - export ECR_REPO="${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_NAMESPACE}"
+      #FIXME: switch back to migration image once we have migrations to run
+      - export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-candidate"
+      #- export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 
-      - export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 
       # Pull down migration candidate image
       - docker pull "${MIGRATION_IMAGE}"

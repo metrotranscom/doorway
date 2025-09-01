@@ -29,7 +29,11 @@ phases:
 
       # Default to db:migration:run
       - export MIGRATION_CMD="${MIGRATION_CMD:-db:migration:run}"
-
+      
+      # URL encode the password to handle special characters
+      - export ENCODED_PASSWORD=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${PGPASSWORD}', safe=''))")
+      - export DATABASE_URL="postgres://${PGUSER}:${ENCODED_PASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}"
+      - echo "Database URL (password masked): postgres://${PGUSER}:***@${PGHOST}:${PGPORT}/${PGDATABASE}"
 
       # Execute migration
       # Note that many of these vars are required by the app but not used for migration
@@ -38,8 +42,9 @@ phases:
         --env PGUSER="${PGUSER}"
         --env PGPASSWORD="${PGPASSWORD}"
         --env PGHOST="${PGHOST}"
-        --env PGDATABASE=template1
+        --env PGDATABASE="${PGDATABASE}"
         --env PGPORT="${PGPORT}"
+        --env DATABASE_URL="${DATABASE_URL}"
         --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
         --env LISTINGS_QUERY="${LISTINGS_QUERY}"
         --env FILE_SERVICE="${FILE_SERVICE:-cloudinary}"

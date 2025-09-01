@@ -78,6 +78,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       },
     })
 
+
     const dockerSecret = Secret.fromSecretNameV2(
       this,
       "dockerSecret",
@@ -151,6 +152,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       source: sourceArtifact,
       buildRole: buildRole,
     }).action
+
     const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
       buildspec: "./ci/buildspec/update_ecs.yml",
       source: sourceArtifact,
@@ -160,7 +162,7 @@ export class DoorwayBuildPipelineStack extends Stack {
 
     pipeline.addStage({
       stageName: "Dev",
-      actions: [dbmigrate, ecsDeploy],
+      actions: [ecsDeploy],
     })
   }
 }

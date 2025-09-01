@@ -29,10 +29,7 @@ phases:
 
       # Default to db:migration:run
       - export MIGRATION_CMD="${MIGRATION_CMD:-db:migration:run}"
-      - export DATABASE_URL="postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}:5432/${PGDATABASE}"
-      - echo $PGHOST
-      - echo $PGDATABASE
-      - echo $DATABASE_URL
+
 
       # Execute migration
       # Note that many of these vars are required by the app but not used for migration
@@ -43,7 +40,6 @@ phases:
         --env PGHOST="${PGHOST}"
         --env PGDATABASE=template1
         --env PGPORT="${PGPORT}"
-        --env DATABASE_URL=${DATABASE_URL}
         --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
         --env LISTINGS_QUERY="${LISTINGS_QUERY}"
         --env FILE_SERVICE="${FILE_SERVICE:-cloudinary}"

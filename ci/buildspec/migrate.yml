@@ -16,8 +16,8 @@ phases:
     commands:
       - export ECR_REPO="${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_NAMESPACE}"
       #FIXME: switch back to migration image once we have migrations to run
-      - export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-candidate"
-      #- export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      #- export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-candidate"
+      - export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
       - export PGUSER=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r ."username")
       - export PGPASSWORD=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r  ."password")
       - export PGPORT=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r ."port")

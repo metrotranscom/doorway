@@ -144,6 +144,7 @@ export class DoorwayBuildPipelineStack extends Stack {
         }).action,
       ],
     })
+
     const dbmigrate = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
       environment: "dev2",
       buildspec: "./ci/buildspec/migrate_stop_backend.yml",

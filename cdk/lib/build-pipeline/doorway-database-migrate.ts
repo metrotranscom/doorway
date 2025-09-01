@@ -59,11 +59,15 @@ export class DoorwayDatabaseMigrate {
         CACHE_REVALIDATE: { value: "60" },
         LANGUAGES: { value: "en,es,zh,vi,tl" },
         IDLE_TIMEOUT: { value: "5" },
+        PGPORT: { value: "5432" },
         ECS_BACKEND_SERVICE: {
           value: backendServiceName,
         },
         ECS_BACKEND_CLUSTER: {
           value: ecsClusterName,
+        },
+        MIGRATION_CMD: {
+          value: "db:reseed:ci",
         },
       },
       role: props.buildRole,

@@ -109,6 +109,7 @@ export class DoorwayService {
         assumedBy: new CompositePrincipal(
           new ServicePrincipal("ecs.amazonaws.com"),
           new ServicePrincipal("ecs-tasks.amazonaws.com"),
+          new ServicePrincipal("ecs.application-autoscaling.amazonaws.com")
         ),
         managedPolicies: [
           ManagedPolicy.fromAwsManagedPolicyName(
@@ -125,6 +126,7 @@ export class DoorwayService {
             ],
           }),
         },
+        description: "Service Connect TLS role for ECS service communication",
       })
       props.logGroup.grantWrite(scRole)
       serviceConnectProps = {

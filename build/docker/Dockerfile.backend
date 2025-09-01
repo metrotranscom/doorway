@@ -116,6 +116,7 @@ COPY --from=source --chown=node:node \
     /app/api/yarn*.lock \
     /app/api/prisma ./
 
+
 # Add only dependencies required to run the application
 COPY --from=optimize --chown=node:node /app/node_modules ./node_modules
 RUN yarn prisma generate
@@ -130,8 +131,8 @@ RUN chmod 777 ./src/temp
 USER node
 
 RUN yarn prisma generate
-
-CMD yarn start:prod
+COPY build/docker/entrypoint-run.sh /app/api/entrypoint-run.sh
+ENTRYPOINT [ "entrypoint-run.sh" ]
 
 #####################
 ##### NEW STAGE #####
@@ -161,6 +162,9 @@ COPY --from=source --chown=node:node /app/api/scripts ./scripts
 
 ## This CMD should be run as the node user
 USER node
+
+# Override the inherited ENTRYPOINT for migrations
+ENTRYPOINT []
 
 # We need to skip all migrations that are just for local development (changes already exist in deployed environment)
 CMD if [ "$SKIP_MIGRATIONS" = TRUE ]; then yarn db:migration:skip 00_init || true && yarn db:migration:skip 02_hba_to_prisma || true && yarn db:migration:skip 03_0_external_listing || true && yarn db:migration:run; \

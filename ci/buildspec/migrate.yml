@@ -7,12 +7,6 @@
 version: 0.2
 env:
   shell: bash
-  secrets-manager:
-    PGUSER: "${DB_CREDS_ARN}:username"
-    PGPASSWORD: "${DB_CREDS_ARN}:password"
-    PGHOST: "${DB_CREDS_ARN}:host"
-    PGPORT: "${DB_CREDS_ARN}:port"
-    PGDATABASE: "${DB_CREDS_ARN}:dbname"
 
 phases:
   pre_build:
@@ -24,7 +18,11 @@ phases:
       #FIXME: switch back to migration image once we have migrations to run
       - export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-candidate"
       #- export MIGRATION_IMAGE="${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
-
+      - export PGUSER=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN|jq ."SecretString"|jq -r|jq ."username")
+      - export PGPASSWORD=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN|jq ."SecretString"|jq -r|jq ."password")
+      - export PGPORT=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN|jq ."SecretString"|jq -r|jq ."port")
+      - export PGHOST=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN|jq ."SecretString"|jq -r|jq ."host")
+      - export PGDATABASE=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN|jq ."SecretString"|jq -r|jq ."dbname")
 
       # Pull down migration candidate image
       - docker pull "${MIGRATION_IMAGE}"

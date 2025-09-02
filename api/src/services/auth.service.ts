@@ -31,7 +31,7 @@ let sameSite: boolean | 'strict' | 'lax' | 'none' = 'none';
 if (process.env.NODE_ENV === 'development') {
   sameSite = 'strict';
 } else if (process.env.SAME_SITE === 'true') {
-  sameSite = 'none';
+  sameSite = 'lax';
 }
 
 const TOKEN_COOKIE_MAXAGE = 86400000; // 24 hours

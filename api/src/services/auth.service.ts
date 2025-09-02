@@ -43,7 +43,7 @@ export const AUTH_COOKIE_OPTIONS: CookieOptions = {
   secure,
   sameSite,
   maxAge: TOKEN_COOKIE_MAXAGE / 8, // access token should last 3 hr
-  domain: process.env.COOKIE_DOMAIN ?? "localhost",
+  domain: process.env.COOKIE_DOMAIN ?? "",
 };
 export const REFRESH_COOKIE_OPTIONS: CookieOptions = {
   ...AUTH_COOKIE_OPTIONS,

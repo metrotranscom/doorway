@@ -42,6 +42,9 @@ export class AuthController {
     this.logger.log(`Login attempt for user: ${dto.email}`);
     this.logger.log(`Origin: ${req.headers.origin}`);
     this.logger.log(`Headers: ${JSON.stringify(req.headers)}`)
+    this.logger.log(`Cookies: ${JSON.stringify(req.cookies)}`)
+    this.logger.log(`Body: ${JSON.stringify(req.body)}`)
+
 
     return await this.authService.setCredentials(
       res,

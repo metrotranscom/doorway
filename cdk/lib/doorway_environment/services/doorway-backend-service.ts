@@ -70,7 +70,7 @@ export class DoorwayBackendService {
         process.env.CORS_ORIGINS || "*",
       DUPLICATES_CLOSE_DATE: process.env.DUPLICATES_CLOSE_DATE || "2024-10-08 00:00 -08:00",
       // Doorway has started using serviceconnect which uses TLS internally, so we can turn HTTPS_OFF on for all environments.
-      HTTPS_OFF: process.env.HTTPS_OFF || "TRUE",
+      HTTPS_OFF: process.env.HTTPS_OFF || "true",
       // We can also turn off same site cookies and CORS since we're using serviceconnect because the incoming traffic looks like it's coming from localhost
       SAME_SITE: process.env.SAME_SITE || "true",
       DISABLE_CORS: process.env.DISABLE_CORS || "TRUE",

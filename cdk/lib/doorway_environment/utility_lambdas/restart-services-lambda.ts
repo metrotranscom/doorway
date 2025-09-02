@@ -40,7 +40,7 @@ export class RestartServicesLambda {
       timeoutInMinutes: 15,
       memory: 1024,
       storage: 512,
-      handler: "lib/doorway_environment/restart-services.handler.ts",
+      handler: "lib/doorway_environment/utility_lambdas/restart-services.handler.ts",
       bundling: {}
     })
     dwLambda.lambdaRole.addToPolicy(new PolicyStatement({

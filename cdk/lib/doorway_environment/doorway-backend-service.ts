@@ -7,8 +7,8 @@ import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { Construct } from "constructs"
 
-import { DoorwayProps } from "./doorway-props"
 import { DoorwayService } from "./doorway_service"
+import { DoorwayProps } from "./doorway-props"
 
 export class DoorwayBackendService {
   public service: FargateService
@@ -71,7 +71,6 @@ export class DoorwayBackendService {
       DUPLICATES_CLOSE_DATE: process.env.DUPLICATES_CLOSE_DATE || "2024-10-08 00:00 -08:00",
       HTTPS_OFF: process.env.HTTPS_OFF || "TRUE",
       SAME_SITE: process.env.SAME_SITE || "false",
-      API_PASS_KEY: process.env.API_PASS_KEY || "doorway-api-key",
       APP_SECRET: process.env.APP_SECRET || "<fake key that is over 16 characters long>",
       DISABLE_CORS: process.env.DISABLE_CORS || "FALSE",
     }

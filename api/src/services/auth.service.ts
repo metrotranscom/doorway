@@ -31,7 +31,7 @@ let sameSite: boolean | 'strict' | 'lax' | 'none' = 'none';
 if (process.env.NODE_ENV === 'development') {
   sameSite = 'strict';
 } else if (process.env.SAME_SITE === 'true') {
-  sameSite = 'lax';
+  sameSite = 'none';
 }
 
 const TOKEN_COOKIE_MAXAGE = 86400000; // 24 hours
@@ -65,7 +65,7 @@ export class AuthService {
     private userService: UserService,
     private smsService: SmsService,
     private emailsService: EmailService,
-  ) {}
+  ) { }
   /*
     generates a signed token for a user
     willBeRefreshToken changes the TTL of the token with true being longer and false being shorter
@@ -300,9 +300,9 @@ export class AuthService {
     return dto.mfaType === MfaType.email
       ? { email: user.email, phoneNumberVerified: user.phoneNumberVerified }
       : {
-          phoneNumber: user.phoneNumber,
-          phoneNumberVerified: user.phoneNumberVerified,
-        };
+        phoneNumber: user.phoneNumber,
+        phoneNumberVerified: user.phoneNumberVerified,
+      };
   }
   /*
     updates a user's password and logs them in

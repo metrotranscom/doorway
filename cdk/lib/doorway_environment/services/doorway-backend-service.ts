@@ -7,8 +7,8 @@ import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { Construct } from "constructs"
 
+import { DoorwayProps } from "../doorway-props"
 import { DoorwayService } from "./doorway_service"
-import { DoorwayProps } from "./doorway-props"
 
 export class DoorwayBackendService {
   public service: FargateService

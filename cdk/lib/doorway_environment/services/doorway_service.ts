@@ -8,8 +8,8 @@ import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
 import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
-import { DoorwayServiceProps } from "./doorway-props"
-import { RestartServicesLambda } from "./restart-services-lambda"
+import { DoorwayServiceProps } from "../doorway-props"
+import { RestartServicesLambda } from "../utility_lambdas/restart-services-lambda"
 
 export class DoorwayService {
   public service: FargateService

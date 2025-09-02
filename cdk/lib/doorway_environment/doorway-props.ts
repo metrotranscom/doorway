@@ -38,3 +38,23 @@ export interface DoorwayLoadBalancerProps extends DoorwayProps {
   publicService: FargateService,
   partnersService: FargateService,
 }
+
+
+export interface DoorwayLambdaProps {
+  environment: string;
+  name: string;
+  timeoutInMinutes: number;
+  handler: string;
+  memory?: number;
+  storage?: number;
+  bundling: {};
+
+  environmentVariables?: { [key: string]: string };
+
+}
+export interface DoorwayServiceMonitorLambdaProps {
+  secrets: { [key: string]: Secret };
+  service: FargateService;
+  environment: string
+
+}

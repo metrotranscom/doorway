@@ -3,7 +3,7 @@ import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Effect, PolicyStatement, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
-import { DoorwayServiceMonitorLambdaProps } from "./doorway-lambda-props";
+import { DoorwayServiceMonitorLambdaProps } from "../doorway-props";
 import { DoorwayLambdaBaseClass } from "./lambda-base-class";
 
 export interface ServiceRestartDetail {

@@ -5,7 +5,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
-import { DoorwayLambdaProps } from './doorway-lambda-props';
+import { DoorwayLambdaProps } from '../doorway-props';
 
 export class DoorwayLambdaBaseClass extends Construct {
   lambdaFunction: Function;

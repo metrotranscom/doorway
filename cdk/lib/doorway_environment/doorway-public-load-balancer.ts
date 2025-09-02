@@ -1,10 +1,10 @@
+import { StringParameter } from "aws
 import { aws_ec2, Duration, Fn } from "aws-cdk-lib";
 import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
 import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
-import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
 import { DoorwayProps } from "./doorway-props";

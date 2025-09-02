@@ -5,11 +5,10 @@ import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
-
-import { DoorwayProps } from "./doorway-props"
+import { DoorwayProps } from "../doorway-props"
 import { DoorwayService } from "./doorway_service"
 
-export class DoorwayPublicSite {
+export class DoorwayPartnersSite {
   public service: FargateService
   constructor(scope: Construct, id: string, props: DoorwayProps) {
     const gitHash = process.env.CODEBUILD_RESOLVED_SOURCE_VERSION?.substring(0, 8) || "candidate"
@@ -19,7 +18,7 @@ export class DoorwayPublicSite {
 
     const publicUploads = Bucket.fromBucketArn(
       scope,
-      `publicUploadsBucket-${id}`,
+      `partnersUploadsBucket-${id}`,
       Fn.importValue(`doorway-public-uploads-${props.environment}`),
     )
     const secureUploads = Bucket.fromBucketArn(
@@ -27,7 +26,7 @@ export class DoorwayPublicSite {
       `secureUploadsBucket-${id}`,
       Fn.importValue(`doorway-secure-uploads-${props.environment}`),
     )
-    const port = Number(process.env.PUBLIC_PORTAL_PORT || "3000")
+    const port = Number(process.env.PARTNERS_PORTAL_PORT || "3000")
     const appTierPrivateSGId = Fn.importValue(`doorway-app-sg-${props.environment}`)
     const privateSG: ISecurityGroup = SecurityGroup.fromSecurityGroupId(
       scope,
@@ -50,22 +49,18 @@ export class DoorwayPublicSite {
     const environmentVariables: { [key: string]: string } = {
       BACKEND_API_BASE:
         process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
-      BLOOM_API_BASE: process.env.BLOOM_API_BASE || "https://proxy.housingbayarea.org",
-      CACHE_REVALIDATE: process.env.CACHE_REVALIDATE || "60",
-      GTM_KEY: process.env.GTM_KEY || "GTM-KF22FJP",
-      IDLE_TIMEOUT: process.env.IDLE_TIMEOUT || "5",
-      JURISDICTION_NAME: process.env.JURISDICTION_NAME || "Bay Area",
-      LANGUAGES: process.env.LANGUAGES || "en,es,zh,vi,tl",
+      FEATURE_LISTINGS_APPROVAL:
+        process.env.FEATURE_LISTINGS_APPROVAL || "TRUE",
       LISTINGS_QUERY: process.env.LISTINGS_QUERY || "/listings",
+      LOG_LEVEL: process.env.LOG_LEVEL || "info",
       NEXTJS_PORT: String(port),
+      MAPBOX_TOKEN: process.env.MAPBOX_TOKEN || "",
       NODE_ENV: process.env.NODE_ENV || "development",
-      NOTIFICATIONS_SIGNUP_URL:
-        process.env.NOTIFICATIONS_SIGNUP_URL ||
-        "https://public.govdelivery.com/accounts/CAMTC/signup/36832",
-      SHOW_ALL_MAP_PINS: process.env.SHOW_ALL_MAP_PINS || "true",
-      SHOW_PROFESSIONAL_PARTNERS: process.env.SHOW_PROFESSIONAL_PARTNERS || "true",
+      SHOW_DUPLICATES: process.env.SHOW_DUPLICATES || "FALSE",
+      SHOW_LM_LINKS: process.env.SHOW_LM_LINKS || "TRUE",
+      USE_SECURE_DOWNLOAD_PATHWAY: process.env.USE_SECURE_DOWNLOAD_PATHWAY || "TRUE",
     }
-    const secretNames = (process.env.PUBLIC_PORTAL_SECRETS || "").split(",")
+    const secretNames = process.env.PARTNERS_PORTAL_SECRETS != undefined ? process.env.PARTNERS_PORTAL_SECRETS.split(",") : []
     const secrets: { [key: string]: Secret } = {}
     secretNames.forEach((secretName) => {
       secrets[secretName] = Secret.fromSecretsManager(
@@ -74,23 +69,23 @@ export class DoorwayPublicSite {
     })
     this.service = new DoorwayService(scope, `${id}-service`, {
       ...props,
-      memory: Number(process.env.PUBLIC_PORTAL_MEMORY || 4096),
-      cpu: Number(process.env.PUBLIC_PORTAL_CPU || 2),
-      instances: Number(process.env.PUBLIC_PORTAL_INSTANCES || 3),
-      port: Number(process.env.PUBLIC_PORTAL_PORT || 3000),
+      memory: Number(process.env.PARTNERS_PORTAL_MEMORY || 4096),
+      cpu: Number(process.env.PARTNERS_PORTAL_CPU || 2),
+      instances: Number(process.env.PARTNERS_PORTAL_INSTANCES || 3),
+      port: Number(process.env.PARTNERS_PORTAL_PORT || 3000),
       secrets: secrets,
       environmentVariables: environmentVariables,
       serviceConnectServer: false,
-      domainName: process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`,
+      domainName: process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`,
       executionRole: executionRole,
       publicUploads: publicUploads,
       secureUploads: secureUploads,
       logGroup: props.logGroup,
       apiTargetDomainName: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
-      container: `doorway/public:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
+      container: `doorway/partners:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
       securityGroup: privateSG,
-      serviceName: props.publicServiceName,
+      serviceName: props.partnersServiceName,
       clusterName: props.clusterName
     }).service
 

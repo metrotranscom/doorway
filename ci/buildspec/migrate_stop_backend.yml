@@ -49,6 +49,7 @@ phases:
         --env PGPASSWORD="${PGPASSWORD}"
         --env PGHOST="${PGHOST}"
         --env PGDATABASE=${PGDATABASE}
+        --env PGPORT=${PGPORT}
         --env DATABASE_URL="postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}"
         --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
         --env LISTINGS_QUERY="${LISTINGS_QUERY}"

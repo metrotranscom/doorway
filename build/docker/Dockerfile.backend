@@ -170,6 +170,6 @@ RUN chown node:node /app/api/entrypoint-migrate.sh
 RUN chmod 755 /app/api/entrypoint-migrate.sh
 ## This CMD should be run as the node user
 USER node
+RUN yarn prisma generate
 
-
-ENTRYPOINT [ "/app/api/entrypoint-migrate.sh" ]
+ENTRYPOINT [ "yarn ${MIGRATION_CMD}" ]

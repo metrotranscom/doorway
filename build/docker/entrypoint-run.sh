@@ -19,5 +19,5 @@ ENCODED_PASSWORD=$(node -e "console.log(encodeURIComponent('$PGPASSWORD'))")
 export DATABASE_URL="postgresql://${PGUSER}:${ENCODED_PASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}"
 echo "DATABASE_URL (password masked): postgresql://${PGUSER}:***@${PGHOST}:${PGPORT}/${PGDATABASE}"
 
-echo "Running migrations..."
-yarn prisma generate && yarn start:prod
+echo "Starting Service..."
+yarn start:prod

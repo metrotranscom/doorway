@@ -44,7 +44,6 @@ phases:
         --env PGHOST="${PGHOST}"
         --env PGDATABASE=${PGDATABASE}
         --env PGPORT=${PGPORT}
-
         --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
         --env LISTINGS_QUERY="${LISTINGS_QUERY}"
         --env FILE_SERVICE="${FILE_SERVICE:-cloudinary}"

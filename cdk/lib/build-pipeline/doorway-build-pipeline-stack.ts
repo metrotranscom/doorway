@@ -163,7 +163,7 @@ export class DoorwayBuildPipelineStack extends Stack {
 
     pipeline.addStage({
       stageName: "Dev",
-      actions: [ecsDeploy],
+      actions: [dbmigrate, ecsDeploy],
     })
   }
 }

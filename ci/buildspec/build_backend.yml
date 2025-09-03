@@ -19,9 +19,6 @@ phases:
   build:
     commands:
       - echo "BUILD PHASE STARTING - DEBUG TEST"
-      - echo "Cleaning workspace..."
-      - git clean -fdx
-      - git reset --hard HEAD
       - export ECR_HOST="${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com"
       - export ECR_REPO="${ECR_HOST}/${ECR_NAMESPACE}"
       - echo "ECR_REPO is ${ECR_REPO}"

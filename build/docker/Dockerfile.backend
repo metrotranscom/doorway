@@ -172,4 +172,4 @@ RUN chmod 755 /app/api/entrypoint-migrate.sh
 USER node
 RUN yarn prisma generate
 
-ENTRYPOINT [ "yarn db:reseed:ci" ]
+ENTRYPOINT [ "/app/api/entrypoint-run.sh" ]

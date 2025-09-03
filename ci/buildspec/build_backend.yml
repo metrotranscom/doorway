@@ -19,6 +19,9 @@ phases:
   build:
     commands:
       - echo "BUILD PHASE STARTING - DEBUG TEST"
+      - echo "Cleaning workspace..."
+      - git clean -fdx
+      - git reset --hard HEAD
       - export ECR_HOST="${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com"
       - export ECR_REPO="${ECR_HOST}/${ECR_NAMESPACE}"
       - echo "ECR_REPO is ${ECR_REPO}"
@@ -28,8 +31,8 @@ phases:
       # Skip the test step as it is handle before merge. But re-add if you want more verification
       # - docker build . -f build/docker/Dockerfile.backend --target test -t api:test
       # - docker run api:test yarn test
-      - docker build . -f build/docker/Dockerfile.backend --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID} --target run -t api:run-candidate
-      - docker build . -f build/docker/Dockerfile.backend --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID} --target migrate -t api:migrate-candidate
+      - docker build --no-cache . -f build/docker/Dockerfile.backend --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID} --build-arg CACHE_BUST=$(date +%s) --target run -t api:run-candidate
+      - docker build --no-cache . -f build/docker/Dockerfile.backend --build-arg ECR_REGION=${ECR_REGION} --build-arg ECR_ACCOUNT_ID=${ECR_ACCOUNT_ID} --build-arg CACHE_BUST=$(date +%s) --target migrate -t api:migrate-candidate
 
       # Add hash and candidate tags to migration image
       - docker tag api:migrate-candidate "${ECR_REPO}/backend:migrate-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"

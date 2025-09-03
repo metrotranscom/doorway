@@ -1,4 +1,4 @@
-import { BuildSpec, ComputeType, LinuxBuildImage, PipelineProject } from "aws-cdk-lib/aws-codebuild"
+import { BuildSpec, Cache, ComputeType, LinuxBuildImage, PipelineProject } from "aws-cdk-lib/aws-codebuild"
 import { Artifact } from "aws-cdk-lib/aws-codepipeline"
 import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { Role } from "aws-cdk-lib/aws-iam"
@@ -25,6 +25,7 @@ export class DoorwayECSDeploy {
       },
 
       role: props.buildRole,
+      cache: Cache.none(),
     })
     // Create the CodeBuild action
     this.action = new CodeBuildAction({

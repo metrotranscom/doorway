@@ -1,5 +1,5 @@
 import { Aws, Fn } from "aws-cdk-lib"
-import { BuildSpec, ComputeType, LinuxBuildImage, PipelineProject } from "aws-cdk-lib/aws-codebuild"
+import { BuildSpec, Cache, ComputeType, LinuxBuildImage, PipelineProject } from "aws-cdk-lib/aws-codebuild"
 import { Artifact } from "aws-cdk-lib/aws-codepipeline"
 import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { SecurityGroup, Subnet, Vpc } from "aws-cdk-lib/aws-ec2"
@@ -71,6 +71,7 @@ export class DoorwayDatabaseMigrate {
         },
       },
       role: props.buildRole,
+      cache: Cache.none(),
     })
     // Create the CodeBuild action
     this.action = new CodeBuildAction({

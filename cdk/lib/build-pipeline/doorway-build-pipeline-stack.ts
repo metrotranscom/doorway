@@ -103,6 +103,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       branch: "feat/tf_to_cdk",
       output: sourceArtifact,
       trigger: GitHubTrigger.WEBHOOK,
+      variablesNamespace: "SourceVariables",
     })
     pipeline.addStage({
       stageName: "Source",

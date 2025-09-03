@@ -1,6 +1,7 @@
 import { Aws, Fn, Stack } from "aws-cdk-lib"
 import {
   BuildSpec,
+  Cache,
   ComputeType,
   LinuxBuildImage,
   PipelineProject,
@@ -80,6 +81,7 @@ export class DoorwayBuildJobBase {
         ENVIRONMENT: { value: props.environment },
       },
       role: buildRole,
+      cache: Cache.none(),
     }
     if (props.buildInVpc) {
       const vpcId = Fn.importValue(`doorway-vpc-id-${props.environment}`)
@@ -107,6 +109,7 @@ export class DoorwayBuildJobBase {
       stack,
       `doorway-dbMigrate-${props.environment}`,
       projectProps,
+
     )
     // Create the CodeBuild action
     this.action = new CodeBuildAction({

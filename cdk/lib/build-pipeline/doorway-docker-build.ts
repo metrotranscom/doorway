@@ -1,5 +1,5 @@
 import { Aws } from "aws-cdk-lib"
-import { BuildSpec, ComputeType, PipelineProject } from "aws-cdk-lib/aws-codebuild"
+import { BuildSpec, Cache, ComputeType, PipelineProject } from "aws-cdk-lib/aws-codebuild"
 import { Artifact } from "aws-cdk-lib/aws-codepipeline"
 import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { Repository } from "aws-cdk-lib/aws-ecr"
@@ -44,6 +44,7 @@ export class DoorwayDockerBuild {
         ENVIRONMENT: { value: props.environment },
       },
       role: props.buildRole,
+      cache: Cache.none(),
     })
 
     // Create the CodeBuild action

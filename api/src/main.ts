@@ -23,7 +23,7 @@ async function bootstrap() {
     // In local development use the built in logger for better readability
     logger:
       process.env.NODE_ENV === 'development'
-        ? ['log']
+        ? ['log', 'debug', 'error', 'warn']
         : WinstonModule.createLogger({
           instance: instance,
         }),
@@ -65,8 +65,8 @@ async function bootstrap() {
     inUselogger.debug(`URL: ${req.url}`);
     inUselogger.debug(`Origin: ${req.headers.origin}`);
     inUselogger.debug(`Host: ${req.headers.host}`);
-    inUselogger.debug(`All Headers: ${JSON.stringify(req.headers, null, 2)}`)
-    inUselogger.debug(`Cookies: ${JSON.stringify(req.cookies, null, 2)}`)
+    inUselogger.debug(`All Headers: ${JSON.stringify(req.headers, null, 2)}`);
+    inUselogger.debug(`Cookies: ${JSON.stringify(req.cookies, null, 2)}`);
     inUselogger.debug(`Body: ${JSON.stringify(req.body, null, 2)}`);
     inUselogger.debug('========================');
     next();

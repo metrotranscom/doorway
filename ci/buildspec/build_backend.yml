@@ -26,7 +26,6 @@ phases:
       - export ECR_REPO="${ECR_HOST}/${ECR_NAMESPACE}"
       - echo "ECR_REPO is ${ECR_REPO}"
       - ls -la build/docker/
-      - test -f build/docker/entrypoint-migrate.sh && cat build/docker/entrypoint-migrate.sh || echo "File not found: build/docker/entrypoint-migrate.sh"
 
       # Skip the test step as it is handle before merge. But re-add if you want more verification
       # - docker build . -f build/docker/Dockerfile.backend --target test -t api:test

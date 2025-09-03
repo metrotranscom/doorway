@@ -36,10 +36,7 @@ phases:
       - export PGPORT=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r ."port")
       - export PGHOST=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r  ."host")
       - export PGDATABASE=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r ."dbname")
-      # URL encode the password to handle special characters
-      - export ENCODED_PASSWORD=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${PGPASSWORD}', safe=''))")
-      - export DATABASE_URL="postgres://${PGUSER}:${ENCODED_PASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}"
-      - echo "Database URL (password masked):postgres://${PGUSER}:***@${PGHOST}:${PGPORT}/${PGDATABASE}"
+
 
       - docker run
         --env PGUSER="${PGUSER}"
@@ -47,7 +44,7 @@ phases:
         --env PGHOST="${PGHOST}"
         --env PGDATABASE=${PGDATABASE}
         --env PGPORT=${PGPORT}
-        --env DATABASE_URL="postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}"
+
         --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
         --env LISTINGS_QUERY="${LISTINGS_QUERY}"
         --env FILE_SERVICE="${FILE_SERVICE:-cloudinary}"

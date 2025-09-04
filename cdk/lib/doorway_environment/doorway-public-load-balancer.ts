@@ -1,6 +1,6 @@
 import { aws_ec2, Duration, Fn } from "aws-cdk-lib";
 import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
-import { AllowedMethods, CachePolicy, Distribution, OriginRequestPolicy, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
+import { AllowedMethods, CachePolicy, Distribution, OriginRequestPolicy, PriceClass, SecurityPolicyProtocol, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
 import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
 import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
@@ -142,6 +142,23 @@ export class DoorwayPublicLoadBalancer {
     });
     const cloudfrontDist = new Distribution(scope, `CloudFront-${props.environment}`, {
       domainNames: [publicDomainName, `*.${publicDomainName}`],
+      certificate: cert,
+      minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
+      enableIpv6: true,
+
+
+      defaultRootObject: "",
+      logIncludesCookies: true,
+      logFilePrefix: "cloudfront",
+
+      comment: `Doorway for ${props.environment}`,
+
+      priceClass: PriceClass.PRICE_CLASS_100,
+      geoRestriction: {
+        locations: ["US"],
+        restrictionType: "whitelist"
+      },
+
 
       defaultBehavior: {
         origin: new LoadBalancerV2Origin(this.loadBalancer),

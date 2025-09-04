@@ -70,13 +70,34 @@ export class DoorwayDatabaseMigrate {
       },
       cache: Cache.none(),
     })
-    
+
     // Grant permissions to the auto-created role
     Secret.fromSecretCompleteArn(scope, "dbSecret", dbSecretArn).grantRead(project.role!)
     project.addToRolePolicy(new PolicyStatement({
       actions: ["ecs:*", "ecr:*"],
       resources: ["*"]
     }))
+    project.addToRolePolicy(new PolicyStatement({
+
+      actions: ["secretsmanager:GetSecretValue"],
+      resources: [
+        `arn:aws:secretsmanager:${Aws.REGION}:${Aws.ACCOUNT_ID}:secret:mtc/dockerHub*`,
+        `arn:aws:secretsmanager::${Aws.REGION}:${Aws.ACCOUNT_ID}:secret:doorwayDBSecret-*`,
+      ],
+    }))
+    project.addToRolePolicy(new PolicyStatement({
+      actions: [
+        "cloudformation:*",
+        "ec2:*",
+        "ssm:*",
+        "codebuild:*",
+        "logs:*",
+        "iam:AssumeRole",
+        "iam:PassRole",
+      ],
+      resources: ["*"],
+    }))
+
     // Create the CodeBuild action
     this.action = new CodeBuildAction({
       actionName: `${id}-DBMigrate`,

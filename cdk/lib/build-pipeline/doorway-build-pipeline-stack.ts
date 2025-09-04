@@ -58,6 +58,7 @@ export class DoorwayBuildPipelineStack extends Stack {
               actions: ["secretsmanager:GetSecretValue"],
               resources: [
                 `arn:aws:secretsmanager:${this.region}:${this.account}:secret:mtc/dockerHub*`,
+                `arn:aws:secretsmanager:${this.region}:${this.account}:secret:doorwayDBSecret-*`,
               ],
             }),
             new PolicyStatement({
@@ -151,7 +152,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       environment: "dev2",
       buildspec: "./ci/buildspec/migrate_stop_backend.yml",
       source: sourceArtifact,
-      buildRole: buildRole,
+      buildRole: buildRole, // This parameter is now ignored
     }).action
 
     const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {

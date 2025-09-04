@@ -37,7 +37,7 @@ class DoorwayDockerBuild {
       IMAGE_NAME: { value: props.imageName },
       DOCKER_HUB_SECRET_ARN: { value: props.dockerHubSecret },
       ENVIRONMENT: { value: props.environment },
-      BACKEND_API_BASE: { value: `http://backend.${props.environment}.housingbayarea.mtc.ca.gov` },
+      BACKEND_API_BASE: { value: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int:3100` },
       CACHE_REVALIDATE: { value: process.env.CACHE_REVALIDATE || "30" },
       LANGUAGES: {
         value: process.env.LANGUAGES || "en,es,zh,vi,tl"
@@ -94,7 +94,7 @@ export class PublicDockerBuild extends DoorwayDockerBuild {
 export class BackendDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
-    // Backend build doesnt have any custom environment variables yet
+    // Backend build doesnt have any custom environment variables yety
 
   }
 }

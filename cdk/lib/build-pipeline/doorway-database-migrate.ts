@@ -3,7 +3,7 @@ import { BuildSpec, Cache, ComputeType, LinuxBuildImage, PipelineProject } from 
 import { Artifact } from "aws-cdk-lib/aws-codepipeline"
 import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { SecurityGroup, Subnet, Vpc } from "aws-cdk-lib/aws-ec2"
-import { Role } from "aws-cdk-lib/aws-iam"
+import { PolicyStatement, Role } from "aws-cdk-lib/aws-iam"
 import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
@@ -37,8 +37,6 @@ export class DoorwayDatabaseMigrate {
       subnetId: subnetId,
     })
     const sg = SecurityGroup.fromSecurityGroupId(scope, "sg", securityGroupId)
-    Secret.fromSecretCompleteArn(scope, "dbSecret", dbSecretArn).grantRead(props.buildRole)
-
     const project = new PipelineProject(scope, `doorway-dbMigrate-${props.environment}`, {
       vpc: vpc,
       subnetSelection: { subnets: [subnet] },
@@ -70,9 +68,15 @@ export class DoorwayDatabaseMigrate {
           value: "db:reseed:ci",
         },
       },
-      role: props.buildRole,
       cache: Cache.none(),
     })
+    
+    // Grant permissions to the auto-created role
+    Secret.fromSecretCompleteArn(scope, "dbSecret", dbSecretArn).grantRead(project.role!)
+    project.addToRolePolicy(new PolicyStatement({
+      actions: ["ecs:*", "ecr:*"],
+      resources: ["*"]
+    }))
     // Create the CodeBuild action
     this.action = new CodeBuildAction({
       actionName: `${id}-DBMigrate`,

@@ -42,6 +42,7 @@ export class DoorwayDockerBuild {
         IMAGE_NAME: { value: props.imageName },
         DOCKER_HUB_SECRET_ARN: { value: props.dockerHubSecret },
         ENVIRONMENT: { value: props.environment },
+        BACKEND_API_BASE: { value: `http://backend.${props.environment}.housingbayarea.mtc.ca.gov` }
       },
       role: props.buildRole,
       cache: Cache.none(),

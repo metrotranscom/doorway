@@ -6,7 +6,7 @@ import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
 
 import { DoorwayDatabaseMigrate } from "./doorway-database-migrate"
-import { DoorwayDockerBuild } from "./doorway-docker-build"
+import { BackendDockerBuild, ImportDockerBuild, PartnersDockerBuild, PublicDockerBuild } from "./doorway-docker-build"
 import { DoorwayECSDeploy } from "./doorway-ecs-deploy"
 
 export class DoorwayBuildPipelineStack extends Stack {
@@ -112,7 +112,7 @@ export class DoorwayBuildPipelineStack extends Stack {
     pipeline.addStage({
       stageName: "Build-Dev",
       actions: [
-        new DoorwayDockerBuild(this, `doorway-backend`, {
+        new BackendDockerBuild(this, `doorway-backend`, {
           buildspec: "../ci/buildspec/build_backend.yml",
           imageName: "backend",
           source: sourceArtifact,
@@ -120,7 +120,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildRole: buildRole,
           environment: "dev2"
         }).action,
-        new DoorwayDockerBuild(this, "doorway-import-listings", {
+        new ImportDockerBuild(this, "doorway-import-listings", {
           buildspec: "../ci/buildspec/build_import_listings.yml",
           imageName: "import-listings",
           source: sourceArtifact,
@@ -128,7 +128,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildRole: buildRole,
           environment: "dev2"
         }).action,
-        new DoorwayDockerBuild(this, `doorway-partners`, {
+        new PartnersDockerBuild(this, `doorway-partners`, {
           buildspec: "../ci/buildspec/build_partners.yml",
           imageName: "partners",
           source: sourceArtifact,
@@ -136,7 +136,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildRole: buildRole,
           environment: "dev2"
         }).action,
-        new DoorwayDockerBuild(this, "doorway-public", {
+        new PublicDockerBuild(this, "doorway-public", {
           buildspec: "../ci/buildspec/build_public.yml",
           imageName: "public",
           source: sourceArtifact,

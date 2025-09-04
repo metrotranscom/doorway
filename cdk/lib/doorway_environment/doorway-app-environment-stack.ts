@@ -51,6 +51,5 @@ export class DoorwayAppEnvironmentStack extends Stack {
 
 
 
-
   }
 }

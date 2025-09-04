@@ -1,5 +1,7 @@
 import { aws_ec2, Duration, Fn } from "aws-cdk-lib";
 import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
+import { AllowedMethods, CachePolicy, Distribution, OriginRequestPolicy, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
+import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
 import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
@@ -47,8 +49,9 @@ export class DoorwayPublicLoadBalancer {
     const dnsZone = HostedZone.fromLookup(scope, `publicDnsZone-${props.environment}`, {
       domainName: "housingbayarea.mtc.ca.gov",
     });
+    const publicDomainName = process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`
     const cert = new Certificate(scope, "PublicCertificate", {
-      domainName: process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`,
+      domainName: publicDomainName,
       validation: CertificateValidation.fromDns(dnsZone),
       subjectAlternativeNames: [process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`]
     })
@@ -101,14 +104,14 @@ export class DoorwayPublicLoadBalancer {
       listener: httpsListener,
       priority: 100,
       action: ListenerAction.forward([this.publicTargetGroup]),
-      conditions: [ListenerCondition.hostHeaders([process.env.PUBLIC_PORTAL_DOMAIN || `public.${props.environment}.housingbayarea.mtc.ca.gov`])
+      conditions: [ListenerCondition.hostHeaders([publicDomainName])
       ]
 
 
     });
     new ARecord(scope, "PublicARecord", {
       zone: dnsZone,
-      recordName: process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`,
+      recordName: publicDomainName,
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
     });
     this.partnersTargetGroup = new ApplicationTargetGroup(scope, "PartnersTargetGroup", {
@@ -140,6 +143,26 @@ export class DoorwayPublicLoadBalancer {
       recordName: process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`,
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
     });
+    const cloudfrontDist = new Distribution(scope, `CloudFront-${props.environment}`, {
+      domainNames: [publicDomainName, `*.${publicDomainName}`],
+
+      defaultBehavior: {
+        origin: new LoadBalancerV2Origin(this.loadBalancer),
+        cachePolicy: CachePolicy.CACHING_DISABLED, // Disable caching
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: AllowedMethods.ALLOW_ALL,
+        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
+      },
+      additionalBehaviors: {
+        "/images/*": {
+          origin: new LoadBalancerV2Origin(this.loadBalancer),
+          allowedMethods: AllowedMethods.ALLOW_ALL,
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          viewerProtocolPolicy: ViewerProtocolPolicy.ALLOW_ALL,
+          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
+        }
+      }
+    })
 
 
   }

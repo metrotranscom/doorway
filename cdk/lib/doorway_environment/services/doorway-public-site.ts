@@ -17,11 +17,15 @@ export class DoorwayPublicSite {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
 
-    const publicUploads = Bucket.fromBucketArn(
+    const publicUploads = Bucket.fromBucketName(
       scope,
       `publicUploadsBucket-${id}`,
-      Fn.importValue(`doorway-public-uploads-${props.environment}`),
+
+      `doorway-public-uploads-${props.environment}`,
     )
+
+
+
     const secureUploads = Bucket.fromBucketArn(
       scope,
       `secureUploadsBucket-${id}`,

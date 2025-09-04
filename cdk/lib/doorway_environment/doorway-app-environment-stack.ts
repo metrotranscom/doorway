@@ -9,6 +9,7 @@ import { DoorwayPublicLoadBalancer } from "./doorway-public-load-balancer"
 import { DoorwayBackendService } from "./services/doorway-backend-service"
 import { DoorwayPartnersSite } from "./services/doorway-partners-site"
 import { DoorwayPublicSite } from "./services/doorway-public-site"
+import { DoorwayS3Stack } from "./services/doorway-s3-stack"
 
 export class DoorwayAppEnvironmentStack extends Stack {
   constructor(scope: Construct, id: string) {
@@ -39,6 +40,8 @@ export class DoorwayAppEnvironmentStack extends Stack {
       partnersServiceName: `doorway-partners-${environment}`,
       clusterName: Fn.importValue(`doorway-ecs-cluster-${environment}`),
     }
+    new DoorwayS3Stack(this, `doorway-s3-${environment}`, props)
+
 
     const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, props)
     const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, props);

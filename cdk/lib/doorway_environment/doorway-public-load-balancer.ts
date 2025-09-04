@@ -99,15 +99,12 @@ export class DoorwayPublicLoadBalancer {
         unhealthyThresholdCount: 2,
       },
     })
-
     new ApplicationListenerRule(scope, "PublicDomainRule", {
       listener: httpsListener,
       priority: 100,
       action: ListenerAction.forward([this.publicTargetGroup]),
       conditions: [ListenerCondition.hostHeaders([publicDomainName])
       ]
-
-
     });
     new ARecord(scope, "PublicARecord", {
       zone: dnsZone,

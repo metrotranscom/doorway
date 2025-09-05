@@ -1,4 +1,4 @@
-import { ISecurityGroup } from "aws-cdk-lib/aws-ec2"
+import { ISecurityGroup, IVpc } from "aws-cdk-lib/aws-ec2"
 import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
 import { Role } from "aws-cdk-lib/aws-iam"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
@@ -12,6 +12,8 @@ export interface DoorwayProps {
   backendServiceName: string
   publicServiceName: string
   partnersServiceName: string
+  cfCertArn: string
+  vpc: IVpc
 }
 
 export interface DoorwayServiceProps extends DoorwayProps {
@@ -32,6 +34,9 @@ export interface DoorwayServiceProps extends DoorwayProps {
   securityGroup: ISecurityGroup
   serviceName: string
   clusterName: string
+  apiNamespace: string
+
+
 
 }
 export interface DoorwayLoadBalancerProps extends DoorwayProps {

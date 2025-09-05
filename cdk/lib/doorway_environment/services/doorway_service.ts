@@ -4,7 +4,6 @@ import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2"
 import { AppProtocol, Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, ServiceConnectProps, TaskDefinition } from "aws-cdk-lib/aws-ecs"
 //import * as ecs from "aws-cdk-lib/aws-ecs";
 import { CompositePrincipal, ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
-import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
 import { StringParameter } from "aws-cdk-lib/aws-ssm"
 import { Construct } from "constructs"
 
@@ -31,13 +30,7 @@ export class DoorwayService {
     props.executionRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName("AmazonEC2ContainerRegistryReadOnly"),
     )
-    // Get Network setup
-    const vpcId = cdk.Fn.importValue(`doorway-vpc-id-${props.environment}`)
-    const azs = cdk.Fn.importValue(`doorway-azs-${props.environment}`).split(",")
-    const vpc = cdk.aws_ec2.Vpc.fromVpcAttributes(scope, `vpc-${id}`, {
-      vpcId: vpcId,
-      availabilityZones: azs,
-    })
+
     // Get the subnets
     const appSubnetIds: string[] = []
     appSubnetIds.push(cdk.Fn.importValue(`doorway-app-subnet-1-${props.environment}`))
@@ -83,24 +76,10 @@ export class DoorwayService {
     //Setting up ServiceConnect which will allow the partenr and public services
     // to connect to the internal api service directly through ECS
     // without a load balancer.
-    let serviceConnectProps: ServiceConnectProps = {
-      namespace: `doorway-${props.environment}-internal-api`,
-      logDriver: LogDrivers.awsLogs({
-        logGroup: props.serviceConnectLogGroup,
-        streamPrefix: `${id}-service-connect`,
-      }),
-    }
+    let serviceConnectProps: ServiceConnectProps = {}
     if (props.serviceConnectServer) {
 
-      const namespace = new PrivateDnsNamespace(
-        scope,
-        `doorway-${props.environment}-internal-api-namespace`,
-        {
-          vpc: vpc,
-          name: `doorway-${props.environment}-internal-api`,
-          description: `Private DNS namespace for the Doorway ${props.environment} internal API`,
-        },
-      )
+
       // The private CA is used for TLS encryption of ServiceConnect traffic.
       const privateCAArn = StringParameter.fromStringParameterAttributes(scope, "privateCAArn", {
         parameterName: `/doorway/privateCertAuthority`,
@@ -134,7 +113,7 @@ export class DoorwayService {
           logGroup: props.logGroup,
           streamPrefix: `${id}-service-connect`,
         }),
-        namespace: namespace.namespaceName,
+        namespace: props.apiNamespace,
 
         services: [{
           tls: {
@@ -148,6 +127,14 @@ export class DoorwayService {
 
         }],
       }
+    } else {
+      serviceConnectProps = {
+        namespace: `doorway-${props.environment}-internal-api`,
+        logDriver: LogDrivers.awsLogs({
+          logGroup: props.serviceConnectLogGroup,
+          streamPrefix: `${id}-service-connect`,
+        }),
+      }
     }
 
     this.service = new FargateService(scope, `${id}-fargate-service`, {
@@ -159,7 +146,7 @@ export class DoorwayService {
       },
       cluster: Cluster.fromClusterAttributes(scope, `ecsCluster-${id}`, {
         clusterName: Fn.importValue(`doorway-ecs-cluster-${props.environment}`),
-        vpc: vpc,
+        vpc: props.vpc,
       }),
       vpcSubnets: {
         subnets: appsubnets,

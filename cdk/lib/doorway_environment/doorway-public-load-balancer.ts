@@ -50,11 +50,18 @@ export class DoorwayPublicLoadBalancer {
       domainName: "housingbayarea.mtc.ca.gov",
     });
     const publicDomainName = process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`
+    const partnersDomainName = process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`
     const cert = new Certificate(scope, "PublicCertificate", {
       domainName: publicDomainName,
       validation: CertificateValidation.fromDns(dnsZone),
-      subjectAlternativeNames: [process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`]
+      subjectAlternativeNames: [partnersDomainName]
     })
+
+
+
+
+    const cfCert = Certificate.fromCertificateArn(scope, "CloudFrontCertificate", props.cfCertArn);
+
 
     const httpListener = this.loadBalancer.addListener("HttpListener", {
       port: 80,
@@ -130,19 +137,19 @@ export class DoorwayPublicLoadBalancer {
       listener: httpsListener,
       priority: 200,
       action: ListenerAction.forward([this.partnersTargetGroup]),
-      conditions: [ListenerCondition.hostHeaders([process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`])
+      conditions: [ListenerCondition.hostHeaders([partnersDomainName])
       ]
 
 
     });
     new ARecord(scope, "PartnersARecord", {
       zone: dnsZone,
-      recordName: process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`,
+      recordName: partnersDomainName,
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
     });
     const cloudfrontDist = new Distribution(scope, `CloudFront-${props.environment}`, {
-      domainNames: [publicDomainName, `*.${publicDomainName}`],
-      certificate: cert,
+      domainNames: [publicDomainName, partnersDomainName],
+      certificate: cfCert,
       minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
       enableIpv6: true,
 

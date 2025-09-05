@@ -95,7 +95,8 @@ export class DoorwayPublicSite {
       container: `doorway/public:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
       securityGroup: privateSG,
       serviceName: props.publicServiceName,
-      clusterName: props.clusterName
+      clusterName: props.clusterName,
+      apiNamespace: `doorway-${props.environment}-internal-api-namespace`,
     }).service
 
   }

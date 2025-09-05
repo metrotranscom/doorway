@@ -5,6 +5,7 @@ import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
+
 import { DoorwayProps } from "../doorway-props"
 import { DoorwayService } from "./doorway_service"
 
@@ -86,7 +87,8 @@ export class DoorwayPartnersSite {
       container: `doorway/partners:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
       securityGroup: privateSG,
       serviceName: props.partnersServiceName,
-      clusterName: props.clusterName
+      clusterName: props.clusterName,
+      apiNamespace: `doorway-${props.environment}-internal-api-namespace`,
     }).service
 
   }

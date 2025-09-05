@@ -30,7 +30,6 @@ import { calculateSkip, calculateTake } from '../utilities/pagination-helpers';
 import { AssetTransferDTO } from '../dtos/script-runner/asset-transfer.dto';
 import { AssetService } from './asset.service';
 import { OrderByEnum } from '../enums/shared/order-by-enum';
-import { GetResult } from '@prisma/client/runtime/library';
 
 /**
   this is the service for running scripts

@@ -86,6 +86,10 @@ export class DoorwayDatabaseMigrate {
       ],
     }))
     project.addToRolePolicy(new PolicyStatement({
+      actions: ["iam:PassRole"],
+      resources: [`arn:aws:iam::${Aws.ACCOUNT_ID}:role/*doorway*internal-api-sc-role*`]
+    }))
+    project.addToRolePolicy(new PolicyStatement({
       actions: [
         "cloudformation:*",
         "ec2:*",

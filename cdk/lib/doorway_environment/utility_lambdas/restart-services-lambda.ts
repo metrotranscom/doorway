@@ -23,10 +23,12 @@ export class RestartServicesLambda {
     let secretArns: string[] = [];
 
     for (const [key, secret] of Object.entries(props.secrets)) {
-      console.log("Processing secret key:", key);
-      console.log("Secret ARN:", secret.arn);
-      console.log("Secret object:", JSON.stringify(secret, null, 2));
-      secretArns.push(secret.arn);
+      // Remove field names from secret ARN (everything after the 6-character suffix)
+      const baseArn = secret.arn.replace(/(-[A-Za-z0-9]{6}):.*$/, '$1');
+      if (!secretArns.includes(baseArn)) {
+        secretArns.push(baseArn);
+      }
+
     }
     console.log("All secret ARNs:", secretArns);
 

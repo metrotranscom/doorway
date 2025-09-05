@@ -1118,7 +1118,9 @@ export class ScriptRunnerService {
     await this.markScriptAsRunStart(
       `data transfer additional application data ${
         dataTransferDTO.jurisdiction
-      } page ${dataTransferDTO.page || 1}`,
+      } page ${dataTransferDTO.page || 1} of size ${
+        dataTransferDTO.pageSize || 5_000
+      }`,
       requestingUser,
     );
 
@@ -1154,9 +1156,6 @@ export class ScriptRunnerService {
       );
     }
 
-    const skip = calculateSkip(25, dataTransferDTO.page || 1);
-    const take = calculateTake(25);
-
     const listings = await client.listings.findMany({
       select: {
         id: true,
@@ -1167,6 +1166,12 @@ export class ScriptRunnerService {
     });
 
     console.log('listings', listings.length);
+
+    const skip = calculateSkip(
+      dataTransferDTO.pageSize || 5_000,
+      dataTransferDTO.page || 1,
+    );
+    const take = calculateTake(dataTransferDTO.pageSize || 5_000);
 
     // Retrieve all applications from the incoming DB that have a user attached and
     // connected to one of the jurisdiction's listings
@@ -1439,7 +1444,9 @@ export class ScriptRunnerService {
     await this.markScriptAsComplete(
       `data transfer additional application data ${
         dataTransferDTO.jurisdiction
-      } page ${dataTransferDTO.page || 1}`,
+      } page ${dataTransferDTO.page || 1} of size ${
+        dataTransferDTO.pageSize || 5_000
+      }`,
       requestingUser,
     );
 

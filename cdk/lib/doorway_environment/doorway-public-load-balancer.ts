@@ -5,7 +5,7 @@ import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
 import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
-import { LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
+import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
@@ -113,11 +113,7 @@ export class DoorwayPublicLoadBalancer {
       conditions: [ListenerCondition.hostHeaders([publicDomainName])
       ]
     });
-    new ARecord(scope, "PublicARecord", {
-      zone: dnsZone,
-      recordName: publicDomainName,
-      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
-    });
+
     this.partnersTargetGroup = new ApplicationTargetGroup(scope, "PartnersTargetGroup", {
       port: Number(process.env.PUBLIC_PORTAL_PORT) || 3000,
       protocol: ApplicationProtocol.HTTP,
@@ -142,11 +138,7 @@ export class DoorwayPublicLoadBalancer {
 
 
     });
-    new ARecord(scope, "PartnersARecord", {
-      zone: dnsZone,
-      recordName: partnersDomainName,
-      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
-    });
+
     const cloudfrontDist = new Distribution(scope, `CloudFront-${props.environment}`, {
       domainNames: [publicDomainName, partnersDomainName],
       certificate: cfCert,
@@ -184,7 +176,16 @@ export class DoorwayPublicLoadBalancer {
         }
       }
     })
-
+    new ARecord(scope, "PartnersARecord", {
+      zone: dnsZone,
+      recordName: partnersDomainName,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDist)),
+    });
+    new ARecord(scope, "PublicARecord", {
+      zone: dnsZone,
+      recordName: publicDomainName,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDist)),
+    });
 
   }
 }

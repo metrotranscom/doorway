@@ -40,10 +40,11 @@ export class DoorwayAppEnvironmentStack extends Stack {
       partnersServiceName: `doorway-partners-${environment}`,
       clusterName: Fn.importValue(`doorway-ecs-cluster-${environment}`),
     }
-    new DoorwayS3Stack(this, `doorway-s3-${environment}`, props)
+    const s3stack = new DoorwayS3Stack(this, `doorway-s3-${environment}`, props)
 
 
     const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, props)
+    api.service.node.addDependency(s3stack)
     const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, props);
     const publicSite = new DoorwayPublicSite(this, `doorway-public-${environment}`, props)
     publicSite.service.node.addDependency(lb.loadBalancer)

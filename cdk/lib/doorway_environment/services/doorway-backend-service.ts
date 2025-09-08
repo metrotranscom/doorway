@@ -148,11 +148,11 @@ export class DoorwayBackendService {
 
     const namespace = new PrivateDnsNamespace(
       scope,
-      `doorway-${props.environment}-internal-api-namespace`,
+      `doorway-${props.environment}-namespace`,
       {
         vpc: props.vpc,
-        name: `doorway-${props.environment}-internal-api`,
-        description: `Private DNS namespace for the Doorway ${props.environment} internal API`,
+        name: `doorway-${props.environment}`,
+        description: `Private DNS namespace for Doorway ${props.environment}`,
       },
     )
     this.service = new DoorwayService(scope, `doorway-api-service-${props.environment}`, {

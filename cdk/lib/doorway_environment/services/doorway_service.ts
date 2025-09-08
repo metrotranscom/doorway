@@ -138,6 +138,7 @@ export class DoorwayService {
     }
 
     this.service = new FargateService(scope, `${id}-fargate-service`, {
+
       taskDefinition: task,
       serviceName: props.serviceName,
       circuitBreaker: {
@@ -164,6 +165,14 @@ export class DoorwayService {
       })
     }
     props.logGroup.grantWrite(props.executionRole)
+    this.service.autoScaleTaskCount({
+      minCapacity: 3,
+      maxCapacity: 10,
+
+    }).scaleOnCpuUtilization("CpuScaling", {
+      targetUtilizationPercent: 50,
+    })
+
 
   }
 

@@ -177,5 +177,6 @@ export class DoorwayBackendService {
 
     }).service
     this.service.node.addDependency(namespace)
+
   }
 }

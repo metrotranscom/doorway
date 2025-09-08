@@ -165,6 +165,7 @@ export class DoorwayPublicLoadBalancer {
         cachePolicy: CachePolicy.CACHING_DISABLED, // Disable caching
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_ALL,
+        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
 
       },
       additionalBehaviors: {
@@ -173,7 +174,7 @@ export class DoorwayPublicLoadBalancer {
           allowedMethods: AllowedMethods.ALLOW_ALL,
           cachePolicy: CachePolicy.CACHING_OPTIMIZED,
           viewerProtocolPolicy: ViewerProtocolPolicy.ALLOW_ALL,
-          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
+
         }
       }
     })

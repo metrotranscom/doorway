@@ -138,6 +138,7 @@ export class DoorwayPublicLoadBalancer {
 
 
     });
+    const cfOrigin = new LoadBalancerV2Origin(this.loadBalancer)
 
     const cloudfrontDist = new Distribution(scope, `CloudFront-${props.environment}`, {
       domainNames: [publicDomainName, partnersDomainName],
@@ -150,7 +151,7 @@ export class DoorwayPublicLoadBalancer {
       logIncludesCookies: true,
       logFilePrefix: "cloudfront",
 
-      comment: `Doorway for ${props.environment}`,
+      comment: `Doorway Cloudfront for ${props.environment}`,
 
       priceClass: PriceClass.PRICE_CLASS_100,
       geoRestriction: {
@@ -160,15 +161,15 @@ export class DoorwayPublicLoadBalancer {
 
 
       defaultBehavior: {
-        origin: new LoadBalancerV2Origin(this.loadBalancer),
+        origin: cfOrigin,
         cachePolicy: CachePolicy.CACHING_DISABLED, // Disable caching
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_ALL,
-        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
+
       },
       additionalBehaviors: {
         "/images/*": {
-          origin: new LoadBalancerV2Origin(this.loadBalancer),
+          origin: cfOrigin,
           allowedMethods: AllowedMethods.ALLOW_ALL,
           cachePolicy: CachePolicy.CACHING_OPTIMIZED,
           viewerProtocolPolicy: ViewerProtocolPolicy.ALLOW_ALL,

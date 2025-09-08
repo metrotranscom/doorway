@@ -110,7 +110,7 @@ export class DoorwayService {
       props.logGroup.grantWrite(scRole)
       serviceConnectProps = {
         logDriver: LogDrivers.awsLogs({
-          logGroup: props.logGroup,
+          logGroup: props.serviceConnectLogGroup,
           streamPrefix: `${id}-service-connect`,
         }),
         namespace: props.apiNamespace,

@@ -139,6 +139,24 @@ export class DoorwayPublicLoadBalancer {
 
     });
     const cfOrigin = new LoadBalancerV2Origin(this.loadBalancer)
+    const cachePolicy = new CachePolicy(scope, `CachePolicy-images-${props.environment}`, {
+      cachePolicyName: `CachePolicy-images-${props.environment}`,
+      enableAcceptEncodingGzip: false,
+      enableAcceptEncodingBrotli: false,
+      minTtl: Duration.seconds(60),
+      maxTtl: Duration.seconds(31536000),
+      defaultTtl: Duration.seconds(86400),
+      headerBehavior: {
+        behavior: "whitelist",
+        headers: ["Host"],
+      },
+      queryStringBehavior: {
+        behavior: "none",
+      },
+      cookieBehavior: {
+        behavior: "none",
+      },
+    });
 
     const cloudfrontDist = new Distribution(scope, `CloudFront-${props.environment}`, {
       domainNames: [publicDomainName, partnersDomainName],
@@ -172,7 +190,7 @@ export class DoorwayPublicLoadBalancer {
         "/images/*": {
           origin: cfOrigin,
           allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          cachePolicy: cachePolicy,
           viewerProtocolPolicy: ViewerProtocolPolicy.ALLOW_ALL,
 
         }

@@ -5,8 +5,8 @@ import { Construct } from "constructs"
 import dotenv from "dotenv"
 import path from "path"
 
+import { DoorwayLoadBalancers } from "./doorway-load-balancers"
 import { DoorwayProps } from "./doorway-props"
-import { DoorwayPublicLoadBalancer } from "./doorway-public-load-balancer"
 import { DoorwayBackendService } from "./services/doorway-backend-service"
 import { DoorwayPartnersSite } from "./services/doorway-partners-site"
 import { DoorwayPublicSite } from "./services/doorway-public-site"
@@ -66,7 +66,7 @@ export class DoorwayAppEnvironmentStack extends Stack {
     const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, dwProps)
     api.service.node.addDependency(s3stack)
 
-    const lb = new DoorwayPublicLoadBalancer(this, `doorway-public-lb-${environment}`, dwProps);
+    const lb = new DoorwayLoadBalancers(this, `doorway-lbs-${environment}`, dwProps);
     lb.loadBalancer.node.addDependency(s3stack)
 
     const publicSite = new DoorwayPublicSite(this, `doorway-public-${environment}`, dwProps)
@@ -78,8 +78,7 @@ export class DoorwayAppEnvironmentStack extends Stack {
     partnersSite.service.node.addDependency(lb.loadBalancer)
     partnersSite.service.node.addDependency(api.service)
     lb.partnersTargetGroup.addTarget(partnersSite.service)
-
-
+    lb.privateTargetGroup.addTarget(api.service)
 
   }
 }

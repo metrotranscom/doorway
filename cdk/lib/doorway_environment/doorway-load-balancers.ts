@@ -5,16 +5,18 @@ import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
 import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
-import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
+import { CloudFrontTarget, LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
 import { DoorwayProps } from "./doorway-props";
 
-export class DoorwayPublicLoadBalancer {
+export class DoorwayLoadBalancers {
   public loadBalancer: ApplicationLoadBalancer
+  public privateLoadBalancer: ApplicationLoadBalancer
   public publicTargetGroup: ApplicationTargetGroup;
   public partnersTargetGroup: ApplicationTargetGroup;
+  public privateTargetGroup: ApplicationTargetGroup;
   constructor(scope: Construct, id: string, props: DoorwayProps) {
 
     // Get Network setup
@@ -51,6 +53,7 @@ export class DoorwayPublicLoadBalancer {
     });
     const publicDomainName = process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`
     const partnersDomainName = process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`
+    const backendDomainName = process.env.BACKEND_API_DOMAIN || `backend.${props.environment}.housingbayarea.int`
     const cert = new Certificate(scope, "PublicCertificate", {
       domainName: publicDomainName,
       validation: CertificateValidation.fromDns(dnsZone),
@@ -206,6 +209,67 @@ export class DoorwayPublicLoadBalancer {
       recordName: publicDomainName,
       target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDist)),
     });
+
+    const appSGId = Fn.importValue(`doorway-app-sg-${props.environment}`)
+
+    const appSg = aws_ec2.SecurityGroup.fromSecurityGroupId(scope, `doorway-app-sg-${props.environment}`, appSGId)
+    const appSubnetIds: string[] = []
+    appSubnetIds.push(Fn.importValue(`doorway-public-subnet-1-${props.environment}`))
+    appSubnetIds.push(Fn.importValue(`doorway-public-subnet-2-${props.environment}`))
+    const appsubnets: ISubnet[] = []
+    appSubnetIds.forEach((id) => {
+      appsubnets.push(Subnet.fromSubnetId(scope, id, id))
+    })
+
+    this.privateLoadBalancer = new ApplicationLoadBalancer(scope, `private-${id}`, {
+      vpc: vpc,
+      internetFacing: false,
+      loadBalancerName: `private-${id}`,
+      securityGroup: appSg,
+      vpcSubnets: {
+        subnets: appsubnets,
+      },
+
+    });
+    const httpListenerPrivate = this.privateLoadBalancer.addListener("PrivateListener", {
+
+      port: 80,
+      open: true,
+      protocol: ApplicationProtocol.HTTP,
+
+    })
+    this.privateTargetGroup = new ApplicationTargetGroup(scope, "PrivateTargetGroup", {
+      port: Number(process.env.BACKEND_API_PORT) || 3100,
+      protocol: ApplicationProtocol.HTTP,
+      vpc: vpc,
+      targetGroupName: `private-tg-${props.environment}`,
+      targetType: TargetType.IP,
+      healthCheck: {
+        enabled: true,
+        healthyThresholdCount: 2,
+        interval: Duration.seconds(10),
+        path: "/",
+        timeout: Duration.seconds(5),
+        unhealthyThresholdCount: 2,
+      },
+    })
+    httpListenerPrivate.addAction("DefaultAction", {
+      action: ListenerAction.forward([this.privateTargetGroup]),
+    })
+    const privateDnsZoneName = StringParameter.fromStringParameterName(scope, `privateDnsZoneId-${props.environment}`, `/doorway/private-hosted-zone`).stringValue;
+
+
+    const privateDnsZone = HostedZone.fromHostedZoneAttributes(scope, `privateDnsZone-${props.environment}`, {
+      hostedZoneId: privateDnsZoneName,
+      zoneName: "housingbayarea.int",
+    });
+    new ARecord(scope, "PrivateARecord", {
+      zone: privateDnsZone,
+      recordName: backendDomainName,
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.privateLoadBalancer)),
+    });
+
+
 
   }
 }

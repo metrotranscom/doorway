@@ -1,5 +1,6 @@
 import { aws_ec2, Duration, Fn } from "aws-cdk-lib";
-import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
+import { CertificateAuthority } from "aws-cdk-lib/aws-acmpca";
+import { Certificate, CertificateValidation, PrivateCertificate } from "aws-cdk-lib/aws-certificatemanager";
 import { AllowedMethods, CachePolicy, Distribution, OriginRequestPolicy, PriceClass, SecurityPolicyProtocol, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
 import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
@@ -210,7 +211,14 @@ export class DoorwayLoadBalancers {
     appSubnetIds.forEach((id) => {
       appsubnets.push(Subnet.fromSubnetId(scope, id, id))
     })
-
+    const privateCAArn = StringParameter.fromStringParameterAttributes(scope, "privateCAArn", {
+      parameterName: `/doorway/privateCertAuthority`,
+    }).stringValue
+    const privateCA = CertificateAuthority.fromCertificateAuthorityArn(scope, "privateCA", privateCAArn);
+    const privateCert = new PrivateCertificate(scope, "PrivateCertificate", {
+      domainName: backendDomainName,
+      certificateAuthority: privateCA,
+    })
     this.privateLoadBalancer = new ApplicationLoadBalancer(scope, `private-${id}`, {
       vpc: vpc,
       internetFacing: false,
@@ -221,11 +229,12 @@ export class DoorwayLoadBalancers {
       },
 
     });
-    const httpListenerPrivate = this.privateLoadBalancer.addListener("PrivateListener", {
+    const httpsListenerPrivate = this.privateLoadBalancer.addListener("PrivateListener", {
 
-      port: 80,
+      port: 443,
       open: true,
-      protocol: ApplicationProtocol.HTTP,
+      protocol: ApplicationProtocol.HTTPS,
+      certificates: [privateCert]
 
     })
     this.privateTargetGroup = new ApplicationTargetGroup(scope, "PrivateTargetGroup", {
@@ -244,7 +253,7 @@ export class DoorwayLoadBalancers {
         unhealthyThresholdCount: 2,
       },
     })
-    httpListenerPrivate.addAction("DefaultAction", {
+    httpsListenerPrivate.addAction("DefaultAction", {
       action: ListenerAction.forward([this.privateTargetGroup]),
     })
     const privateDnsZoneName = StringParameter.fromStringParameterName(scope, `privateDnsZoneId-${props.environment}`, `/doorway/private-hosted-zone`).stringValue;

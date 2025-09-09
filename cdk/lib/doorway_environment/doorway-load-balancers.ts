@@ -244,6 +244,9 @@ export class DoorwayLoadBalancers {
         unhealthyThresholdCount: 2,
       },
     })
+    httpListenerPrivate.addTargetGroups("PrivateTargetGroup", {
+      targetGroups: [this.privateTargetGroup],
+    });
 
     const privateDnsZoneName = StringParameter.fromStringParameterName(scope, `privateDnsZoneId-${props.environment}`, `/doorway/private-hosted-zone`).stringValue;
 

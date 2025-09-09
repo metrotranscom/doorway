@@ -42,7 +42,6 @@ export class DoorwayLoadBalancers {
       loadBalancerName: id,
       securityGroup: sg,
       vpcSubnets: {
-
         subnets: publicsubnets,
       },
 
@@ -60,11 +59,7 @@ export class DoorwayLoadBalancers {
       subjectAlternativeNames: [partnersDomainName]
     })
 
-
-
-
     const cfCert = Certificate.fromCertificateArn(scope, "CloudFrontCertificate", props.cfCertArn);
-
 
     const httpListener = this.loadBalancer.addListener("HttpListener", {
       port: 80,
@@ -138,8 +133,6 @@ export class DoorwayLoadBalancers {
       action: ListenerAction.forward([this.partnersTargetGroup]),
       conditions: [ListenerCondition.hostHeaders([partnersDomainName])
       ]
-
-
     });
     const cfOrigin = new LoadBalancerV2Origin(this.loadBalancer)
     const cachePolicy = new CachePolicy(scope, `CachePolicy-images-${props.environment}`, {
@@ -242,6 +235,7 @@ export class DoorwayLoadBalancers {
       port: Number(process.env.BACKEND_API_PORT) || 3100,
       protocol: ApplicationProtocol.HTTP,
       vpc: vpc,
+
       targetGroupName: `private-tg-${props.environment}`,
       targetType: TargetType.IP,
       healthCheck: {

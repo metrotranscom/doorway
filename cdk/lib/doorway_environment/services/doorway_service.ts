@@ -1,10 +1,9 @@
 import * as cdk from "aws-cdk-lib"
 import { Fn } from "aws-cdk-lib"
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2"
-import { AppProtocol, Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, ServiceConnectProps, TaskDefinition } from "aws-cdk-lib/aws-ecs"
+import { AppProtocol, Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, TaskDefinition } from "aws-cdk-lib/aws-ecs"
 //import * as ecs from "aws-cdk-lib/aws-ecs";
-import { CompositePrincipal, ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
-import { StringParameter } from "aws-cdk-lib/aws-ssm"
+import { ManagedPolicy } from "aws-cdk-lib/aws-iam"
 import { Construct } from "constructs"
 
 import { DoorwayServiceProps } from "../doorway-props"
@@ -73,69 +72,67 @@ export class DoorwayService {
         },
       ],
     })
-    //Setting up ServiceConnect which will allow the partenr and public services
-    // to connect to the internal api service directly through ECS
-    // without a load balancer.
-    let serviceConnectProps: ServiceConnectProps = {}
-    if (props.serviceConnectServer) {
+    // //Setting up ServiceConnect which will allow the partenr and public services
+    // // to connect to the internal api service directly through ECS
+    // // without a load balancer.
+    // let serviceConnectProps: ServiceConnectProps = {}
+    // if (props.serviceConnectServer) {
 
 
-      // The private CA is used for TLS encryption of ServiceConnect traffic.
-      const privateCAArn = StringParameter.fromStringParameterAttributes(scope, "privateCAArn", {
-        parameterName: `/doorway/privateCertAuthority`,
-      }).stringValue
-      const scRole = new Role(scope, `doorway-${props.environment}-internal-api-sc-role`, {
-        assumedBy: new CompositePrincipal(
-          new ServicePrincipal("ecs.amazonaws.com"),
-          new ServicePrincipal("ecs-tasks.amazonaws.com"),
-          new ServicePrincipal("ecs.application-autoscaling.amazonaws.com")
-        ),
-        managedPolicies: [
-          ManagedPolicy.fromAwsManagedPolicyName(
-            "service-role/AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity",
-          ),
-        ],
-        inlinePolicies: {
-          pcaAuth: new PolicyDocument({
-            statements: [
-              new PolicyStatement({
-                actions: ["acm-pca:*"],
-                resources: [privateCAArn],
-              }),
-            ],
-          }),
-        },
-        description: "Service Connect TLS role for ECS service communication",
-      })
-      props.logGroup.grantWrite(scRole)
-      serviceConnectProps = {
-        logDriver: LogDrivers.awsLogs({
-          logGroup: props.serviceConnectLogGroup,
-          streamPrefix: `${id}-service-connect`,
-        }),
-        namespace: props.apiNamespace,
 
-        services: [{
-          tls: {
-            role: scRole,
-            awsPcaAuthorityArn: privateCAArn,
-          },
-          portMappingName: `${id}-port-mapping`,
-          dnsName: props.domainName,
-          discoveryName: props.serviceName,
-          port: props.port,
 
-        }],
-      }
-    } else {
-      serviceConnectProps = {
-        namespace: `doorway-${props.environment}`,
-        logDriver: LogDrivers.awsLogs({
-          logGroup: props.serviceConnectLogGroup,
-          streamPrefix: `${id}-service-connect`,
-        }),
-      }
-    }
+    //   const scRole = new Role(scope, `doorway-${props.environment}-internal-api-sc-role`, {
+    //     assumedBy: new CompositePrincipal(
+    //       new ServicePrincipal("ecs.amazonaws.com"),
+    //       new ServicePrincipal("ecs-tasks.amazonaws.com"),
+    //       new ServicePrincipal("ecs.application-autoscaling.amazonaws.com")
+    //     ),
+    //     managedPolicies: [
+    //       ManagedPolicy.fromAwsManagedPolicyName(
+    //         "service-role/AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity",
+    //       ),
+    //     ],
+    //     inlinePolicies: {
+    //       pcaAuth: new PolicyDocument({
+    //         statements: [
+    //           new PolicyStatement({
+    //             actions: ["acm-pca:*"],
+    //             resources: [privateCAArn],
+    //           }),
+    //         ],
+    //       }),
+    //     },
+    //     description: "Service Connect TLS role for ECS service communication",
+    //   })
+    //   props.logGroup.grantWrite(scRole)
+    //   serviceConnectProps = {
+    //     logDriver: LogDrivers.awsLogs({
+    //       logGroup: props.serviceConnectLogGroup,
+    //       streamPrefix: `${id}-service-connect`,
+    //     }),
+    //     namespace: props.apiNamespace,
+
+    //     services: [{
+    //       tls: {
+    //         role: scRole,
+    //         awsPcaAuthorityArn: privateCAArn,
+    //       },
+    //       portMappingName: `${id}-port-mapping`,
+    //       dnsName: props.domainName,
+    //       discoveryName: props.serviceName,
+    //       port: props.port,
+
+    //     }],
+    //   }
+    // } else {
+    //   serviceConnectProps = {
+    //     namespace: `doorway-${props.environment}`,
+    //     logDriver: LogDrivers.awsLogs({
+    //       logGroup: props.serviceConnectLogGroup,
+    //       streamPrefix: `${id}-service-connect`,
+    //     }),
+    //   }
+    // }
 
     this.service = new FargateService(scope, `${id}-fargate-service`, {
 
@@ -154,7 +151,7 @@ export class DoorwayService {
       },
       securityGroups: [props.securityGroup],
       desiredCount: props.instances,
-      serviceConnectConfiguration: serviceConnectProps,
+
 
     })
     if (Object.keys(props.secrets).length > 0) {

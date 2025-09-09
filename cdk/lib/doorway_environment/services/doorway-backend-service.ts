@@ -4,7 +4,6 @@ import { FargateService, Secret } from "aws-cdk-lib/aws-ecs"
 import { PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Bucket } from "aws-cdk-lib/aws-s3"
 import * as secret from "aws-cdk-lib/aws-secretsmanager"
-import { PrivateDnsNamespace } from "aws-cdk-lib/aws-servicediscovery"
 import { EmailIdentity } from "aws-cdk-lib/aws-ses"
 import { Construct } from "constructs"
 
@@ -146,15 +145,7 @@ export class DoorwayBackendService {
     }), "Allow internal traffic from web app servers")
     executionRole.addToPolicy(policy)
 
-    const namespace = new PrivateDnsNamespace(
-      scope,
-      `doorway-${props.environment}-namespace`,
-      {
-        vpc: props.vpc,
-        name: `doorway-${props.environment}`,
-        description: `Private DNS namespace for Doorway ${props.environment}`,
-      },
-    )
+
     this.service = new DoorwayService(scope, `doorway-api-service-${props.environment}`, {
       ...props,
       memory: Number(process.env.BACKEND_MEMORY || 4096),
@@ -173,10 +164,10 @@ export class DoorwayBackendService {
       securityGroup: privateSG,
       serviceName: props.backendServiceName,
       clusterName: props.clusterName,
-      apiNamespace: namespace.namespaceName
+
 
     }).service
-    this.service.node.addDependency(namespace)
+
 
   }
 }

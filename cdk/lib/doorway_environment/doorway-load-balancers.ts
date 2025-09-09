@@ -92,9 +92,6 @@ export class DoorwayLoadBalancers {
       vpc: vpc,
       targetGroupName: `public-tg-${props.environment}`,
       targetType: TargetType.IP,
-
-
-
       healthCheck: {
         enabled: true,
         healthyThresholdCount: 2,

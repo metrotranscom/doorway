@@ -34,10 +34,6 @@ export interface DoorwayServiceProps extends DoorwayProps {
   securityGroup: ISecurityGroup
   serviceName: string
   clusterName: string
-
-
-
-
 }
 export interface DoorwayLoadBalancerProps extends DoorwayProps {
   publicService: FargateService,

@@ -2,12 +2,11 @@ import * as cdk from "aws-cdk-lib"
 import { Fn } from "aws-cdk-lib"
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2"
 import { AppProtocol, Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, TaskDefinition } from "aws-cdk-lib/aws-ecs"
+import { DoorwayServiceProps } from "../doorway-props"
+import { RestartServicesLambda } from "../utility_lambdas/restart-services-lambda"
 //import * as ecs from "aws-cdk-lib/aws-ecs";
 import { ManagedPolicy } from "aws-cdk-lib/aws-iam"
 import { Construct } from "constructs"
-
-import { DoorwayServiceProps } from "../doorway-props"
-import { RestartServicesLambda } from "../utility_lambdas/restart-services-lambda"
 
 export class DoorwayService {
   public service: FargateService

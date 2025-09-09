@@ -204,8 +204,8 @@ export class DoorwayLoadBalancers {
 
     const appSg = aws_ec2.SecurityGroup.fromSecurityGroupId(scope, `doorway-app-sg-${props.environment}`, appSGId)
     const appSubnetIds: string[] = []
-    appSubnetIds.push(Fn.importValue(`doorway-public-subnet-1-${props.environment}`))
-    appSubnetIds.push(Fn.importValue(`doorway-public-subnet-2-${props.environment}`))
+    appSubnetIds.push(Fn.importValue(`doorway-app-subnet-1-${props.environment}`))
+    appSubnetIds.push(Fn.importValue(`doorway-app-subnet-2-${props.environment}`))
     const appsubnets: ISubnet[] = []
     appSubnetIds.forEach((id) => {
       appsubnets.push(Subnet.fromSubnetId(scope, id, id))

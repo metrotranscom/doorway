@@ -96,7 +96,6 @@ export class DoorwayPublicSite {
       securityGroup: privateSG,
       serviceName: props.publicServiceName,
       clusterName: props.clusterName,
-      apiNamespace: `doorway-${props.environment}-internal-api-namespace`,
     }).service
 
   }

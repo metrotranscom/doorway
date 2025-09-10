@@ -11,6 +11,7 @@ import { DoorwayBackendService } from "./services/doorway-backend-service"
 import { DoorwayPartnersSite } from "./services/doorway-partners-site"
 import { DoorwayPublicSite } from "./services/doorway-public-site"
 import { DoorwayS3Stack } from "./services/doorway-s3-stack"
+import { DoorwaySecrets } from "./services/doorway-secrets-stack"
 
 export interface DWAppEnvProps extends StackProps {
   cfCertArn: string
@@ -59,12 +60,14 @@ export class DoorwayAppEnvironmentStack extends Stack {
       vpc: vpc
     }
     const s3stack = new DoorwayS3Stack(this, `doorway-s3-${environment}`, dwProps)
+    const secrets = new DoorwaySecrets(this, `doorway-secrets-${environment}`, dwProps)
 
 
 
 
     const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, dwProps)
     api.service.node.addDependency(s3stack)
+    api.service.node.addDependency(secrets)
 
     const lb = new DoorwayLoadBalancers(this, `doorway-lbs-${environment}`, dwProps);
     lb.loadBalancer.node.addDependency(s3stack)

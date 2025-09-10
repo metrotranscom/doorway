@@ -67,7 +67,6 @@ export class DoorwayAppEnvironmentStack extends Stack {
 
     const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, dwProps)
     api.service.node.addDependency(s3stack)
-    api.service.node.addDependency(secrets)
 
     const lb = new DoorwayLoadBalancers(this, `doorway-lbs-${environment}`, dwProps);
     lb.loadBalancer.node.addDependency(s3stack)

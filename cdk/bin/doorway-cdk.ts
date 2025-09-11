@@ -12,19 +12,20 @@ import { DoorwayCloudFrontCertStack } from "../lib/doorway_environment/doorway-c
 const app = new cdk.App()
 
 const environment = process.env.ENVIRONMENT || "dev2"
-
+/** This stack creates the doorway application build pipeline **/
 new DoorwayBuildPipelineStack(app, "DoorwayBuildPipelineStack", {
   githubSecret: "mtc/githubSecret",
   dockerHubSecret: "mtc/dockerHub",
 })
-
+/** This stack creates the cert used by the cloudfront distribution. It sits in it's own stack because cloudfront certs have to be created in us-east-1  **/
 const cfCertStack = new DoorwayCloudFrontCertStack(app, `DoorwayCloudFrontCertStack-${environment}`, {
   environment,
   publicDomainName: process.env.PUBLIC_PORTAL_DOMAIN || `${environment}.housingbayarea.mtc.ca.gov`,
   partnersDomainName: process.env.PARTNERS_PORTAL_DOMAIN || `partners.${environment}.housingbayarea.mtc.ca.gov`,
 })
 
-new DoorwayAppEnvironmentStack(app, "DoorwayAppEnvironmentStack", {
+/** This  stack actually creates a doorway environment. */
+new DoorwayAppEnvironmentStack(app, `DoorwayAppEnvironmentStack-${environment}`, {
   cfCertArn: cfCertStack.cloudFrontCertArn,
 })
 

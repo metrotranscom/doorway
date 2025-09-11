@@ -251,9 +251,9 @@ export const ListingView = (props: ListingProps) => {
       >
         <>
           {getMultiselectQuestionData(MultiselectQuestionsApplicationSectionEnum.programs).map(
-            (msq) => {
+            (msq, index) => {
               return (
-                <Card spacing="md" className="listing-multiselect-card">
+                <Card spacing="md" className="listing-multiselect-card" key={index}>
                   <Card.Header>
                     <SeedsHeading size="sm" priority={4}>
                       {msq.title}
@@ -979,14 +979,16 @@ export const ListingView = (props: ListingProps) => {
               </div>
             )}
             {lotterySection}
-            <ExpandableSection
-              content={<Markdown className={"bloom-markdown"}>{listing.whatToExpect}</Markdown>}
-              strings={{
-                title: t("whatToExpect.label"),
-                readMore: t("t.readMore"),
-                readLess: t("t.readLess"),
-              }}
-            />
+            {listing.whatToExpect && (
+              <ExpandableSection
+                content={<Markdown className={"bloom-markdown"}>{listing.whatToExpect}</Markdown>}
+                strings={{
+                  title: t("whatToExpect.label"),
+                  readMore: t("t.readMore"),
+                  readLess: t("t.readLess"),
+                }}
+              />
+            )}
             {!appOpenInFuture && (
               <Contact
                 sectionTitle={t("leasingAgent.contact")}

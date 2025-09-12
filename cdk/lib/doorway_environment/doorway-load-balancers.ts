@@ -1,11 +1,9 @@
-import { aws_ec2, Duration, Fn } from "aws-cdk-lib";
+import { aws_ec2, CfnOutput, Duration, Fn } from "aws-cdk-lib";
 import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
-import { AllowedMethods, CachePolicy, Distribution, OriginRequestPolicy, PriceClass, SecurityPolicyProtocol, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
-import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2";
 import { ApplicationListener, ApplicationListenerRule, ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, ListenerAction, ListenerCondition, TargetType } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { ARecord, HostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
-import { CloudFrontTarget, LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
+import { LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
@@ -46,7 +44,6 @@ export class DoorwayLoadBalancers {
       },
 
     });
-    const dnsZoneName = StringParameter.fromStringParameterName(scope, `publicDnsZoneId-${props.environment}`, `/doorway/public-hosted-zone`).stringValue;
     const dnsZone = HostedZone.fromLookup(scope, `publicDnsZone-${props.environment}`, {
       domainName: "housingbayarea.mtc.ca.gov",
     });
@@ -59,7 +56,6 @@ export class DoorwayLoadBalancers {
       subjectAlternativeNames: [partnersDomainName]
     })
 
-    const cfCert = Certificate.fromCertificateArn(scope, "CloudFrontCertificate", props.cfCertArn);
 
     const httpListener = this.loadBalancer.addListener("HttpListener", {
       port: 80,
@@ -131,74 +127,9 @@ export class DoorwayLoadBalancers {
       conditions: [ListenerCondition.hostHeaders([partnersDomainName])
       ]
     });
-    const cfOrigin = new LoadBalancerV2Origin(this.loadBalancer)
-    const cachePolicy = new CachePolicy(scope, `CachePolicy-images-${props.environment}`, {
-      cachePolicyName: `CachePolicy-images-${props.environment}`,
-      enableAcceptEncodingGzip: false,
-      enableAcceptEncodingBrotli: false,
-      minTtl: Duration.seconds(60),
-      maxTtl: Duration.seconds(31536000),
-      defaultTtl: Duration.seconds(86400),
-      headerBehavior: {
-        behavior: "whitelist",
-        headers: ["Host"],
-      },
-      queryStringBehavior: {
-        behavior: "none",
-      },
-      cookieBehavior: {
-        behavior: "none",
-      },
-    });
-
-    const cloudfrontDist = new Distribution(scope, `CloudFront-${props.environment}`, {
-      domainNames: [publicDomainName, partnersDomainName],
-      certificate: cfCert,
-      minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
-      enableIpv6: true,
 
 
-      defaultRootObject: "",
-      logIncludesCookies: true,
-      logFilePrefix: "cloudfront",
 
-      comment: `Doorway Cloudfront for ${props.environment}`,
-
-      priceClass: PriceClass.PRICE_CLASS_100,
-      geoRestriction: {
-        locations: ["US"],
-        restrictionType: "whitelist"
-      },
-
-
-      defaultBehavior: {
-        origin: cfOrigin,
-        cachePolicy: CachePolicy.CACHING_DISABLED, // Disable caching
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        allowedMethods: AllowedMethods.ALLOW_ALL,
-        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
-
-      },
-      additionalBehaviors: {
-        "/images/*": {
-          origin: cfOrigin,
-          allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: cachePolicy,
-          viewerProtocolPolicy: ViewerProtocolPolicy.ALLOW_ALL,
-
-        }
-      }
-    })
-    new ARecord(scope, "PartnersARecord", {
-      zone: dnsZone,
-      recordName: partnersDomainName,
-      target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDist)),
-    });
-    new ARecord(scope, "PublicARecord", {
-      zone: dnsZone,
-      recordName: publicDomainName,
-      target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDist)),
-    });
 
     const appSGId = Fn.importValue(`doorway-app-sg-${props.environment}`)
 
@@ -255,13 +186,33 @@ export class DoorwayLoadBalancers {
       hostedZoneId: privateDnsZoneName,
       zoneName: "housingbayarea.int",
     });
-    new ARecord(scope, "PrivateARecord", {
+    new ARecord(scope, `PrivateARecord-${props.environment}`, {
       zone: privateDnsZone,
       recordName: backendDomainName,
       target: RecordTarget.fromAlias(new LoadBalancerTarget(this.privateLoadBalancer)),
     });
+    new ARecord(scope, "PartnersARecord", {
+      zone: dnsZone,
+      recordName: partnersDomainName,
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
+    });
 
-
-
+    new ARecord(scope, "PublicARecord", {
+      zone: dnsZone,
+      recordName: publicDomainName,
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.loadBalancer)),
+    });
+    new CfnOutput(scope, `public-lb-dns-${props.environment}`, {
+      value: this.loadBalancer.loadBalancerDnsName,
+      exportName: `public-lb-dns-${props.environment}`
+    })
+    new CfnOutput(scope, `public-lb-arn-${props.environment}`, {
+      value: this.loadBalancer.loadBalancerArn,
+      exportName: `doorway-public-lb-${props.environment}-arn`
+    })
+    new CfnOutput(scope, `public-lb-sg-${props.environment}`, {
+      value: sg.securityGroupId,
+      exportName: `doorway-public-lb-${props.environment}-sg`
+    })
   }
 }

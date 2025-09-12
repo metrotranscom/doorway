@@ -1,4 +1,4 @@
-import { aws_logs, Fn, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib"
+import { aws_logs, Fn, RemovalPolicy, Stack } from "aws-cdk-lib"
 import { Vpc } from "aws-cdk-lib/aws-ec2"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import { Construct } from "constructs"
@@ -13,14 +13,9 @@ import { DoorwayPublicSite } from "./services/doorway-public-site"
 import { DoorwayS3Stack } from "./services/doorway-s3-stack"
 import { DoorwaySecrets } from "./services/doorway-secrets-stack"
 
-export interface DWAppEnvProps extends StackProps {
-  cfCertArn: string
-}
-
 export class DoorwayAppEnvironmentStack extends Stack {
-  constructor(scope: Construct, id: string, props: DWAppEnvProps) {
+  constructor(scope: Construct, id: string) {
     super(scope, id, {
-      ...props,
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT || "364076391763",
         region: process.env.CDK_DEFAULT_REGION || "us-west-2",
@@ -56,7 +51,6 @@ export class DoorwayAppEnvironmentStack extends Stack {
       publicServiceName: `doorway-public-${environment}`,
       partnersServiceName: `doorway-partners-${environment}`,
       clusterName: Fn.importValue(`doorway-ecs-cluster-${environment}`),
-      cfCertArn: props.cfCertArn,
       vpc: vpc
     }
     const s3stack = new DoorwayS3Stack(this, `doorway-s3-${environment}`, dwProps)

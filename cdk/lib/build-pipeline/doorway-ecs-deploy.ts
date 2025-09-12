@@ -18,6 +18,11 @@ export class DoorwayECSDeploy {
   constructor(scope: Construct, id: string, props: DoorwayECSDeployProps) {
     const project = new PipelineProject(scope, `doorway-ecsDeploy-${props.environment}`, {
       buildSpec: BuildSpec.fromSourceFilename(props.buildspec),
+      environmentVariables: {
+        ENVIRONMENT: {
+          value: props.environment,
+        },
+      },
       environment: {
         buildImage: LinuxBuildImage.STANDARD_7_0,
         computeType: ComputeType.LARGE,

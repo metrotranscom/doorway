@@ -12,7 +12,6 @@ export interface DoorwayProps {
   backendServiceName: string
   publicServiceName: string
   partnersServiceName: string
-  cfCertArn: string
   vpc: IVpc
 }
 

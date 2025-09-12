@@ -15,12 +15,10 @@ phases:
   pre_build:
     commands:
       - aws ecr get-login-password --region "${ECR_REGION}" | docker login --username AWS --password-stdin "${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com"
-
   build:
     commands:
       - export ECR_HOST="${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com"
       - export ECR_REPO="${ECR_HOST}/${ECR_NAMESPACE}"
-
       # Build test image
       - >
         docker build . -f build/docker/Dockerfile.sites-generic
@@ -64,10 +62,13 @@ phases:
         --build-arg "LOTTERY_DAYS_TILL_EXPIRY=${LOTTERY_DAYS_TILL_EXPIRY}"
         --build-arg "LIMIT_CLOSED_LISTING_ACTIONS=${LIMIT_CLOSED_LISTING_ACTIONS}"
         --build-arg "USE_SECURE_DOWNLOAD_PATHWAY=${USE_SECURE_DOWNLOAD_PATHWAY}"
-        -t sites/partners:run-candidate
+        -t sites/partners:run-${ENVIRONMENT}-candidate
 
       # Tag the run image
-      - docker tag sites/partners:run-candidate "${ECR_REPO}/partners:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker tag sites/partners:run-${ENVIRONMENT}-candidate "${ECR_REPO}/partners:run-${ENVIRONMENT}-candidate"
+      - docker tag sites/partners:run-${ENVIRONMENT}-candidate "${ECR_REPO}/partners:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
 
       # Push the run image to ECR
-      - docker push "${ECR_REPO}/partners:run-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker push "${ECR_REPO}/partners:run-${ENVIRONMENT}-${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - docker push "${ECR_REPO}/partners:run-${ENVIRONMENT}-candidate"
+

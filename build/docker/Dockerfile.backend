@@ -116,6 +116,7 @@ COPY --from=source --chown=node:node \
     /app/api/yarn*.lock \
     /app/api/prisma ./
 
+
 # Add only dependencies required to run the application
 COPY --from=optimize --chown=node:node /app/node_modules ./node_modules
 RUN yarn prisma generate
@@ -126,12 +127,16 @@ RUN mkdir ./src
 RUN mkdir ./src/temp
 RUN chmod 777 ./src/temp
 
+# Copy and set permissions for entrypoint script as root
+COPY build/docker/entrypoint-run.sh /app/api/entrypoint-run.sh
+RUN chown node:node /app/api/entrypoint-run.sh
+RUN chmod 755 /app/api/entrypoint-run.sh
+
 # When running this image, make sure to use the built-in node user
 USER node
 
-RUN yarn prisma generate
 
-CMD yarn start:prod
+ENTRYPOINT [ "/app/api/entrypoint-run.sh" ]
 
 #####################
 ##### NEW STAGE #####
@@ -159,10 +164,12 @@ COPY --from=source --chown=node:node /app/api/src ./src
 COPY --from=source --chown=node:node /app/api/prisma ./prisma
 COPY --from=source --chown=node:node /app/api/scripts ./scripts
 
+
+COPY build/docker/entrypoint-migrate.sh /app/api/entrypoint-migrate.sh
+RUN chown node:node /app/api/entrypoint-migrate.sh
+RUN chmod 755 /app/api/entrypoint-migrate.sh
 ## This CMD should be run as the node user
 USER node
+RUN yarn prisma generate
 
-# We need to skip all migrations that are just for local development (changes already exist in deployed environment)
-CMD if [ "$SKIP_MIGRATIONS" = TRUE ]; then yarn db:migration:skip 00_init || true && yarn db:migration:skip 02_hba_to_prisma || true && yarn db:migration:skip 03_0_external_listing || true && yarn db:migration:run; \
-    else yarn db:migration:run; \
-    fi
+ENTRYPOINT [ "/app/api/entrypoint-migrate.sh" ]

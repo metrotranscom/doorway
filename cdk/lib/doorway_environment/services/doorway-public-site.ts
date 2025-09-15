@@ -9,6 +9,11 @@ import { Construct } from "constructs"
 import { DoorwayProps } from "../doorway-props"
 import { DoorwayService } from "./doorway_service"
 
+/**
+ * Builds the Doorway Public Site
+ * @class
+ * @see DoorwayService
+ */
 export class DoorwayPublicSite {
   public service: FargateService
   constructor(scope: Construct, id: string, props: DoorwayProps) {
@@ -16,16 +21,12 @@ export class DoorwayPublicSite {
     const executionRole = new Role(scope, `executionRole-${id}`, {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
-
     const publicUploads = Bucket.fromBucketName(
       scope,
       `publicUploadsBucket-${id}`,
 
       `doorway-public-uploads-${props.environment}`,
     )
-
-
-
     const secureUploads = Bucket.fromBucketArn(
       scope,
       `secureUploadsBucket-${id}`,

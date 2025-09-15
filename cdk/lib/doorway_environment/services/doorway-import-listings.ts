@@ -1,3 +1,4 @@
+/** @fileoverview Doorway Import Listings scheduled task configuration */
 import { Duration, Fn } from "aws-cdk-lib";
 import { ISecurityGroup, ISubnet, SecurityGroup, Subnet } from "aws-cdk-lib/aws-ec2";
 import { Cluster, Secret } from "aws-cdk-lib/aws-ecs";
@@ -10,7 +11,28 @@ import { Construct } from "constructs";
 import { DoorwayProps } from "../doorway-props";
 import { DoorwayEcsTask } from "./doorway-ecs-task";
 
+/**
+  * Creates a new DoorwayImportListings construct.
+  *
+  * @param scope - The parent construct (typically a Stack or Stage)
+  * @param id - Unique identifier for this construct within the scope
+  * @param props - Configuration properties including VPC, environment, and cluster settings
+  * @param props.environment - Deployment environment (e.g., 'staging', 'production')
+  * @param props.vpc - VPC where the ECS task will run
+  * @param props.clusterName - Name of the existing ECS cluster to use
+  */
 export class DoorwayImportListings {
+  /**
+   *
+   * It sets up an EventBridge schedule that triggers the import listings ECS task every 30 minutes.
+   * Configured to run the task in private subnets with database access for importing
+   * housing listings from San Jose, San Mateo, and Alameda jurisdictions.
+   *
+   * @public
+   * @property {Schedule}
+   * @see {@link https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_scheduler.Schedule.html | AWS CDK Schedule}
+   * @see {@link https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_scheduler_targets.EcsRunFargateTask.html | EcsRunFargateTask}
+   */
   public schedule: Schedule
   constructor(scope: Construct, id: string, props: DoorwayProps) {
     const executionRole = new Role(scope, `executionRole-${id}`, {
@@ -32,8 +54,6 @@ export class DoorwayImportListings {
       `appTierPrivateSG-${id}`,
       appTierPrivateSGId,
     )
-
-
     const importListings = new DoorwayEcsTask(scope, `doorway-import-listings-${props.environment}`, {
       ...props,
       memory: 1024,
@@ -53,14 +73,10 @@ export class DoorwayImportListings {
       securityGroup: privateSG,
       serviceName: `doorway-import-listings-${props.environment}`,
       clusterName: props.clusterName,
-
-
     })
     const cluster = Cluster.fromClusterAttributes(scope, `import-listings-cluster-${props.environment}`, {
       clusterName: props.clusterName,
       vpc: props.vpc
-
-
     })
     // Get the subnets
     const appSubnetIds: string[] = []
@@ -77,14 +93,11 @@ export class DoorwayImportListings {
       vpcSubnets: {
         subnets: appsubnets,
       },
-
     })
-    this.schedule = new Schedule(scope, `import-listings - schedule - ${props.environment} `, {
+    this.schedule = new Schedule(scope, `import-listings-schedule-${props.environment} `, {
       scheduleName: `import-listings-schedule-${props.environment}`,
       target: target,
       schedule: ScheduleExpression.rate(Duration.minutes(30))
-
-
     })
   }
 }

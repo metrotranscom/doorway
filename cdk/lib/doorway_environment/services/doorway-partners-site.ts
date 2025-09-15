@@ -9,6 +9,11 @@ import { Construct } from "constructs"
 import { DoorwayProps } from "../doorway-props"
 import { DoorwayService } from "./doorway_service"
 
+/**
+ * Builds the Doorway Partners Site
+ * @class
+ * @see DoorwayService
+ */
 export class DoorwayPartnersSite {
   public service: FargateService
   constructor(scope: Construct, id: string, props: DoorwayProps) {

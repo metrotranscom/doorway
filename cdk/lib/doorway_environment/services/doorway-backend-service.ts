@@ -10,6 +10,11 @@ import { Construct } from "constructs"
 import { DoorwayProps } from "../doorway-props"
 import { DoorwayService } from "./doorway_service"
 
+/**
+ * The Backend API Service for Doorway
+ * @class
+ * @see DoorwayService
+ */
 export class DoorwayBackendService {
   public service: FargateService
   public constructor(scope: Construct, id: string, props: DoorwayProps) {

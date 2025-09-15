@@ -10,14 +10,21 @@ import { DoorwayServiceProps } from "../doorway-props"
 import { RestartServicesLambda } from "../utility_lambdas/restart-services-lambda"
 import { DoorwayEcsTask } from "./doorway-ecs-task"
 
+/**
+ * @class
+ * Base Class for Doorway Services (API, Public, Partners, etc)
+ * This really shouldn't change all that much. Most configuration settings are in the classes that use this.
+ * @see DoorwayBackendService
+ * @see DoorwayPublicSite
+ * @see DoorwayPartnersSite
+ * @see DoorwayImportListings
+ */
 export class DoorwayService {
   public service: FargateService
 
   constructor(scope: Construct, id: string, props: DoorwayServiceProps) {
     // Initial Execution Role Setup
     // Create the execution role for the doorway API service
-
-
     props.executionRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
     )
@@ -39,9 +46,11 @@ export class DoorwayService {
     appSubnetIds.forEach((id) => {
       appsubnets.push(Subnet.fromSubnetId(scope, id, id))
     })
-    const task = new DoorwayEcsTask(scope, id, props).task
-    this.service = new FargateService(scope, `${id}-fargate-service`, {
 
+    // Set up the ECS Task
+    const task = new DoorwayEcsTask(scope, id, props).task
+    // Set up the fargate service
+    this.service = new FargateService(scope, `${id}-fargate-service`, {
       taskDefinition: task,
       serviceName: props.serviceName,
       circuitBreaker: {
@@ -57,9 +66,10 @@ export class DoorwayService {
       },
       securityGroups: [props.securityGroup],
       desiredCount: props.instances,
-
-
     })
+    // If the service has secrets associated with it,
+    // create a lambda to restart the service when the secrets are updated
+    const secrets = Object.keys(props.secrets)
     if (Object.keys(props.secrets).length > 0) {
       new RestartServicesLambda(scope, `restart-${id}-${props.environment}`, {
         service: this.service,

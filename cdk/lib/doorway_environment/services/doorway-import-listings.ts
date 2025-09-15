@@ -37,7 +37,7 @@ export class DoorwayImportListings {
     const importListings = new DoorwayEcsTask(scope, `doorway-import-listings-${props.environment}`, {
       ...props,
       memory: 1024,
-      cpu: 1,
+      cpu: .5,
       instances: 1,
       port: 10246,
       secrets: secrets,

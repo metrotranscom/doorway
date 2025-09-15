@@ -80,6 +80,7 @@ export class DoorwayImportListings {
 
     })
     this.schedule = new Schedule(scope, `import-listings - schedule - ${props.environment} `, {
+      scheduleName: `import-listings-schedule-${props.environment}`,
       target: target,
       schedule: ScheduleExpression.rate(Duration.minutes(30))
 

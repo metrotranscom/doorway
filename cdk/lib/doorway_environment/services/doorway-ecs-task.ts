@@ -21,9 +21,9 @@ export class DoorwayEcsTask {
       image: ContainerImage.fromRegistry(
         `${Aws.ACCOUNT_ID}.dkr.ecr.${Aws.REGION}.amazonaws.com/${props.container}`,
       ),
-      cpu: props.cpu,
-      memoryLimitMiB: props.memory,
-      essential: true,
+      cpu: Number(props.cpu * 1024),
+      memoryLimitMiB: Number(props.memory),
+      essential: Boolean(true),
       logging: LogDrivers.awsLogs({
         streamPrefix: id,
         logGroup: props.logGroup,
@@ -34,10 +34,10 @@ export class DoorwayEcsTask {
       portMappings: [
         {
           name: `${id}-port-mapping`,
-          containerPort: props.port,
+          containerPort: Number(props.port),
           protocol: Protocol.TCP,
           appProtocol: AppProtocol.http,
-          hostPort: props.port,
+          hostPort: Number(props.port),
         },
       ],
 

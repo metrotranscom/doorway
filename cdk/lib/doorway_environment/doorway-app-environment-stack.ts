@@ -8,6 +8,7 @@ import path from "path"
 import { DoorwayLoadBalancers } from "./doorway-load-balancers"
 import { DoorwayProps } from "./doorway-props"
 import { DoorwayBackendService } from "./services/doorway-backend-service"
+import { DoorwayImportListings } from "./services/doorway-import-listings"
 import { DoorwayPartnersSite } from "./services/doorway-partners-site"
 import { DoorwayPublicSite } from "./services/doorway-public-site"
 import { DoorwayS3Stack } from "./services/doorway-s3-stack"
@@ -55,26 +56,21 @@ export class DoorwayAppEnvironmentStack extends Stack {
     }
     const s3stack = new DoorwayS3Stack(this, `doorway-s3-${environment}`, dwProps)
     const secrets = new DoorwaySecrets(this, `doorway-secrets-${environment}`, dwProps)
-
-
-
-
     const api = new DoorwayBackendService(this, `doorway-api-service-${environment}`, dwProps)
     api.service.node.addDependency(s3stack)
-
     const lb = new DoorwayLoadBalancers(this, `doorway-lbs-${environment}`, dwProps);
     lb.loadBalancer.node.addDependency(s3stack)
-
     const publicSite = new DoorwayPublicSite(this, `doorway-public-${environment}`, dwProps)
     publicSite.service.node.addDependency(lb.loadBalancer)
     publicSite.service.node.addDependency(api.service)
-
     lb.publicTargetGroup.addTarget(publicSite.service)
     const partnersSite = new DoorwayPartnersSite(this, `doorway-partners-${environment}`, dwProps)
     partnersSite.service.node.addDependency(lb.loadBalancer)
     partnersSite.service.node.addDependency(api.service)
     lb.partnersTargetGroup.addTarget(partnersSite.service)
     lb.privateTargetGroup.addTarget(api.service)
+    const scheduler = new DoorwayImportListings(this, `doorway-import-listings-scheduler-${environment}`, dwProps)
+    scheduler.schedule.node.addDependency(api.service)
 
   }
 }

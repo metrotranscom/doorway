@@ -27,8 +27,8 @@ export interface DoorwayServiceProps extends DoorwayProps {
   apiTargetDomainName?: string
   apiTargetPort?: number
   executionRole: Role
-  publicUploads: IBucket
-  secureUploads: IBucket
+  publicUploads?: IBucket
+  secureUploads?: IBucket
   container: string
   securityGroup: ISecurityGroup
   serviceName: string

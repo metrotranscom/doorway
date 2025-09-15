@@ -1,12 +1,14 @@
 import * as cdk from "aws-cdk-lib"
 import { Fn } from "aws-cdk-lib"
 import { ISubnet, Subnet } from "aws-cdk-lib/aws-ec2"
-import { AppProtocol, Cluster, Compatibility, ContainerImage, FargateService, LogDrivers, NetworkMode, Protocol, TaskDefinition } from "aws-cdk-lib/aws-ecs"
-import { DoorwayServiceProps } from "../doorway-props"
-import { RestartServicesLambda } from "../utility_lambdas/restart-services-lambda"
+import { Cluster, FargateService } from "aws-cdk-lib/aws-ecs"
 //import * as ecs from "aws-cdk-lib/aws-ecs";
 import { ManagedPolicy } from "aws-cdk-lib/aws-iam"
 import { Construct } from "constructs"
+
+import { DoorwayServiceProps } from "../doorway-props"
+import { RestartServicesLambda } from "../utility_lambdas/restart-services-lambda"
+import { DoorwayEcsTask } from "./doorway-ecs-task"
 
 export class DoorwayService {
   public service: FargateService
@@ -37,42 +39,7 @@ export class DoorwayService {
     appSubnetIds.forEach((id) => {
       appsubnets.push(Subnet.fromSubnetId(scope, id, id))
     })
-
-    const task = new TaskDefinition(scope, `${id}-task`, {
-
-      compatibility: Compatibility.FARGATE,
-      executionRole: props.executionRole,
-      taskRole: props.executionRole,
-      networkMode: NetworkMode.AWS_VPC,
-      cpu: `${props.cpu * 1024}`,
-      memoryMiB: `${props.memory}`
-    })
-    task.addContainer(`${id}-container`, {
-      image: ContainerImage.fromRegistry(
-        `${cdk.Aws.ACCOUNT_ID}.dkr.ecr.${cdk.Aws.REGION}.amazonaws.com/${props.container}`,
-      ),
-      cpu: props.cpu,
-      memoryLimitMiB: props.memory,
-      essential: true,
-      logging: LogDrivers.awsLogs({
-        streamPrefix: id,
-        logGroup: props.logGroup,
-      }),
-      secrets: props.secrets || {},
-      environment: props.environmentVariables,
-      entryPoint: [],
-      portMappings: [
-        {
-          name: `${id}-port-mapping`,
-          containerPort: props.port,
-          protocol: Protocol.TCP,
-          appProtocol: AppProtocol.http,
-          hostPort: props.port,
-        },
-      ],
-    })
-
-
+    const task = new DoorwayEcsTask(scope, id, props).task
     this.service = new FargateService(scope, `${id}-fargate-service`, {
 
       taskDefinition: task,

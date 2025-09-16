@@ -76,7 +76,7 @@ export class DoorwayPartnersSite {
     this.service = new DoorwayService(scope, `${id}-service`, {
       ...props,
       memory: Number(process.env.PARTNERS_PORTAL_MEMORY || 4096),
-      cpu: Number(process.env.PARTNERS_PORTAL_CPU || 2),
+      cpu: Number(process.env.PARTNERS_PORTAL_CPUS || 2),
       instances: Number(process.env.PARTNERS_PORTAL_INSTANCES || 3),
       port: Number(process.env.PARTNERS_PORTAL_PORT || 3000),
       secrets: secrets,

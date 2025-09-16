@@ -154,7 +154,7 @@ export class DoorwayBackendService {
     this.service = new DoorwayService(scope, `doorway-api-service-${props.environment}`, {
       ...props,
       memory: Number(process.env.BACKEND_MEMORY || 4096),
-      cpu: Number(process.env.BACKEND_CPU || 2),
+      cpu: Number(process.env.BACKEND_CPUS || 2),
       instances: Number(process.env.BACKEND_INSTANCES || 3),
       port: Number(process.env.BACKEND_API_PORT || 3100),
       secrets: secrets,

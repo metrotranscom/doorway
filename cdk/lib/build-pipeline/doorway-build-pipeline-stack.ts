@@ -166,6 +166,47 @@ export class DoorwayBuildPipelineStack extends Stack {
       stageName: "Dev",
       actions: [dbmigrate, ecsDeploy],
     })
+    pipeline.addStage({
+      stageName: "Build-Staging",
+      actions: [
+
+        new PartnersDockerBuild(this, `doorway-partners`, {
+          buildspec: "../ci/buildspec/build_partners.yml",
+          imageName: "partners",
+          source: sourceArtifact,
+          dockerHubSecret: dockerSecret,
+          buildRole: buildRole,
+          environment: "staging"
+        }).action,
+        new PublicDockerBuild(this, "doorway-public", {
+          buildspec: "../ci/buildspec/build_public.yml",
+          imageName: "public",
+          source: sourceArtifact,
+          dockerHubSecret: dockerSecret,
+          buildRole: buildRole,
+          environment: "staging"
+        }).action,
+      ],
+    })
+
+    const dbmigrateStaging = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
+      environment: "staging",
+      buildspec: "./ci/buildspec/migrate.yml",
+      source: sourceArtifact,
+      buildRole: buildRole,
+    }).action;
+
+    const ecsDeployStaging = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
+      buildspec: "./ci/buildspec/update_ecs.yml",
+      source: sourceArtifact,
+      buildRole: buildRole,
+      environment: "staging",
+    }).action
+
+    pipeline.addStage({
+      stageName: "Staging",
+      actions: [dbmigrateStaging, ecsDeployStaging],
+    })
   }
 }
 export interface PipelineProps extends StackProps {

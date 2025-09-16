@@ -2,7 +2,7 @@
 import { Duration, Fn } from "aws-cdk-lib";
 import { ISecurityGroup, ISubnet, SecurityGroup, Subnet } from "aws-cdk-lib/aws-ec2";
 import { Cluster, Secret } from "aws-cdk-lib/aws-ecs";
-import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Schedule, ScheduleExpression } from "aws-cdk-lib/aws-scheduler";
 import { EcsRunFargateTask } from "aws-cdk-lib/aws-scheduler-targets";
 import * as secret from "aws-cdk-lib/aws-secretsmanager";
@@ -86,6 +86,25 @@ export class DoorwayImportListings {
     appSubnetIds.forEach((id) => {
       appsubnets.push(Subnet.fromSubnetId(scope, id, id))
     })
+    const schedulerRole = new Role(scope, `scheduler-role-${id}`, {
+      assumedBy: new ServicePrincipal("scheduler.amazonaws.com"),
+    });
+
+    schedulerRole.addToPolicy(new PolicyStatement({
+      actions: [
+        "ecs:RunTask",
+        "ecs:DescribeTaskDefinition",
+        "iam:PassRole"
+      ],
+      resources: ["*"]
+    }));
+
+    // Allow passing the execution role to ECS
+    schedulerRole.addToPolicy(new PolicyStatement({
+      actions: ["iam:PassRole"],
+      resources: [executionRole.roleArn]
+    }));
+
     const target = new EcsRunFargateTask(cluster, {
       taskDefinition: importListings.task,
       assignPublicIp: false,
@@ -93,8 +112,10 @@ export class DoorwayImportListings {
       vpcSubnets: {
         subnets: appsubnets,
       },
+      role: schedulerRole,
     })
-    this.schedule = new Schedule(scope, `import-listings-schedule-${props.environment} `, {
+
+    this.schedule = new Schedule(scope, `import-listings-schedule-${props.environment}`, {
       scheduleName: `import-listings-schedule-${props.environment}`,
       target: target,
       schedule: ScheduleExpression.rate(Duration.minutes(30))

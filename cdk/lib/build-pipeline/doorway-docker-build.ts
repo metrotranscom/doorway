@@ -26,9 +26,7 @@ class DoorwayDockerBuild {
 
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     // Create ECR repository
-    const repo = new Repository(scope, `${id}-ECRRepository`, {
-      repositoryName: `doorway/${props.imageName}`,
-    })
+
     dotenv.config({ path: path.resolve(__dirname, `../../${props.environment}.env`) })
     this.environmentVariables = {
       ECR_REGION: { value: Aws.REGION },
@@ -45,8 +43,7 @@ class DoorwayDockerBuild {
       MAPBOX_TOKEN: { value: process.env.MAPBOX_TOKEN || "" }
 
     }
-    // Grant permissions to the provided role
-    repo.grantPullPush(props.buildRole)
+
 
     // Create the CodeBuild project
     const project = new PipelineProject(scope, `${id}-Project`, {
@@ -72,6 +69,13 @@ class DoorwayDockerBuild {
 export class PartnersDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
+    if (props.environment.startsWith("dev")) {
+      // Grant permissions to the provided role
+      const repo = new Repository(scope, `${id}-ECRRepository`, {
+        repositoryName: `doorway/${props.imageName}`,
+      })
+      repo.grantPullPush(props.buildRole)
+    }
     this.environmentVariables.FEATURE_LISTINGS_APPROVAL = { value: process.env.FEATURE_LISTINGS_APPROVAL || "true" }
     this.environmentVariables.USE_SECURE_DOWNLOAD_PATHWAY = { value: process.env.USE_SECURE_DOWNLOAD_PATHWAY || "true" }
     this.environmentVariables.CLOUDINARY_CLOUD_NAME = { value: process.env.CLOUDINARY_CLOUD_NAME || "exygy" }
@@ -80,6 +84,13 @@ export class PartnersDockerBuild extends DoorwayDockerBuild {
 export class PublicDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
+    if (props.environment.startsWith("dev")) {
+      // Grant permissions to the provided role
+      const repo = new Repository(scope, `${id}-ECRRepository`, {
+        repositoryName: `doorway/${props.imageName}`,
+      })
+      repo.grantPullPush(props.buildRole)
+    }
     this.environmentVariables.SHOW_PROFESSIONAL_PARTNERS = { value: process.env.SHOW_PROFESSIONAL_PARTNERS || "true" }
     this.environmentVariables.BLOOM_API_BASE = { value: process.env.BLOOM_API_BASE || "" }
     this.environmentVariables.JURISDICTION_NAME = {
@@ -94,14 +105,23 @@ export class PublicDockerBuild extends DoorwayDockerBuild {
 export class BackendDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
-    // Backend build doesnt have any custom environment variables yety
+    const repo = new Repository(scope, `${id}-ECRRepository`, {
+      repositoryName: `doorway/${props.imageName}`,
+    })
+
+    // Grant permissions to the provided role
+    repo.grantPullPush(props.buildRole)
 
   }
 }
 export class ImportDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
-    // Import listings build doesnt have any custom environment variables yet
+    const repo = new Repository(scope, `${id}-ECRRepository`, {
+      repositoryName: `doorway/${props.imageName}`,
+    })
+    // Grant permissions to the provided role
+    repo.grantPullPush(props.buildRole)
 
   }
 }

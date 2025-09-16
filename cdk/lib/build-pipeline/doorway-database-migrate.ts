@@ -29,14 +29,14 @@ export class DoorwayDatabaseMigrate {
     const securityGroupId = Fn.importValue(`doorway-app-sg-${props.environment}`)
     const dbSecretArn = Fn.importValue(`doorwayDBSecret-${props.environment}`)
     const azs = Fn.importValue(`doorway-azs-${props.environment}`).split(", ")
-    const vpc = Vpc.fromVpcAttributes(scope, "vpc", {
+    const vpc = Vpc.fromVpcAttributes(scope, `vpc-${props.environment}`, {
       vpcId: vpcId,
       availabilityZones: azs,
     })
-    const subnet = Subnet.fromSubnetAttributes(scope, "subnet", {
+    const subnet = Subnet.fromSubnetAttributes(scope, `subnet-${props.environment}`, {
       subnetId: subnetId,
     })
-    const sg = SecurityGroup.fromSecurityGroupId(scope, "sg", securityGroupId)
+    const sg = SecurityGroup.fromSecurityGroupId(scope, `sg-${props.environment}`, securityGroupId)
     const project = new PipelineProject(scope, `doorway-dbMigrate-${props.environment}`, {
       vpc: vpc,
       subnetSelection: { subnets: [subnet] },
@@ -72,7 +72,7 @@ export class DoorwayDatabaseMigrate {
     })
 
     // Grant permissions to the auto-created role
-    Secret.fromSecretCompleteArn(scope, "dbSecret", dbSecretArn).grantRead(project.role!)
+    Secret.fromSecretCompleteArn(scope, `dbSecret-${props.environment}`, dbSecretArn).grantRead(project.role!)
     project.addToRolePolicy(new PolicyStatement({
       actions: ["ecs:*", "ecr:*"],
       resources: ["*"]

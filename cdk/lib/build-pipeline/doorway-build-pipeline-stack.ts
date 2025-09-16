@@ -129,7 +129,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildRole: buildRole,
           environment: "dev2"
         }).action,
-        new PartnersDockerBuild(this, `doorway-partners`, {
+        new PartnersDockerBuild(this, `doorway-partners-dev`, {
           buildspec: "../ci/buildspec/build_partners.yml",
           imageName: "partners",
           source: sourceArtifact,
@@ -137,7 +137,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildRole: buildRole,
           environment: "dev2"
         }).action,
-        new PublicDockerBuild(this, "doorway-public", {
+        new PublicDockerBuild(this, "doorway-public-dev", {
           buildspec: "../ci/buildspec/build_public.yml",
           imageName: "public",
           source: sourceArtifact,
@@ -170,7 +170,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       stageName: "Build-Staging",
       actions: [
 
-        new PartnersDockerBuild(this, `doorway-partners`, {
+        new PartnersDockerBuild(this, `doorway-partners-staging`, {
           buildspec: "../ci/buildspec/build_partners.yml",
           imageName: "partners",
           source: sourceArtifact,
@@ -178,7 +178,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           buildRole: buildRole,
           environment: "staging"
         }).action,
-        new PublicDockerBuild(this, "doorway-public", {
+        new PublicDockerBuild(this, "doorway-public-staging", {
           buildspec: "../ci/buildspec/build_public.yml",
           imageName: "public",
           source: sourceArtifact,
@@ -189,14 +189,14 @@ export class DoorwayBuildPipelineStack extends Stack {
       ],
     })
 
-    const dbmigrateStaging = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
+    const dbmigrateStaging = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-staging", {
       environment: "staging",
       buildspec: "./ci/buildspec/migrate.yml",
       source: sourceArtifact,
       buildRole: buildRole,
     }).action;
 
-    const ecsDeployStaging = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
+    const ecsDeployStaging = new DoorwayECSDeploy(this, "doorway-ecs-deploy-staging", {
       buildspec: "./ci/buildspec/update_ecs.yml",
       source: sourceArtifact,
       buildRole: buildRole,

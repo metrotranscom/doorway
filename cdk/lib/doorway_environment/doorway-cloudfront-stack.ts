@@ -1,10 +1,13 @@
-import { Duration, Fn, Stack, StackProps, CfnParameter } from "aws-cdk-lib";
+import { Duration, Fn, Stack, StackProps } from "aws-cdk-lib";
 import { Certificate, CertificateValidation } from "aws-cdk-lib/aws-certificatemanager";
 import { AllowedMethods, CachePolicy, Distribution, OriginRequestPolicy, PriceClass, SecurityPolicyProtocol, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
 import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ApplicationLoadBalancer } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { HostedZone } from "aws-cdk-lib/aws-route53";
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
 export interface CloudFrontCertStackProps extends StackProps {
   environment: string;
@@ -15,38 +18,55 @@ export interface CloudFrontCertStackProps extends StackProps {
 
 export class DoorwayCloudFrontStack extends Stack {
   public cloudFrontCertArn: string;
-  constructor(scope: Construct, id: string, props: CloudFrontCertStackProps) {
+  constructor(scope: Construct, id: string, environment: string) {
     super(scope, id, {
-      ...props, env: {
+      env: {
         region: 'us-east-1',
         account: process.env.CDK_DEFAULT_ACCOUNT || "364076391763",
       },
       crossRegionReferences: true
     });
+    console.log(`Creating Application stack for ${environment}`)
+    console.log(`Using environment file: ${path.resolve(__dirname, `../../${environment}.env`)}`)
+
+
+
+    dotenv.config({
+      path: path.resolve(__dirname, `../../${environment}.env`),
+      override: true
+    })
+    console.log(process.env)
 
 
 
 
-    const dnsZone = HostedZone.fromLookup(this, `publicDnsZone-${props.environment}`, {
+    const dnsZone = HostedZone.fromLookup(this, `publicDnsZone-${environment}`, {
       domainName: "housingbayarea.mtc.ca.gov",
     });
-    const publicDomainName = process.env.PUBLIC_PORTAL_DOMAIN || `${props.environment}.housingbayarea.mtc.ca.gov`
-    const partnersDomainName = process.env.PARTNERS_PORTAL_DOMAIN || `partners.${props.environment}.housingbayarea.mtc.ca.gov`
-    const lbDnsName = props.loadBalancerDnsName || 'doorway-lbs-dev2-734646298.us-west-2.elb.amazonaws.com'
+    const publicDomainName = process.env.PUBLIC_PORTAL_DOMAIN || `${environment}.housingbayarea.mtc.ca.gov`
+    const partnersDomainName = process.env.PARTNERS_PORTAL_DOMAIN || `partners.${environment}.housingbayarea.mtc.ca.gov`
+
 
     const cert = new Certificate(this, "CloudFrontCertificate", {
-      domainName: props.publicDomainName,
+      domainName: publicDomainName,
       validation: CertificateValidation.fromDns(dnsZone),
-      subjectAlternativeNames: [props.partnersDomainName]
+      subjectAlternativeNames: [partnersDomainName]
     });
 
-    const cfOrigin = new LoadBalancerV2Origin(ApplicationLoadBalancer.fromApplicationLoadBalancerAttributes(this, `PublicLB-${props.environment}`, {
-      loadBalancerArn: `arn:aws:elasticloadbalancing:us-west-2:364076391763:loadbalancer/app/doorway-lbs-${props.environment}/dummy`,
+    // Get load balancer DNS from SSM parameter (cross-region compatible)
+    const loadBalancerDnsName = StringParameter.fromStringParameterName(
+      this, 
+      `lb-dns-param-${environment}`, 
+      `/doorway/${environment}/public-lb-dns`
+    ).stringValue;
+    
+    const cfOrigin = new LoadBalancerV2Origin(ApplicationLoadBalancer.fromApplicationLoadBalancerAttributes(this, `PublicLB-${environment}`, {
+      loadBalancerArn: `arn:aws:elasticloadbalancing:us-west-2:364076391763:loadbalancer/app/doorway-lbs-${environment}/dummy`,
       securityGroupId: 'sg-dummy',
-      loadBalancerDnsName: lbDnsName
+      loadBalancerDnsName: loadBalancerDnsName
     }))
-    const cachePolicy = new CachePolicy(this, `CachePolicy-images-${props.environment}`, {
-      cachePolicyName: `CachePolicy-images-${props.environment}`,
+    const cachePolicy = new CachePolicy(this, `CachePolicy-images-${environment}`, {
+      cachePolicyName: `CachePolicy-images-${environment}`,
       enableAcceptEncodingGzip: false,
       enableAcceptEncodingBrotli: false,
       minTtl: Duration.seconds(60),
@@ -64,7 +84,7 @@ export class DoorwayCloudFrontStack extends Stack {
       },
     });
 
-    new Distribution(this, `CloudFront-${props.environment}`, {
+    new Distribution(this, `CloudFront-${environment}`, {
       domainNames: [publicDomainName, partnersDomainName],
       certificate: cert,
       minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
@@ -75,7 +95,7 @@ export class DoorwayCloudFrontStack extends Stack {
       logIncludesCookies: true,
       logFilePrefix: "cloudfront",
 
-      comment: `Doorway Cloudfront for ${props.environment}`,
+      comment: `Doorway Cloudfront for ${environment}`,
 
       priceClass: PriceClass.PRICE_CLASS_100,
       geoRestriction: {

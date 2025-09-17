@@ -15,7 +15,7 @@ import { DoorwayS3Stack } from "./services/doorway-s3-stack"
 import { DoorwaySecrets } from "./services/doorway-secrets-stack"
 
 export class DoorwayAppEnvironmentStack extends Stack {
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, environment: string) {
     super(scope, id, {
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT || "364076391763",
@@ -23,7 +23,6 @@ export class DoorwayAppEnvironmentStack extends Stack {
       },
       crossRegionReferences: true
     })
-    const environment = process.env.ENVIRONMENT || "dev2"
     dotenv.config({ path: path.resolve(__dirname, `../../${environment}.env`) })
 
 

@@ -26,5 +26,5 @@ const cfCertStack = new DoorwayCloudFrontStack(app, `DoorwayCloudFrontStack-${en
 })
 
 /** This  stack actually creates a doorway environment. */
-new DoorwayAppEnvironmentStack(app, `DoorwayAppEnvironmentStack-${environment}`)
+new DoorwayAppEnvironmentStack(app, `DoorwayAppEnvironmentStack-${environment}`, environment)
 

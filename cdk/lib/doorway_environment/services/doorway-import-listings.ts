@@ -2,7 +2,7 @@
 import { Duration, Fn } from "aws-cdk-lib";
 import { ISecurityGroup, ISubnet, SecurityGroup, Subnet } from "aws-cdk-lib/aws-ec2";
 import { Cluster, Secret } from "aws-cdk-lib/aws-ecs";
-import { PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { ManagedPolicy, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Schedule, ScheduleExpression } from "aws-cdk-lib/aws-scheduler";
 import { EcsRunFargateTask } from "aws-cdk-lib/aws-scheduler-targets";
 import * as secret from "aws-cdk-lib/aws-secretsmanager";
@@ -38,6 +38,18 @@ export class DoorwayImportListings {
     const executionRole = new Role(scope, `executionRole-${id}`, {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
+    executionRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
+    )
+    executionRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess"),
+    )
+    executionRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonRDSReadOnlyAccess"),
+    )
+    executionRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonEC2ContainerRegistryReadOnly"),
+    )
     props.logGroup.grantWrite(executionRole)
     const dbSecretArn = Fn.importValue(`doorwayDBSecret-${props.environment}`)
     const dbSecret = secret.Secret.fromSecretCompleteArn(scope, "dbSecret-import-listings", dbSecretArn)

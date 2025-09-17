@@ -2,7 +2,7 @@ import { aws_logs, Fn, RemovalPolicy, Stack } from "aws-cdk-lib"
 import { Vpc } from "aws-cdk-lib/aws-ec2"
 import { LogGroup } from "aws-cdk-lib/aws-logs"
 import { Construct } from "constructs"
-import dotenv from "dotenv"
+import * as dotenv from "dotenv"
 import path from "path"
 
 import { DoorwayLoadBalancers } from "./doorway-load-balancers"
@@ -23,8 +23,14 @@ export class DoorwayAppEnvironmentStack extends Stack {
       },
       crossRegionReferences: true
     })
-    dotenv.config({ path: path.resolve(__dirname, `../../${environment}.env`) })
+    console.log(`Creating Application stack for ${environment}`)
+    console.log(`Using environment file: ${path.resolve(__dirname, `../../${environment}.env`)}`)
 
+
+    dotenv.config({
+      path: path.resolve(__dirname, `../../${environment}.env`),
+      override: true
+    })
 
     const logGroup = new LogGroup(this, `doorway-${environment}-tasks`, {
       logGroupName: `doorway-${environment}-tasks`,

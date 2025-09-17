@@ -92,6 +92,7 @@ export class DoorwayBackendService {
       PGDATABASE: Secret.fromSecretsManager(dbSecret, "dbname"),
     }
     const secretNames = process.env.BACKEND_API_SECRETS || ""
+    console.log(`SECRETS: ${secretNames}`)
     secretNames.split(",").forEach((secretName) => {
       secrets[secretName] = Secret.fromSecretsManager(
         secret.Secret.fromSecretNameV2(scope, secretName, `/doorway/${props.environment}/${secretName}`),

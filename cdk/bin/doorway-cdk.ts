@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import * as cdk from "aws-cdk-lib"
 
 import { DoorwayBuildPipelineStack } from "../lib/build-pipeline/doorway-build-pipeline-stack"
@@ -10,8 +9,9 @@ import { DoorwayCloudFrontStack } from "../lib/doorway_environment/doorway-cloud
  * stacks that make up the Doorway Application infrastructure and build pipeline.
  **/
 const app = new cdk.App()
-
 const environment = process.env.ENVIRONMENT || "dev2"
+
+
 /** This stack creates the doorway application build pipeline **/
 new DoorwayBuildPipelineStack(app, "DoorwayBuildPipelineStack", {
   githubSecret: "mtc/githubSecret",
@@ -26,5 +26,6 @@ const cfCertStack = new DoorwayCloudFrontStack(app, `DoorwayCloudFrontStack-${en
 })
 
 /** This  stack actually creates a doorway environment. */
+
 new DoorwayAppEnvironmentStack(app, `DoorwayAppEnvironmentStack-${environment}`, environment)
 

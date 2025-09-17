@@ -5,7 +5,6 @@ import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { Repository } from "aws-cdk-lib/aws-ecr"
 import { Role } from "aws-cdk-lib/aws-iam"
 import { Construct } from "constructs/lib/construct"
-import dotenv from "dotenv"
 import fs from "fs"
 import path from "path"
 import * as YAML from "yaml"
@@ -27,7 +26,7 @@ class DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     // Create ECR repository
 
-    dotenv.config({ path: path.resolve(__dirname, `../../${props.environment}.env`) })
+
     this.environmentVariables = {
       ECR_REGION: { value: Aws.REGION },
       ECR_ACCOUNT_ID: { value: Aws.ACCOUNT_ID },

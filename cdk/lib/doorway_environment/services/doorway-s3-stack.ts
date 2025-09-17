@@ -1,15 +1,12 @@
 import { CfnOutput, Stack } from "aws-cdk-lib";
 import { Bucket, HttpMethods } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
-import dotenv from "dotenv";
-import path from "path";
 
 import { DoorwayProps } from "../doorway-props";
 
 export class DoorwayS3Stack extends Stack {
   constructor(scope: Construct, id: string, props: DoorwayProps) {
     super(scope, id);
-    dotenv.config({ path: path.resolve(__dirname, `../../${props.environment}.env`) })
 
     const secureUploadsBucket = new Bucket(this, "secureUploadsBucket", {
       bucketName: `doorway-secure-uploads-${props.environment}`,

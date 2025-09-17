@@ -82,7 +82,7 @@ export class DoorwayImportListings {
       serviceConnectServer: false,
       domainName: "",
       executionRole: executionRole,
-      container: `doorway/import-listings:run-${process.env.GIT_HASH}`,
+      container: `doorway/import-listings:run-candidate`,
       securityGroup: privateSG,
       serviceName: `doorway-import-listings-${props.environment}`,
       clusterName: props.clusterName,

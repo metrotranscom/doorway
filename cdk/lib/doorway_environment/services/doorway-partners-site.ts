@@ -89,7 +89,7 @@ export class DoorwayPartnersSite {
       logGroup: props.logGroup,
       apiTargetDomainName: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int`,
       apiTargetPort: Number(process.env.BACKEND_API_PORT || 3000),
-      container: `doorway/partners:run-${process.env.ENVIRONMENT || "dev2"}-${gitHash}`,
+      container: `doorway/partners:run-${props.environment}-${gitHash}`,
       securityGroup: privateSG,
       serviceName: props.partnersServiceName,
       clusterName: props.clusterName,

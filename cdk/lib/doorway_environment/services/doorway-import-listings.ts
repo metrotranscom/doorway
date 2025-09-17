@@ -38,6 +38,7 @@ export class DoorwayImportListings {
     const executionRole = new Role(scope, `executionRole-${id}`, {
       assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
     })
+    props.logGroup.grantWrite(executionRole)
     const dbSecretArn = Fn.importValue(`doorwayDBSecret-${props.environment}`)
     const dbSecret = secret.Secret.fromSecretCompleteArn(scope, "dbSecret-import-listings", dbSecretArn)
     dbSecret.grantRead(executionRole)
@@ -94,7 +95,6 @@ export class DoorwayImportListings {
       actions: [
         "ecs:RunTask",
         "ecs:DescribeTaskDefinition",
-        "iam:PassRole"
       ],
       resources: ["*"]
     }));
@@ -113,11 +113,15 @@ export class DoorwayImportListings {
         subnets: appsubnets,
       },
       role: schedulerRole,
+
     })
 
     this.schedule = new Schedule(scope, `import-listings-schedule-${props.environment}`, {
       target: target,
+
+
       schedule: ScheduleExpression.rate(Duration.minutes(30))
     })
+
   }
 }

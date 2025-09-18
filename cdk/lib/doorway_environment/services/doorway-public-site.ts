@@ -63,7 +63,7 @@ export class DoorwayPublicSite {
       LANGUAGES: process.env.LANGUAGES || "en,es,zh,vi,tl",
       LISTINGS_QUERY: process.env.LISTINGS_QUERY || "/listings",
       NEXTJS_PORT: String(port),
-      NODE_ENV: process.env.NODE_ENV || "development",
+      NODE_ENV: process.env.NODE_ENV || "dev2elopment",
       NOTIFICATIONS_SIGNUP_URL:
         process.env.NOTIFICATIONS_SIGNUP_URL ||
         "https://public.govdelivery.com/accounts/CAMTC/signup/36832",

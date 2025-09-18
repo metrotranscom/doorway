@@ -61,7 +61,7 @@ export class DoorwayPartnersSite {
       LOG_LEVEL: process.env.LOG_LEVEL || "info",
       NEXTJS_PORT: String(port),
       MAPBOX_TOKEN: process.env.MAPBOX_TOKEN || "",
-      NODE_ENV: process.env.NODE_ENV || "development",
+      NODE_ENV: process.env.NODE_ENV || "dev2elopment",
       SHOW_DUPLICATES: process.env.SHOW_DUPLICATES || "FALSE",
       SHOW_LM_LINKS: process.env.SHOW_LM_LINKS || "TRUE",
       USE_SECURE_DOWNLOAD_PATHWAY: process.env.USE_SECURE_DOWNLOAD_PATHWAY || "TRUE",

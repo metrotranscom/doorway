@@ -119,7 +119,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev"
+          environment: "dev2"
         }).action,
         new ImportDockerBuild(this, "doorway-import-listings", {
           buildspec: "../ci/buildspec/build_import_listings.yml",
@@ -127,39 +127,39 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev"
+          environment: "dev2"
         }).action,
-        new PartnersDockerBuild(this, `doorway-partners-dev`, {
+        new PartnersDockerBuild(this, `doorway-partners-dev2`, {
           buildspec: "../ci/buildspec/build_partners.yml",
           imageName: "partners",
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev"
+          environment: "dev2"
         }).action,
-        new PublicDockerBuild(this, "doorway-public-dev", {
+        new PublicDockerBuild(this, "doorway-public-dev2", {
           buildspec: "../ci/buildspec/build_public.yml",
           imageName: "public",
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev"
+          environment: "dev2"
         }).action,
       ],
     })
 
-    const dbmigrate = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
-      environment: "dev",
+    const dbmigrate = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev2", {
+      environment: "dev2",
       buildspec: "./ci/buildspec/migrate_stop_backend.yml",
       source: sourceArtifact,
       buildRole: buildRole, // This parameter is now ignored
     }).action
 
-    const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
+    const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev2", {
       buildspec: "./ci/buildspec/cdk_deploy.yml",
       source: sourceArtifact,
       buildRole: buildRole,
-      environment: "dev",
+      environment: "dev2",
     }).action
 
     pipeline.addStage({

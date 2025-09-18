@@ -8,7 +8,7 @@ import { DoorwayCloudFrontStack } from "../lib/doorway_environment/doorway-cloud
  * stacks that make up the Doorway Application infrastructure and build pipeline.
  **/
 const app = new cdk.App()
-const environment = process.env.ENVIRONMENT || "dev"
+const environment = process.env.ENVIRONMENT || "dev2"
 
 
 /** This stack creates the doorway application build pipeline **/

@@ -6,7 +6,6 @@ import { Repository } from "aws-cdk-lib/aws-ecr"
 import { Role } from "aws-cdk-lib/aws-iam"
 import { Construct } from "constructs/lib/construct"
 import fs from "fs"
-import path from "path"
 import * as YAML from "yaml"
 
 export interface DoorwayDockerBuildProps {
@@ -68,7 +67,7 @@ class DoorwayDockerBuild {
 export class PartnersDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
-    if (props.environment.startsWith("dev")) {
+    if (props.environment.startsWith("dev2")) {
       // Grant permissions to the provided role
       const repo = new Repository(scope, `${id}-ECRRepository`, {
         repositoryName: `doorway/${props.imageName}`,
@@ -83,7 +82,7 @@ export class PartnersDockerBuild extends DoorwayDockerBuild {
 export class PublicDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
-    if (props.environment.startsWith("dev")) {
+    if (props.environment.startsWith("dev2")) {
       // Grant permissions to the provided role
       const repo = new Repository(scope, `${id}-ECRRepository`, {
         repositoryName: `doorway/${props.imageName}`,

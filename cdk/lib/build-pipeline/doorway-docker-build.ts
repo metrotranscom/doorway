@@ -8,6 +8,7 @@ import { Construct } from "constructs/lib/construct"
 import fs from "fs"
 import * as YAML from "yaml"
 
+
 export interface DoorwayDockerBuildProps {
   buildspec: string
   imageName: string
@@ -33,7 +34,7 @@ class DoorwayDockerBuild {
       IMAGE_NAME: { value: props.imageName },
       DOCKER_HUB_SECRET_ARN: { value: props.dockerHubSecret },
       ENVIRONMENT: { value: props.environment },
-      BACKEND_API_BASE: { value: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int:3100` },
+      BACKEND_API_BASE: { value: process.env.BACKEND_API_BASE || `http://backend.${props.environment}.housingbayarea.int` },
       CACHE_REVALIDATE: { value: process.env.CACHE_REVALIDATE || "30" },
       LANGUAGES: {
         value: process.env.LANGUAGES || "en,es,zh,vi,tl"

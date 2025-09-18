@@ -12,4 +12,4 @@ phases:
       - npm install -g aws-cdk
       - cd ${CODEBUILD_SRC_DIR}/cdk
       - yarn install
-      - cdk deploy DoorwayAppEnvironmentStack-${ENVIRONMENT} --require-approval never
+      - cdk deploy DoorwayCloudFrontStack-${ENVIRONMENT} --require-approval never

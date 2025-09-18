@@ -43,7 +43,7 @@ export const AUTH_COOKIE_OPTIONS: CookieOptions = {
   secure,
   sameSite,
   maxAge: TOKEN_COOKIE_MAXAGE / 8, // access token should last 3 hr
-  domain: process.env.COOKIE_DOMAIN ?? "",
+  domain: process.env.COOKIE_DOMAIN ?? undefined,
 };
 export const REFRESH_COOKIE_OPTIONS: CookieOptions = {
   ...AUTH_COOKIE_OPTIONS,
@@ -65,7 +65,7 @@ export class AuthService {
     private userService: UserService,
     private smsService: SmsService,
     private emailsService: EmailService,
-  ) { }
+  ) {}
   /*
     generates a signed token for a user
     willBeRefreshToken changes the TTL of the token with true being longer and false being shorter
@@ -300,9 +300,9 @@ export class AuthService {
     return dto.mfaType === MfaType.email
       ? { email: user.email, phoneNumberVerified: user.phoneNumberVerified }
       : {
-        phoneNumber: user.phoneNumber,
-        phoneNumberVerified: user.phoneNumberVerified,
-      };
+          phoneNumber: user.phoneNumber,
+          phoneNumberVerified: user.phoneNumberVerified,
+        };
   }
   /*
     updates a user's password and logs them in

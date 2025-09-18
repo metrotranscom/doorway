@@ -13,12 +13,12 @@ export interface CloudFrontCertStackProps extends StackProps {
   environment: string;
   publicDomainName: string;
   partnersDomainName: string;
-  loadBalancerDnsName?: string;
+  loadBalancerDnsName: string;
 }
 
 export class DoorwayCloudFrontStack extends Stack {
   public cloudFrontCertArn: string;
-  constructor(scope: Construct, id: string, environment: string) {
+  constructor(scope: Construct, id: string, props: CloudFrontCertStackProps) {
     super(scope, id, {
       env: {
         region: 'us-east-1',
@@ -26,6 +26,7 @@ export class DoorwayCloudFrontStack extends Stack {
       },
       crossRegionReferences: true
     });
+    const environment = props.environment;
     console.log(`Creating Application stack for ${environment}`)
     console.log(`Using environment file: ${path.resolve(__dirname, `../../${environment}.env`)}`)
 
@@ -53,17 +54,10 @@ export class DoorwayCloudFrontStack extends Stack {
       subjectAlternativeNames: [partnersDomainName]
     });
 
-    // Get load balancer DNS from SSM parameter (cross-region compatible)
-    const loadBalancerDnsName = StringParameter.fromStringParameterName(
-      this, 
-      `lb-dns-param-${environment}`, 
-      `/doorway/${environment}/public-lb-dns`
-    ).stringValue;
-    
     const cfOrigin = new LoadBalancerV2Origin(ApplicationLoadBalancer.fromApplicationLoadBalancerAttributes(this, `PublicLB-${environment}`, {
       loadBalancerArn: `arn:aws:elasticloadbalancing:us-west-2:364076391763:loadbalancer/app/doorway-lbs-${environment}/dummy`,
       securityGroupId: 'sg-dummy',
-      loadBalancerDnsName: loadBalancerDnsName
+      loadBalancerDnsName: props.loadBalancerDnsName
     }))
     const cachePolicy = new CachePolicy(this, `CachePolicy-images-${environment}`, {
       cachePolicyName: `CachePolicy-images-${environment}`,

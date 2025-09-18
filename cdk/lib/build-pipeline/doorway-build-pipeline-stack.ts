@@ -119,7 +119,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
         new ImportDockerBuild(this, "doorway-import-listings", {
           buildspec: "../ci/buildspec/build_import_listings.yml",
@@ -127,7 +127,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
         new PartnersDockerBuild(this, `doorway-partners-dev`, {
           buildspec: "../ci/buildspec/build_partners.yml",
@@ -135,7 +135,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
         new PublicDockerBuild(this, "doorway-public-dev", {
           buildspec: "../ci/buildspec/build_public.yml",
@@ -143,23 +143,23 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
       ],
     })
 
     const dbmigrate = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
-      environment: "dev2",
+      environment: "dev",
       buildspec: "./ci/buildspec/migrate_stop_backend.yml",
       source: sourceArtifact,
       buildRole: buildRole, // This parameter is now ignored
     }).action
 
     const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
-      buildspec: "./ci/buildspec/update_ecs.yml",
+      buildspec: "./ci/buildspec/cdk_deploy.yml",
       source: sourceArtifact,
       buildRole: buildRole,
-      environment: "dev2",
+      environment: "dev",
     }).action
 
     pipeline.addStage({
@@ -197,7 +197,7 @@ export class DoorwayBuildPipelineStack extends Stack {
     }).action;
 
     const ecsDeployStaging = new DoorwayECSDeploy(this, "doorway-ecs-deploy-staging", {
-      buildspec: "./ci/buildspec/update_ecs.yml",
+      buildspec: "./ci/buildspec/cdk_deploy.yml",
       source: sourceArtifact,
       buildRole: buildRole,
       environment: "staging",

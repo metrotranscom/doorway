@@ -15,6 +15,8 @@ import { DoorwayS3Stack } from "./services/doorway-s3-stack"
 import { DoorwaySecrets } from "./services/doorway-secrets-stack"
 
 export class DoorwayAppEnvironmentStack extends Stack {
+  public loadBalancerDnsName: string;
+  
   constructor(scope: Construct, id: string, environment: string) {
     super(scope, id, {
       env: {
@@ -77,5 +79,7 @@ export class DoorwayAppEnvironmentStack extends Stack {
     const scheduler = new DoorwayImportListings(this, `doorway-import-listings-scheduler-${environment}`, dwProps)
     scheduler.schedule.node.addDependency(api.service)
 
+    // Expose load balancer DNS name for cross-region access
+    this.loadBalancerDnsName = lb.loadBalancer.loadBalancerDnsName;
   }
 }

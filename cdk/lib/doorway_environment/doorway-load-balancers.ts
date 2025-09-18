@@ -206,12 +206,6 @@ export class DoorwayLoadBalancers {
       value: this.loadBalancer.loadBalancerDnsName,
       exportName: `public-lb-dns-${props.environment}`
     })
-    
-    // Store DNS name in SSM for cross-region access
-    new StringParameter(scope, `public-lb-dns-param-${props.environment}`, {
-      parameterName: `/doorway/${props.environment}/public-lb-dns`,
-      stringValue: this.loadBalancer.loadBalancerDnsName
-    })
     new CfnOutput(scope, `public-lb-arn-${props.environment}`, {
       value: this.loadBalancer.loadBalancerArn,
       exportName: `doorway-public-lb-${props.environment}-arn`

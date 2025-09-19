@@ -5,9 +5,10 @@ import { CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions"
 import { Repository } from "aws-cdk-lib/aws-ecr"
 import { Role } from "aws-cdk-lib/aws-iam"
 import { Construct } from "constructs/lib/construct"
+import dotenv from "dotenv"
 import fs from "fs"
+import path from "path"
 import * as YAML from "yaml"
-
 
 export interface DoorwayDockerBuildProps {
   buildspec: string
@@ -23,7 +24,16 @@ class DoorwayDockerBuild {
 
 
 
+
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
+    console.log(`Creating Application stack for ${props.environment}`)
+    console.log(`Using environment file: ${path.resolve(__dirname, `../../${props.environment}.env`)}`)
+
+
+    dotenv.config({
+      path: path.resolve(__dirname, `../../${props.environment}.env`),
+      override: true
+    })
     // Create ECR repository
 
 

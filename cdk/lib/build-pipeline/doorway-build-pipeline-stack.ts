@@ -4,6 +4,7 @@ import { GitHubSourceAction, GitHubTrigger } from "aws-cdk-lib/aws-codepipeline-
 import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
+
 import { DoorwayDatabaseMigrate } from "./doorway-database-migrate"
 import { BackendDockerBuild, ImportDockerBuild, PartnersDockerBuild, PublicDockerBuild } from "./doorway-docker-build"
 import { DoorwayECSDeploy } from "./doorway-ecs-deploy"
@@ -163,7 +164,7 @@ export class DoorwayBuildPipelineStack extends Stack {
 
     pipeline.addStage({
       stageName: "Dev",
-      actions: [dbmigrate, ecsDeploy],
+      actions: [ecsDeploy],
     })
     pipeline.addStage({
       stageName: "Build-Staging",

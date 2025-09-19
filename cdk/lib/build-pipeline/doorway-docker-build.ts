@@ -68,7 +68,7 @@ class DoorwayDockerBuild {
 export class PartnersDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
-    if (props.environment.startsWith("dev2")) {
+    if (props.environment.startsWith("dev")) {
       // Grant permissions to the provided role
       const repo = new Repository(scope, `${id}-ECRRepository`, {
         repositoryName: `doorway/${props.imageName}`,
@@ -83,7 +83,7 @@ export class PartnersDockerBuild extends DoorwayDockerBuild {
 export class PublicDockerBuild extends DoorwayDockerBuild {
   constructor(scope: Construct, id: string, props: DoorwayDockerBuildProps) {
     super(scope, id, props)
-    if (props.environment.startsWith("dev2")) {
+    if (props.environment.startsWith("dev")) {
       // Grant permissions to the provided role
       const repo = new Repository(scope, `${id}-ECRRepository`, {
         repositoryName: `doorway/${props.imageName}`,

@@ -4,7 +4,6 @@ import { GitHubSourceAction, GitHubTrigger } from "aws-cdk-lib/aws-codepipeline-
 import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam"
 import { Secret } from "aws-cdk-lib/aws-secretsmanager"
 import { Construct } from "constructs"
-
 import { DoorwayDatabaseMigrate } from "./doorway-database-migrate"
 import { BackendDockerBuild, ImportDockerBuild, PartnersDockerBuild, PublicDockerBuild } from "./doorway-docker-build"
 import { DoorwayECSDeploy } from "./doorway-ecs-deploy"
@@ -119,7 +118,7 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
         new ImportDockerBuild(this, "doorway-import-listings", {
           buildspec: "../ci/buildspec/build_import_listings.yml",
@@ -127,39 +126,39 @@ export class DoorwayBuildPipelineStack extends Stack {
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
-        new PartnersDockerBuild(this, `doorway-partners-dev2`, {
+        new PartnersDockerBuild(this, `doorway-partners-dev`, {
           buildspec: "../ci/buildspec/build_partners.yml",
           imageName: "partners",
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
-        new PublicDockerBuild(this, "doorway-public-dev2", {
+        new PublicDockerBuild(this, "doorway-public-dev", {
           buildspec: "../ci/buildspec/build_public.yml",
           imageName: "public",
           source: sourceArtifact,
           dockerHubSecret: dockerSecret,
           buildRole: buildRole,
-          environment: "dev2"
+          environment: "dev"
         }).action,
       ],
     })
 
-    const dbmigrate = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev2", {
-      environment: "dev2",
+    const dbmigrate = new DoorwayDatabaseMigrate(this, "doorway-database-migrate-dev", {
+      environment: "dev",
       buildspec: "./ci/buildspec/migrate_stop_backend.yml",
       source: sourceArtifact,
       buildRole: buildRole, // This parameter is now ignored
     }).action
 
-    const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev2", {
+    const ecsDeploy = new DoorwayECSDeploy(this, "doorway-ecs-deploy-dev", {
       buildspec: "./ci/buildspec/cdk_deploy.yml",
       source: sourceArtifact,
       buildRole: buildRole,
-      environment: "dev2",
+      environment: "dev",
     }).action
 
     pipeline.addStage({

@@ -1,34 +1,31 @@
+import * as aws from '@aws-sdk/client-sesv2';
+import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
-import fs from 'fs';
-import Handlebars from 'handlebars';
-import juice from 'juice';
-import Polyglot from 'node-polyglot';
-import { firstValueFrom } from 'rxjs';
-import path from 'path';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import tz from 'dayjs/plugin/timezone';
-import advanced from 'dayjs/plugin/advancedFormat';
-import * as aws from '@aws-sdk/client-sesv2';
-import { TranslationService } from './translation.service';
-import { JurisdictionService } from './jurisdiction.service';
-import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
 import {
   LanguagesEnum,
   ListingEventsTypeEnum,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
-import { IdDTO } from '../dtos/shared/id.dto';
-import { Listing } from '../dtos/listings/listing.dto';
+import dayjs from 'dayjs';
+import advanced from 'dayjs/plugin/advancedFormat';
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import fs from 'fs';
+import Handlebars from 'handlebars';
+import juice from 'juice';
+import Polyglot from 'node-polyglot';
+import path from 'path';
+import { firstValueFrom } from 'rxjs';
 import { ApplicationCreate } from '../dtos/applications/application-create.dto';
-import { User } from '../dtos/users/user.dto';
+import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
+import { Listing } from '../dtos/listings/listing.dto';
+import { IdDTO } from '../dtos/shared/id.dto';
 import Unit from '../dtos/units/unit.dto';
+import { User } from '../dtos/users/user.dto';
 import { getPublicEmailURL } from '../utilities/get-public-email-url';
-
-dayjs.extend(utc);
-dayjs.extend(tz);
+import { JurisdictionService } from './jurisdiction.service';
+import { TranslationService } from './translation.service';
 dayjs.extend(advanced);
 
 type listingInfo = {
@@ -53,7 +50,7 @@ export class EmailService {
     private logger = new Logger(EmailService.name),
   ) {
     const sesClient = new aws.SESv2Client({
-      region: process.env.AWS_REGION,
+      region: process.env.SES_REGION || process.env.AWS_REGION,
     });
 
     this.client = sesClient;
@@ -138,7 +135,7 @@ export class EmailService {
 
     // juice inlines css to allow for email styling
     const inlineHtml = juice(rawHtml);
-    const govEmailXml = `<bulletin>\n <subject>${subject}</subject>\n  <body><![CDATA[\n     
+    const govEmailXml = `<bulletin>\n <subject>${subject}</subject>\n  <body><![CDATA[\n
       ${inlineHtml}\n   ]]></body>\n   <sms_body nil='true'></sms_body>\n   <from_address_id>${fromEmailAddress}</from_address_id>\n   <publish_rss type='boolean'>false</publish_rss>\n   <open_tracking type='boolean'>true</open_tracking>\n   <click_tracking type='boolean'>true</click_tracking>\n   <share_content_enabled type='boolean'>true</share_content_enabled>\n   <topics type='array'>\n     <topic>\n       <code>${GOVDELIVERY_TOPIC}</code>\n     </topic>\n   </topics>\n   <categories type='array' />\n </bulletin>`;
 
     await firstValueFrom(
@@ -177,8 +174,8 @@ export class EmailService {
               },
               Text: mailOptions.text
                 ? {
-                    Data: mailOptions.text,
-                  }
+                  Data: mailOptions.text,
+                }
                 : undefined,
             },
           },
@@ -659,9 +656,8 @@ export class EmailService {
       );
       tableRows.push({
         label: this.polyglot.t(`rentalOpportunity.${key}`),
-        value: `${bedroom?.length} unit${
-          bedroom.length > 1 ? 's' : ''
-        }${bathroomstring}${sqFtString}`,
+        value: `${bedroom?.length} unit${bedroom.length > 1 ? 's' : ''
+          }${bathroomstring}${sqFtString}`,
       });
     });
     if (units?.rent?.length) {
@@ -854,9 +850,8 @@ export class EmailService {
   formatPricing = (values: number[]): string => {
     const minPrice = Math.min(...values);
     const maxPrice = Math.max(...values);
-    return `$${minPrice.toLocaleString()}${
-      minPrice !== maxPrice ? ' - $' + maxPrice.toLocaleString() : ''
-    } per month`;
+    return `$${minPrice.toLocaleString()}${minPrice !== maxPrice ? ' - $' + maxPrice.toLocaleString() : ''
+      } per month`;
   };
 
   formatUnitDetails = (
@@ -874,9 +869,8 @@ export class EmailService {
     if (mappedField?.length) {
       const minValue = Math.min(...mappedField);
       const maxValue = Math.max(...mappedField);
-      return `, ${minValue.toLocaleString()}${
-        minValue !== maxValue ? ' - ' + maxValue.toLocaleString() : ''
-      } ${pluralLabel && maxValue === 1 ? pluralLabel : label}`;
+      return `, ${minValue.toLocaleString()}${minValue !== maxValue ? ' - ' + maxValue.toLocaleString() : ''
+        } ${pluralLabel && maxValue === 1 ? pluralLabel : label}`;
     }
     return '';
   };

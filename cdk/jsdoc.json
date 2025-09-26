@@ -1,0 +1,26 @@
+{
+  "plugins": [
+    "plugins/markdown",
+    "better-docs/typescript"
+  ],
+  "source": {
+    "include": [
+      "./lib",
+      "./README.md"
+    ],
+    "includePattern": ".+\\.(js|jsx|ts|tsx)$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "opts": {
+    "destination": "./docs/",
+    "recurse": true
+  },
+
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": true
+    }
+  }
+}

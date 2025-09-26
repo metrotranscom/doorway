@@ -5,13 +5,6 @@
 version: 0.2
 env:
   shell: bash
-  secrets-manager:
-    PGUSER: "${DB_CREDS_ARN}:user"
-    PGPASSWORD: "${DB_CREDS_ARN}:password"
-    PGHOST: "${DB_CREDS_ARN}:host"
-    PGDATABASE: "${DB_CREDS_ARN}:db_name"
-    PGPORT: "${DB_CREDS_ARN}:port"
-    DATABASE_URL: "${DB_CREDS_ARN}:uri"
 phases:
   pre_build:
     commands:
@@ -38,16 +31,19 @@ phases:
       - if [[ ! -z "${ECS_PRIVATE_BACKEND_SERVICE}" ]]; then aws ecs wait services-stable --cluster "${ECS_BACKEND_CLUSTER}" --services "${ECS_PRIVATE_BACKEND_SERVICE}"; fi
       # Default to db:reseed:ci
       - export MIGRATION_CMD="${MIGRATION_CMD:-db:reseed:ci}"
-      # Execute migration
-      # Note that many of these vars are required by the app but not used for migration
-      - >
-        docker run
+      - export PGUSER=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r ."username")
+      - export PGPASSWORD=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r  ."password")
+      - export PGPORT=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r ."port")
+      - export PGHOST=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r  ."host")
+      - export PGDATABASE=$(aws secretsmanager get-secret-value --secret-id ${DB_CREDS_ARN}|jq ."SecretString"|jq -r|jq -r ."dbname")
+
+
+      - docker run
         --env PGUSER="${PGUSER}"
         --env PGPASSWORD="${PGPASSWORD}"
         --env PGHOST="${PGHOST}"
-        --env PGDATABASE=template1
-        --env PGPORT="${PGPORT}"
-        --env DATABASE_URL="${DATABASE_URL}"
+        --env PGDATABASE=${PGDATABASE}
+        --env PGPORT=${PGPORT}
         --env CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
         --env LISTINGS_QUERY="${LISTINGS_QUERY}"
         --env FILE_SERVICE="${FILE_SERVICE:-cloudinary}"
@@ -57,10 +53,8 @@ phases:
         --env CLOUDINARY_SECRET="${CLOUDINARY_SECRET:-dummy_secret}"
         --env CLOUDINARY_KEY="${CLOUDINARY_KEY:-dummy_key}"
         --env ADMIN_ACCOUNTS="${ADMIN_ACCOUNTS:-100}"
+        --env MIGRATION_CMD="${MIGRATION_CMD}"
         --env PARTNERS_BASE_URL="${PARTNERS_BASE_URL:-http://localhost:3001/not-used}"
         --env PARTNERS_PORTAL_URL="${PARTNERS_PORTAL_URL:-http://localhost:3001/not-used}"
         --env SKIP_MIGRATIONS=FALSE
-        "${MIGRATION_IMAGE}" sh -c "yarn ${MIGRATION_CMD}"
-      # Start the backend back up with the previous number of desired containers
-      - aws ecs update-service --cluster "${ECS_BACKEND_CLUSTER}" --service "${ECS_BACKEND_SERVICE}" --desired-count $BACKEND_COUNT
-      - if [[ ! -z "${ECS_PRIVATE_BACKEND_SERVICE}" ]]; then aws ecs update-service --cluster "${ECS_BACKEND_CLUSTER}" --service "${ECS_PRIVATE_BACKEND_SERVICE}" --desired-count $BACKEND_COUNT; fi
+        "${MIGRATION_IMAGE}"

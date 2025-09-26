@@ -1,0 +1,15 @@
+# AWS CodeBuild config
+# This file is referenced in the infra repo as a CodeBuild buildspec target.
+## The environment variables in this file are passed in through the buildbuild resource.
+## Check the terraform scripts to see where these variables originate from.
+version: 0.2
+env:
+  shell: bash
+phases:
+  build:
+    commands:
+      - npm install -g  yarn
+      - npm install -g aws-cdk
+      - cd ${CODEBUILD_SRC_DIR}/cdk
+      - yarn install
+      - cdk deploy DoorwayCloudFrontStack-${ENVIRONMENT} --require-approval never

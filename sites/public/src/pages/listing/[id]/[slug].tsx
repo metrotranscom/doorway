@@ -100,6 +100,7 @@ export const getStaticProps: GetStaticProps = async (context: {
   const listingServiceUrl = runtimeConfig.getListingServiceUrl()
 
   try {
+    console.log(`requesting URL: ${listingServiceUrl}/${context.params.id}`)
     response = await axios.get(`${listingServiceUrl}/${context.params.id}`, {
       headers: {
         language: context.locale,
@@ -110,6 +111,7 @@ export const getStaticProps: GetStaticProps = async (context: {
     console.error("slug notFound Error:", e)
     return { notFound: true, revalidate: Number(process.env.cacheRevalidate) }
   }
+  console.log("response data", response.data)
   return {
     props: {
       listing: response.data,

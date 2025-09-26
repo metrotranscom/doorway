@@ -32,6 +32,7 @@ export async function getServerSideProps(context: {
       headers,
     })
   } catch (e) {
+    console.log(e)
     return { notFound: true }
   }
 

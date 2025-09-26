@@ -18,6 +18,7 @@ import dayjs from "dayjs"
 import { runtimeConfig } from "../../../lib/runtime-config"
 import { Jurisdiction, Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ListingViewSeeds } from "../../../components/listing/ListingViewSeeds"
+import { logger } from "../../../logger"
 
 interface ListingProps {
   listing: Listing
@@ -100,7 +101,7 @@ export const getStaticProps: GetStaticProps = async (context: {
   const listingServiceUrl = runtimeConfig.getListingServiceUrl()
 
   try {
-    console.log(`requesting URL: ${listingServiceUrl}/${context.params.id}`)
+    logger.info(`requesting URL: ${listingServiceUrl}/${context.params.id}`)
     response = await axios.get(`${listingServiceUrl}/${context.params.id}`, {
       headers: {
         language: context.locale,
@@ -108,10 +109,10 @@ export const getStaticProps: GetStaticProps = async (context: {
       },
     })
   } catch (e) {
-    console.error("slug notFound Error:", e)
+    logger.error("slug notFound Error:", e)
     return { notFound: true, revalidate: Number(process.env.cacheRevalidate) }
   }
-  console.log("response data", response.data)
+  logger.info("response data", response.data)
   return {
     props: {
       listing: response.data,

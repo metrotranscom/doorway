@@ -98,12 +98,14 @@ export async function getServerSideProps(context: {
     logger.info(
       `requesting URL: ${process.env.BLOOM_API_BASE}/listings/external/${context.params.id}`
     )
+    logger.info(`context.locale: ${context.locale}`)
     const extUrl = `${process.env.BLOOM_API_BASE}/listings/external/${context.params.id}`
     response = await axios.get(extUrl, {
       headers: { language: context.locale },
     })
   } catch (e) {
     logger.error("external notFound Error")
+    logger.error(e)
     return { notFound: true }
   }
 
@@ -114,7 +116,7 @@ export async function getServerSideProps(context: {
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey() || null,
       googleMapsMapId: runtimeConfig.getGoogleMapsMapId() || null,
     },
-    revalidate: Number(process.env.cacheRevalidate),
+    // revalidate: Number(process.env.cacheRevalidate),
   }
 }
 

@@ -91,28 +91,30 @@ export default function ListingPage(props: ListingProps) {
   )
 }
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return { paths: [], fallback: "blocking" }
-}
+// export const getStaticPaths: GetStaticPaths = () => {
+//   return { paths: [], fallback: "blocking" }
+// }
 
-export const getStaticProps: GetStaticProps = async (context: {
+export async function getServerSideProps(context: {
   params: Record<string, string>
   locale: string
-}) => {
+}) {
   let response
   const listingServiceUrl = runtimeConfig.getListingServiceUrl()
 
   try {
-    logger.info(`requesting URL: ${listingServiceUrl}/${context.params.id}`)
-    response = await axios.get(`${listingServiceUrl}/${context.params.id}`, {
+    logger.info(`requesting URL: ${listingServiceUrl}s/${context.params.id}`)
+    logger.info(`context.locale: ${context.locale}`)
+    response = await axios.get(`${listingServiceUrl}s/${context.params.id}`, {
       headers: {
         language: context.locale,
         passkey: process.env.API_PASS_KEY,
       },
     })
   } catch (e) {
-    logger.error("slug notFound Error:", e)
-    return { notFound: true, revalidate: Number(process.env.cacheRevalidate) }
+    logger.error("slug notFound Error:")
+    logger.error(e)
+    return { notFound: true }
   }
   logger.info(`response data - ${response.data?.name}`)
   return {
@@ -122,6 +124,6 @@ export const getStaticProps: GetStaticProps = async (context: {
       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey() || null,
       googleMapsMapId: runtimeConfig.getGoogleMapsMapId() || null,
     },
-    revalidate: Number(process.env.cacheRevalidate),
+    // revalidate: Number(process.env.cacheRevalidate),
   }
 }

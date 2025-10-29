@@ -103,9 +103,9 @@ export async function getServerSideProps(context: {
   const listingServiceUrl = runtimeConfig.getListingServiceUrl()
 
   try {
-    logger.info(`requesting URL: ${listingServiceUrl}s/${context.params.id}`)
+    logger.info(`requesting URL: ${listingServiceUrl}/${context.params.id}`)
     logger.info(`context.locale: ${context.locale}`)
-    response = await axios.get(`${listingServiceUrl}s/${context.params.id}`, {
+    response = await axios.get(`${listingServiceUrl}/${context.params.id}`, {
       headers: {
         language: context.locale,
         passkey: process.env.API_PASS_KEY,

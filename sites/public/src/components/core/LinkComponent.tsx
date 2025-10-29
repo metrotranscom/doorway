@@ -6,7 +6,7 @@ const LinkComponent = (props: PropsWithChildren<React.AnchorHTMLAttributes<HTMLA
   delete anchorProps.href
 
   /* eslint-disable jsx-a11y/anchor-has-content */
-  return <Link href={props.href} {...anchorProps}></Link>
+  return <Link href={props.href} {...anchorProps} prefetch={false}></Link>
 }
 
 export default LinkComponent

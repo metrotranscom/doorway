@@ -33,6 +33,8 @@ export default function ListingPage(props: ListingProps) {
   const pageTitle = `${listing.name} - ${t("nav.siteTitle")}`
   const { profile } = useContext(AuthContext)
 
+  // logger.info(`listing name - ${listing.name}`)
+
   useEffect(() => {
     if (!listing.id) return
     pushGtmEvent<ListingDetail>({
@@ -112,7 +114,7 @@ export const getStaticProps: GetStaticProps = async (context: {
     logger.error("slug notFound Error:", e)
     return { notFound: true, revalidate: Number(process.env.cacheRevalidate) }
   }
-  logger.info("response data", response.data)
+  logger.info(`response data - ${response.data?.name}`)
   return {
     props: {
       listing: response.data,

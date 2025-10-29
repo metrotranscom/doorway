@@ -17,6 +17,7 @@ import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
 import { runtimeConfig } from "../../../lib/runtime-config"
 import { Jurisdiction, Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { logger } from "../../../logger"
 
 interface ListingProps {
   listing: Listing
@@ -84,21 +85,25 @@ export default function ListingPage(props: ListingProps) {
   )
 }
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return { paths: [], fallback: "blocking" }
-}
+// export const getStaticPaths: GetStaticPaths = () => {
+//   return { paths: [], fallback: "blocking" }
+// }
 
-export const getStaticProps: GetStaticProps = async (context: {
+export async function getServerSideProps(context: {
   params: Record<string, string>
   locale: string
-}) => {
+}) {
   let response: AxiosResponse
   try {
+    logger.info(
+      `requesting URL: ${process.env.BLOOM_API_BASE}/listings/external/${context.params.id}`
+    )
     const extUrl = `${process.env.BLOOM_API_BASE}/listings/external/${context.params.id}`
     response = await axios.get(extUrl, {
       headers: { language: context.locale },
     })
   } catch (e) {
+    logger.error("external notFound Error")
     return { notFound: true }
   }
 
@@ -112,3 +117,32 @@ export const getStaticProps: GetStaticProps = async (context: {
     revalidate: Number(process.env.cacheRevalidate),
   }
 }
+
+// export const getStaticProps: GetStaticProps = async (context: {
+//   params: Record<string, string>
+//   locale: string
+// }) => {
+//   let response: AxiosResponse
+//   try {
+//     logger.info(
+//       `requesting URL: ${process.env.BLOOM_API_BASE}/listings/external/${context.params.id}`
+//     )
+//     const extUrl = `${process.env.BLOOM_API_BASE}/listings/external/${context.params.id}`
+//     response = await axios.get(extUrl, {
+//       headers: { language: context.locale },
+//     })
+//   } catch (e) {
+//     logger.error("external notFound Error")
+//     return { notFound: true }
+//   }
+
+//   return {
+//     props: {
+//       listing: response.data,
+//       jurisdiction: response.data.jurisdiction,
+//       googleMapsApiKey: runtimeConfig.getGoogleMapsApiKey() || null,
+//       googleMapsMapId: runtimeConfig.getGoogleMapsMapId() || null,
+//     },
+//     revalidate: Number(process.env.cacheRevalidate),
+//   }
+// }

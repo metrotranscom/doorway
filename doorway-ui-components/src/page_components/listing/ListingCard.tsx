@@ -139,7 +139,7 @@ const ListingCard = (props: ListingCardProps) => {
       return (
         <Heading priority={priority} styleType={styleType} className={customClass}>
           {header.href ? (
-            <Link className="is-card-link" href={header.href} ref={linkRef}>
+            <Link className="is-card-link" href={header.href} ref={linkRef} prefetch={false}>
               {header.content}
             </Link>
           ) : (

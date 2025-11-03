@@ -27,10 +27,10 @@ SET
   translations = jsonb_set(
     translations,
     '{rentalOpportunity}',
-   '{"viewListingNotice": "قد تتغير هذه المعلومات - يرجى الاطلاع على القائمة للحصول على أحدث المعلومات"}'
+   '{"viewListingNotice": "此資訊可能會更改 - 請查看列表以獲取最新信息'
   )
 WHERE
-  language = 'ar';
+  language = 'zh';
 
 UPDATE
   translations
@@ -38,7 +38,20 @@ SET
   translations = jsonb_set(
     translations,
     '{rentalOpportunity}',
-    '{"viewListingNotice": "এই তথ্যটি পরিবর্তিত হতে পারে - অনুগ্রহ করে সবচেয়ে আপডেট হওয়া তথ্যের জন্য তালিকা দেখুন}'
+    '{"viewListingNotice": "THÔNG TIN NÀY CÓ THỂ THAY ĐỔI - Vui lòng xem danh sách để biết thông tin cập nhật nhất'
   )
 WHERE
-  language = 'bn';
+  language = 'vi';
+
+
+
+UPDATE
+  translations
+SET
+  translations = jsonb_set(
+    translations,
+    '{rentalOpportunity}',
+    '{"viewListingNotice": "MAAARING MAGBAGO ANG IMPORMASYON NA ITO - Mangyaring tingnan ang listahan para sa pinakabagong impormasyon'
+  )
+WHERE
+  language = 'tl';

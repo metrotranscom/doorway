@@ -101,7 +101,7 @@ export class DoorwayBuildPipelineStack extends Stack {
       oauthToken: githubSecret,
       owner: "metrotranscom",
       repo: "doorway",
-      branch: "feat/tf_to_cdk",
+      branch: "main",
       output: sourceArtifact,
       trigger: GitHubTrigger.WEBHOOK,
       variablesNamespace: "SourceVariables",

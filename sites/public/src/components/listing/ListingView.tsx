@@ -533,7 +533,8 @@ export const ListingView = (props: ListingProps) => {
         }
         strings={{
           sectionTitle:
-            listing.reviewOrderType === ReviewOrderTypeEnum.waitlist
+            listing.reviewOrderType === ReviewOrderTypeEnum.waitlist ||
+            listing.reviewOrderType === ReviewOrderTypeEnum.waitlistLottery
               ? t("listings.waitlist.isOpen")
               : t("listings.vacantUnitsAvailable"),
           description: description(),

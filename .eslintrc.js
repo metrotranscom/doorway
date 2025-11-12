@@ -56,5 +56,6 @@ module.exports = {
     "tasks/import-listings",
     "sentry-example-page.js",
     "sentry-example-api.js",
+    "*.csv",
   ],
 }

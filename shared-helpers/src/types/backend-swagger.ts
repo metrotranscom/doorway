@@ -4594,6 +4594,9 @@ export interface Listing {
   marketingSeason?: MarketingSeasonEnum
 
   /**  */
+  marketingMonth?: MonthEnum
+
+  /**  */
   homeType?: HomeTypeEnum
 
   /**  */
@@ -5200,6 +5203,9 @@ export interface ListingCreate {
   marketingSeason?: MarketingSeasonEnum
 
   /**  */
+  marketingMonth?: MonthEnum
+
+  /**  */
   homeType?: HomeTypeEnum
 
   /**  */
@@ -5541,6 +5547,9 @@ export interface ListingUpdate {
 
   /**  */
   marketingSeason?: MarketingSeasonEnum
+
+  /**  */
+  marketingMonth?: MonthEnum
 
   /**  */
   homeType?: HomeTypeEnum
@@ -7832,6 +7841,21 @@ export enum MarketingSeasonEnum {
   "fall" = "fall",
   "winter" = "winter",
 }
+
+export enum MonthEnum {
+  "january" = "january",
+  "february" = "february",
+  "march" = "march",
+  "april" = "april",
+  "may" = "may",
+  "june" = "june",
+  "july" = "july",
+  "august" = "august",
+  "september" = "september",
+  "october" = "october",
+  "november" = "november",
+  "december" = "december",
+}
 export enum EnumListingDepositType {
   "fixedDeposit" = "fixedDeposit",
   "depositRange" = "depositRange",
@@ -7970,6 +7994,7 @@ export enum FeatureFlagEnum {
   "enableListingPagination" = "enableListingPagination",
   "enableListingUpdatedAt" = "enableListingUpdatedAt",
   "enableMarketingStatus" = "enableMarketingStatus",
+  "enableMarketingStatusMonths" = "enableMarketingStatusMonths",
   "enableNeighborhoodAmenities" = "enableNeighborhoodAmenities",
   "enableNeighborhoodAmenitiesDropdown" = "enableNeighborhoodAmenitiesDropdown",
   "enableNonRegulatedListings" = "enableNonRegulatedListings",

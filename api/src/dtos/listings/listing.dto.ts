@@ -29,6 +29,7 @@ import {
   RegionEnum,
   MarketingSeasonEnum,
   MarketingTypeEnum,
+  MonthEnum,
   ReviewOrderTypeEnum,
   DepositTypeEnum,
   ListingTypeEnum,
@@ -1051,6 +1052,17 @@ class Listing extends AbstractDTO {
     enumName: 'MarketingSeasonEnum',
   })
   marketingSeason?: MarketingSeasonEnum | null;
+
+  @Expose()
+  @ValidateListingPublish('marketingMonth', {
+    groups: [ValidationsGroupsEnum.default],
+  })
+  @IsEnum(MonthEnum, { groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional({
+    enum: MonthEnum,
+    enumName: 'MonthEnum',
+  })
+  marketingMonth?: MonthEnum | null;
 
   @Expose()
   @ValidateListingPublish('homeType', {

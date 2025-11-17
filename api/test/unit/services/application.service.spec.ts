@@ -1563,7 +1563,7 @@ describe('Testing application service', () => {
       include: { ...detailView },
       data: {
         isNewest: true,
-        contactPreferences: ['example contact preference'],
+        contactPreferences: [],
         status: ApplicationStatusEnum.submitted,
         submissionType: ApplicationSubmissionTypeEnum.electronical,
         appUrl: 'http://www.example.com',
@@ -1748,9 +1748,16 @@ describe('Testing application service', () => {
       commonDigitalApplication: true,
     });
 
+    prisma.applications.updateMany = jest.fn().mockResolvedValue({});
     prisma.applications.create = jest.fn().mockResolvedValue({
       id: randomUUID(),
     });
+    prisma.$transaction = jest
+      .fn()
+      .mockResolvedValue([
+        prisma.applications.updateMany,
+        prisma.applications.create,
+      ]);
 
     const exampleAddress = addressFactory() as AddressCreate;
     const dto = mockCreateApplicationData(exampleAddress, new Date());
@@ -1806,6 +1813,7 @@ describe('Testing application service', () => {
         incomeVouchers: [],
         income: '36000',
         incomePeriod: IncomePeriodEnum.perYear,
+        isNewest: true,
         language: LanguagesEnum.en,
         acceptedTerms: true,
         // Submission date is the moment it was created
@@ -2160,7 +2168,7 @@ describe('Testing application service', () => {
       },
       data: {
         isNewest: true,
-        contactPreferences: ['example contact preference'],
+        contactPreferences: [],
         status: ApplicationStatusEnum.submitted,
         submissionType: ApplicationSubmissionTypeEnum.electronical,
         appUrl: 'http://www.example.com',

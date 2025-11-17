@@ -6,6 +6,7 @@ import { stringify } from 'qs';
 import {
   FlaggedSetStatusEnum,
   ListingsStatusEnum,
+  MultiselectQuestionsStatusEnum,
   RuleEnum,
   UnitTypeEnum,
 } from '@prisma/client';
@@ -83,7 +84,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
   let userService: UserService;
   let applicationFlaggedSetService: ApplicationFlaggedSetService;
   let cookies = '';
-  let jurisId = '';
+  let jurisdictionId = '';
   let listingId = '';
   let listingIdToBeDeleted = '';
   let listingMulitselectQuestion = '';
@@ -108,15 +109,15 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     app.use(cookieParser());
     await app.init();
 
-    jurisId = await generateJurisdiction(
+    jurisdictionId = await generateJurisdiction(
       prisma,
       'wrong partner permission juris',
     );
-    await reservedCommunityTypeFactoryAll(jurisId, prisma);
+    await reservedCommunityTypeFactoryAll(jurisdictionId, prisma);
     await unitAccessibilityPriorityTypeFactoryAll(prisma);
 
     const msq = await prisma.multiselectQuestions.create({
-      data: multiselectQuestionFactory(jurisId, {
+      data: multiselectQuestionFactory(jurisdictionId, {
         multiselectQuestion: {
           text: 'example a',
         },
@@ -125,7 +126,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     listingMulitselectQuestion = msq.id;
 
-    const listingData = await listingFactory(jurisId, prisma, {
+    const listingData = await listingFactory(jurisdictionId, prisma, {
       multiselectQuestions: [msq],
       digitalApp: true,
     });
@@ -134,7 +135,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
     listingId = listing.id;
 
-    const listingData2 = await listingFactory(jurisId, prisma, {
+    const listingData2 = await listingFactory(jurisdictionId, prisma, {
       multiselectQuestions: [msq],
     });
     const listing2 = await prisma.listings.create({
@@ -142,14 +143,14 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
     listingIdToBeDeleted = listing2.id;
 
-    const listingData3 = await listingFactory(jurisId, prisma, {
+    const listingData3 = await listingFactory(jurisdictionId, prisma, {
       multiselectQuestions: [msq],
     });
     const listing3 = await prisma.listings.create({
       data: listingData3,
     });
 
-    const closedListingData = await listingFactory(jurisId, prisma, {
+    const closedListingData = await listingFactory(jurisdictionId, prisma, {
       multiselectQuestions: [msq],
       status: ListingsStatusEnum.closed,
     });
@@ -162,7 +163,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
       data: await userFactory({
         roles: { isPartner: true },
         listings: [listing3.id],
-        jurisdictionIds: [jurisId],
+        jurisdictionIds: [jurisdictionId],
         mfaEnabled: false,
         confirmedAt: new Date(),
       }),
@@ -187,10 +188,10 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
   describe('Testing ami-chart endpoints', () => {
     it('should succeed for list endpoint', async () => {
       await prisma.amiChart.create({
-        data: amiChartFactory(10, jurisId),
+        data: amiChartFactory(10, jurisdictionId),
       });
       const queryParams: AmiChartQueryParams = {
-        jurisdictionId: jurisId,
+        jurisdictionId: jurisdictionId,
       };
       const query = stringify(queryParams as any);
 
@@ -203,7 +204,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should succeed for retrieve endpoint', async () => {
       const amiChartA = await prisma.amiChart.create({
-        data: amiChartFactory(10, jurisId),
+        data: amiChartFactory(10, jurisdictionId),
       });
 
       await request(app.getHttpServer())
@@ -217,14 +218,14 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
       await request(app.getHttpServer())
         .post('/amiCharts')
         .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send(buildAmiChartCreateMock(jurisId))
+        .send(buildAmiChartCreateMock(jurisdictionId))
         .set('Cookie', cookies)
         .expect(403);
     });
 
     it('should error as forbidden for update endpoint', async () => {
       const amiChartA = await prisma.amiChart.create({
-        data: amiChartFactory(10, jurisId),
+        data: amiChartFactory(10, jurisdictionId),
       });
 
       await request(app.getHttpServer())
@@ -237,7 +238,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should error as forbidden for delete endpoint', async () => {
       const amiChartA = await prisma.amiChart.create({
-        data: amiChartFactory(10, jurisId),
+        data: amiChartFactory(10, jurisdictionId),
       });
 
       await request(app.getHttpServer())
@@ -464,7 +465,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should succeed for retrieve endpoint', async () => {
       await request(app.getHttpServer())
-        .get(`/jurisdictions/${jurisId}`)
+        .get(`/jurisdictions/${jurisdictionId}`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
@@ -473,7 +474,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     it('should succeed for retrieve by name endpoint', async () => {
       const jurisdictionA = await prisma.jurisdictions.findFirst({
         where: {
-          id: jurisId,
+          id: jurisdictionId,
         },
       });
 
@@ -495,9 +496,11 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should error as forbidden for update endpoint', async () => {
       await request(app.getHttpServer())
-        .put(`/jurisdictions/${jurisId}`)
+        .put(`/jurisdictions/${jurisdictionId}`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send(buildJurisdictionUpdateMock(jurisId, 'permission juris 9:6'))
+        .send(
+          buildJurisdictionUpdateMock(jurisdictionId, 'permission juris 9:6'),
+        )
         .set('Cookie', cookies)
         .expect(403);
     });
@@ -531,7 +534,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     it('should succeed for retrieve endpoint', async () => {
       const reservedCommunityTypeA = await reservedCommunityTypeFactoryGet(
         prisma,
-        jurisId,
+        jurisdictionId,
       );
 
       await request(app.getHttpServer())
@@ -545,7 +548,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
       await request(app.getHttpServer())
         .post('/reservedCommunityTypes')
         .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send(buildReservedCommunityTypeCreateMock(jurisId))
+        .send(buildReservedCommunityTypeCreateMock(jurisdictionId))
         .set('Cookie', cookies)
         .expect(403);
     });
@@ -553,7 +556,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     it('should error as forbidden for update endpoint', async () => {
       const reservedCommunityTypeA = await reservedCommunityTypeFactoryGet(
         prisma,
-        jurisId,
+        jurisdictionId,
       );
 
       await request(app.getHttpServer())
@@ -567,7 +570,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     it('should error as forbidden for delete endpoint', async () => {
       const reservedCommunityTypeA = await reservedCommunityTypeFactoryGet(
         prisma,
-        jurisId,
+        jurisdictionId,
       );
 
       await request(app.getHttpServer())
@@ -787,7 +790,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should succeed for retrieve endpoint', async () => {
       const multiselectQuestionA = await prisma.multiselectQuestions.create({
-        data: multiselectQuestionFactory(jurisId),
+        data: multiselectQuestionFactory(jurisdictionId),
       });
 
       await request(app.getHttpServer())
@@ -801,21 +804,24 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
       await request(app.getHttpServer())
         .post('/multiselectQuestions')
         .set({ passkey: process.env.API_PASS_KEY || '' })
-        .send(buildMultiselectQuestionCreateMock(jurisId))
+        .send(buildMultiselectQuestionCreateMock(jurisdictionId))
         .set('Cookie', cookies)
         .expect(403);
     });
 
     it('should error as forbidden for update endpoint', async () => {
       const multiselectQuestionA = await prisma.multiselectQuestions.create({
-        data: multiselectQuestionFactory(jurisId),
+        data: multiselectQuestionFactory(jurisdictionId),
       });
 
       await request(app.getHttpServer())
-        .put(`/multiselectQuestions/${multiselectQuestionA.id}`)
+        .put('/multiselectQuestions')
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send(
-          buildMultiselectQuestionUpdateMock(jurisId, multiselectQuestionA.id),
+          buildMultiselectQuestionUpdateMock(
+            jurisdictionId,
+            multiselectQuestionA.id,
+          ),
         )
         .set('Cookie', cookies)
         .expect(403);
@@ -823,7 +829,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should error as forbidden for delete endpoint', async () => {
       const multiselectQuestionA = await prisma.multiselectQuestions.create({
-        data: multiselectQuestionFactory(jurisId),
+        data: multiselectQuestionFactory(jurisdictionId),
       });
 
       await request(app.getHttpServer())
@@ -832,6 +838,60 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
         .send({
           id: multiselectQuestionA.id,
         } as IdDTO)
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for reActivate endpoint', async () => {
+      const multiselectQuestionA = await prisma.multiselectQuestions.create({
+        data: multiselectQuestionFactory(
+          jurisdictionId,
+          {
+            multiselectQuestion: {
+              status: MultiselectQuestionsStatusEnum.toRetire,
+            },
+          },
+          true,
+        ),
+      });
+
+      await request(app.getHttpServer())
+        .put('/multiselectQuestions/reActivate')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          id: multiselectQuestionA.id,
+        } as IdDTO)
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for retire endpoint', async () => {
+      const multiselectQuestionA = await prisma.multiselectQuestions.create({
+        data: multiselectQuestionFactory(
+          jurisdictionId,
+          {
+            multiselectQuestion: {
+              status: MultiselectQuestionsStatusEnum.active,
+            },
+          },
+          true,
+        ),
+      });
+
+      await request(app.getHttpServer())
+        .put('/multiselectQuestions/retire')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          id: multiselectQuestionA.id,
+        } as IdDTO)
+        .set('Cookie', cookies)
+        .expect(403);
+    });
+
+    it('should error as forbidden for retireMultiselectQuestions endpoint', async () => {
+      await request(app.getHttpServer())
+        .put('/multiselectQuestions/retireMultiselectQuestions')
+        .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(403);
     });
@@ -1051,7 +1111,11 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
 
     it('should error as forbidden for update endpoint', async () => {
-      const val = await constructFullListingData(prisma, listingId, jurisId);
+      const val = await constructFullListingData(
+        prisma,
+        listingId,
+        jurisdictionId,
+      );
 
       await request(app.getHttpServer())
         .put(`/listings/${listingId}`)
@@ -1062,7 +1126,11 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
 
     it('should error as forbidden for create endpoint', async () => {
-      const val = await constructFullListingData(prisma, undefined, jurisId);
+      const val = await constructFullListingData(
+        prisma,
+        undefined,
+        jurisdictionId,
+      );
 
       await request(app.getHttpServer())
         .post('/listings')
@@ -1073,7 +1141,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     });
 
     it('should error as forbidden for duplicate endpoint', async () => {
-      const listingData = await listingFactory(jurisId, prisma);
+      const listingData = await listingFactory(jurisdictionId, prisma);
       const listing = await prisma.listings.create({
         data: listingData,
       });

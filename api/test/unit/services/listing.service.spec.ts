@@ -4431,12 +4431,29 @@ describe('Testing listing service', () => {
     });
 
     it('should do a complete listing update', async () => {
+      const applicationDueDate = new Date();
+      const listingEvents = [
+        {
+          type: ListingEventsTypeEnum.openHouse,
+          startDate: new Date(),
+          startTime: new Date(),
+          endTime: new Date(),
+          url: 'https://www.google.com',
+          note: 'example note',
+          label: 'example label',
+          assets: exampleAsset,
+        },
+      ];
+      const reviewOrderType = ReviewOrderTypeEnum.firstComeFirstServe;
       prisma.listings.findUnique = jest.fn().mockResolvedValue({
         id: 'example id',
+        applicationDueDate: applicationDueDate,
+        listingEvents: listingEvents,
         name: 'example name',
         reservedCommunityTypes: {
           id: randomUUID(),
         },
+        reviewOrderType: reviewOrderType,
       });
       prisma.listings.update = jest.fn().mockResolvedValue({
         id: 'example id',
@@ -4469,6 +4486,9 @@ describe('Testing listing service', () => {
       const val = constructFullListingData(randomUUID());
       prisma.assets.create = jest.fn().mockResolvedValue({ id: randomUUID() });
       prisma.address.create = jest.fn().mockResolvedValue({ id: randomUUID() });
+      val.applicationDueDate = applicationDueDate;
+      val.listingEvents = listingEvents;
+      val.reviewOrderType = reviewOrderType;
       val.reservedCommunityTypes = null;
 
       await service.update(val as ListingUpdate, user);
@@ -5326,7 +5346,7 @@ describe('Testing listing service', () => {
   });
 
   describe('Test closeListings endpoint', () => {
-    it('should call the purge if no listings needed to get processed', async () => {
+    it('should call the purge if listings needed to get processed', async () => {
       prisma.listings.findMany = jest.fn().mockResolvedValue([
         {
           id: 'example id1',

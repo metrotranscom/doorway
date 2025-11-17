@@ -4279,6 +4279,9 @@ export interface Listing {
   developer?: string
 
   /**  */
+  listingFileNumber?: string
+
+  /**  */
   householdSizeMax?: number
 
   /**  */
@@ -4972,6 +4975,9 @@ export interface ListingCreate {
   developer?: string
 
   /**  */
+  listingFileNumber?: string
+
+  /**  */
   householdSizeMax?: number
 
   /**  */
@@ -5316,6 +5322,9 @@ export interface ListingUpdate {
 
   /**  */
   developer?: string
+
+  /**  */
+  listingFileNumber?: string
 
   /**  */
   householdSizeMax?: number
@@ -7989,6 +7998,7 @@ export enum FeatureFlagEnum {
   "enableIsVerified" = "enableIsVerified",
   "enableLimitedHowDidYouHear" = "enableLimitedHowDidYouHear",
   "enableListingFavoriting" = "enableListingFavoriting",
+  "enableListingFileNumber" = "enableListingFileNumber",
   "enableListingFiltering" = "enableListingFiltering",
   "enableListingOpportunity" = "enableListingOpportunity",
   "enableListingPagination" = "enableListingPagination",

@@ -326,7 +326,12 @@ export const ListingView = (props: ListingProps) => {
   }
 
   let lotterySection
-  if (publicLottery && (!lotteryResults || (lotteryResults && !lotteryResults.url))) {
+
+  if (
+    publicLottery &&
+    (!lotteryResults || (lotteryResults && !lotteryResults.url)) &&
+    (listing.status === ListingsStatusEnum.active || !lotteryResults)
+  ) {
     lotterySection = publicLottery.startDate && (
       <EventSection
         headerText={t("listings.publicLottery.header")}
@@ -334,20 +339,6 @@ export const ListingView = (props: ListingProps) => {
         events={[getEvent(publicLottery)]}
       />
     )
-    if (dayjs(publicLottery.startTime) < dayjs() && lotteryResults && !lotteryResults.url) {
-      lotterySection = (
-        <EventSection
-          headerText={t("listings.lotteryResults.header")}
-          sectionHeader={true}
-          events={[
-            getEvent(
-              lotteryResults,
-              lotteryResults.note || t("listings.lotteryResults.completeResultsWillBePosted")
-            ),
-          ]}
-        />
-      )
-    }
   }
 
   const getReservedTitle = () => {
@@ -538,11 +529,15 @@ export const ListingView = (props: ListingProps) => {
     return (
       <QuantityRowSection
         quantityRows={
-          listing.reviewOrderType === ReviewOrderTypeEnum.waitlist ? waitlistRow : unitRow
+          listing.reviewOrderType === ReviewOrderTypeEnum.waitlist ||
+          listing.reviewOrderType === ReviewOrderTypeEnum.waitlistLottery
+            ? waitlistRow
+            : unitRow
         }
         strings={{
           sectionTitle:
-            listing.reviewOrderType === ReviewOrderTypeEnum.waitlist
+            listing.reviewOrderType === ReviewOrderTypeEnum.waitlist ||
+            listing.reviewOrderType === ReviewOrderTypeEnum.waitlistLottery
               ? t("listings.waitlist.isOpen")
               : t("listings.vacantUnitsAvailable"),
           description: description(),

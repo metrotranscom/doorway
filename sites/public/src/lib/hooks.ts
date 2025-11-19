@@ -85,15 +85,11 @@ export const useRedirectToPrevPage = (defaultPath = "/") => {
  * @param bypassCheckpoint true if it should bypass checking that listing & application is in progress
  * @returns
  */
-export const useFormConductor = (stepName: string, bypassCheckpoint?: boolean) => {
-  useRequireLoggedInUser("/", !process.env.showMandatedAccounts)
+export const useFormConductor = (stepName: string) => {
   const context = useContext(AppSubmissionContext)
-  if (!bypassCheckpoint) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useAuthenticApplicationCheckpoint(context.listing, context.application)
-  }
   const conductor = context.conductor
   useRequireLoggedInUser("/", !process.env.showMandatedAccounts || conductor.config?.isPreview)
+  useAuthenticApplicationCheckpoint(conductor.listing, conductor.application)
 
   conductor.stepTo(stepName)
 

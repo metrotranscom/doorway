@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@bloom-housing/ui-components": "12.7.7",
-    "@bloom-housing/ui-seeds": "2.0.0",
+    "@bloom-housing/ui-seeds": "2.0.3",
     "ag-grid-community": "^26.0.0",
     "markdown-to-jsx": "7.1.8",
     "nanoid": "^3.3.6",

@@ -1511,9 +1511,16 @@ describe('Testing application service', () => {
       commonDigitalApplication: true,
     });
 
+    prisma.applications.updateMany = jest.fn().mockResolvedValue({});
     prisma.applications.create = jest.fn().mockResolvedValue({
       id: randomUUID(),
     });
+    prisma.$transaction = jest
+      .fn()
+      .mockResolvedValue([
+        prisma.applications.updateMany,
+        prisma.applications.create,
+      ]);
 
     const exampleAddress = addressFactory() as AddressCreate;
     const dto = mockCreateApplicationData(exampleAddress, new Date());
@@ -1543,9 +1550,19 @@ describe('Testing application service', () => {
       },
     });
 
+    expect(prisma.applications.updateMany).toHaveBeenCalledWith({
+      data: {
+        isNewest: false,
+      },
+      where: {
+        userId: 'requestingUser id',
+        isNewest: true,
+      },
+    });
     expect(prisma.applications.create).toHaveBeenCalledWith({
       include: { ...detailView },
       data: {
+        isNewest: true,
         contactPreferences: [],
         status: ApplicationStatusEnum.submitted,
         submissionType: ApplicationSubmissionTypeEnum.electronical,
@@ -1731,9 +1748,16 @@ describe('Testing application service', () => {
       commonDigitalApplication: true,
     });
 
+    prisma.applications.updateMany = jest.fn().mockResolvedValue({});
     prisma.applications.create = jest.fn().mockResolvedValue({
       id: randomUUID(),
     });
+    prisma.$transaction = jest
+      .fn()
+      .mockResolvedValue([
+        prisma.applications.updateMany,
+        prisma.applications.create,
+      ]);
 
     const exampleAddress = addressFactory() as AddressCreate;
     const dto = mockCreateApplicationData(exampleAddress, new Date());
@@ -1789,6 +1813,7 @@ describe('Testing application service', () => {
         incomeVouchers: [],
         income: '36000',
         incomePeriod: IncomePeriodEnum.perYear,
+        isNewest: true,
         language: LanguagesEnum.en,
         acceptedTerms: true,
         // Submission date is the moment it was created
@@ -2096,9 +2121,16 @@ describe('Testing application service', () => {
       id: randomUUID(),
     });
 
-    prisma.applications.create = jest.fn().mockResolvedValue({
-      id: randomUUID(),
-    });
+    prisma.$transaction = jest.fn().mockResolvedValue([
+      // update previous applications
+      jest.fn().mockResolvedValue({
+        id: randomUUID(),
+      }),
+      // application create mock
+      jest.fn().mockResolvedValue({
+        id: randomUUID(),
+      }),
+    ]);
 
     prisma.jurisdictions.findFirst = jest
       .fn()
@@ -2135,6 +2167,7 @@ describe('Testing application service', () => {
         ...detailView,
       },
       data: {
+        isNewest: true,
         contactPreferences: [],
         status: ApplicationStatusEnum.submitted,
         submissionType: ApplicationSubmissionTypeEnum.electronical,

@@ -8,6 +8,7 @@ import {
   PrismaClient,
   ReservedCommunityTypes,
   ReviewOrderTypeEnum,
+  ListingTypeEnum,
 } from '@prisma/client';
 import { randomInt } from 'crypto';
 import dayjs from 'dayjs';
@@ -52,6 +53,18 @@ type optionalFeatures = {
   loweredCabinets?: boolean;
 };
 
+type requiredDocuments = {
+  socialSecurityCard?: boolean;
+  currentLandlordReference?: boolean;
+  birthCertificate?: boolean;
+  previousLandlordReference?: boolean;
+  governmentIssuedId?: boolean;
+  proofOfAssets?: boolean;
+  proofOfIncome?: boolean;
+  residencyDocuments?: boolean;
+  proofOfCustody?: boolean;
+};
+
 type optionalUtilities = {
   water?: boolean;
   gas?: boolean;
@@ -92,6 +105,7 @@ export const listingFactory = async (
     unitGroups?: Prisma.UnitGroupCreateWithoutListingsInput[];
     units?: Prisma.UnitsCreateWithoutListingsInput[];
     userAccounts?: Prisma.UserAccountsWhereUniqueInput[];
+    requiredDocumentsList?: requiredDocuments;
   },
 ): Promise<Prisma.ListingsCreateInput> => {
   const previousListing = optionalParams?.listing || {};
@@ -270,6 +284,9 @@ export const listingFactory = async (
       optionalParams?.optionalFeatures,
       optionalParams?.optionalUtilities,
     ),
+    ...(optionalParams?.listing?.listingType === ListingTypeEnum.nonRegulated
+      ? listingsRequiredDocuments(optionalParams?.requiredDocumentsList)
+      : {}),
     ...previousListing,
   };
 };
@@ -298,6 +315,27 @@ const buildingFeatures = (includeBuildingFeatures: boolean) => {
     servicesOffered: 'Resident services on-site.',
   };
 };
+
+export const listingsRequiredDocuments = (
+  requiredDocumentsList?: requiredDocuments,
+): {
+  requiredDocumentsList;
+} => ({
+  requiredDocumentsList: {
+    create: {
+      socialSecurityCard: randomBoolean(),
+      currentLandlordReference: randomBoolean(),
+      birthCertificate: randomBoolean(),
+      previousLandlordReference: randomBoolean(),
+      governmentIssuedId: randomBoolean(),
+      proofOfAssets: randomBoolean(),
+      proofOfIncome: randomBoolean(),
+      residencyDocuments: randomBoolean(),
+      proofOfCustody: randomBoolean(),
+      ...requiredDocumentsList,
+    },
+  },
+});
 
 export const featuresAndUtilites = (
   optionalFeatures?: optionalFeatures,

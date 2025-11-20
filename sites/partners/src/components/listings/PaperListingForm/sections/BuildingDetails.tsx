@@ -30,6 +30,7 @@ import {
 } from "../../../../lib/helpers"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 import {
+  EnumListingListingType,
   FeatureFlagEnum,
   RegionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -90,6 +91,13 @@ const BuildingDetails = ({
     control,
     name: "mapPinPosition",
   })
+
+  const listingType = useWatch({
+    control,
+    name: "listingType",
+  })
+
+  const jurisdiction = watch("jurisdictions.id")
 
   const displayMapPreview = () => {
     return (
@@ -166,6 +174,11 @@ const BuildingDetails = ({
   const enableRegions = doJurisdictionsHaveFeatureFlagOn(
     FeatureFlagEnum.enableRegions,
     jurisdictions?.id
+  )
+
+  const enableNonRegulatedListings = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableNonRegulatedListings,
+    jurisdiction
   )
 
   useEffect(() => {
@@ -332,17 +345,19 @@ const BuildingDetails = ({
                 {...defaultFieldProps("region", t("t.region"), requiredFields, errors, clearErrors)}
               />
             ) : (
-              <Field
-                type={"number"}
-                register={register}
-                {...defaultFieldProps(
-                  "yearBuilt",
-                  t("listings.yearBuilt"),
-                  requiredFields,
-                  errors,
-                  clearErrors
-                )}
-              />
+              (listingType === EnumListingListingType.regulated || !enableNonRegulatedListings) && (
+                <Field
+                  type={"number"}
+                  register={register}
+                  {...defaultFieldProps(
+                    "yearBuilt",
+                    t("listings.yearBuilt"),
+                    requiredFields,
+                    errors,
+                    clearErrors
+                  )}
+                />
+              )
             )}
           </Grid.Cell>
         </Grid.Row>
@@ -405,23 +420,24 @@ const BuildingDetails = ({
             </AlertNotice>
           </Grid.Cell>
         </Grid.Row>
-        {enableRegions && (
-          <Grid.Row columns={3}>
-            <Grid.Cell>
-              <Field
-                type={"number"}
-                register={register}
-                {...defaultFieldProps(
-                  "yearBuilt",
-                  t("listings.yearBuilt"),
-                  requiredFields,
-                  errors,
-                  clearErrors
-                )}
-              />
-            </Grid.Cell>
-          </Grid.Row>
-        )}
+        {enableRegions &&
+          (listingType === EnumListingListingType.regulated || !enableNonRegulatedListings) && (
+            <Grid.Row columns={3}>
+              <Grid.Cell>
+                <Field
+                  type={"number"}
+                  register={register}
+                  {...defaultFieldProps(
+                    "yearBuilt",
+                    t("listings.yearBuilt"),
+                    requiredFields,
+                    errors,
+                    clearErrors
+                  )}
+                />
+              </Grid.Cell>
+            </Grid.Row>
+          )}
         <Grid.Row columns={3}>
           <Grid.Cell className="seeds-grid-span-2">
             <FieldValue label={t("listings.mapPreview")} className={styles["custom-label"]}>

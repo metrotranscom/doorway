@@ -250,7 +250,7 @@ describe("ListingIntro", () => {
 
     // Verify that without the feature flag new fields are not renderd
     expect(
-      await screen.queryByRole("group", { name: "What kind of listing is this?" })
+      screen.queryByRole("group", { name: "What kind of listing is this?" })
     ).not.toBeInTheDocument()
     expect(screen.getByRole("textbox", { name: /^housing developer$/i })).toBeInTheDocument()
     expect(

@@ -1,5 +1,8 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
+import GeocodeService, {
+  GeocodeService as GeocodeServiceType,
+} from "@mapbox/mapbox-sdk/services/geocoding"
 import {
   t,
   Field,
@@ -11,12 +14,13 @@ import {
   Tooltip,
   GridCell,
 } from "@bloom-housing/ui-components"
-import { AuthContext, countyKeys, stateKeys } from "@bloom-housing/shared-helpers"
 import { FieldValue, Grid, Icon } from "@bloom-housing/ui-seeds"
+import { countyKeys, stateKeys } from "@bloom-housing/shared-helpers"
+import {
+  EnumListingListingType,
+  RegionEnum,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { FormListing } from "../../../../lib/listings/formTypes"
-import GeocodeService, {
-  GeocodeService as GeocodeServiceType,
-} from "@mapbox/mapbox-sdk/services/geocoding"
 import Link from "next/link"
 import ArrowTopRightOnSquareIcon from "@heroicons/react/20/solid/ArrowTopRightOnSquareIcon"
 import InformationCircleIcon from "@heroicons/react/24/outline/InformationCircleIcon"
@@ -28,13 +32,8 @@ import {
   getAddressErrorMessage,
   getLabel,
 } from "../../../../lib/helpers"
-import SectionWithGrid from "../../../shared/SectionWithGrid"
-import {
-  EnumListingListingType,
-  FeatureFlagEnum,
-  RegionEnum,
-} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { neighborhoodRegions } from "../../../../lib/listings/Neighborhoods"
+import SectionWithGrid from "../../../shared/SectionWithGrid"
 import styles from "../ListingForm.module.scss"
 
 interface MapBoxFeature {
@@ -51,6 +50,8 @@ interface MapboxApiResponse {
 
 type BuildingDetailsProps = {
   customMapPositionChosen?: boolean
+  enableNonRegulatedListings?: boolean
+  enableRegions?: boolean
   latLong?: LatitudeLongitude
   listing?: FormListing
   requiredFields: string[]
@@ -60,6 +61,8 @@ type BuildingDetailsProps = {
 
 const BuildingDetails = ({
   customMapPositionChosen,
+  enableNonRegulatedListings,
+  enableRegions,
   latLong,
   listing,
   requiredFields,
@@ -67,7 +70,6 @@ const BuildingDetails = ({
   setLatLong,
 }: BuildingDetailsProps) => {
   const formMethods = useFormContext()
-  const { doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, watch, control, getValues, setValue, errors, clearErrors } = formMethods
@@ -96,8 +98,6 @@ const BuildingDetails = ({
     control,
     name: "listingType",
   })
-
-  const jurisdiction = watch("jurisdictions.id")
 
   const displayMapPreview = () => {
     return (
@@ -169,17 +169,7 @@ const BuildingDetails = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapPinPosition])
 
-  const { neighborhood, region, jurisdictions } = watch(["neighborhood", "region", "jurisdictions"])
-
-  const enableRegions = doJurisdictionsHaveFeatureFlagOn(
-    FeatureFlagEnum.enableRegions,
-    jurisdictions?.id
-  )
-
-  const enableNonRegulatedListings = doJurisdictionsHaveFeatureFlagOn(
-    FeatureFlagEnum.enableNonRegulatedListings,
-    jurisdiction
-  )
+  const { neighborhood, region } = watch(["neighborhood", "region"])
 
   useEffect(() => {
     const matchingConfig = neighborhoodRegions.find((entry) => entry.name == neighborhood)

@@ -716,7 +716,7 @@ export const listing: Listing = {
   },
   jurisdictions: {
     id: "id",
-    name: "San Jose",
+    name: "Bloomington",
   },
   depositMax: "",
   disableUnitsAccordion: false,

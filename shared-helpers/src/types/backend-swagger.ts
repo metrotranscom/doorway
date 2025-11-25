@@ -4064,7 +4064,7 @@ export interface UnitGroup {
   sqFeetMax?: number
 
   /**  */
-  rentType?: string
+  rentType?: RentTypeEnum
 
   /**  */
   unitAccessibilityPriorityTypes?: UnitAccessibilityPriorityType
@@ -4447,6 +4447,9 @@ export interface Listing {
 
   /**  */
   applicationFee?: string
+
+  /**  */
+  creditScreeningFee?: string
 
   /**  */
   applicationOrganization?: string
@@ -4901,7 +4904,7 @@ export interface UnitGroupCreate {
   sqFeetMax?: number
 
   /**  */
-  rentType?: string
+  rentType?: RentTypeEnum
 
   /**  */
   unitAccessibilityPriorityTypes?: IdDTO
@@ -5146,6 +5149,9 @@ export interface ListingCreate {
 
   /**  */
   applicationFee?: string
+
+  /**  */
+  creditScreeningFee?: string
 
   /**  */
   applicationOrganization?: string
@@ -5492,6 +5498,9 @@ export interface ListingUpdate {
 
   /**  */
   applicationFee?: string
+
+  /**  */
+  creditScreeningFee?: string
 
   /**  */
   applicationOrganization?: string
@@ -8081,6 +8090,11 @@ export enum UnitRentTypeEnum {
   "fixed" = "fixed",
   "percentageOfIncome" = "percentageOfIncome",
 }
+
+export enum RentTypeEnum {
+  "fixedRent" = "fixedRent",
+  "rentRange" = "rentRange",
+}
 export enum EnumUnitGroupAmiLevelMonthlyRentDeterminationType {
   "flatRent" = "flatRent",
   "percentageOfIncome" = "percentageOfIncome",
@@ -8194,11 +8208,6 @@ export enum AlternateContactRelationship {
   "noContact" = "noContact",
 }
 
-export enum RentTypeEnum {
-  "fixedRent" = "fixedRent",
-  "rentRange" = "rentRange",
-}
-
 export enum HouseholdMemberRelationship {
   "spousePartner" = "spousePartner",
   "girlfriendBoyfriend" = "girlfriendBoyfriend",
@@ -8247,6 +8256,7 @@ export enum FeatureFlagEnum {
   "enableAdaOtherOption" = "enableAdaOtherOption",
   "enableAdditionalResources" = "enableAdditionalResources",
   "enableCompanyWebsite" = "enableCompanyWebsite",
+  "enableCreditScreeningFee" = "enableCreditScreeningFee",
   "enableFullTimeStudentQuestion" = "enableFullTimeStudentQuestion",
   "enableGeocodingPreferences" = "enableGeocodingPreferences",
   "enableGeocodingRadiusMethod" = "enableGeocodingRadiusMethod",

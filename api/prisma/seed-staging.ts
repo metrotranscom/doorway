@@ -270,6 +270,7 @@ export const stagingSeed = async (
     data: jurisdictionFactory('Angelopolis', {
       featureFlags: [
         FeatureFlagEnum.enableAccessibilityFeatures,
+        FeatureFlagEnum.enableCreditScreeningFee,
         FeatureFlagEnum.enableHousingDeveloperOwner,
         FeatureFlagEnum.enableListingFileNumber,
         FeatureFlagEnum.enableListingFiltering,

@@ -669,6 +669,10 @@ const ListingForm = ({
                           />
                           <ApplicationAddress requiredFields={requiredFields} listing={listing} />
                           <ApplicationDates
+                            enableMarketingFlyer={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableMarketingFlyer,
+                              jurisdictionId
+                            )}
                             enableMarketingStatus={doJurisdictionsHaveFeatureFlagOn(
                               FeatureFlagEnum.enableMarketingStatus,
                               jurisdictionId
@@ -682,7 +686,6 @@ const ListingForm = ({
                             requiredFields={requiredFields}
                             setOpenHouseEvents={setOpenHouseEvents}
                           />
-
                           <div className="-ml-8 -mt-8 relative" style={{ top: "7rem" }}>
                             <Button
                               type="button"

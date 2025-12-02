@@ -399,7 +399,7 @@ Cypress.Commands.add("addMinimalListing", (listingName, isLottery, isApproval, j
   // TODO: test Open Waitlist, though maybe with integration test instead
   cy.getByID("addListingButton").contains("Add listing").click()
   if (jurisdiction) {
-    cy.getByID("jurisdiction").select("Bloomington")
+    cy.getByID("jurisdiction").select("Bay Area")
     cy.get("button").contains("Get started").click()
   }
   cy.contains("New listing")

@@ -11,7 +11,7 @@ describe("Listing Management Tests", () => {
     // Test to check that the appropriate error messages happen on submit
     cy.visit("/")
     cy.get("button").contains("Add listing").click()
-    cy.getByID("jurisdiction").select("Bloomington")
+    cy.getByID("jurisdiction").select("Bay Area")
     cy.get("button").contains("Get started").click()
     cy.contains("New listing")
     // Save an empty listing as a draft and should show errors for appropriate fields

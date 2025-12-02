@@ -467,30 +467,43 @@ describe('Testing email service', () => {
         application as ApplicationCreate,
         'http://localhost:3001',
       );
-      expect(sendMock).toHaveBeenCalled();
-      expect(sendMock.mock.calls[0][0].to).toEqual(
-        'applicant.email@example.com',
-      );
-      expect(sendMock.mock.calls[0][0].subject).toEqual(
-        'Your Application Confirmation',
-      );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(mockSeSClient).toHaveReceivedCommandWith(SendEmailCommand, {
+        FromEmailAddress: 'Doorway <no-reply@housingbayarea.org>',
+        Destination: { ToAddresses: ['applicant.email@example.com'] },
+        Content: {
+          Simple: {
+            Subject: {
+              Data: 'Your Application Confirmation',
+            },
+            Body: {
+              Html: {
+                Data: expect.anything(),
+              },
+            },
+          },
+        },
+      });
+      const html =
+        mockSeSClient.call(0).args[0].input['Content']['Simple']['Body'][
+          'Html'
+        ]['Data'];
+      expect(html).toContain(
         '<td class="step step-complete"><img src="https://res.cloudinary.com/exygy/image/upload/v1652459517/core/step-left-active_vo3fnq.png" alt="indication of step completed" /></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(html).toContain(
         '<td class="step step-complete"><span class="step-label" aria-current="true">Application <br />received</span></td>',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain('What happens next?');
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(html).toContain('What happens next?');
+      expect(html).toContain(
         'Eligible applicants will be placed on the waitlist based on lottery rank order.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(html).toContain(
         'Housing preferences, if applicable, will affect waitlist order.',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(html).toContain(
         'If you are contacted for an interview, you will be asked to fill out a more detailed application and provide supporting documents',
       );
-      expect(sendMock.mock.calls[0][0].html).toContain(
+      expect(html).toContain(
         'You may be contacted while on the waitlist to confirm that you wish to remain on the waitlist',
       );
     });

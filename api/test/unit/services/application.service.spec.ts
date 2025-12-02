@@ -114,7 +114,7 @@ export const mockApplication = (options: {
       },
     },
     demographics: {
-      race: ['indigineous'],
+      race: ['indigenous'],
       howDidYouHear: ['other'],
     },
     createdAt: options.date,

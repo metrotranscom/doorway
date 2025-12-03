@@ -596,7 +596,10 @@ const ListingForm = ({
                             listing={listing}
                             requiredFields={requiredFields}
                           />
-                          <BuildingSelectionCriteria />
+                          {!doJurisdictionsHaveFeatureFlagOn(
+                            FeatureFlagEnum.disableBuildingSelectionCriteria,
+                            jurisdictionId
+                          ) && <BuildingSelectionCriteria />}
                           <AdditionalDetails
                             existingDocuments={listing?.requiredDocumentsList}
                             requiredFields={requiredFields}

@@ -319,6 +319,8 @@ export const stagingSeed = async (
         bridgeBayJurisdiction.id,
         nadaHill.id,
         angelopolisJurisdiction.id,
+        jurisdiction.id,
+        ...Object.values(jurisdictionNameMap),
       ],
       acceptedTerms: true,
       password: 'abcdef',

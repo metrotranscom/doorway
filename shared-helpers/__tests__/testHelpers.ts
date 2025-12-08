@@ -59,6 +59,33 @@ export const multiselectQuestionPreference: MultiselectQuestion = {
   applicationSection: MultiselectQuestionsApplicationSectionEnum.preferences,
 }
 
+export const householdMember = {
+  id: "hh_member_id",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  firstName: "Household First",
+  lastName: "Household Last",
+  birthDay: "25",
+  birthMonth: "11",
+  birthYear: "1966",
+  relationship: HouseholdMemberRelationship.friend,
+  sameAddress: YesNoEnum.no,
+  // workInRegion: YesNoEnum.yes,
+  fullTimeStudent: YesNoEnum.no,
+  householdMemberAddress: {
+    id: "member_address_id",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    placeName: "Arches National Park",
+    city: "Moab",
+    state: "UT",
+    street: "25 E Center St",
+    zipCode: "84532",
+    latitude: 38.6190099,
+    longitude: -109.6969108,
+  },
+}
+
 export const user = {
   agreedToTermsOfService: false,
   confirmedAt: new Date(),
@@ -197,6 +224,7 @@ export const application: Application = {
       city: "Yellowstone National Park",
       state: "WY",
       street: "3200 Old Faithful Inn Rd",
+      street2: "12",
       zipCode: "82190",
       latitude: 44.459928576661824,
       longitude: -110.83109211487681,
@@ -238,33 +266,7 @@ export const application: Application = {
       longitude: -68.3173111,
     },
   },
-  householdMember: [
-    {
-      id: "hh_member_id",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      firstName: "Household First",
-      lastName: "Household Last",
-      birthDay: "25",
-      birthMonth: "11",
-      birthYear: "1966",
-      relationship: HouseholdMemberRelationship.friend,
-      sameAddress: YesNoEnum.no,
-      fullTimeStudent: YesNoEnum.no,
-      householdMemberAddress: {
-        id: "member_address_id",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        placeName: "Arches National Park",
-        city: "Moab",
-        state: "UT",
-        street: "25 E Center St",
-        zipCode: "84532",
-        latitude: 38.6190099,
-        longitude: -109.6969108,
-      },
-    },
-  ],
+  householdMember: [householdMember],
   preferences: [
     {
       multiselectQuestionId: "1cd5dbc1-3fed-4a4d-b710-ff77749265d5",

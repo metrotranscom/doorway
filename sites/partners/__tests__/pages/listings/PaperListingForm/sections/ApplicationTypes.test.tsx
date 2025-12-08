@@ -7,8 +7,14 @@ import { LanguagesEnum } from "@bloom-housing/shared-helpers/src/types/backend-s
 import ApplicationTypes, {
   phoneMask,
 } from "../../../../../src/components/listings/PaperListingForm/sections/ApplicationTypes"
-import { mockNextRouter, render, screen, within, waitFor } from "../../../../testUtils"
-import { FormProviderWrapper } from "../../../../components/applications/sections/helpers"
+import {
+  mockNextRouter,
+  render,
+  screen,
+  within,
+  waitFor,
+  FormProviderWrapper,
+} from "../../../../testUtils"
 import * as assets from "../../../../../src/lib/assets"
 
 jest.mock("../../../../../src/lib/assets", () => ({

@@ -265,7 +265,6 @@ export const devSeeding = async (
         householdSize - 1,
       );
       const app = await applicationFactory({
-        householdSize,
         unitTypeId: unitTypes[randomInt(0, 5)].id,
         householdMember: householdMembers,
         multiselectQuestions,

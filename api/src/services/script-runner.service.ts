@@ -2090,7 +2090,7 @@ export class ScriptRunnerService {
         translations: {
           ...translationsENJSON,
           forgotPassword: {
-            subject: 'Forgot your password?',
+            subject: 'Reset your password',
             callToAction:
               'If you did make this request, please click on the following link to choose a new password:',
             passwordInfo:
@@ -2117,7 +2117,7 @@ export class ScriptRunnerService {
         translations: {
           ...translationsESJSON,
           forgotPassword: {
-            subject: '¿Olvidaste tu contraseña?',
+            subject: 'Restablece tu contraseña',
             callToAction:
               'Si realizó esta solicitud, haga clic en el siguiente enlace para elegir una nueva contraseña:',
             passwordInfo:
@@ -2144,7 +2144,7 @@ export class ScriptRunnerService {
         translations: {
           ...translationsTLJSON,
           forgotPassword: {
-            subject: 'Nakalimutan ang iyong password?',
+            subject: 'I-reset ang iyong password',
             callToAction:
               'Kung ginawa mo ang kahilingan na ito, mangyaring mag -click sa sumusunod na link upang pumili ng isang bagong password:',
             passwordInfo:
@@ -2171,7 +2171,7 @@ export class ScriptRunnerService {
         translations: {
           ...translationsVIJSON,
           forgotPassword: {
-            subject: 'Quên mật khẩu của bạn?',
+            subject: 'Đặt lại mật khẩu của bạn',
             callToAction:
               'Nếu bạn đã thực hiện yêu cầu này, vui lòng nhấp vào liên kết sau để chọn mật khẩu mới:',
             passwordInfo:
@@ -2198,7 +2198,7 @@ export class ScriptRunnerService {
         translations: {
           ...translationsZHJSON,
           forgotPassword: {
-            subject: '忘記密碼了嗎?',
+            subject: '重設您的密碼',
             callToAction:
               '如果您確實提出了此請求, 請單擊以下鏈接以選擇一個新密碼:',
             passwordInfo: '注意, 直到您單擊該鏈接, 您的密碼才會更改。',

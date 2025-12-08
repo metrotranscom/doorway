@@ -29,9 +29,9 @@ WHERE
 
 
 
--- UPDATE
---   translations
--- SET
---   translations = jsonb_set(translations, '{scriptRunner}', '{"resetRequest": "Nakatanggap kami ng kahilingan na i-reset ang iyong password para sa iyong Doorway Housing Portal account. Dapat mong i-click ang sumusunod na link upang makumpleto ang pag-reset: %{changeMyPassLink}"}, {ignoreRequest: "Ang pag-reset ng password na ito ay may bisa lamang para sa susunod na oras. Kung hindi mo ginawa ang kahilingang ito, mangyaring huwag pansinin ang email na ito."}')
--- WHERE
---   language = 'tl';
+UPDATE
+  translations
+SET
+  translations = jsonb_set(translations, '{scriptRunner}', '{"resetRequest": "Nakatanggap kami ng kahilingan na i-reset ang iyong password para sa iyong Doorway Housing Portal account. Dapat mong i-click ang sumusunod na link upang makumpleto ang pag-reset: %{changeMyPassLink}", "ignoreRequest": "Ang pag-reset ng password na ito ay may bisa lamang para sa susunod na oras. Kung hindi mo ginawa ang kahilingang ito, mangyaring huwag pansinin ang email na ito."}')
+WHERE
+  language = 'tl';

@@ -618,7 +618,7 @@ describe('User Controller Tests', () => {
         Content: {
           Simple: {
             Subject: {
-              Data: 'Reset your password?',
+              Data: 'Reset your password',
             },
             Body: {
               Html: {

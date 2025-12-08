@@ -459,6 +459,17 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
           ? 'Housing developer / owner'
           : 'Developer',
       },
+      ...(doAnyJurisdictionHaveFeatureFlagSet(
+        user.jurisdictions,
+        FeatureFlagEnum.enableListingFileNumber,
+      )
+        ? [
+            {
+              path: 'listingFileNumber',
+              label: 'Listing File Number',
+            },
+          ]
+        : []),
       {
         path: 'listingsBuildingAddress.street',
         label: 'Building Street Address',
@@ -759,6 +770,15 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
           label: 'Deposit Helper Text',
         },
         {
+          path: 'depositType',
+          label: 'Deposit Type',
+        },
+        {
+          path: 'depositValue',
+          label: 'Deposit Value',
+          format: this.formatCurrency,
+        },
+        {
           path: 'depositMin',
           label: 'Deposit Min',
           format: this.formatCurrency,
@@ -769,28 +789,21 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
           format: this.formatCurrency,
         },
         {
-          path: 'depositType',
-          label: 'Deposit Type',
-        },
-        {
-          path: 'depositValue',
-          label: 'Deposit Value',
-          format: this.formatCurrency,
-        },
-        {
-          path: 'depositRangeMin',
-          label: 'Deposit Range Min',
-          format: this.formatCurrency,
-        },
-        {
-          path: 'depositRangeMax',
-          label: 'Deposit Range Max',
-          format: this.formatCurrency,
-        },
-        {
           path: 'costsNotIncluded',
           label: 'Costs Not Included',
         },
+        ...(doAnyJurisdictionHaveFeatureFlagSet(
+          user.jurisdictions,
+          FeatureFlagEnum.enableCreditScreeningFee,
+        )
+          ? [
+              {
+                path: 'creditScreeningFee',
+                label: 'Credit Screening Fee',
+                format: this.formatCurrency,
+              },
+            ]
+          : []),
         {
           path: 'amenities',
           label: 'Property Amenities',
@@ -854,6 +867,30 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
         [NeighborhoodAmenitiesEnum.healthCareResources]: {
           path: 'listingNeighborhoodAmenities.healthCareResources',
           label: 'Neighborhood Amenities - Health Care Resources',
+        },
+        [NeighborhoodAmenitiesEnum.shoppingVenues]: {
+          path: 'listingNeighborhoodAmenities.shoppingVenues',
+          label: 'Neighborhood Amenities - Shopping Venues',
+        },
+        [NeighborhoodAmenitiesEnum.hospitals]: {
+          path: 'listingNeighborhoodAmenities.hospitals',
+          label: 'Neighborhood Amenities - Hospitals',
+        },
+        [NeighborhoodAmenitiesEnum.seniorCenters]: {
+          path: 'listingNeighborhoodAmenities.seniorCenters',
+          label: 'Neighborhood Amenities - Senior Centers',
+        },
+        [NeighborhoodAmenitiesEnum.recreationalFacilities]: {
+          path: 'listingNeighborhoodAmenities.recreationalFacilities',
+          label: 'Neighborhood Amenities - Recreational Facilities',
+        },
+        [NeighborhoodAmenitiesEnum.playgrounds]: {
+          path: 'listingNeighborhoodAmenities.playgrounds',
+          label: 'Neighborhood Amenities - Playgrounds',
+        },
+        [NeighborhoodAmenitiesEnum.busStops]: {
+          path: 'listingNeighborhoodAmenities.busStops',
+          label: 'Neighborhood Amenities - Bus Stops',
         },
       };
 
@@ -932,32 +969,51 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
         FeatureFlagEnum.enableMarketingStatus,
       )
     ) {
-      headers.push(
-        ...[
-          {
-            path: 'marketingType',
-            label: 'Marketing Status',
-            format: (val: string): string => {
-              if (!val) return '';
-              return val === MarketingTypeEnum.marketing
-                ? 'Marketing'
-                : 'Under Construction';
-            },
+      headers.push({
+        path: 'marketingType',
+        label: 'Marketing Status',
+        format: (val: string): string => {
+          if (!val) return '';
+          return val === MarketingTypeEnum.marketing
+            ? 'Marketing'
+            : 'Under Construction';
+        },
+      });
+
+      if (
+        doAnyJurisdictionHaveFeatureFlagSet(
+          user.jurisdictions,
+          FeatureFlagEnum.enableMarketingStatusMonths,
+        )
+      )
+        headers.push({
+          path: 'marketingMonth',
+          label: 'Marketing Month',
+          format: (val: string): string => {
+            if (!val) return '';
+            return val.charAt(0).toUpperCase() + val.slice(1);
           },
-          {
-            path: 'marketingSeason',
-            label: 'Marketing Season',
-            format: (val: string): string => {
-              if (!val) return '';
-              return val.charAt(0).toUpperCase() + val.slice(1);
-            },
+        });
+
+      if (
+        doAnyJurisdictionHaveFalsyFeatureFlagValue(
+          user.jurisdictions,
+          FeatureFlagEnum.enableMarketingStatusMonths,
+        )
+      )
+        headers.push({
+          path: 'marketingSeason',
+          label: 'Marketing Season',
+          format: (val: string): string => {
+            if (!val) return '';
+            return val.charAt(0).toUpperCase() + val.slice(1);
           },
-          {
-            path: 'marketingYear',
-            label: 'Marketing Year',
-          },
-        ],
-      );
+        });
+
+      headers.push({
+        path: 'marketingYear',
+        label: 'Marketing Year',
+      });
     }
     headers.push(
       ...[

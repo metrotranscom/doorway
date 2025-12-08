@@ -43,7 +43,12 @@ describe("ApplicationTypes", () => {
   it("should render application types section", () => {
     render(
       <FormProviderWrapper>
-        <ApplicationTypes listing={listing} requiredFields={[]} />
+        <ApplicationTypes
+          listing={listing}
+          requiredFields={[]}
+          jurisdiction={"jurisdictionA"}
+          disableCommonApplication={false}
+        />
       </FormProviderWrapper>
     )
 
@@ -77,7 +82,12 @@ describe("ApplicationTypes", () => {
   it.skip("should render referral opportunity section", async () => {
     render(
       <FormProviderWrapper>
-        <ApplicationTypes listing={listing} requiredFields={[]} />
+        <ApplicationTypes
+          listing={listing}
+          requiredFields={[]}
+          jurisdiction={"jurisdictionA"}
+          disableCommonApplication={false}
+        />
       </FormProviderWrapper>
     )
 
@@ -113,7 +123,12 @@ describe("ApplicationTypes", () => {
     it("should open and close the paper application drawer", async () => {
       render(
         <FormProviderWrapper>
-          <ApplicationTypes listing={listing} requiredFields={[]} />
+          <ApplicationTypes
+            listing={listing}
+            requiredFields={[]}
+            jurisdiction={"jurisdictionA"}
+            disableCommonApplication={false}
+          />
         </FormProviderWrapper>
       )
 
@@ -138,7 +153,12 @@ describe("ApplicationTypes", () => {
     it("should disable save button and hide dropzone when no language is selected", async () => {
       render(
         <FormProviderWrapper>
-          <ApplicationTypes listing={listing} requiredFields={[]} />
+          <ApplicationTypes
+            listing={listing}
+            requiredFields={[]}
+            jurisdiction={"jurisdictionA"}
+            disableCommonApplication={false}
+          />
         </FormProviderWrapper>
       )
 
@@ -160,7 +180,12 @@ describe("ApplicationTypes", () => {
       render(
         <AuthContext.Provider value={mockAuthContext}>
           <FormProviderWithJurisdiction>
-            <ApplicationTypes listing={listingWithJurisdiction} requiredFields={[]} />
+            <ApplicationTypes
+              listing={listingWithJurisdiction}
+              requiredFields={[]}
+              jurisdiction={"jurisdictionA"}
+              disableCommonApplication={false}
+            />
           </FormProviderWithJurisdiction>
         </AuthContext.Provider>
       )
@@ -196,7 +221,12 @@ describe("ApplicationTypes", () => {
       render(
         <AuthContext.Provider value={mockAuthContext}>
           <FormProviderWithJurisdiction>
-            <ApplicationTypes listing={listingWithJurisdiction} requiredFields={[]} />
+            <ApplicationTypes
+              listing={listingWithJurisdiction}
+              requiredFields={[]}
+              jurisdiction={"jurisdictionA"}
+              disableCommonApplication={false}
+            />
           </FormProviderWithJurisdiction>
         </AuthContext.Provider>
       )

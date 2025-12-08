@@ -114,14 +114,15 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
         mfaCode: 'Your access code is: %{singleUseCode}',
       },
       forgotPassword: {
-        subject: 'Forgot your password?',
+        subject: 'Reset your password',
         callToAction:
           'If you did make this request, please click on the link below to reset your password:',
         passwordInfo:
           "Your password won't change until you access the link above and create a new one.",
         resetRequest:
-          'A request to reset your Bloom Housing Portal website password for %{appUrl} has recently been made.',
-        ignoreRequest: "If you didn't request this, please ignore this email.",
+          'We received a request to reset your password for your Doorway Housing Portal account. You must click the following link to complete the reset: %{changePassword}',
+        ignoreRequest:
+          'This password reset is only valid for the next hour. If you didn’t make this request, please ignore this email.',
         changePassword: 'Change my password',
       },
       requestApproval: {

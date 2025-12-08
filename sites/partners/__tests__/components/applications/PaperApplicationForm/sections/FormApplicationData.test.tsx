@@ -5,8 +5,8 @@ import {
   ApplicationSubmissionTypeEnum,
   LanguagesEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import { FormProviderWrapper } from "./helpers"
-import { FormApplicationData } from "../../../../src/components/applications/PaperApplicationForm/sections/FormApplicationData"
+import { FormProviderWrapper } from "../../../../testUtils"
+import { FormApplicationData } from "../../../../../src/components/applications/PaperApplicationForm/sections/FormApplicationData"
 
 describe("<FormApplicationData>", () => {
   it("renders the form with application data fields", () => {

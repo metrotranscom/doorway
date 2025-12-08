@@ -390,7 +390,7 @@ describe("DetailUnits", () => {
       rows[0]
     ).getAllByRole("cell")
 
-    expect(firstUnitType).toHaveTextContent("2 BR, SRO")
+    expect(firstUnitType).toHaveTextContent("2 beds, SRO")
     expect(firstUnitsNumber).toHaveTextContent("2")
     expect(firstRent).toHaveTextContent("2000")
     expect(firstOccupancy).toHaveTextContent("1 - 4")
@@ -400,7 +400,7 @@ describe("DetailUnits", () => {
       rows[1]
     ).getAllByRole("cell")
 
-    expect(secondUnitType).toHaveTextContent("4 BR")
+    expect(secondUnitType).toHaveTextContent("4 beds")
     expect(secondUnitsNumber).toHaveTextContent("1")
     expect(secondRent).toHaveTextContent("1250 - 1750")
     expect(secondOccupancy).toHaveTextContent("2 - 5")

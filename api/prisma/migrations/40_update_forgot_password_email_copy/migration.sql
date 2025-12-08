@@ -1,5 +1,3 @@
--- Adds new script runner translations for emails.
-
 UPDATE
   translations
 SET

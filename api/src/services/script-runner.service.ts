@@ -1953,7 +1953,7 @@ export class ScriptRunnerService {
     await this.updateTranslationsForLanguage(LanguagesEnum.en, {
       rentalOpportunity: {
         viewListingNotice:
-          'THIS INFORMATION MAY CHANGE - Please view listing for the most updated information',
+          'THIS INFORMATION MAY CHANGE <b /> - Please view listing for the most updated information',
       },
     });
     await this.updateTranslationsForLanguage(LanguagesEnum.es, {

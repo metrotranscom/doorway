@@ -164,7 +164,7 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
         subject: 'New rental opportunity',
         intro: 'Rental opportunity at',
         viewListingNotice:
-          'THIS INFORMATION MAY CHANGE - Please view listing for the most updated information',
+          'THIS INFORMATION MAY CHANGE <br /> - Please view listing for the most updated information',
         applicationsDue: 'Applications Due',
         community: 'Community',
         address: 'Address',

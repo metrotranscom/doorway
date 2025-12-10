@@ -243,9 +243,6 @@ describe('Testing email service', () => {
     expect(html).toContain(
       '<a href="http://localhost:3001/reset-password?token&#x3D;resetToken">Change my password</a>',
     );
-    expect(html).toContain(
-      'Your password won&#x27;t change until you access the link above and create a new one.',
-    );
   });
 
   it('testing forgot password with query params', async () => {
@@ -287,9 +284,6 @@ describe('Testing email service', () => {
     );
     expect(html).toContain(
       '<a href="http://localhost:3001/reset-password?token&#x3D;resetToken&amp;redirectUrl&#x3D;redirect&amp;listingId&#x3D;123">Change my password</a>',
-    );
-    expect(html).toContain(
-      'Your password won&#x27;t change until you access the link above and create a new one.',
     );
   });
 

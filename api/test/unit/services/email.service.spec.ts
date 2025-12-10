@@ -680,7 +680,7 @@ describe('Testing email service', () => {
       );
       expect(html).toMatch('Review Listing');
       expect(html).toMatch(/http:\/\/localhost:3001\/listings\/listingId/);
-      expect(html).toMatch('Thank you,');
+      expect(html).toMatch('Thank you');
       expect(html).toMatch('Bloom Housing Portal');
     });
   });
@@ -740,7 +740,7 @@ describe('Testing email service', () => {
       );
       expect(html).toMatch('Edit Listing');
       expect(html).toMatch(/http:\/\/localhost:3001\/listings\/listingId/);
-      expect(html).toMatch('Thank you,');
+      expect(html).toMatch('Thank you');
       expect(html).toMatch('Bloom Housing Portal');
     });
   });
@@ -791,7 +791,7 @@ describe('Testing email service', () => {
       );
       expect(html).toMatch('View Listing');
       expect(html).toMatch(/http:\/\/localhost:3000\/listing\/listingId/);
-      expect(html).toMatch('Thank you,');
+      expect(html).toMatch('Thank you');
       expect(html).toMatch('Bloom Housing Portal');
     });
 

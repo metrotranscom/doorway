@@ -283,6 +283,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableNeighborhoodAmenities,
         FeatureFlagEnum.enableNeighborhoodAmenitiesDropdown,
         FeatureFlagEnum.enableProperties,
+        FeatureFlagEnum.enableReferralQuestionUnits,
       ],
       visibleNeighborhoodAmenities: [
         NeighborhoodAmenitiesEnum.groceryStores,

@@ -19,6 +19,7 @@ import { Button, Card, Drawer, Grid } from "@bloom-housing/ui-seeds"
 import {
   ApplicationMethodCreate,
   ApplicationMethodsTypeEnum,
+  FeatureFlagEnum,
   LanguagesEnum,
   YesNoEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -90,7 +91,7 @@ const ApplicationTypes = ({
 }: ApplicationTypesProps) => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, setValue, watch, errors, getValues } = useFormContext()
-  const { getJurisdictionLanguages } = useContext(AuthContext)
+  const { getJurisdictionLanguages, doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
 
   const getDefaultMethods = () => {
     const temp: Methods = {
@@ -147,6 +148,10 @@ const ApplicationTypes = ({
     setDrawerState(false)
   }
 
+  const enableReferralQuestionUnits = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableReferralQuestionUnits,
+    jurisdiction
+  )
   const availableJurisdictionLanguages = jurisdiction ? getJurisdictionLanguages(jurisdiction) : []
 
   const yesNoRadioOptions = [
@@ -494,7 +499,11 @@ const ApplicationTypes = ({
               groupLabel={getLabel(
                 "referralOpportunity",
                 requiredFields,
-                t("listings.isReferralOpportunity")
+                t(
+                  enableReferralQuestionUnits
+                    ? "listings.areReferralOnlyUnits"
+                    : "listings.isReferralOpportunity"
+                )
               )}
               error={
                 fieldHasError(errors?.referralOpportunity) && referralOpportunityChoice === null

@@ -6442,6 +6442,9 @@ export interface JurisdictionCreate {
   languages: LanguagesEnum[]
 
   /**  */
+  minimumListingPublishImagesRequired?: number
+
+  /**  */
   partnerTerms?: string
 
   /**  */
@@ -6505,6 +6508,9 @@ export interface JurisdictionUpdate {
 
   /**  */
   languages: LanguagesEnum[]
+
+  /**  */
+  minimumListingPublishImagesRequired?: number
 
   /**  */
   partnerTerms?: string
@@ -6602,6 +6608,9 @@ export interface Jurisdiction {
 
   /**  */
   multiselectQuestions: IdDTO[]
+
+  /**  */
+  minimumListingPublishImagesRequired?: number
 
   /**  */
   partnerTerms?: string

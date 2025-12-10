@@ -1,21 +1,28 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { randomUUID } from 'crypto';
-import { sign } from 'jsonwebtoken';
-import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { RecaptchaEnterpriseServiceClient } from '@google-cloud/recaptcha-enterprise';
+import { Logger } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+// import { MailService } from '@sendgrid/mail';
+import { randomUUID } from 'crypto';
+import { Response } from 'express';
+import { sign } from 'jsonwebtoken';
+import { ApplicationService } from '../../../src/services/application.service';
 import {
   ACCESS_TOKEN_AVAILABLE_NAME,
   ACCESS_TOKEN_AVAILABLE_OPTIONS,
-  AuthService,
   AUTH_COOKIE_OPTIONS,
+  AuthService,
   REFRESH_COOKIE_NAME,
   REFRESH_COOKIE_OPTIONS,
   TOKEN_COOKIE_NAME,
 } from '../../../src/services/auth.service';
-import { UserService } from '../../../src/services/user.service';
+import { CronJobService } from '../../../src/services/cron-job.service';
+import { GeocodingService } from '../../../src/services/geocoding.service';
 import { PrismaService } from '../../../src/services/prisma.service';
+// import { SendGridService } from '../../../src/services/sendgrid.service';
 import { SmsService } from '../../../src/services/sms.service';
+import { UserService } from '../../../src/services/user.service';
 import {
   generateSalt,
   hashPassword,
@@ -51,6 +58,11 @@ describe('Testing auth service', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        ApplicationService,
+        GeocodingService,
+        CronJobService,
+        SchedulerRegistry,
+        Logger,
         UserService,
         {
           provide: EmailService,

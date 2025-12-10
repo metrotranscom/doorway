@@ -3,29 +3,35 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { of } from 'rxjs';
-import { PrismaService } from '../../../src/services/prisma.service';
-import { UserService } from '../../../src/services/user.service';
 import { randomUUID } from 'crypto';
+import { Logger } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { LanguagesEnum } from '@prisma/client';
 import { verify } from 'jsonwebtoken';
-import { passwordToHash } from '../../../src/utilities/password-helpers';
 import { IdDTO } from '../../../src/dtos/shared/id.dto';
-import { EmailService } from '../../../src/services/email.service';
-import { TranslationService } from '../../../src/services/translation.service';
-import { JurisdictionService } from '../../../src/services/jurisdiction.service';
-import { GoogleTranslateService } from '../../../src/services/google-translate.service';
 import { User } from '../../../src/dtos/users/user.dto';
-import { PermissionService } from '../../../src/services/permission.service';
 import { permissionActions } from '../../../src/enums/permissions/permission-actions-enum';
 import { ModificationEnum } from '../../../src/enums/shared/modification-enum';
 import { OrderByEnum } from '../../../src/enums/shared/order-by-enum';
 import { UserViews } from '../../../src/enums/user/view-enum';
-import { Logger } from '@nestjs/common';
+import { ApplicationService } from '../../../src/services/application.service';
+import { CronJobService } from '../../../src/services/cron-job.service';
+import { EmailService } from '../../../src/services/email.service';
+import { GeocodingService } from '../../../src/services/geocoding.service';
+import { GoogleTranslateService } from '../../../src/services/google-translate.service';
+import { JurisdictionService } from '../../../src/services/jurisdiction.service';
+import { PermissionService } from '../../../src/services/permission.service';
+import { PrismaService } from '../../../src/services/prisma.service';
+// import { SendGridService } from '../../../src/services/sendgrid.service';
+import { TranslationService } from '../../../src/services/translation.service';
+import { UserService } from '../../../src/services/user.service';
+import { passwordToHash } from '../../../src/utilities/password-helpers';
 
 describe('Testing user service', () => {
   let service: UserService;
   let prisma: PrismaService;
   let emailService: EmailService;
+  let applicationService: ApplicationService;
 
   const mockUser = (position: number, date: Date) => {
     return {
@@ -81,9 +87,13 @@ describe('Testing user service', () => {
   };
 
   const canOrThrowMock = jest.fn();
+  const LoggerServiceMock = {
+    warn: jest.fn(),
+  };
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [],
       providers: [
         UserService,
         HttpService,
@@ -92,7 +102,10 @@ describe('Testing user service', () => {
         ConfigService,
         TranslationService,
         JurisdictionService,
-        Logger,
+        ApplicationService,
+        GeocodingService,
+        SchedulerRegistry,
+        CronJobService,
         {
           provide: HttpService,
           useValue: httpServiceMock,
@@ -107,12 +120,23 @@ describe('Testing user service', () => {
             canOrThrow: canOrThrowMock,
           },
         },
+        {
+          provide: Logger,
+          useValue: LoggerServiceMock,
+        },
+        {
+          provide: ApplicationService,
+          useValue: {
+            removePII: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
     prisma = module.get<PrismaService>(PrismaService);
     emailService = module.get<EmailService>(EmailService);
+    applicationService = module.get<ApplicationService>(ApplicationService);
   });
 
   afterEach(() => {
@@ -1167,11 +1191,58 @@ describe('Testing user service', () => {
   });
 
   describe('delete', () => {
-    it('should delete user', async () => {
+    it('should delete user without userRoles', async () => {
       const id = randomUUID();
 
       prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
         id,
+      });
+      prisma.userAccounts.delete = jest.fn().mockResolvedValue({
+        id,
+      });
+      prisma.userRoles.delete = jest.fn().mockResolvedValue({
+        id,
+      });
+
+      await service.delete(id, {
+        id: 'requestingUser id',
+        userRoles: { isAdmin: true },
+      } as unknown as User);
+      expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
+        where: {
+          id,
+        },
+        include: {
+          jurisdictions: true,
+          userRoles: true,
+        },
+      });
+      expect(prisma.userAccounts.delete).toHaveBeenCalledWith({
+        where: {
+          id,
+        },
+      });
+      expect(prisma.userRoles.delete).toHaveBeenCalledTimes(0);
+
+      expect(canOrThrowMock).toHaveBeenCalledWith(
+        {
+          id: 'requestingUser id',
+          userRoles: { isAdmin: true },
+        } as unknown as User,
+        'user',
+        permissionActions.delete,
+        {
+          id,
+        },
+      );
+    });
+
+    it('should delete user with userRoles', async () => {
+      const id = randomUUID();
+
+      prisma.userAccounts.findUnique = jest.fn().mockResolvedValue({
+        id,
+        userRoles: { isAdmin: true },
       });
       prisma.userAccounts.delete = jest.fn().mockResolvedValue({
         id,
@@ -2508,6 +2579,69 @@ describe('Testing user service', () => {
         },
       });
       expect(prisma.userAccounts.update).not.toHaveBeenCalledWith();
+    });
+  });
+
+  describe('deleteAfterInactivity', () => {
+    it('should not run if USERS_DAYS_TILL_EXPIRY does not exist', async () => {
+      process.env.USERS_DAYS_TILL_EXPIRY = null;
+      const response = await service.deleteAfterInactivity();
+      expect(response).toEqual({ success: false });
+      expect(LoggerServiceMock.warn).toBeCalledWith(
+        'USERS_DAYS_TILL_EXPIRY variable is not set so deleteAfterInactivity will not run',
+      );
+    });
+    it('should not run if USERS_DAYS_TILL_EXPIRY is not a number', async () => {
+      process.env.USERS_DAYS_TILL_EXPIRY = 'not a number';
+      const response = await service.deleteAfterInactivity();
+      expect(response).toEqual({ success: false });
+      expect(LoggerServiceMock.warn).toBeCalledWith(
+        'USERS_DAYS_TILL_EXPIRY variable is not set so deleteAfterInactivity will not run',
+      );
+    });
+    it('should delete users for all inactive user', async () => {
+      // This test goes through all possible options
+      //  has or has not been warned of deletion
+      //  has or doesn't have applications
+      //  has or doesn't have roles (public vs partner user)
+      prisma.userAccounts.findMany = jest.fn().mockResolvedValue([
+        { id: 'userId1', wasWarnedOfDeletion: true },
+        { id: 'userId2', wasWarnedOfDeletion: false },
+        { id: 'userId3', wasWarnedOfDeletion: true },
+        {
+          id: 'userId4',
+          wasWarnedOfDeletion: true,
+          userRoles: { isAdmin: true },
+        },
+      ]);
+      prisma.applications.findMany = jest
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([{ id: 'application1' }, { id: 'application2' }])
+        .mockResolvedValueOnce([
+          { id: 'application3' },
+          { id: 'application4' },
+        ]);
+
+      prisma.userRoles.delete = jest.fn().mockResolvedValue({});
+      prisma.userAccounts.delete = jest.fn().mockResolvedValue({});
+      process.env.USERS_DAYS_TILL_EXPIRY = '1095';
+      const response = await service.deleteAfterInactivity();
+      expect(response).toEqual({ success: true });
+      expect(prisma.userAccounts.delete).toBeCalledWith({
+        where: { id: 'userId1' },
+      });
+      expect(LoggerServiceMock.warn).toBeCalledWith(
+        'Unable to delete user userId2 because they have not been warned by email',
+      );
+      expect(prisma.userAccounts.delete).toBeCalledWith({
+        where: { id: 'userId3' },
+      });
+      expect(applicationService.removePII).toBeCalledWith('application1');
+      expect(applicationService.removePII).toBeCalledWith('application2');
+      expect(prisma.userAccounts.delete).toBeCalledWith({
+        where: { id: 'userId4' },
+      });
     });
   });
 });

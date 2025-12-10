@@ -167,6 +167,8 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
         applicationsDue: 'Applications Due',
         community: 'Community',
         address: 'Address',
+        doorwayAccountRequirement:
+          'You will need a Doorway account in order to apply. Receipt of this email does not equate to a Doorway account',
         rent: 'Rent',
         minIncome: 'Minimum Income',
         maxIncome: 'Maximum Income',

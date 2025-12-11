@@ -451,14 +451,12 @@ export const stagingSeed = async (
   });
   // add jurisdiction specific translations and default ones
   await prismaClient.translations.create({
-    data: translationFactory(jurisdiction.id, jurisdiction.name),
+    data: translationFactory({
+      jurisdiction: { id: jurisdiction.id, name: jurisdiction.name },
+    }),
   });
   await prismaClient.translations.create({
-    data: translationFactory(
-      mainJurisdiction.id,
-      mainJurisdiction.name,
-      LanguagesEnum.es,
-    ),
+    data: translationFactory({ language: LanguagesEnum.es }),
   });
   await prismaClient.translations.create({
     data: translationFactory(),

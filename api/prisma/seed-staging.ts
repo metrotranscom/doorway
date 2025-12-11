@@ -277,6 +277,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableHousingDeveloperOwner,
         FeatureFlagEnum.enableListingFileNumber,
         FeatureFlagEnum.enableListingFiltering,
+        FeatureFlagEnum.enableListingImageAltText,
         FeatureFlagEnum.enableMarketingFlyer,
         FeatureFlagEnum.enableMarketingStatus,
         FeatureFlagEnum.enableMarketingStatusMonths,

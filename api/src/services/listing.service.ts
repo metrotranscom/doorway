@@ -1589,6 +1589,7 @@ export class ListingService implements OnModuleInit {
                   },
                 },
                 ordinal: image.ordinal,
+                description: image.description,
               })),
             }
           : undefined,
@@ -1967,6 +1968,7 @@ export class ListingService implements OnModuleInit {
         label: unsavedImage.assets.label,
       },
       ordinal: unsavedImage.ordinal,
+      description: unsavedImage.description,
     }));
 
     const applicationMethods = mappedListing.applicationMethods?.map(
@@ -2326,7 +2328,11 @@ export class ListingService implements OnModuleInit {
       allAssets = [
         ...allAssets,
         ...uploadedImages.map((image, index) => {
-          return { assets: image, ordinal: unsavedImages[index].ordinal };
+          return {
+            assets: image,
+            ordinal: unsavedImages[index].ordinal,
+            description: unsavedImages[index].description,
+          };
         }),
       ];
     }
@@ -2480,6 +2486,7 @@ export class ListingService implements OnModuleInit {
                 create: allAssets.map((asset) => {
                   return {
                     ordinal: asset.ordinal,
+                    description: asset.description,
                     assets: {
                       connect: {
                         id: asset.assets.id,

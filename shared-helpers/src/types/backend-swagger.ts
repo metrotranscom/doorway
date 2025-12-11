@@ -3772,6 +3772,9 @@ export interface ListingImage {
 
   /**  */
   ordinal?: number
+
+  /**  */
+  description?: string
 }
 
 export interface ListingFeatures {
@@ -5070,6 +5073,9 @@ export interface ListingImageCreate {
 
   /**  */
   assets: AssetCreate
+
+  /**  */
+  description?: string
 }
 
 export interface AddressCreate {
@@ -8363,6 +8369,7 @@ export enum FeatureFlagEnum {
   "enableListingFavoriting" = "enableListingFavoriting",
   "enableListingFileNumber" = "enableListingFileNumber",
   "enableListingFiltering" = "enableListingFiltering",
+  "enableListingImageAltText" = "enableListingImageAltText",
   "enableListingOpportunity" = "enableListingOpportunity",
   "enableListingPagination" = "enableListingPagination",
   "enableListingUpdatedAt" = "enableListingUpdatedAt",

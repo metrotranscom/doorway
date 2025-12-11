@@ -518,7 +518,7 @@ const FormUnits = ({
         </Drawer.Header>
         {enableUnitGroups ? (
           <UnitGroupForm
-            jurisdiction={listing.jurisdictions?.id}
+            jurisdiction={jurisdiction}
             onSubmit={(unitGroup) => {
               saveUnitGroup(unitGroup)
             }}
@@ -535,7 +535,7 @@ const FormUnits = ({
           />
         ) : (
           <UnitForm
-            jurisdiction={listing.jurisdictions?.id}
+            jurisdiction={jurisdiction}
             onSubmit={(unit) => {
               saveUnit(unit)
             }}

@@ -897,6 +897,24 @@ export class EmailService {
     }
   }
 
+  public async warnOfAccountRemoval(user: User) {
+    const jurisdiction = await this.getJurisdiction(user.jurisdictions);
+    void (await this.loadTranslations(jurisdiction, user.language));
+    const signInUrl = jurisdiction ? `${jurisdiction.publicUrl}/sign-in` : '';
+    console.log(user.language, this.polyglot.t('accountRemoval.subject'));
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('accountRemoval.subject'),
+        html: this.template('warn-removal')({
+          user: user,
+          signInUrl: signInUrl,
+        }),
+      },
+      'sendSingleUseCode',
+    );
+  }
+
   // Useful for GovSend where we can't send entities, so we'll output certain strings raw but we want to
   // ensure we don't let real HTML through which is an XSS risk
   stripAngleBrackets(markup: string): string {

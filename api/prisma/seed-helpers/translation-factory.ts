@@ -14,7 +14,7 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
       footer: {
         line1: `${jurisdictionName || 'Bloom'}`,
         line2: '',
-        thankYou: 'Thank you,',
+        thankYou: 'Thank you',
         footer: `${jurisdictionName || 'Bloom Housing'}`,
       },
       header: {

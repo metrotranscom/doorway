@@ -15,8 +15,10 @@ import {
   ResendConfirmationModal,
   FormSignInDefault,
   FormSignInPwdless,
+  NetworkErrorMessage,
 } from "@bloom-housing/shared-helpers"
 import { t, useMutate } from "@bloom-housing/ui-components"
+import { PasswordExpiredModal } from "../components/account/PasswordExpiredModal"
 import {
   FeatureFlagEnum,
   Jurisdiction,
@@ -69,6 +71,7 @@ const SignIn = (props: SignInProps) => {
   const [refreshReCaptcha, setRefreshReCaptcha] = useState(false)
   const [openTermsModal, setOpenTermsModal] = useState<boolean>(false)
   const [notChecked, setChecked] = useState(true)
+  const [passwordExpired, setPasswordExpired] = useState(false)
 
   const {
     mutate: mutateResendConfirmation,
@@ -278,6 +281,10 @@ const SignIn = (props: SignInProps) => {
   useEffect(() => {
     if (networkError?.error?.response?.data?.message?.includes("but is not confirmed")) {
       setConfirmationStatusModal(true)
+    } else if (
+      networkError?.error?.response?.data?.message?.includes(NetworkErrorMessage.PasswordOutdated)
+    ) {
+      setPasswordExpired(true)
     }
   }, [networkError])
 
@@ -339,6 +346,14 @@ const SignIn = (props: SignInProps) => {
           )}
         </div>
       </FormsLayout>
+      <PasswordExpiredModal
+        onClose={() => {
+          setPasswordExpired(false)
+          resetResendConfirmation()
+          resetNetworkError()
+        }}
+        isOpen={passwordExpired}
+      />
 
       <ResendConfirmationModal
         isOpen={confirmationStatusModal}

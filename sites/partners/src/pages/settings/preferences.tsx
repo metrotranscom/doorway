@@ -25,7 +25,7 @@ import {
   MultiselectQuestionUpdate,
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import { PreferenceEditModal } from "../../components/settings/PreferenceEditModal"
+// import { PreferenceEditModal } from "../../components/settings/PreferenceEditModal"
 import TabView from "../../layouts/TabView"
 import { getSettingsTabs, SettingsIndexEnum } from "../../components/settings/SettingsViewHelpers"
 
@@ -91,7 +91,11 @@ const SettingsPreferences = () => {
               <ManageIconSection
                 onCopy={() => setCopyModalOpen(preference)}
                 copyTestId={`preference-copy-icon: ${preference.text}`}
-                onEdit={() => setEditConfirmModalOpen(preference)}
+                onEdit={() => {
+                  setEditConfirmModalOpen(preference)
+                  setQuestionData(preference)
+                  setPreferenceDrawerOpen("edit")
+                }}
                 editTestId={`preference-edit-icon: ${preference.text}`}
                 onDelete={() => setDeleteConfirmModalOpen(preference)}
                 deleteTestId={`preference-delete-icon: ${preference.text}`}
@@ -281,7 +285,7 @@ const SettingsPreferences = () => {
           }}
         />
       )}
-      {editConfirmModalOpen && (
+      {/* {editConfirmModalOpen && (
         <PreferenceEditModal
           multiselectQuestion={editConfirmModalOpen}
           onClose={() => {
@@ -292,7 +296,7 @@ const SettingsPreferences = () => {
             setPreferenceDrawerOpen("edit")
           }}
         />
-      )}
+      )} */}
     </>
   )
 }

@@ -250,7 +250,7 @@ export const ElmVillageApplication: Application = {
     },
   ] as ApplicationMultiselectQuestion[],
   confirmationCode: "",
-  status: ApplicationStatusEnum.draft,
+  status: ApplicationStatusEnum.submitted,
   submissionType: ApplicationSubmissionTypeEnum.electronical,
   language: LanguagesEnum.en,
 }

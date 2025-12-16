@@ -567,6 +567,9 @@ describe('Application Controller Tests', () => {
         confirmationCode: expect.any(String),
         receivedAt: null,
         receivedBy: null,
+        accessibleUnitWaitlistNumber: null,
+        conventionalUnitWaitlistNumber: null,
+        manualLotteryPositionNumber: null,
         reviewStatus: 'valid',
         applicationsMailingAddress: {
           id: expect.any(String),

@@ -24,6 +24,7 @@ describe('Testing listing csv export service', () => {
   let writeStream;
 
   beforeAll(async () => {
+    process.env.CLOUDINARY_CLOUD_NAME = 'exygy';
     const module: TestingModule = await Test.createTestingModule({
       providers: [PrismaService, ListingCsvExporterService, Logger],
     }).compile();

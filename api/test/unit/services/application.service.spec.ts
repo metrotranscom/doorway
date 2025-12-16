@@ -1821,7 +1821,7 @@ describe('Testing application service', () => {
           sendMailToMailingAddress: true,
           householdExpectingChanges: false,
           householdStudent: false,
-          incomeVouchers: false,
+          incomeVouchers: [],
           income: '36000',
           incomePeriod: IncomePeriodEnum.perYear,
           language: LanguagesEnum.en,
@@ -1902,6 +1902,7 @@ describe('Testing application service', () => {
               sexualOrientation: 'example sexual orientation',
               howDidYouHear: ['example how did you hear'],
               race: ['example race'],
+              spokenLanguage: 'example language',
             },
           },
           preferredUnitTypes: {

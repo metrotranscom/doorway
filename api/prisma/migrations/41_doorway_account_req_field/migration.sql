@@ -5,7 +5,7 @@ SET
     translations,
     '{rentalOpportunity}',
     '{
-        "doorwayAccountRequirement": "you will need a Doorway account in order to apply. Receipt of this email does not equate to a Doorway account",
+        "doorwayAccountRequirement": "You will need a Doorway account in order to apply. Receipt of this email does not equate to a Doorway account",
         "viewListingNotice":
           "THIS INFORMATION MAY CHANGE <br /> - Please view listing for the most updated information"
         }'

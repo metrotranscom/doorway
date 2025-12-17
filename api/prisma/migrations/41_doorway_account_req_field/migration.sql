@@ -28,7 +28,7 @@ UPDATE
 SET
   translations = jsonb_set(
     translations,
-    '{rentalOpportunity, viewListingNoticeLine2,}',
+    '{rentalOpportunity, viewListingNoticeLine2}',
     '"- Please view listing for the most updated information"'
   )
 WHERE

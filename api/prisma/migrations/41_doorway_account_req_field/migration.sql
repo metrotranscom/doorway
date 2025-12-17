@@ -16,7 +16,7 @@ SET
   translations = jsonb_set(
     translations,
     '{rentalOpportunity, viewListingNoticeLine1}',
-   '"THIS INFORMATION MAY CHANGE"',
+   '"THIS INFORMATION MAY CHANGE"'
   )
 WHERE
   language = 'en';
@@ -29,7 +29,7 @@ SET
   translations = jsonb_set(
     translations,
     '{rentalOpportunity, viewListingNoticeLine2,}',
-    '"- Please view listing for the most updated information"',
+    '"- Please view listing for the most updated information"'
   )
 WHERE
   language = 'en';

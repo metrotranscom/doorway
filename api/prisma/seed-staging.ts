@@ -155,6 +155,7 @@ export const stagingSeed = async (
     Sonoma: sonomaCounty.id,
   };
   // create main jurisdiction with as many feature flags turned on as possible
+  console.log('jurisdictionName', jurisdictionName);
   const mainJurisdiction = await prismaClient.jurisdictions.create({
     data: jurisdictionFactory(jurisdictionName, {
       listingApprovalPermissions: [UserRoleEnum.admin],
@@ -458,7 +459,10 @@ export const stagingSeed = async (
   });
   // build ami charts
   const amiChart = await prismaClient.amiChart.create({
-    data: amiChartFactory(10, jurisdiction.id),
+    data: amiChartFactory(10, jurisdiction.id, null, jurisdiction.name),
+  });
+  await prismaClient.amiChart.create({
+    data: amiChartFactory(10, jurisdiction.id, null, jurisdiction.name),
   });
   const NUM_AMI_CHARTS = 5;
   for (let index = 0; index < NUM_AMI_CHARTS; index++) {
@@ -467,13 +471,31 @@ export const stagingSeed = async (
     });
   }
   await prismaClient.amiChart.create({
-    data: amiChartFactory(10, mainJurisdiction.id, 2),
+    data: amiChartFactory(10, mainJurisdiction.id, 2, mainJurisdiction.name),
   });
   await prismaClient.amiChart.create({
-    data: amiChartFactory(8, lakeviewJurisdiction.id),
+    data: amiChartFactory(
+      8,
+      lakeviewJurisdiction.id,
+      null,
+      lakeviewJurisdiction.name,
+    ),
   });
   await prismaClient.amiChart.create({
-    data: amiChartFactory(8, lakeviewJurisdiction.id, 2),
+    data: amiChartFactory(
+      8,
+      lakeviewJurisdiction.id,
+      2,
+      lakeviewJurisdiction.name,
+    ),
+  });
+  await prismaClient.amiChart.create({
+    data: amiChartFactory(
+      10,
+      angelopolisJurisdiction.id,
+      2,
+      angelopolisJurisdiction.name,
+    ),
   });
   // Create map layers
   await prismaClient.mapLayers.create({

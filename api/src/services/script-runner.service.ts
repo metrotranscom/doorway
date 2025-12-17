@@ -2090,15 +2090,15 @@ export class ScriptRunnerService {
         translations: {
           ...translationsENJSON,
           forgotPassword: {
-            subject: 'Forgot your password?',
+            subject: 'Reset your password',
             callToAction:
               'If you did make this request, please click on the following link to choose a new password:',
             passwordInfo:
               "Note your password won't change until you click that link.",
             resetRequest:
-              'We received a request to reset your Doorway Housing Portal password.',
+              'We received a request to reset your password for your Doorway Housing Portal account. You must click the following link to complete the reset:',
             ignoreRequest:
-              "If you didn't request this, please ignore this email.",
+              'This password reset is only valid for the next hour. If you didn’t make this request, please ignore this email.',
             changePassword: 'Change my password',
           },
         },
@@ -2117,15 +2117,15 @@ export class ScriptRunnerService {
         translations: {
           ...translationsESJSON,
           forgotPassword: {
-            subject: '¿Olvidaste tu contraseña?',
+            subject: 'Restablece tu contraseña',
             callToAction:
               'Si realizó esta solicitud, haga clic en el siguiente enlace para elegir una nueva contraseña:',
             passwordInfo:
               'Tenga en cuenta que su contraseña no cambiará hasta que haga clic en ese enlace.',
             resetRequest:
-              'Recibimos una solicitud para restablecer su contraseña de Doorway Housing Portal.',
+              'Recibimos una solicitud para restablecer la contraseña de su cuenta del Portal de Vivienda Doorway. Haga clic en el siguiente enlace para completar el restablecimiento:',
             ignoreRequest:
-              'Si no solicitó esto, ignore este correo electrónico.',
+              'Este restablecimiento de contraseña solo es válido durante la próxima hora. Si no realizó esta solicitud, ignore este correo electrónico.',
             changePassword: 'Cambiar mi contraseña',
           },
         },
@@ -2144,15 +2144,15 @@ export class ScriptRunnerService {
         translations: {
           ...translationsTLJSON,
           forgotPassword: {
-            subject: 'Nakalimutan ang iyong password?',
+            subject: 'I-reset ang iyong password',
             callToAction:
               'Kung ginawa mo ang kahilingan na ito, mangyaring mag -click sa sumusunod na link upang pumili ng isang bagong password:',
             passwordInfo:
               'Tandaan ang iyong password ay hindi magbabago hanggang sa i -click mo ang link na iyon.',
             resetRequest:
-              'Nakatanggap kami ng isang kahilingan upang i -reset ang iyong Doorway Housing Portal password.',
+              'Nakatanggap kami ng kahilingan na i-reset ang iyong password para sa iyong Doorway Housing Portal account. Dapat mong i-click ang sumusunod na link upang makumpleto ang pag-reset:',
             ignoreRequest:
-              'Kung hindi mo ito hiniling, mangyaring huwag pansinin ang email na ito.',
+              'Ang pag-reset ng password na ito ay may bisa lamang para sa susunod na oras. Kung hindi mo ginawa ang kahilingang ito, mangyaring huwag pansinin ang email na ito.',
             changePassword: 'Baguhin ang aking password',
           },
         },
@@ -2171,15 +2171,15 @@ export class ScriptRunnerService {
         translations: {
           ...translationsVIJSON,
           forgotPassword: {
-            subject: 'Quên mật khẩu của bạn?',
+            subject: 'Đặt lại mật khẩu của bạn',
             callToAction:
               'Nếu bạn đã thực hiện yêu cầu này, vui lòng nhấp vào liên kết sau để chọn mật khẩu mới:',
             passwordInfo:
               'Lưu ý mật khẩu của bạn sẽ không thay đổi cho đến khi bạn nhấp vào liên kết đó.',
             resetRequest:
-              'Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu Doorway Housing Portal của bạn.',
+              'Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản Doorway Housing Portal của bạn. Bạn phải nhấp vào liên kết sau để hoàn tất việc đặt lại:',
             ignoreRequest:
-              'Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này.',
+              'Việc đặt lại mật khẩu này chỉ có hiệu lực trong vòng một giờ tới. Nếu bạn không gửi yêu cầu, vui lòng bỏ qua email này.',
             changePassword: 'Thay đổi mật khẩu của tôi',
           },
         },
@@ -2198,13 +2198,14 @@ export class ScriptRunnerService {
         translations: {
           ...translationsZHJSON,
           forgotPassword: {
-            subject: '忘記密碼了嗎?',
+            subject: '重設您的密碼',
             callToAction:
               '如果您確實提出了此請求, 請單擊以下鏈接以選擇一個新密碼:',
             passwordInfo: '注意, 直到您單擊該鏈接, 您的密碼才會更改。',
             resetRequest:
-              '我們收到了一個請求, 以重置您的Doorway Housing Portal密碼。',
-            ignoreRequest: '如果您沒有要求此信息, 請忽略此電子郵件。',
+              '我們收到您重置 Doorway Housing Portal 帳戶密碼的請求。您必須點擊以下連結完成重設：',
+            ignoreRequest:
+              '此次密碼重設僅在下一小時內有效。如果您並未發起此要求，請忽略此郵件。',
             changePassword: '更改我的密碼',
           },
         },

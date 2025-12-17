@@ -220,7 +220,7 @@ describe('Testing email service', () => {
       Content: {
         Simple: {
           Subject: {
-            Data: 'Forgot your password?',
+            Data: 'Reset your password',
           },
           Body: {
             Html: {
@@ -235,16 +235,13 @@ describe('Testing email service', () => {
         'Data'
       ];
     expect(html).toContain(
-      'A request to reset your Bloom Housing Portal website password for http://localhost:3001 has recently been made',
+      'We received a request to reset your password for your Doorway Housing Portal account. You must click the following link to complete the reset:',
     );
     expect(html).toContain(
-      'If you did make this request, please click on the link below to reset your password:',
+      'This password reset is only valid for the next hour. If you didn’t make this request, please ignore this email.',
     );
     expect(html).toContain(
       '<a href="http://localhost:3001/reset-password?token&#x3D;resetToken">Change my password</a>',
-    );
-    expect(html).toContain(
-      'Your password won&#x27;t change until you access the link above and create a new one.',
     );
   });
 
@@ -265,7 +262,7 @@ describe('Testing email service', () => {
       Content: {
         Simple: {
           Subject: {
-            Data: 'Forgot your password?',
+            Data: 'Reset your password',
           },
           Body: {
             Html: {
@@ -280,16 +277,13 @@ describe('Testing email service', () => {
         'Data'
       ];
     expect(html).toContain(
-      'A request to reset your Bloom Housing Portal website password for http://localhost:3001 has recently been made',
+      'We received a request to reset your password for your Doorway Housing Portal account. You must click the following link to complete the reset:',
     );
     expect(html).toContain(
-      'If you did make this request, please click on the link below to reset your password:',
+      'This password reset is only valid for the next hour. If you didn’t make this request, please ignore this email.',
     );
     expect(html).toContain(
       '<a href="http://localhost:3001/reset-password?token&#x3D;resetToken&amp;redirectUrl&#x3D;redirect&amp;listingId&#x3D;123">Change my password</a>',
-    );
-    expect(html).toContain(
-      'Your password won&#x27;t change until you access the link above and create a new one.',
     );
   });
 
@@ -680,7 +674,7 @@ describe('Testing email service', () => {
       );
       expect(html).toMatch('Review Listing');
       expect(html).toMatch(/http:\/\/localhost:3001\/listings\/listingId/);
-      expect(html).toMatch('Thank you,');
+      expect(html).toMatch('Thank you');
       expect(html).toMatch('Bloom Housing Portal');
     });
   });
@@ -740,7 +734,7 @@ describe('Testing email service', () => {
       );
       expect(html).toMatch('Edit Listing');
       expect(html).toMatch(/http:\/\/localhost:3001\/listings\/listingId/);
-      expect(html).toMatch('Thank you,');
+      expect(html).toMatch('Thank you');
       expect(html).toMatch('Bloom Housing Portal');
     });
   });
@@ -791,7 +785,7 @@ describe('Testing email service', () => {
       );
       expect(html).toMatch('View Listing');
       expect(html).toMatch(/http:\/\/localhost:3000\/listing\/listingId/);
-      expect(html).toMatch('Thank you,');
+      expect(html).toMatch('Thank you');
       expect(html).toMatch('Bloom Housing Portal');
     });
 

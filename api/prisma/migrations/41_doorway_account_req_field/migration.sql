@@ -15,7 +15,7 @@ UPDATE
 SET
   translations = jsonb_set(
     translations,
-    '{rentalOpportunity, viewListingNotice, line1}',
+    '{rentalOpportunity, viewListingNotice, line1}'::jsonb,
    '"THIS INFORMATION MAY CHANGE"',
    true
   )
@@ -30,7 +30,7 @@ SET
   translations = jsonb_set(
     translations,
     '{rentalOpportunity, viewListingNotice, line2}',
-    '"- Please view listing for the most updated information"',
+    '"- Please view listing for the most updated information"'::jsonb,
     true
   )
 WHERE

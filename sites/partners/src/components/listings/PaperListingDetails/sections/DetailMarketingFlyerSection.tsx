@@ -29,7 +29,7 @@ const PreviewMarketingFlyer = ({
             preview: {
               content: (
                 <TableThumbnail>
-                  <img alt="PDF preview" src={cloudinaryUrlFromId(fileId)} />
+                  <img alt="PDF preview" src={fileId} />
                 </TableThumbnail>
               ),
             },

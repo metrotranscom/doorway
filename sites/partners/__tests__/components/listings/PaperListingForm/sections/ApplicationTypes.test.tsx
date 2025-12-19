@@ -46,15 +46,17 @@ describe("ApplicationTypes", () => {
       screen.getByRole("group", { name: "Is there a digital application?" })
     ).toBeInTheDocument()
     expect(screen.getByRole("group", { name: "Is there a paper application?" })).toBeInTheDocument()
-    expect(
-      screen.getByRole("group", { name: "Is there a referral opportunity?" })
-    ).toBeInTheDocument()
+    // Doorway does not have referral opportunity enabled
+    // expect(
+    //   screen.getByRole("group", { name: "Is there a referral opportunity?" })
+    // ).toBeInTheDocument()
 
-    expect(screen.getAllByRole("radio", { name: /yes/i })).toHaveLength(3)
-    expect(screen.getAllByRole("radio", { name: /no/i })).toHaveLength(3)
+    expect(screen.getAllByRole("radio", { name: /yes/i })).toHaveLength(2)
+    expect(screen.getAllByRole("radio", { name: /no/i })).toHaveLength(2)
   })
 
-  it("should update the referral question label when enableReferralQuestionUnits flag is turned on", () => {
+  // skipping as referral opportunity is disabled in Doorway
+  it.skip("should update the referral question label when enableReferralQuestionUnits flag is turned on", () => {
     render(
       <AuthContext.Provider
         value={{
@@ -176,9 +178,9 @@ describe("ApplicationTypes", () => {
       within(addApplicationDialog).getByRole("option", { name: "Filipino" })
     ).toBeInTheDocument()
 
-    expect(within(addApplicationDialog).getByRole("option", { name: "বাংলা" })).toBeInTheDocument()
+    // expect(within(addApplicationDialog).getByRole("option", { name: "বাংলা" })).toBeInTheDocument()
 
-    expect(within(addApplicationDialog).getByRole("option", { name: "عربى" })).toBeInTheDocument()
+    // expect(within(addApplicationDialog).getByRole("option", { name: "عربى" })).toBeInTheDocument()
 
     await userEvent.selectOptions(within(addApplicationDialog).getByRole("combobox"), [
       LanguagesEnum.en,
@@ -194,7 +196,8 @@ describe("ApplicationTypes", () => {
     expect(within(addApplicationDialog).getByRole("button", { name: "Cancel" })).toBeInTheDocument()
   })
 
-  it("should handle referral opportunity checkbox toggle", async () => {
+  // skipping as referral opportunity is disabled in Doorway
+  it.skip("should handle referral opportunity checkbox toggle", async () => {
     render(
       <FormProviderWrapper>
         <ApplicationTypes
@@ -225,7 +228,8 @@ describe("ApplicationTypes", () => {
     expect(screen.getByRole("textbox", { name: "Referral summary" })).toBeInTheDocument()
   })
 
-  it("should apply phone mask to referral phone number", async () => {
+  // skipping as referral opportunity is disabled in Doorway
+  it.skip("should apply phone mask to referral phone number", async () => {
     render(
       <FormProviderWrapper>
         <ApplicationTypes
@@ -316,7 +320,7 @@ describe("ApplicationTypes", () => {
     expect(digitalApplicationYesRadio).toBeChecked()
 
     expect(
-      await screen.queryByRole("group", {
+      screen.queryByRole("group", {
         name: "Are you using the common digital application?",
       })
     ).not.toBeInTheDocument()

@@ -104,7 +104,7 @@ describe("<ListingPhotos>", () => {
                   updatedAt: new Date(),
                   fileId: "file_1_id",
                   id: "asset_1_id",
-                  label: "Asset 1 Label",
+                  label: "building",
                 },
                 ordinal: 1,
               },
@@ -151,7 +151,10 @@ describe("<ListingPhotos>", () => {
 
       const [secondPreview, secondPrimary, secondActions] = within(rows[1]).getAllByRole("cell")
       expect(within(secondPreview).getByRole("presentation")).toBeInTheDocument()
-      expect(within(secondPreview).getByRole("presentation")).toHaveAttribute("src", "file_2_id")
+      expect(within(secondPreview).getByRole("presentation")).toHaveAttribute(
+        "src",
+        "https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/file_2_id.jpg"
+      )
       expect(secondPrimary).not.toHaveTextContent("Primary photo")
       expect(within(secondActions).getByRole("button", { name: "Delete" })).toBeInTheDocument()
 

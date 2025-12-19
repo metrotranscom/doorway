@@ -36,8 +36,9 @@ describe("<DetailApplicationTypes>", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Application types" })).toBeInTheDocument()
     expect(screen.getByText("Online applications")).toBeInTheDocument()
     expect(screen.getByText("Paper applications")).toBeInTheDocument()
-    expect(screen.getByText("Referral")).toBeInTheDocument()
-    expect(screen.getAllByText("No")).toHaveLength(3)
+    // Referral disabled in Doorway
+    // expect(screen.getByText("Referral")).toBeInTheDocument()
+    expect(screen.getAllByText("No")).toHaveLength(2)
 
     expect(screen.queryByText("Common digital application")).not.toBeInTheDocument()
   })
@@ -119,12 +120,13 @@ describe("<DetailApplicationTypes>", () => {
     const [fileName, language] = within(rows[0]).getAllByRole("cell")
     expect(fileName).toHaveTextContent("Test File Name.pdf")
     expect(language).toHaveTextContent("English")
-    expect(screen.getByText("Referral")).toBeInTheDocument()
-    expect(screen.getByText("Referral contact phone")).toBeInTheDocument()
-    expect(screen.getByText("(123) 456-7890")).toBeInTheDocument()
-    expect(screen.getByText("Referral summary")).toBeInTheDocument()
-    expect(screen.getByText("Test referral summary")).toBeInTheDocument()
-    expect(screen.getAllByText("Yes")).toHaveLength(3)
+    // Referral disabled in Doorway
+    // expect(screen.getByText("Referral")).toBeInTheDocument()
+    // expect(screen.getByText("Referral contact phone")).toBeInTheDocument()
+    // expect(screen.getByText("(123) 456-7890")).toBeInTheDocument()
+    // expect(screen.getByText("Referral summary")).toBeInTheDocument()
+    // expect(screen.getByText("Test referral summary")).toBeInTheDocument()
+    expect(screen.getAllByText("Yes")).toHaveLength(2)
     expect(screen.getAllByText("No")).toHaveLength(1)
   })
 
@@ -165,7 +167,8 @@ describe("<DetailApplicationTypes>", () => {
     expect(screen.getByText("https://testexternallink.com")).toBeInTheDocument()
   })
 
-  it("should update label when the enableReferralQuestionUnits is turned on", () => {
+  // Referral opportunity disabled in Doorway
+  it.skip("should update label when the enableReferralQuestionUnits is turned on", () => {
     render(
       <AuthContext.Provider
         value={{

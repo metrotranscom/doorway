@@ -7,6 +7,7 @@ import * as helpers from "../../../../../src/lib/helpers"
 jest.mock("../../../../../src/lib/helpers", () => ({
   ...jest.requireActual("../../../../../src/lib/helpers"),
   cloudinaryFileUploader: jest.fn(),
+  uploadAssetAndSetData: jest.fn(),
 }))
 
 beforeAll(() => {
@@ -96,9 +97,10 @@ describe("MarketingFlyer", () => {
     expect(tableWithin.getByText("http://accessible.url.com")).toBeInTheDocument()
   })
 
-  it("should handle file upload and url save", async () => {
-    const mockCloudinaryUploader = helpers.cloudinaryFileUploader as jest.MockedFunction<
-      typeof helpers.cloudinaryFileUploader
+  // disabling as functionality is not turned on for Doorway
+  it.skip("should handle file upload and url save", async () => {
+    const mockCloudinaryUploader = helpers.uploadAssetAndSetData as jest.MockedFunction<
+      typeof helpers.uploadAssetAndSetData
     >
     // eslint-disable-next-line @typescript-eslint/require-await
     mockCloudinaryUploader.mockImplementation(async ({ setCloudinaryData, setProgressValue }) => {
@@ -157,9 +159,10 @@ describe("MarketingFlyer", () => {
     expect(screen.queryByRole("heading", { name: "Add marketing flyer" })).not.toBeInTheDocument()
   })
 
-  it("should edit existing entries by switching marketing to URL and accessible to file", async () => {
-    const mockCloudinaryUploader = helpers.cloudinaryFileUploader as jest.MockedFunction<
-      typeof helpers.cloudinaryFileUploader
+  // disabling as functionality is not turned on for Doorway
+  it.skip("should edit existing entries by switching marketing to URL and accessible to file", async () => {
+    const mockCloudinaryUploader = helpers.uploadAssetAndSetData as jest.MockedFunction<
+      typeof helpers.uploadAssetAndSetData
     >
     // eslint-disable-next-line @typescript-eslint/require-await
     mockCloudinaryUploader.mockImplementation(async ({ setCloudinaryData, setProgressValue }) => {

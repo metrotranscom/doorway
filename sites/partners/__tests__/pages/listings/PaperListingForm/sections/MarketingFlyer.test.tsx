@@ -99,17 +99,17 @@ describe("MarketingFlyer", () => {
 
   // disabling as functionality is not turned on for Doorway
   it.skip("should handle file upload and url save", async () => {
-    const mockCloudinaryUploader = helpers.uploadAssetAndSetData as jest.MockedFunction<
-      typeof helpers.uploadAssetAndSetData
-    >
-    // eslint-disable-next-line @typescript-eslint/require-await
-    mockCloudinaryUploader.mockImplementation(async ({ setCloudinaryData, setProgressValue }) => {
-      setProgressValue(100)
-      setCloudinaryData({
-        id: "test-cloudinary-id/test-file",
-        url: "https://test.cloudinary.com/test-file.pdf",
-      })
-    })
+    // const mockCloudinaryUploader = helpers.uploadAssetAndSetData as jest.MockedFunction<
+    //   typeof helpers.uploadAssetAndSetData
+    // >
+    // // eslint-disable-next-line @typescript-eslint/require-await
+    // mockCloudinaryUploader.mockImplementation(async ({ setCloudinaryData, setProgressValue }) => {
+    //   setProgressValue(100)
+    //   setCloudinaryData({
+    //     id: "test-cloudinary-id/test-file",
+    //     url: "https://test.cloudinary.com/test-file.pdf",
+    //   })
+    // })
 
     render(<MarketingFlyer currentData={{}} onSubmit={mockOnSubmit} />)
 
@@ -161,17 +161,17 @@ describe("MarketingFlyer", () => {
 
   // disabling as functionality is not turned on for Doorway
   it.skip("should edit existing entries by switching marketing to URL and accessible to file", async () => {
-    const mockCloudinaryUploader = helpers.uploadAssetAndSetData as jest.MockedFunction<
-      typeof helpers.uploadAssetAndSetData
-    >
-    // eslint-disable-next-line @typescript-eslint/require-await
-    mockCloudinaryUploader.mockImplementation(async ({ setCloudinaryData, setProgressValue }) => {
-      setProgressValue(100)
-      setCloudinaryData({
-        id: "accessible-upload-id/new-accessible-file",
-        url: "https://test.cloudinary.com/new-accessible-file.pdf",
-      })
-    })
+    // const mockCloudinaryUploader = helpers.uploadAssetAndSetData as jest.MockedFunction<
+    //   typeof helpers.uploadAssetAndSetData
+    // >
+    // // eslint-disable-next-line @typescript-eslint/require-await
+    // mockCloudinaryUploader.mockImplementation(async ({ setCloudinaryData, setProgressValue }) => {
+    //   setProgressValue(100)
+    //   setCloudinaryData({
+    //     id: "accessible-upload-id/new-accessible-file",
+    //     url: "https://test.cloudinary.com/new-accessible-file.pdf",
+    //   })
+    // })
 
     render(
       <MarketingFlyer

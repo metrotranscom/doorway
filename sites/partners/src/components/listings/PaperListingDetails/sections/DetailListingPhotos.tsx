@@ -1,7 +1,6 @@
 import React, { useContext } from "react"
 import { t, MinimalTable, TableThumbnail } from "@bloom-housing/ui-components"
-import { getImageUrlFromAsset } from "@bloom-housing/shared-helpers"
-import { AuthContext, getUrlForListingImage } from "@bloom-housing/shared-helpers"
+import { AuthContext, getImageUrlFromAsset } from "@bloom-housing/shared-helpers"
 import { FeatureFlagEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import { ListingContext } from "../../ListingContext"

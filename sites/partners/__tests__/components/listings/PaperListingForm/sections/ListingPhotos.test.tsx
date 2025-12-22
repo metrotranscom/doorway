@@ -9,6 +9,7 @@ import ListingPhotos from "../../../../../src/components/listings/PaperListingFo
 import { mockNextRouter } from "../../../../testUtils"
 import userEvent from "@testing-library/user-event"
 import * as helpers from "../../../../../src/lib/helpers"
+import * as assets from "../../../../../src/lib/assets"
 import { rest } from "msw"
 
 jest.mock("../../../../../src/lib/helpers", () => {
@@ -16,6 +17,14 @@ jest.mock("../../../../../src/lib/helpers", () => {
   return {
     ...actual,
     cloudinaryFileUploader: jest.fn(),
+  }
+})
+
+jest.mock("../../../../../src/lib/assets", () => {
+  const actual = jest.requireActual<typeof helpers>("../../../../../src/lib/assets")
+  return {
+    ...actual,
+    uploadAssetAndSetData: jest.fn(),
   }
 })
 
@@ -374,16 +383,16 @@ describe("<ListingPhotos>", () => {
           return res(ctx.json({ success: true }))
         })
       )
-      // const mockCloudinaryUploader = helpers.uploadAssetAndSetData as jest.MockedFunction<
-      //   typeof helpers.uploadAssetAndSetData
-      // >
-      // mockCloudinaryUploader.mockImplementation(
-      //   // eslint-disable-next-line @typescript-eslint/require-await
-      //   async ({ setCloudinaryData, setProgressValue }) => {
-      //     setProgressValue(100)
-      //     setCloudinaryData({ id: "new-file-id", url: "http://example.com/new-file" })
-      //   }
-      // )
+      const mockCloudinaryUploader = assets.uploadAssetAndSetData as jest.MockedFunction<
+        typeof assets.uploadAssetAndSetData
+      >
+      mockCloudinaryUploader.mockImplementation(
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async (_filename, _label, setProgressValue, setCloudinaryData) => {
+          setProgressValue(100)
+          setCloudinaryData({ id: "new-file-id", url: "http://example.com/new-file" })
+        }
+      )
 
       render(
         <FormComponent

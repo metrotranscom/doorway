@@ -718,7 +718,7 @@ describe("<Apply>", () => {
     const addressState = "Ohio"
     const addressStreet = "1598 Peaceful Lane"
     const addressZipCode = "44128"
-    const { getByText } = render(
+    render(
       <Apply
         listing={{
           ...listing,

@@ -28,7 +28,7 @@ describe("Application Management Tests", () => {
     // }
     // intercept api request to extract the listing id for filename
     cy.intercept("/api/adapter/applications/csv?id=*").as("getCsvId")
-    const now = new Date()
+    // const now = new Date()
     cy.get("button").contains("export", { matchCase: false }).click()
     cy.getByTestId("agree").check()
     cy.getByID("terms").contains("export", { matchCase: false }).click()

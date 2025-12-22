@@ -20,10 +20,10 @@ const DetailApplicationTypes = () => {
     listing?.jurisdictions?.id
   )
 
-  const enableReferralQuestionUnits = doJurisdictionsHaveFeatureFlagOn(
-    FeatureFlagEnum.enableReferralQuestionUnits,
-    listing?.jurisdictions?.id
-  )
+  // const enableReferralQuestionUnits = doJurisdictionsHaveFeatureFlagOn(
+  //   FeatureFlagEnum.enableReferralQuestionUnits,
+  //   listing?.jurisdictions?.id
+  // )
 
   const digitalMethod = listing.applicationMethods.find(
     (method) =>

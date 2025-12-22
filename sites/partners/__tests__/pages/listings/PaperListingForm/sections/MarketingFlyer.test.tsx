@@ -2,7 +2,7 @@ import React from "react"
 import userEvent from "@testing-library/user-event"
 import MarketingFlyer from "../../../../../src/components/listings/PaperListingForm/sections/MarketingFlyer"
 import { mockNextRouter, render, screen, waitFor, within } from "../../../../testUtils"
-import * as helpers from "../../../../../src/lib/helpers"
+// import * as helpers from "../../../../../src/lib/helpers"
 
 jest.mock("../../../../../src/lib/helpers", () => ({
   ...jest.requireActual("../../../../../src/lib/helpers"),

@@ -1,7 +1,7 @@
 import React from "react"
 import { t, MinimalTable, TableThumbnail } from "@bloom-housing/ui-components"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
-import { cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
+// import { cloudinaryUrlFromId } from "@bloom-housing/shared-helpers"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 type DetailMarketingFlyerSectionProps = {

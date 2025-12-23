@@ -2332,6 +2332,7 @@ describe('Testing user service', () => {
         select: {
           id: true,
           allowSingleUseCodeLogin: true,
+          name: true,
         },
         where: {
           name: 'juris 1',
@@ -2397,6 +2398,7 @@ describe('Testing user service', () => {
       prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
         id,
         allowSingleUseCodeLogin: true,
+        name: 'juris 1',
       });
       prisma.userAccounts.update = jest.fn().mockResolvedValue({
         id,
@@ -2421,6 +2423,7 @@ describe('Testing user service', () => {
         select: {
           id: true,
           allowSingleUseCodeLogin: true,
+          name: true,
         },
         where: {
           name: 'juris 1',
@@ -2455,6 +2458,7 @@ describe('Testing user service', () => {
       prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
         id,
         allowSingleUseCodeLogin: true,
+        name: 'juris 1',
       });
       prisma.userAccounts.update = jest.fn().mockResolvedValue({
         id,
@@ -2479,6 +2483,7 @@ describe('Testing user service', () => {
         select: {
           id: true,
           allowSingleUseCodeLogin: true,
+          name: true,
         },
         where: {
           name: 'juris 1',

@@ -270,15 +270,22 @@ export const stagingSeed = async (
   const angelopolisJurisdiction = await prismaClient.jurisdictions.create({
     data: jurisdictionFactory('Angelopolis', {
       featureFlags: [
+        FeatureFlagEnum.disableBuildingSelectionCriteria,
+        FeatureFlagEnum.disableListingPreferences,
         FeatureFlagEnum.enableAccessibilityFeatures,
+        FeatureFlagEnum.enableApplicationStatus,
         FeatureFlagEnum.enableCreditScreeningFee,
         FeatureFlagEnum.enableHousingDeveloperOwner,
         FeatureFlagEnum.enableListingFileNumber,
         FeatureFlagEnum.enableListingFiltering,
+        FeatureFlagEnum.enableListingImageAltText,
+        FeatureFlagEnum.enableMarketingFlyer,
         FeatureFlagEnum.enableMarketingStatus,
         FeatureFlagEnum.enableMarketingStatusMonths,
         FeatureFlagEnum.enableNeighborhoodAmenities,
         FeatureFlagEnum.enableNeighborhoodAmenitiesDropdown,
+        FeatureFlagEnum.enableProperties,
+        FeatureFlagEnum.enableReferralQuestionUnits,
       ],
       visibleNeighborhoodAmenities: [
         NeighborhoodAmenitiesEnum.groceryStores,
@@ -290,7 +297,7 @@ export const stagingSeed = async (
         NeighborhoodAmenitiesEnum.playgrounds,
         NeighborhoodAmenitiesEnum.busStops,
       ],
-
+      minimumListingPublishImagesRequired: 3,
       requiredListingFields: [
         'digitalApplication',
         'jurisdictions',
@@ -299,6 +306,7 @@ export const stagingSeed = async (
         'leasingAgentPhone',
         'listingFileNumber',
         'listingImages',
+        'listingImages.description',
         'listingsBuildingAddress',
         'name',
         'paperApplication',
@@ -445,14 +453,12 @@ export const stagingSeed = async (
   });
   // add jurisdiction specific translations and default ones
   await prismaClient.translations.create({
-    data: translationFactory(jurisdiction.id, jurisdiction.name),
+    data: translationFactory({
+      jurisdiction: { id: jurisdiction.id, name: jurisdiction.name },
+    }),
   });
   await prismaClient.translations.create({
-    data: translationFactory(
-      mainJurisdiction.id,
-      mainJurisdiction.name,
-      LanguagesEnum.es,
-    ),
+    data: translationFactory({ language: LanguagesEnum.es }),
   });
   await prismaClient.translations.create({
     data: translationFactory(),
@@ -907,6 +913,38 @@ export const stagingSeed = async (
     {
       jurisdictionId: jurisdiction.id,
       listing: valleyHeightsSeniorCommunity,
+      applications: [
+        await applicationFactory({
+          isNewest: true,
+          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+            ? dayjs(new Date()).subtract(10, 'days').toDate()
+            : undefined,
+        }),
+        // applications below should have their PII removed via the cron job
+        await applicationFactory({
+          isNewest: false,
+          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+            ? dayjs(new Date()).subtract(10, 'days').toDate()
+            : undefined,
+        }),
+        await applicationFactory({
+          isNewest: false,
+          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+            ? dayjs(new Date()).subtract(10, 'days').toDate()
+            : undefined,
+        }),
+        await applicationFactory({
+          isNewest: false,
+          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+            ? dayjs(new Date()).subtract(10, 'days').toDate()
+            : undefined,
+          householdMember: [
+            householdMemberFactorySingle(1, {}),
+            householdMemberFactorySingle(2, {}),
+            householdMemberFactorySingle(4, {}),
+          ],
+        }),
+      ],
       userAccounts: [{ id: partnerUser.id }],
     },
     {

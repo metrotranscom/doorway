@@ -15,6 +15,7 @@ import {
   IsDefined,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -130,6 +131,24 @@ export class Application extends AbstractDTO {
     enumName: 'ApplicationStatusEnum',
   })
   status: ApplicationStatusEnum;
+
+  @Expose()
+  @IsOptional({ groups: [ValidationsGroupsEnum.default] })
+  @IsNumber({}, { groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional()
+  accessibleUnitWaitlistNumber?: number;
+
+  @Expose()
+  @IsOptional({ groups: [ValidationsGroupsEnum.default] })
+  @IsNumber({}, { groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional()
+  conventionalUnitWaitlistNumber?: number;
+
+  @Expose()
+  @IsOptional({ groups: [ValidationsGroupsEnum.default] })
+  @IsNumber({}, { groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional()
+  manualLotteryPositionNumber?: number;
 
   @Expose()
   @IsEnum(LanguagesEnum, { groups: [ValidationsGroupsEnum.default] })

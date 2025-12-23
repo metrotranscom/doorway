@@ -15,7 +15,7 @@ export type FormOption = {
 
 export interface ButtonGroupProps {
   /** Pass either Button components in, or fragments which can contain one or more buttons */
-  columns?: React.ReactNodeArray
+  columns?: React.ReactNode[]
 
   /** Between spacing pushes the columns far apart, even spacing keeps them closer together */
   spacing?: ButtonGroupSpacing
@@ -45,18 +45,18 @@ const ButtonGroup = (props: ButtonGroupProps) => {
     value: null,
   }
 
-    const [selection, setSelection] = useState(nullState)
+  const [selection, setSelection] = useState(nullState)
 
   let options: FormOption[] = []
   if (props.options) {
     options = props.options
   }
   let initialIndex = -1
-    options.forEach((button, index) => {
-	if (button.value == props.value) {
-            initialIndex = index
-	}
-    })
+  options.forEach((button, index) => {
+    if (button.value == props.value) {
+      initialIndex = index
+    }
+  })
 
   let name: string = ""
   if (props.name) {
@@ -105,21 +105,21 @@ const ButtonGroup = (props: ButtonGroupProps) => {
   return (
     <div className={classNames.join(" ")}>
       {options.map((option, index) => {
-          let activate = false
-	  activate = (initialIndex == index)
-          return (
-        <div key={index} className="button-group__column">
-          <Button
-            isActive={activate}
-            label={option.label}
-            value={option.value}
-            index={index}
-            key={index}
-            onSelect={setActiveButton}
-            onDeselect={deselectHandler}
-            children={option.label}
-          />
-        </div>
+        let activate = false
+        activate = initialIndex == index
+        return (
+          <div key={index} className="button-group__column">
+            <Button
+              isActive={activate}
+              label={option.label}
+              value={option.value}
+              index={index}
+              key={index}
+              onSelect={setActiveButton}
+              onDeselect={deselectHandler}
+              children={option.label}
+            />
+          </div>
         )
       })}
     </div>

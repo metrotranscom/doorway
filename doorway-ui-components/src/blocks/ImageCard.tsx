@@ -107,7 +107,9 @@ const ImageCard = (props: ImageCardProps) => {
                 props.strings?.defaultImageAltText ??
                 t("listings.buildingImageAltText")
               }
-              ref={(el) => (imgRefs.current[0] = el)}
+              ref={(el) => {
+                imgRefs.current[0] = el
+              }}
               onError={onError}
             />
           ) : props.images && displayedImages ? (
@@ -120,7 +122,9 @@ const ImageCard = (props: ImageCardProps) => {
                     ? image.description
                     : `${props.description || ""} - photo ${index + 1}`
                 }
-                ref={(el) => (imgRefs.current[index] = el)}
+                ref={(el) => {
+                  imgRefs.current[0] = el
+                }}
                 onError={onError}
               />
             ))

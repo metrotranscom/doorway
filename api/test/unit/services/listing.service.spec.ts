@@ -48,6 +48,7 @@ import { FeatureFlagEnum } from '../../../src/enums/feature-flags/feature-flags-
 import { ApplicationService } from '../../../src/services/application.service';
 import { GeocodingService } from '../../../src/services/geocoding.service';
 import { FilterAvailabilityEnum } from '../../../src/enums/listings/filter-availability-enum';
+import { CronJobService } from '../../../src/services/cron-job.service';
 
 /*
  generates a super simple mock listing for us to test logic with
@@ -284,6 +285,7 @@ describe('Testing listing service', () => {
         ConfigService,
         Logger,
         SchedulerRegistry,
+        CronJobService,
       ],
       imports: [HttpModule],
     }).compile();
@@ -469,6 +471,10 @@ describe('Testing listing service', () => {
       listingsLeasingAgentAddress: exampleAddress,
       listingsBuildingSelectionCriteriaFile: exampleAsset,
       listingsResult: exampleAsset,
+      marketingFlyer: 'https://example.com/marketing-flyer.pdf',
+      accessibleMarketingFlyer: undefined,
+      listingsMarketingFlyerFile: null,
+      listingsAccessibleMarketingFlyerFile: exampleAsset,
       listingEvents: [
         {
           type: ListingEventsTypeEnum.openHouse,
@@ -635,6 +641,8 @@ describe('Testing listing service', () => {
             },
           },
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingEvents: {
             include: {
               assets: true,
@@ -2422,6 +2430,8 @@ describe('Testing listing service', () => {
             },
           },
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingEvents: {
             include: {
               assets: true,
@@ -2939,6 +2949,8 @@ describe('Testing listing service', () => {
             },
           },
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingEvents: {
             include: {
               assets: true,
@@ -3215,6 +3227,8 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
           requestedChangesUser: true,
@@ -3341,6 +3355,8 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
           requestedChangesUser: true,
@@ -3464,6 +3480,12 @@ describe('Testing listing service', () => {
             },
           },
           listingsBuildingSelectionCriteriaFile: {
+            create: {
+              ...exampleAsset,
+            },
+          },
+          listingsMarketingFlyerFile: undefined,
+          listingsAccessibleMarketingFlyerFile: {
             create: {
               ...exampleAsset,
             },
@@ -3713,6 +3735,8 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
           requestedChangesUser: true,
@@ -3853,6 +3877,8 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
           requestedChangesUser: true,
@@ -3974,6 +4000,12 @@ describe('Testing listing service', () => {
             },
           },
           listingsBuildingSelectionCriteriaFile: {
+            create: {
+              ...exampleAsset,
+            },
+          },
+          listingsMarketingFlyerFile: undefined,
+          listingsAccessibleMarketingFlyerFile: {
             create: {
               ...exampleAsset,
             },
@@ -4194,6 +4226,8 @@ describe('Testing listing service', () => {
           listingsApplicationPickUpAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
@@ -4303,6 +4337,8 @@ describe('Testing listing service', () => {
           listingsApplicationPickUpAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
@@ -4403,6 +4439,8 @@ describe('Testing listing service', () => {
           listingsApplicationPickUpAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
@@ -4856,6 +4894,8 @@ describe('Testing listing service', () => {
           listingsApplicationPickUpAddress: true,
           listingsBuildingAddress: true,
           listingsBuildingSelectionCriteriaFile: true,
+          listingsMarketingFlyerFile: true,
+          listingsAccessibleMarketingFlyerFile: true,
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
@@ -4919,6 +4959,12 @@ describe('Testing listing service', () => {
             create: [],
           },
           listingsBuildingSelectionCriteriaFile: {
+            disconnect: true,
+          },
+          listingsMarketingFlyerFile: {
+            disconnect: true,
+          },
+          listingsAccessibleMarketingFlyerFile: {
             disconnect: true,
           },
           listingNeighborhoodAmenities: {
@@ -5128,6 +5174,12 @@ describe('Testing listing service', () => {
             create: [],
           },
           listingsBuildingSelectionCriteriaFile: {
+            disconnect: true,
+          },
+          listingsMarketingFlyerFile: {
+            disconnect: true,
+          },
+          listingsAccessibleMarketingFlyerFile: {
             disconnect: true,
           },
           unitsAvailable: 5,
@@ -5569,50 +5621,6 @@ describe('Testing listing service', () => {
         },
       });
       process.env.APPLICATION_DAYS_TILL_EXPIRY = null;
-    });
-  });
-
-  describe('Test markCronJobAsStarted endpoint', () => {
-    it('should create new cronjob entry if none is present', async () => {
-      prisma.cronJob.findFirst = jest.fn().mockResolvedValue(null);
-      prisma.cronJob.create = jest.fn().mockResolvedValue(true);
-
-      await service.markCronJobAsStarted('LISTING_CRON_JOB');
-
-      expect(prisma.cronJob.findFirst).toHaveBeenCalledWith({
-        where: {
-          name: 'LISTING_CRON_JOB',
-        },
-      });
-      expect(prisma.cronJob.create).toHaveBeenCalledWith({
-        data: {
-          lastRunDate: expect.anything(),
-          name: 'LISTING_CRON_JOB',
-        },
-      });
-    });
-
-    it('should update cronjob entry if one is present', async () => {
-      prisma.cronJob.findFirst = jest
-        .fn()
-        .mockResolvedValue({ id: randomUUID() });
-      prisma.cronJob.update = jest.fn().mockResolvedValue(true);
-
-      await service.markCronJobAsStarted('LISTING_CRON_JOB');
-
-      expect(prisma.cronJob.findFirst).toHaveBeenCalledWith({
-        where: {
-          name: 'LISTING_CRON_JOB',
-        },
-      });
-      expect(prisma.cronJob.update).toHaveBeenCalledWith({
-        data: {
-          lastRunDate: expect.anything(),
-        },
-        where: {
-          id: expect.anything(),
-        },
-      });
     });
   });
 

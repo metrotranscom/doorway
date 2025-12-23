@@ -99,3 +99,4 @@ memory-bank/
 
 # Terraform providers
 .terraform
+*.tfstate

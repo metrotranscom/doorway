@@ -6,8 +6,8 @@ const spanishTranslations = require("../locales/es.json")
 const chineseTranslations = require("../locales/zh.json")
 const vietnameseTranslations = require("../locales/vi.json")
 const tagalogTranslations = require("../locales/tl.json")
-const arabicTranslations = require("../locales/ar.json")
-const bengaliTranslations = require("../locales/bn.json")
+// const arabicTranslations = require("../locales/ar.json")
+// const bengaliTranslations = require("../locales/bn.json")
 
 function main() {
   type TranslationsType = {
@@ -19,8 +19,8 @@ function main() {
     { translationKeys: chineseTranslations, language: "Chinese" },
     { translationKeys: vietnameseTranslations, language: "Vietnamese" },
     { translationKeys: tagalogTranslations, language: "Tagalog" },
-    { translationKeys: arabicTranslations, language: "Arabic" },
-    { translationKeys: bengaliTranslations, language: "Bengali" },
+    // { translationKeys: arabicTranslations, language: "Arabic" },
+    // { translationKeys: bengaliTranslations, language: "Bengali" },
   ]
 
   const findMissingStrings = (

@@ -11,15 +11,17 @@ import { Grid } from "@bloom-housing/ui-seeds"
 import {
   ApplicationSubmissionTypeEnum,
   LanguagesEnum,
+  ApplicationStatusEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { useFormContext } from "react-hook-form"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 
 type FormApplicationDataProps = {
   appType: ApplicationSubmissionTypeEnum
+  enableApplicationStatus: boolean
 }
 
-const FormApplicationData = (props: FormApplicationDataProps) => {
+const FormApplicationData = ({ enableApplicationStatus, appType }: FormApplicationDataProps) => {
   const formMethods = useFormContext()
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -39,6 +41,7 @@ const FormApplicationData = (props: FormApplicationDataProps) => {
   const isDateReceivedRequired =
     dateReceivedValue?.day && dateReceivedValue?.month && dateReceivedValue?.year
 
+  const applicationStatusOptions = Array.from(Object.values(ApplicationStatusEnum))
   return (
     <SectionWithGrid heading={t("application.details.applicationData")}>
       <Grid.Row>
@@ -87,7 +90,7 @@ const FormApplicationData = (props: FormApplicationDataProps) => {
         </Grid.Cell>
       </Grid.Row>
 
-      {props.appType !== ApplicationSubmissionTypeEnum.electronical && (
+      {appType !== ApplicationSubmissionTypeEnum.electronical && (
         <Grid.Row>
           <Grid.Cell>
             <DateField
@@ -124,6 +127,21 @@ const FormApplicationData = (props: FormApplicationDataProps) => {
               label={t("application.add.receivedBy")}
               placeholder={t("application.add.receivedBy")}
               register={register}
+            />
+          </Grid.Cell>
+        </Grid.Row>
+      )}
+      {enableApplicationStatus && (
+        <Grid.Row columns={3}>
+          <Grid.Cell>
+            <Select
+              id="application.status"
+              name="application.status"
+              label={t("application.details.applicationStatus")}
+              register={register}
+              controlClassName="control"
+              options={applicationStatusOptions}
+              keyPrefix="application.details.applicationStatus"
             />
           </Grid.Cell>
         </Grid.Row>

@@ -67,6 +67,7 @@ const FormForgotPassword = ({
             <Field
               name="email"
               label={t("t.email")}
+              note={t("authentication.forgotPassword.sendEmailNotes")}
               validation={{ required: true, pattern: emailRegex }}
               error={errors.email}
               errorMessage={errors.email ? t("authentication.signIn.loginError") : undefined}
@@ -74,20 +75,14 @@ const FormForgotPassword = ({
               onChange={() => networkError.reset()}
               labelClassName={"text__caps-spaced"}
             />
-            <div className={styles["forgot-password-footer"]}>
-              <Button
-                type="submit"
-                variant="primary"
-                className={styles["forgot-password-submit-button"]}
-              >
-                {t("authentication.forgotPassword.sendEmail")}
-              </Button>
+            <Button type="submit" className={styles["forgot-password-submit-button"]}>
+              {t("authentication.forgotPassword.sendEmailButton")}
+            </Button>
 
-              <div className={styles["forgot-password-cancel-button"]}>
-                <Button onClick={() => router.back()} variant="text">
-                  {t("t.cancel")}
-                </Button>
-              </div>
+            <div className={"mt-4"}>
+              <Button onClick={() => router.back()} variant="text">
+                {t("t.cancel")}
+              </Button>
             </div>
           </Form>
         </CardSection>

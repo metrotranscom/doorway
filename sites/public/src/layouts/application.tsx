@@ -14,6 +14,7 @@ import CustomSiteFooter from "../components/shared/CustomSiteFooter"
 import { HeaderLink, SiteHeader } from "../patterns/SiteHeader"
 import styles from "./application.module.scss"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getSiteHeaderDeprecated = (
   router: NextRouter,
   profile: User,

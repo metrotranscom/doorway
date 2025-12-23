@@ -417,7 +417,7 @@ export class EmailService {
   public async sendSingleUseCode(
     user: User,
     singleUseCode: string,
-    jurisdictionName: string,
+    jurisdictionName?: string,
   ) {
     const jurisdiction = await this.getJurisdiction(
       user.jurisdictions,

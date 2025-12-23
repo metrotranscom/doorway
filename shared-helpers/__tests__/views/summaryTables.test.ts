@@ -833,7 +833,7 @@ describe("getAvailabilityText", () => {
           },
         })
       )
-      expect(renderToString(result.barContent)).toContain("1 BR")
+      expect(renderToString(result.barContent)).toContain("1 bed")
       expect(renderToString(result.barContent)).toContain("1 unit")
     })
     it("hide headers if no data", () => {

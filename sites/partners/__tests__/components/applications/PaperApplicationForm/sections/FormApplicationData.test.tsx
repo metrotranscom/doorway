@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event"
 import {
   ApplicationSubmissionTypeEnum,
   LanguagesEnum,
+  ApplicationStatusEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { FormProviderWrapper } from "../../../../testUtils"
 import { FormApplicationData } from "../../../../../src/components/applications/PaperApplicationForm/sections/FormApplicationData"
@@ -12,7 +13,10 @@ describe("<FormApplicationData>", () => {
   it("renders the form with application data fields", () => {
     render(
       <FormProviderWrapper>
-        <FormApplicationData appType={ApplicationSubmissionTypeEnum.paper} />
+        <FormApplicationData
+          appType={ApplicationSubmissionTypeEnum.paper}
+          enableApplicationStatus={false}
+        />
       </FormProviderWrapper>
     )
     expect(screen.getByRole("heading", { level: 2, name: /application data/i })).toBeInTheDocument()
@@ -33,7 +37,10 @@ describe("<FormApplicationData>", () => {
   it("time fields are disabled when date is not fully entered", async () => {
     render(
       <FormProviderWrapper>
-        <FormApplicationData appType={ApplicationSubmissionTypeEnum.paper} />
+        <FormApplicationData
+          appType={ApplicationSubmissionTypeEnum.paper}
+          enableApplicationStatus={false}
+        />
       </FormProviderWrapper>
     )
 
@@ -63,7 +70,10 @@ describe("<FormApplicationData>", () => {
   it("language selection works correctly", async () => {
     render(
       <FormProviderWrapper>
-        <FormApplicationData appType={ApplicationSubmissionTypeEnum.paper} />
+        <FormApplicationData
+          appType={ApplicationSubmissionTypeEnum.paper}
+          enableApplicationStatus={false}
+        />
       </FormProviderWrapper>
     )
 
@@ -76,7 +86,10 @@ describe("<FormApplicationData>", () => {
   it("clearing date fields does not resets time fields", async () => {
     render(
       <FormProviderWrapper>
-        <FormApplicationData appType={ApplicationSubmissionTypeEnum.paper} />
+        <FormApplicationData
+          appType={ApplicationSubmissionTypeEnum.paper}
+          enableApplicationStatus={false}
+        />
       </FormProviderWrapper>
     )
 
@@ -109,5 +122,42 @@ describe("<FormApplicationData>", () => {
     expect((timeHours as HTMLInputElement).value).toBe("12")
     expect((timeMinutes as HTMLInputElement).value).toBe("30")
     expect((timePeriod as HTMLSelectElement).value).toBe("pm")
+  })
+
+  describe("application status dropdown", () => {
+    it("does not render when enableApplicationStatus is false", () => {
+      render(
+        <FormProviderWrapper>
+          <FormApplicationData enableApplicationStatus={false} />
+        </FormProviderWrapper>
+      )
+
+      expect(screen.queryByLabelText(/status/i)).not.toBeInTheDocument()
+    })
+
+    it("allows selecting different application status values", async () => {
+      render(
+        <FormProviderWrapper>
+          <FormApplicationData enableApplicationStatus={true} />
+        </FormProviderWrapper>
+      )
+
+      const statusSelect = screen.getByLabelText(/status/i)
+
+      await userEvent.selectOptions(statusSelect, ApplicationStatusEnum.submitted)
+      expect((statusSelect as HTMLSelectElement).value).toBe(ApplicationStatusEnum.submitted)
+
+      await userEvent.selectOptions(statusSelect, ApplicationStatusEnum.declined)
+      expect((statusSelect as HTMLSelectElement).value).toBe(ApplicationStatusEnum.declined)
+
+      await userEvent.selectOptions(statusSelect, ApplicationStatusEnum.receivedUnit)
+      expect((statusSelect as HTMLSelectElement).value).toBe(ApplicationStatusEnum.receivedUnit)
+
+      await userEvent.selectOptions(statusSelect, ApplicationStatusEnum.waitlist)
+      expect((statusSelect as HTMLSelectElement).value).toBe(ApplicationStatusEnum.waitlist)
+
+      await userEvent.selectOptions(statusSelect, ApplicationStatusEnum.waitlistDeclined)
+      expect((statusSelect as HTMLSelectElement).value).toBe(ApplicationStatusEnum.waitlistDeclined)
+    })
   })
 })

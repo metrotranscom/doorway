@@ -1,6 +1,7 @@
 import { DateFieldValues, DOBFieldValues, TimeFieldValues } from "@bloom-housing/ui-components"
 import {
   ApplicationReviewStatusEnum,
+  ApplicationStatusEnum,
   IncomePeriodEnum,
   LanguagesEnum,
   YesNoEnum,
@@ -58,6 +59,7 @@ export type ApplicationTypes = {
   preferences?: Record<string, string | unknown>
   programs?: Record<string, string | unknown>
   reviewStatus?: ApplicationReviewStatusEnum
+  status?: ApplicationStatusEnum
   phoneNumber?: string
   receivedBy?: string
 }

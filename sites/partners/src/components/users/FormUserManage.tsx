@@ -339,7 +339,7 @@ const FormUserManage = ({
                         {(mode === "edit" || mode == "view") && (
                           <div className="ml-2 mt-1 flex items-center justify-center">
                             <Tag
-                              className="tag-uppercase"
+                              className="tag-full-width"
                               variant={user.confirmedAt ? "success" : "primary"}
                             >
                               {user.confirmedAt ? t("users.confirmed") : t("users.unconfirmed")}

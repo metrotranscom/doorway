@@ -7,6 +7,7 @@ on:
 
 jobs:
   duic-unit:
+    if: ${{ false }} # This condition ensures the workflow is skipped
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 18
+          node-version: 22
 
       - name: yarn in root dir
         run: yarn

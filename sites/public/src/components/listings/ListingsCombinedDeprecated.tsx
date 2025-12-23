@@ -145,7 +145,7 @@ const ListingsCombined = (props: ListingsCombinedProps) => {
     )
   }
 
-  let div: JSX.Element
+  let div: React.JSX.Element
 
   if (props.isDesktop) {
     div = getListingsCombined()

@@ -388,9 +388,7 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
   buildingSelectionCriteria(value: string, listing?: Listing): string {
     if (value) return listing.buildingSelectionCriteria;
     if (listing?.listingsBuildingSelectionCriteriaFile?.fileId)
-      return formatCloudinaryPdfUrl(
-        listing.listingsBuildingSelectionCriteriaFile?.fileId,
-      );
+      return listing.listingsBuildingSelectionCriteriaFile?.fileId;
     return '';
   }
 

@@ -57,7 +57,9 @@ const DetailsAddressColumns = ({
 
     if (type === AddressColsType.alternateAddress) {
       address[item] =
-        application.alternateContact && application.alternateContact.address[item]
+        application.alternateContact &&
+        application.alternateContact.address &&
+        application.alternateContact.address[item]
           ? application.alternateContact.address[item]
           : t("t.n/a")
     }

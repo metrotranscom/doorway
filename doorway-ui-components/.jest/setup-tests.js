@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom/extend-expect"
+import "@testing-library/jest-dom"
 import { addTranslation } from "@bloom-housing/ui-components"
 import general from "../src/locales/general.json"
 

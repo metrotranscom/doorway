@@ -834,7 +834,7 @@ describe('Testing email service', () => {
       );
       expect(emailMock).toContain('THIS INFORMATION MAY CHANGE');
       expect(emailMock).toContain(
-        '- Please view listing for the most updated information',
+        'Please view listing for the most updated information',
       );
       expect(emailMock).toMatch(
         /<td class="bold">\s*Applications Due\s*<\/td>/,

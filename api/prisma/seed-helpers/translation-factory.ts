@@ -163,11 +163,15 @@ const translations = (jurisdictionName?: string, language?: LanguagesEnum) => {
       rentalOpportunity: {
         subject: 'New rental opportunity',
         intro: 'Rental opportunity at',
-        viewListingNotice:
-          'THIS INFORMATION MAY CHANGE - Please view listing for the most updated information',
+        viewListingNotice: {
+          line1: 'THIS INFORMATION MAY CHANGE',
+          line2: 'Please view listing for the most updated information',
+        },
         applicationsDue: 'Applications Due',
         community: 'Community',
         address: 'Address',
+        doorwayAccountRequirement:
+          'You will need a Doorway account in order to apply. Receipt of this email does not equate to a Doorway account',
         rent: 'Rent',
         minIncome: 'Minimum Income',
         maxIncome: 'Maximum Income',

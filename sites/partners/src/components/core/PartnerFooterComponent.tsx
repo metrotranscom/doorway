@@ -1,5 +1,4 @@
-import { FooterNav, FooterSection, LocalizedLink, SiteFooter } from "@bloom-housing/ui-components"
-import { ExygyFooter } from "@bloom-housing/shared-helpers"
+import { FooterNav, LocalizedLink, SiteFooter } from "@bloom-housing/ui-components"
 
 type PartnerFooterLink = {
   hrerf: string

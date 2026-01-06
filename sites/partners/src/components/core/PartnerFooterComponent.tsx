@@ -8,9 +8,6 @@ type PartnerFooterLink = {
 export type PartnerFooterProps = {
   links: PartnerFooterLink[]
 }
-
-const currentYear = new Date().getFullYear()
-const copyRight = `Copyright @ ${currentYear} Bay Area Housing Finance Authority. All rights reserved`
 const footerData: PartnerFooterProps = {
   links: [
     {
@@ -29,6 +26,8 @@ const footerData: PartnerFooterProps = {
 }
 
 const PartnersFooter = () => {
+  const currentYear = new Date().getFullYear()
+  const copyRight = `Copyright @ ${currentYear} Bay Area Housing Finance Authority. All rights reserved`
   return (
     <SiteFooter>
       <FooterNav copyright={copyRight}>

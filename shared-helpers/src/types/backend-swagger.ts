@@ -6588,7 +6588,7 @@ export interface HouseholdMember {
   householdMemberAddress: Address
 }
 
-export interface ApplicationSelectionOptions {
+export interface ApplicationSelectionOption {
   /**  */
   id: string
 
@@ -6599,7 +6599,7 @@ export interface ApplicationSelectionOptions {
   updatedAt: Date
 
   /**  */
-  addressHolderAddress: IdDTO
+  addressHolderAddress: Address
 
   /**  */
   addressHolderName?: string
@@ -6617,7 +6617,7 @@ export interface ApplicationSelectionOptions {
   multiselectOption: IdDTO
 }
 
-export interface ApplicationSelections {
+export interface ApplicationSelection {
   /**  */
   id: string
 
@@ -6637,7 +6637,7 @@ export interface ApplicationSelections {
   multiselectQuestion: IdDTO
 
   /**  */
-  selections: ApplicationSelectionOptions
+  selections: ApplicationSelectionOption
 }
 
 export interface ApplicationMultiselectQuestionOption {
@@ -6801,7 +6801,7 @@ export interface Application {
   householdMember: HouseholdMember[]
 
   /**  */
-  applicationSelections?: ApplicationSelections[]
+  applicationSelections?: ApplicationSelection[]
 
   /**  */
   preferences?: ApplicationMultiselectQuestion[]
@@ -7662,7 +7662,7 @@ export interface PublicAppsFiltered {
   householdMember: HouseholdMember[]
 
   /**  */
-  applicationSelections?: ApplicationSelections[]
+  applicationSelections?: ApplicationSelection[]
 
   /**  */
   preferences?: ApplicationMultiselectQuestion[]
@@ -7706,6 +7706,46 @@ export interface PublicAppsViewResponse {
 
   /**  */
   applicationsCount: PublicAppsCount
+}
+
+export interface AccessibilityUpdate {
+  /**  */
+  mobility?: boolean
+
+  /**  */
+  vision?: boolean
+
+  /**  */
+  hearing?: boolean
+
+  /**  */
+  other?: boolean
+}
+
+export interface AlternateContactUpdate {
+  /**  */
+  type?: AlternateContactRelationship
+
+  /**  */
+  otherType?: string
+
+  /**  */
+  firstName?: string
+
+  /**  */
+  lastName?: string
+
+  /**  */
+  agency?: string
+
+  /**  */
+  phoneNumber?: string
+
+  /**  */
+  emailAddress?: string
+
+  /**  */
+  address: AddressCreate
 }
 
 export interface ApplicantUpdate {
@@ -7753,46 +7793,6 @@ export interface ApplicantUpdate {
 
   /**  */
   applicantWorkAddress: AddressCreate
-}
-
-export interface AlternateContactUpdate {
-  /**  */
-  type?: AlternateContactRelationship
-
-  /**  */
-  otherType?: string
-
-  /**  */
-  firstName?: string
-
-  /**  */
-  lastName?: string
-
-  /**  */
-  agency?: string
-
-  /**  */
-  phoneNumber?: string
-
-  /**  */
-  emailAddress?: string
-
-  /**  */
-  address: AddressCreate
-}
-
-export interface AccessibilityUpdate {
-  /**  */
-  mobility?: boolean
-
-  /**  */
-  vision?: boolean
-
-  /**  */
-  hearing?: boolean
-
-  /**  */
-  other?: boolean
 }
 
 export interface DemographicUpdate {
@@ -7857,6 +7857,37 @@ export interface HouseholdMemberUpdate {
 
   /**  */
   householdMemberWorkAddress?: AddressCreate
+}
+
+export interface ApplicationSelectionOptionCreate {
+  /**  */
+  addressHolderName?: string
+
+  /**  */
+  addressHolderRelationship?: string
+
+  /**  */
+  isGeocodingVerified?: boolean
+
+  /**  */
+  multiselectOption: IdDTO
+
+  /**  */
+  addressHolderAddress?: AddressUpdate
+
+  /**  */
+  applicationSelection?: IdDTO
+}
+
+export interface ApplicationSelectionCreate {
+  /**  */
+  hasOptedOut?: boolean
+
+  /**  */
+  multiselectQuestion: IdDTO
+
+  /**  */
+  selections: ApplicationSelectionOptionCreate[]
 }
 
 export interface ApplicationCreate {
@@ -7933,9 +7964,6 @@ export interface ApplicationCreate {
   reviewStatus?: ApplicationReviewStatusEnum
 
   /**  */
-  applicationSelections?: ApplicationSelections[]
-
-  /**  */
   preferences?: ApplicationMultiselectQuestion[]
 
   /**  */
@@ -7954,6 +7982,12 @@ export interface ApplicationCreate {
   wasPIICleared?: boolean
 
   /**  */
+  accessibility: AccessibilityUpdate
+
+  /**  */
+  alternateContact: AlternateContactUpdate
+
+  /**  */
   applicant: ApplicantUpdate
 
   /**  */
@@ -7963,12 +7997,6 @@ export interface ApplicationCreate {
   applicationsAlternateAddress: AddressCreate
 
   /**  */
-  alternateContact: AlternateContactUpdate
-
-  /**  */
-  accessibility: AccessibilityUpdate
-
-  /**  */
   demographics: DemographicUpdate
 
   /**  */
@@ -7976,6 +8004,9 @@ export interface ApplicationCreate {
 
   /**  */
   preferredUnitTypes: IdDTO[]
+
+  /**  */
+  applicationSelections?: ApplicationSelectionCreate[]
 }
 
 export interface PaginationDTO {
@@ -7984,6 +8015,46 @@ export interface PaginationDTO {
 
   /**  */
   pageSize?: number
+}
+
+export interface ApplicationSelectionOptionUpdate {
+  /**  */
+  addressHolderName?: string
+
+  /**  */
+  addressHolderRelationship?: string
+
+  /**  */
+  isGeocodingVerified?: boolean
+
+  /**  */
+  multiselectOption: IdDTO
+
+  /**  */
+  id?: string
+
+  /**  */
+  addressHolderAddress?: AddressUpdate
+
+  /**  */
+  applicationSelection?: IdDTO
+}
+
+export interface ApplicationSelectionUpdate {
+  /**  */
+  application: IdDTO
+
+  /**  */
+  hasOptedOut?: boolean
+
+  /**  */
+  multiselectQuestion: IdDTO
+
+  /**  */
+  id?: string
+
+  /**  */
+  selections: ApplicationSelectionOptionUpdate[]
 }
 
 export interface ApplicationUpdate {
@@ -8063,9 +8134,6 @@ export interface ApplicationUpdate {
   reviewStatus?: ApplicationReviewStatusEnum
 
   /**  */
-  applicationSelections?: ApplicationSelections[]
-
-  /**  */
   preferences?: ApplicationMultiselectQuestion[]
 
   /**  */
@@ -8084,19 +8152,22 @@ export interface ApplicationUpdate {
   wasPIICleared?: boolean
 
   /**  */
+  accessibility: AccessibilityUpdate
+
+  /**  */
+  alternateContact: AlternateContactUpdate
+
+  /**  */
   applicant: ApplicantUpdate
+
+  /**  */
+  applicationSelections?: ApplicationSelectionUpdate[]
 
   /**  */
   applicationsMailingAddress: AddressCreate
 
   /**  */
   applicationsAlternateAddress: AddressCreate
-
-  /**  */
-  alternateContact: AlternateContactUpdate
-
-  /**  */
-  accessibility: AccessibilityUpdate
 
   /**  */
   demographics: DemographicUpdate

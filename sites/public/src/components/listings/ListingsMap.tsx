@@ -13,7 +13,7 @@ const defaultCenter = {
   lat: 37.579795,
   lng: -122.374118,
 }
-const defaultZoom = 9
+const defaultZoom = 5
 
 type ListingsMapProps = {
   listings?: ListingMapMarker[] | null

@@ -485,7 +485,6 @@ const ListingForm = ({
       whatToExpectEditor,
     ]
   )
-
   return loading === true ? null : (
     <>
       <LoadingOverlay isLoading={loading}>

@@ -5,10 +5,10 @@ import PartnersFooter from "../../../src/components/core/PartnerFooterComponent"
 describe("Partner Footer Component", () => {
   it("should not render links properly in the partners footer", () => {
     jest.useFakeTimers("modern")
-    jest.setSystemTime(new Date("2026-01-01"))
+    jest.setSystemTime(new Date("2025-01-01"))
     render(<PartnersFooter />)
     expect(
-      screen.getByText(/Copyright @ 2026 Bay Area Housing Finance Authority. All rights reserved/)
+      screen.getByText(/Copyright @ 2025 Bay Area Housing Finance Authority. All rights reserved/i)
     ).toBeInTheDocument()
     const partnerManualLink = screen.getByRole("link", { name: "Doorway Partners Manual" })
     const privacyPolicyLink = screen.getByRole("link", { name: "Privacy Policy" })

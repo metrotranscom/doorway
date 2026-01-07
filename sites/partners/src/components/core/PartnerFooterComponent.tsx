@@ -1,5 +1,4 @@
-import { FooterNav, FooterSection, LocalizedLink, SiteFooter } from "@bloom-housing/ui-components"
-import { ExygyFooter } from "@bloom-housing/shared-helpers"
+import { FooterNav, LocalizedLink, SiteFooter } from "@bloom-housing/ui-components"
 
 type PartnerFooterLink = {
   hrerf: string
@@ -9,9 +8,6 @@ type PartnerFooterLink = {
 export type PartnerFooterProps = {
   links: PartnerFooterLink[]
 }
-
-const currentYear = new Date().getFullYear()
-const copyRight = `Copyright @ ${currentYear} Bay Area Housing Finance Authority. All rights reserved`
 const footerData: PartnerFooterProps = {
   links: [
     {
@@ -30,6 +26,8 @@ const footerData: PartnerFooterProps = {
 }
 
 const PartnersFooter = () => {
+  const currentYear = new Date().getFullYear()
+  const copyRight = `Copyright @ ${currentYear} Bay Area Housing Finance Authority. All rights reserved`
   return (
     <SiteFooter>
       <FooterNav copyright={copyRight}>
@@ -39,9 +37,6 @@ const PartnersFooter = () => {
           </LocalizedLink>
         ))}
       </FooterNav>
-      <FooterSection className="bg-black" small>
-        <ExygyFooter />
-      </FooterSection>
     </SiteFooter>
   )
 }

@@ -1631,7 +1631,9 @@ describe('Testing application service', () => {
           jurisdictions: { include: { featureFlags: true } },
           listingsBuildingAddress: true,
           listingMultiselectQuestions: {
-            include: { multiselectQuestions: true },
+            include: {
+              multiselectQuestions: { include: { multiselectOptions: true } },
+            },
           },
           unitGroups: true,
         },
@@ -1864,7 +1866,9 @@ describe('Testing application service', () => {
           jurisdictions: { include: { featureFlags: true } },
           listingsBuildingAddress: true,
           listingMultiselectQuestions: {
-            include: { multiselectQuestions: true },
+            include: {
+              multiselectQuestions: { include: { multiselectOptions: true } },
+            },
           },
           unitGroups: true,
         },
@@ -2086,6 +2090,9 @@ describe('Testing application service', () => {
       prisma.applicationSelections.create = jest.fn().mockResolvedValue({
         id: randomUUID(),
       });
+      prisma.applicationSelectionOptions.update = jest
+        .fn()
+        .mockResolvedValue(null);
 
       const exampleAddress = addressFactory() as AddressCreate;
       const dto = mockCreateApplicationData(
@@ -2108,7 +2115,9 @@ describe('Testing application service', () => {
           jurisdictions: { include: { featureFlags: true } },
           listingsBuildingAddress: true,
           listingMultiselectQuestions: {
-            include: { multiselectQuestions: true },
+            include: {
+              multiselectQuestions: { include: { multiselectOptions: true } },
+            },
           },
           unitGroups: true,
         },
@@ -2383,7 +2392,9 @@ describe('Testing application service', () => {
           jurisdictions: { include: { featureFlags: true } },
           listingsBuildingAddress: true,
           listingMultiselectQuestions: {
-            include: { multiselectQuestions: true },
+            include: {
+              multiselectQuestions: { include: { multiselectOptions: true } },
+            },
           },
           unitGroups: true,
         },
@@ -2432,7 +2443,9 @@ describe('Testing application service', () => {
           jurisdictions: { include: { featureFlags: true } },
           listingsBuildingAddress: true,
           listingMultiselectQuestions: {
-            include: { multiselectQuestions: true },
+            include: {
+              multiselectQuestions: { include: { multiselectOptions: true } },
+            },
           },
           unitGroups: true,
         },
@@ -2487,7 +2500,9 @@ describe('Testing application service', () => {
           jurisdictions: { include: { featureFlags: true } },
           listingsBuildingAddress: true,
           listingMultiselectQuestions: {
-            include: { multiselectQuestions: true },
+            include: {
+              multiselectQuestions: { include: { multiselectOptions: true } },
+            },
           },
           unitGroups: true,
         },

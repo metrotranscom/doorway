@@ -453,6 +453,8 @@ describe("PaperListingForm", () => {
                 return true
               case FeatureFlagEnum.enableHomeType:
                 return true
+              case FeatureFlagEnum.enableParkingFee:
+                return true
               case FeatureFlagEnum.enableCompanyWebsite:
                 return true
               default:
@@ -490,6 +492,7 @@ describe("PaperListingForm", () => {
       "Additional accessibility",
       "Unit amenities",
       "Smoking policy",
+      "Parking fee",
       "Pets policy",
       "Services offered",
       "Credit history",

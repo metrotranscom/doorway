@@ -4643,6 +4643,9 @@ export interface Listing {
   name: string
 
   /**  */
+  parkingFee?: string
+
+  /**  */
   postmarkedApplicationsReceivedByDate?: Date
 
   /**  */
@@ -5486,6 +5489,9 @@ export interface ListingCreate {
   name: string
 
   /**  */
+  parkingFee?: string
+
+  /**  */
   postmarkedApplicationsReceivedByDate?: Date
 
   /**  */
@@ -6224,6 +6230,9 @@ export interface ListingUpdate {
 
   /**  */
   name: string
+
+  /**  */
+  parkingFee?: string
 
   /**  */
   postmarkedApplicationsReceivedByDate?: Date
@@ -9113,6 +9122,7 @@ export enum FeatureFlagEnum {
   "enableNeighborhoodAmenities" = "enableNeighborhoodAmenities",
   "enableNeighborhoodAmenitiesDropdown" = "enableNeighborhoodAmenitiesDropdown",
   "enableNonRegulatedListings" = "enableNonRegulatedListings",
+  "enableParkingFee" = "enableParkingFee",
   "enablePartnerDemographics" = "enablePartnerDemographics",
   "enablePartnerSettings" = "enablePartnerSettings",
   "enableProperties" = "enableProperties",

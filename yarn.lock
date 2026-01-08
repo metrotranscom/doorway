@@ -1322,13 +1322,13 @@
     tailwindcss-rtl "^0.9.0"
     typesafe-actions "^5.1.0"
 
-"@bloom-housing/ui-seeds@3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@bloom-housing/ui-seeds/-/ui-seeds-3.1.1.tgz#42b86abf64a587e797a7d82b00934ea0d60bb81c"
-  integrity sha512-p4xu6Npooh/YG5R/yFXZrywssCDCzaAdWDdWCGPvw89KyHMC8sBcmbqoX18/Qya2Hl627X/swzrVck0tAMw9mA==
+"@bloom-housing/ui-seeds@3.1.4":
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/@bloom-housing/ui-seeds/-/ui-seeds-3.1.4.tgz#d459b8be3d2ba416e401b244d272447870e18074"
+  integrity sha512-wg5ROd6D1U2W8SDv7EkeDoFrZwIH6dWRl/Ed1oAyYwLNYdoTrVMv7cXkVVTRRhOaTlARP0YiJKn/ss7+FMTv1w==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^6.3.0"
-    "@fortawesome/react-fontawesome" "^0.2.0"
+    "@fortawesome/react-fontawesome" "^3.1.0"
     "@heroicons/react" "^2.0.18"
     "@types/mdx" "^2.0.3"
     "@types/node" "^16.7.13"
@@ -1725,7 +1725,7 @@
   dependencies:
     "@fortawesome/fontawesome-common-types" "6.4.0"
 
-"@fortawesome/react-fontawesome@3.1.0", "@fortawesome/react-fontawesome@^0.2.0":
+"@fortawesome/react-fontawesome@3.1.0", "@fortawesome/react-fontawesome@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@fortawesome/react-fontawesome/-/react-fontawesome-3.1.0.tgz#bb22f49622574a80ee74213ad8c68107f3f47e64"
   integrity sha512-5OUQH9aDH/xHJwnpD4J7oEdGvFGJgYnGe0UebaPIdMW9UxYC/f5jv2VjVEgnikdJN0HL8yQxp9Nq+7gqGZpIIA==

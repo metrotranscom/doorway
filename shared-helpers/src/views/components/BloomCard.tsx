@@ -9,10 +9,7 @@ import { ClickableCard } from "./ClickableCard"
 interface BloomCardProps {
   customIcon?: CustomIconType
   standardIcon?: IconDefinition
-  title?: string
-  subtitle?: string | React.ReactNode
   children: React.ReactElement
-  id?: string
   headingPriority?: 1 | 2 | 3 | 4 | 5 | 6
   className?: string
   iconClassName?: string
@@ -22,6 +19,11 @@ interface BloomCardProps {
   iconClass?: string
   iconOutlined?: boolean
   iconSymbol?: CustomIconType
+  id?: string
+  subtitle?: string | React.ReactNode
+  title?: string
+  titleTabIndex?: number
+  titleId?: string
   altHeading?: boolean
 }
 
@@ -37,7 +39,12 @@ const BloomCard = (props: BloomCardProps) => {
       if (props.subtitle) {
         return (
           <HeadingGroup
-            headingProps={{ size: "2xl", priority: props.headingPriority || 1 }}
+            headingProps={{
+              id: props.titleId,
+              priority: props.headingPriority || 1,
+              size: "2xl",
+              tabIndex: props.titleTabIndex,
+            }}
             heading={props.title}
             subheading={props.subtitle}
             className={`${styles["card-heading-group"]} ${styles["card-heading"]}`}
@@ -49,6 +56,8 @@ const BloomCard = (props: BloomCardProps) => {
           size="2xl"
           priority={props.headingPriority || 1}
           className={props.altHeading ? styles["card-alt-heading-font"] : undefined}
+          id={props.titleId}
+          tabIndex={props.titleTabIndex}
         >
           {props.title}
         </Heading>

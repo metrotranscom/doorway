@@ -7,6 +7,7 @@ import {
   ListingsStatusEnum,
   LotteryStatusEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { TagVariant } from "@bloom-housing/ui-seeds/src/text/Tag"
 
 interface StatusItemProps {
   applicationDueDate?: string
@@ -20,6 +21,10 @@ interface StatusItemProps {
   lotteryResults?: boolean
   lotteryURL?: string
   lotteryStatus?: LotteryStatusEnum
+  applicationStatus?: {
+    content: string
+    variant: TagVariant
+  }
   strings?: {
     applicationsDeadline?: string
     edited?: string
@@ -35,11 +40,14 @@ const StatusItem = (props: StatusItemProps) => {
   const showPublicLottery = process.env.showPublicLottery
   //set custom visuals and data based on listing/lottery status
   let tagText = ""
-  let tagVariant: "primary" | "secondary" | "success"
+  let tagVariant: TagVariant
   let deadlineText = ""
   let dueDate = ""
-  // NOTE: Allowing expired lotteries to show temporarily
-  if (
+  if (props.applicationStatus) {
+    tagText = props.applicationStatus.content
+    tagVariant = props.applicationStatus.variant
+    // NOTE: Allowing expired lotteries to show temporarily
+  } else if (
     (props.lotteryStatus === LotteryStatusEnum.publishedToPublic ||
       props.lotteryStatus === LotteryStatusEnum.expired) &&
     showPublicLottery

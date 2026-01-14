@@ -246,6 +246,7 @@ const ApplicationForm = ({ listingId, editMode, application }: ApplicationFormPr
                     <FormApplicationData
                       appType={application?.submissionType}
                       enableApplicationStatus={enableApplicationStatus}
+                      reviewOrderType={listingDto?.reviewOrderType}
                     />
 
                     <FormPrimaryApplicant

@@ -225,6 +225,12 @@ export const mapFormToApi = ({
       return acc
     }, {})
 
+  const {
+    accessibleUnitWaitlistNumber,
+    conventionalUnitWaitlistNumber,
+    manualLotteryPositionNumber,
+  } = data.application
+
   const result = {
     receivedAt,
     receivedBy,
@@ -254,6 +260,15 @@ export const mapFormToApi = ({
     applicationsAlternateAddress: alternateAddress,
     householdMember: householdMembers,
     householdSize,
+    accessibleUnitWaitlistNumber: accessibleUnitWaitlistNumber
+      ? Number(accessibleUnitWaitlistNumber)
+      : null,
+    conventionalUnitWaitlistNumber: conventionalUnitWaitlistNumber
+      ? Number(conventionalUnitWaitlistNumber)
+      : null,
+    manualLotteryPositionNumber: manualLotteryPositionNumber
+      ? Number(manualLotteryPositionNumber)
+      : null,
   }
 
   return result
@@ -374,6 +389,9 @@ export const mapApiToForm = (applicationData: Application, listing: Listing) => 
       additionalPhoneNumberType,
       alternateContact,
       status,
+      accessibleUnitWaitlistNumber,
+      conventionalUnitWaitlistNumber,
+      manualLotteryPositionNumber,
     } = applicationData
 
     const acceptedTerms = getYesNoValue(applicationData.acceptedTerms)
@@ -421,6 +439,9 @@ export const mapApiToForm = (applicationData: Application, listing: Listing) => 
       programs,
       receivedBy,
       status,
+      accessibleUnitWaitlistNumber,
+      conventionalUnitWaitlistNumber,
+      manualLotteryPositionNumber,
     }
 
     return result

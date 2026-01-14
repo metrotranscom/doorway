@@ -447,7 +447,7 @@ describe("<ApplicationsView>", () => {
       renderApplicationsView(ApplicationsIndexEnum.all, false)
 
       // Should show "Accepting applications" (Open applications) instead of "Submitted"
-      expect(await screen.findByText("Accepting applications")).toBeInTheDocument()
+      expect(await screen.findByText("Open applications")).toBeInTheDocument()
       expect(screen.queryByText("Submitted")).not.toBeInTheDocument()
     })
 
@@ -464,7 +464,7 @@ describe("<ApplicationsView>", () => {
       renderApplicationsView(ApplicationsIndexEnum.all, false)
 
       // Should show "Accepting applications" (Open applications) instead of "Duplicate"
-      expect(await screen.findByText("Accepting applications")).toBeInTheDocument()
+      expect(await screen.findByText("Open applications")).toBeInTheDocument()
       expect(screen.queryByText("Duplicate")).not.toBeInTheDocument()
     })
   })

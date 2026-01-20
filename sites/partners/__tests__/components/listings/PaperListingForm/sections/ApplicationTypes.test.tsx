@@ -1,15 +1,12 @@
 import React from "react"
 import { setupServer } from "msw/node"
 import { screen, within } from "@testing-library/react"
-import { FormProviderWrapper, mockNextRouter, render } from "../../../../testUtils"
 import userEvent from "@testing-library/user-event"
-import ApplicationTypes from "../../../../../src/components/listings/PaperListingForm/sections/ApplicationTypes"
 import { jurisdiction, listing, user } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
 import { AuthContext } from "@bloom-housing/shared-helpers"
-import {
-  FeatureFlagEnum,
-  LanguagesEnum,
-} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { LanguagesEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import ApplicationTypes from "../../../../../src/components/listings/PaperListingForm/sections/ApplicationTypes"
+import { FormProviderWrapper, mockNextRouter, render } from "../../../../testUtils"
 
 const server = setupServer()
 
@@ -31,6 +28,7 @@ describe("ApplicationTypes", () => {
       <FormProviderWrapper>
         <ApplicationTypes
           disableCommonApplication={false}
+          enableReferralQuestionUnits={false}
           jurisdiction={jurisdiction.id}
           listing={listing}
           requiredFields={[]}
@@ -58,27 +56,15 @@ describe("ApplicationTypes", () => {
   // skipping as referral opportunity is disabled in Doorway
   it.skip("should update the referral question label when enableReferralQuestionUnits flag is turned on", () => {
     render(
-      <AuthContext.Provider
-        value={{
-          profile: {
-            ...user,
-            jurisdictions: [],
-            listings: [],
-          },
-          doJurisdictionsHaveFeatureFlagOn: (featureFlag: FeatureFlagEnum) =>
-            featureFlag === FeatureFlagEnum.enableReferralQuestionUnits,
-          getJurisdictionLanguages: () => [],
-        }}
-      >
-        <FormProviderWrapper>
-          <ApplicationTypes
-            disableCommonApplication={false}
-            jurisdiction={jurisdiction.id}
-            listing={listing}
-            requiredFields={[]}
-          />
-        </FormProviderWrapper>
-      </AuthContext.Provider>
+      <FormProviderWrapper>
+        <ApplicationTypes
+          disableCommonApplication={false}
+          enableReferralQuestionUnits={true}
+          jurisdiction={jurisdiction.id}
+          listing={listing}
+          requiredFields={[]}
+        />
+      </FormProviderWrapper>
     )
 
     expect(
@@ -94,6 +80,7 @@ describe("ApplicationTypes", () => {
       <FormProviderWrapper>
         <ApplicationTypes
           disableCommonApplication={false}
+          enableReferralQuestionUnits={false}
           jurisdiction={jurisdiction.id}
           listing={listing}
           requiredFields={[]}
@@ -122,14 +109,13 @@ describe("ApplicationTypes", () => {
             jurisdictions: [],
             listings: [],
           },
-          doJurisdictionsHaveFeatureFlagOn: (featureFlag: FeatureFlagEnum) =>
-            featureFlag === FeatureFlagEnum.enableReferralQuestionUnits,
           getJurisdictionLanguages: () => Object.values(LanguagesEnum),
         }}
       >
         <FormProviderWrapper>
           <ApplicationTypes
             disableCommonApplication={false}
+            enableReferralQuestionUnits={true}
             jurisdiction={jurisdiction.id}
             listing={listing}
             requiredFields={[]}
@@ -202,6 +188,7 @@ describe("ApplicationTypes", () => {
       <FormProviderWrapper>
         <ApplicationTypes
           disableCommonApplication={false}
+          enableReferralQuestionUnits={false}
           jurisdiction={jurisdiction.id}
           listing={listing}
           requiredFields={[]}
@@ -234,6 +221,7 @@ describe("ApplicationTypes", () => {
       <FormProviderWrapper>
         <ApplicationTypes
           disableCommonApplication={false}
+          enableReferralQuestionUnits={false}
           jurisdiction={jurisdiction.id}
           listing={listing}
           requiredFields={[]}
@@ -260,6 +248,7 @@ describe("ApplicationTypes", () => {
       <FormProviderWrapper>
         <ApplicationTypes
           disableCommonApplication={false}
+          enableReferralQuestionUnits={false}
           jurisdiction={jurisdiction.id}
           listing={listing}
           requiredFields={[]}
@@ -301,6 +290,7 @@ describe("ApplicationTypes", () => {
       <FormProviderWrapper>
         <ApplicationTypes
           disableCommonApplication={true}
+          enableReferralQuestionUnits={false}
           jurisdiction={jurisdiction.id}
           listing={listing}
           requiredFields={[]}

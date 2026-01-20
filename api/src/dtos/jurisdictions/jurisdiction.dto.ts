@@ -189,4 +189,10 @@ export class Jurisdiction extends AbstractDTO {
     isArray: true,
   })
   visibleNeighborhoodAmenities: NeighborhoodAmenitiesEnum[];
+
+  @Expose()
+  @IsString({ groups: [ValidationsGroupsEnum.default], each: true })
+  @IsDefined({ groups: [ValidationsGroupsEnum.default] })
+  @ApiProperty({ isArray: true })
+  regions: string[];
 }

@@ -3,7 +3,7 @@
     "outDir": "dist",
     "module": "esnext",
     "esModuleInterop": true,
-    "target": "es5",
+    "target": "es2020",
     "lib": ["es5", "es6", "es7", "es2017", "dom"],
     "sourceMap": true,
     "allowJs": true,

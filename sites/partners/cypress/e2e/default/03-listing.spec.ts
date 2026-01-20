@@ -32,7 +32,7 @@ describe("Listing Management Tests", () => {
     cy.getByID("publishButtonConfirm").contains("Publish").click()
     cy.contains("Please resolve any errors before saving or publishing your listing.")
     cy.getByID("developer-error").contains("This field is required")
-    cy.getByID("photos-error").contains("This field is required")
+    cy.getByID("photos-error").contains("At least 1 image is required")
     cy.getByID("listingsBuildingAddress.street-error").contains("Cannot enter a partial address")
     cy.getByID("listingsBuildingAddress.city-error").contains("Cannot enter a partial address")
     cy.getByID("listingsBuildingAddress.state-error").contains("Cannot enter a partial address")
@@ -217,8 +217,11 @@ describe("Listing Management Tests", () => {
     cy.getByID("listingsBuildingAddress.state").select(listing["buildingAddress.state"])
     cy.getByID("listingsBuildingAddress.zipCode").type(listing["buildingAddress.zipCode"])
     cy.getByID("yearBuilt").type(listing["yearBuilt"])
-    cy.get(".addressPopup").contains(listing["buildingAddress.street"])
-    cy.getByID("reservedCommunityTypes.id").select(listing["reservedCommunityType.value"])
+    // cy.getByID("reservedCommunityTypes.id").select(listing["reservedCommunityType.value"])
+    cy.getByID("map-address-popup").contains(listing["buildingAddress.street"])
+    cy.getByID("reservedCommunityTypes.id").select(listing["reservedCommunityType.id"], {
+      force: true,
+    })
     cy.getByID("reservedCommunityDescription").type(listing["reservedCommunityDescription"])
     cy.getByID("includeCommunityDisclaimerYes").check()
     cy.getByID("communityDisclaimerTitle").type(listing["communityDisclaimerTitle"])

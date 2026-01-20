@@ -15,7 +15,7 @@ export interface FieldProps {
   type?: string
   id?: string
   name: string
-  note?: string | JSX.Element
+  note?: string | React.JSX.Element
   subNote?: string
   label?: string
   defaultValue?: string | number

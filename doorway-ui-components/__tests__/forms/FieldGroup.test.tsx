@@ -1,4 +1,5 @@
 import React from "react"
+import "@testing-library/jest-dom"
 import { render, cleanup, fireEvent } from "@testing-library/react"
 import { FieldGroup } from "../../src/forms/FieldGroup"
 import { useForm } from "react-hook-form"

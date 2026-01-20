@@ -9,10 +9,10 @@ type DoorwayListingTableProps = {
 
 const DoorwayListingTable = (props: DoorwayListingTableProps) => {
   let data = props.data
-  const rows: JSX.Element[] = []
+  const rows: React.JSX.Element[] = []
 
   props.data.forEach((row: Record<string, StandardTableCell>, rowIndex: number) => {
-    let cols: JSX.Element[] = []
+    let cols: React.JSX.Element[] = []
     Object.values(row).forEach((col: StandardTableCell, index: number) => {
       cols.push(
         <span className={"table-content-" + index.toString()} key={index}>

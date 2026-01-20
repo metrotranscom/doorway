@@ -8,14 +8,12 @@ import {
   Field,
   Select,
   FieldGroup,
-  ListingMap,
-  LatitudeLongitude,
   AlertNotice,
   Tooltip,
   GridCell,
 } from "@bloom-housing/ui-components"
 import { FieldValue, Grid, Icon } from "@bloom-housing/ui-seeds"
-import { countyKeys, stateKeys } from "@bloom-housing/shared-helpers"
+import { countyKeys, stateKeys, Map, LatitudeLongitude } from "@bloom-housing/shared-helpers"
 import {
   EnumListingListingType,
   RegionEnum,
@@ -432,7 +430,7 @@ const BuildingDetails = ({
           <Grid.Cell className="seeds-grid-span-2">
             <FieldValue label={t("listings.mapPreview")} className={styles["custom-label"]}>
               {displayMapPreview() ? (
-                <ListingMap
+                <Map
                   listingName={listing?.name}
                   address={{
                     city: buildingAddress.city,

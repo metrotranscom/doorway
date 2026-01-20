@@ -417,7 +417,7 @@ export class EmailService {
   public async sendSingleUseCode(
     user: User,
     singleUseCode: string,
-    jurisdictionName: string,
+    jurisdictionName?: string,
   ) {
     const jurisdiction = await this.getJurisdiction(
       user.jurisdictions,
@@ -482,7 +482,9 @@ export class EmailService {
         );
       } else if (hasUnitGroups) {
         if (listing.reviewOrderType === ReviewOrderTypeEnum.waitlistLottery) {
-          eligibleText = this.polyglot.t('confirmation.eligible.waitlistLottery');
+          eligibleText = this.polyglot.t(
+            'confirmation.eligible.waitlistLottery',
+          );
         } else {
           eligibleText = this.polyglot.t('confirmation.eligible.waitlist');
         }
@@ -893,6 +895,24 @@ export class EmailService {
         true,
       );
     }
+  }
+
+  public async warnOfAccountRemoval(user: User) {
+    const jurisdiction = await this.getJurisdiction(user.jurisdictions);
+    void (await this.loadTranslations(jurisdiction, user.language));
+    const signInUrl = jurisdiction ? `${jurisdiction.publicUrl}/sign-in` : '';
+    console.log(user.language, this.polyglot.t('accountRemoval.subject'));
+    await this.sendSingleSES(
+      {
+        to: user.email,
+        subject: this.polyglot.t('accountRemoval.subject'),
+        html: this.template('warn-removal')({
+          user: user,
+          signInUrl: signInUrl,
+        }),
+      },
+      'sendSingleUseCode',
+    );
   }
 
   // Useful for GovSend where we can't send entities, so we'll output certain strings raw but we want to

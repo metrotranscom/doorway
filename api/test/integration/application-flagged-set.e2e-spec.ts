@@ -2013,26 +2013,32 @@ describe('Application flagged set Controller Tests', () => {
       });
 
       expect(afs.length).toEqual(2);
-      const combinationAfs = afs.find(
-        (flagSet) => flagSet.rule === 'combination',
+      const combinationAFS = afs.find(
+        (flagSet) =>
+          flagSet.ruleKey ===
+          `${listing}-email1@email.com-${listing}-firstname3-${listing}-lastname3-3-3-3-${listing}-firstname1-${listing}-lastname1-1-1-1`,
       );
-      const emailAfs = afs.find((flagSet) => flagSet.rule === 'email');
-      expect(combinationAfs.applications).toHaveLength(6);
-      expect(combinationAfs.applications).toEqual([
-        { id: app2.id },
-        { id: app3.id },
-        { id: app4.id },
-        { id: app6.id },
-        { id: app7.id },
-        { id: app8.id },
-      ]);
-      expect(combinationAfs.ruleKey).toEqual(
+      expect(combinationAFS.applications).toHaveLength(6);
+      expect(combinationAFS.applications).toContainEqual({ id: app2.id });
+      expect(combinationAFS.applications).toContainEqual({ id: app3.id });
+      expect(combinationAFS.applications).toContainEqual({ id: app4.id });
+      expect(combinationAFS.applications).toContainEqual({ id: app6.id });
+      expect(combinationAFS.applications).toContainEqual({ id: app7.id });
+      expect(combinationAFS.applications).toContainEqual({ id: app8.id });
+
+      expect(combinationAFS.rule).toEqual(RuleEnum.combination);
+      expect(combinationAFS.ruleKey).toEqual(
         `${listing}-email1@email.com-${listing}-firstname3-${listing}-lastname3-3-3-3-${listing}-firstname1-${listing}-lastname1-1-1-1`,
       );
-      expect(combinationAfs.rule).toEqual(RuleEnum.combination);
-      expect(emailAfs.applications).toHaveLength(2);
-      expect(emailAfs.applications).toEqual([{ id: app1.id }, { id: app5.id }]);
-      expect(emailAfs.ruleKey).toEqual(`${listing}-email3@email.com`);
+      const emailAFS = afs.find(
+        (flagSet) => flagSet.ruleKey === `${listing}-email3@email.com`,
+      );
+      expect(emailAFS.applications).toHaveLength(2);
+      expect(emailAFS.applications).toEqual(
+        expect.arrayContaining([{ id: app1.id }, { id: app5.id }]),
+      );
+      expect(emailAFS.rule).toEqual(RuleEnum.email);
+      expect(emailAFS.ruleKey).toEqual(`${listing}-email3@email.com`);
     });
 
     it('should create a new flagged set if applications match on nameAndDOB case insensitive', async () => {

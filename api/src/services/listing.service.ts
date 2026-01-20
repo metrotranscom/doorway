@@ -354,7 +354,9 @@ export class ListingService implements OnModuleInit {
           filter[ListingFilterKeys.availability] ===
           FilterAvailabilityEnum.unitsAvailable
         ) {
-          whereClauseArray.push(`combined.units_available >= 1`);
+          whereClauseArray.push(
+            `combined.review_order_type IN ('lottery', 'firstComeFirstServe')`,
+          );
         }
         if (filter[ListingFilterKeys.monthlyRent]) {
           includeUnitFiltering = true;

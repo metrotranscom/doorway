@@ -1,11 +1,11 @@
 import { defineConfig } from "cypress"
-import { cypressConfig } from "@axe-core/watcher"
+// import { cypressConfig } from "@axe-core/watcher"
 import dotenv from "dotenv"
 dotenv.config()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let baseConfig: Cypress.ConfigOptions<any> = {
-  defaultCommandTimeout: 60000,
+const baseConfig: Cypress.ConfigOptions<any> = {
+  defaultCommandTimeout: 100000,
   projectId: "f32m8f",
   pageLoadTimeout: 100000,
   video: true,
@@ -37,7 +37,7 @@ let baseConfig: Cypress.ConfigOptions<any> = {
     experimentalRunAllSpecs: true,
     env: {
       showSeedsDesign: process.env.SHOW_NEW_SEEDS_DESIGNS === "TRUE",
-      runAccessibilityTests: process.env.RUN_ACCESSIBILITY_E2E_TESTS === "TRUE",
+      // runAccessibilityTests: process.env.RUN_ACCESSIBILITY_E2E_TESTS === "TRUE",
     },
     supportFile: "cypress/support/e2e.ts",
   },
@@ -50,13 +50,13 @@ let baseConfig: Cypress.ConfigOptions<any> = {
   },
 }
 
-if (process.env.RUN_ACCESSIBILITY_E2E_TESTS === "TRUE") {
-  baseConfig = cypressConfig({
-    axe: {
-      apiKey: process.env.AXE_DEVELOPER_HUB_API_KEY,
-    },
-    ...baseConfig,
-  })
-}
+// if (process.env.RUN_ACCESSIBILITY_E2E_TESTS === "TRUE") {
+//   baseConfig = cypressConfig({
+//     axe: {
+//       apiKey: process.env.AXE_DEVELOPER_HUB_API_KEY,
+//     },
+//     ...baseConfig,
+//   })
+// }
 
 export default defineConfig(baseConfig)

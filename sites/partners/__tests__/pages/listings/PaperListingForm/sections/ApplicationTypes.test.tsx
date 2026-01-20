@@ -54,6 +54,7 @@ describe("ApplicationTypes", () => {
           requiredFields={[]}
           jurisdiction={"jurisdictionA"}
           disableCommonApplication={false}
+          enableReferralQuestionUnits={false}
         />
       </FormProviderWrapper>
     )
@@ -93,6 +94,7 @@ describe("ApplicationTypes", () => {
           requiredFields={[]}
           jurisdiction={"jurisdictionA"}
           disableCommonApplication={false}
+          enableReferralQuestionUnits={false}
         />
       </FormProviderWrapper>
     )
@@ -134,6 +136,7 @@ describe("ApplicationTypes", () => {
             requiredFields={[]}
             jurisdiction={"jurisdictionA"}
             disableCommonApplication={false}
+            enableReferralQuestionUnits={false}
           />
         </FormProviderWrapper>
       )
@@ -164,6 +167,7 @@ describe("ApplicationTypes", () => {
             requiredFields={[]}
             jurisdiction={"jurisdictionA"}
             disableCommonApplication={false}
+            enableReferralQuestionUnits={false}
           />
         </FormProviderWrapper>
       )
@@ -191,6 +195,7 @@ describe("ApplicationTypes", () => {
               requiredFields={[]}
               jurisdiction={"jurisdictionA"}
               disableCommonApplication={false}
+              enableReferralQuestionUnits={false}
             />
           </FormProviderWithJurisdiction>
         </AuthContext.Provider>
@@ -232,6 +237,7 @@ describe("ApplicationTypes", () => {
               requiredFields={[]}
               jurisdiction={"jurisdictionA"}
               disableCommonApplication={false}
+              enableReferralQuestionUnits={false}
             />
           </FormProviderWithJurisdiction>
         </AuthContext.Provider>

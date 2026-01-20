@@ -2,13 +2,14 @@ import {
   ApplicationMethodsTypeEnum,
   ListingEventsTypeEnum,
   ListingsStatusEnum,
+  Prisma,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
 import { featuresAndUtilites } from '../listing-factory';
 import { stagingRealisticAddresses } from '../address-factory';
 
-export const elmVillage = {
+export const elmVillage: Prisma.ListingsCreateInput = {
   additionalApplicationSubmissionNotes: null,
   digitalApplication: true,
   listingEvents: {

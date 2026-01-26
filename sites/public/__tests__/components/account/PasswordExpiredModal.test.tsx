@@ -3,8 +3,7 @@ import { useRouter } from "next/router"
 // eslint-disable-next-line import/no-named-as-default
 import PasswordExpiredModal from "../../../src/components/account/PasswordExpiredModal"
 import userEvent from "@testing-library/user-event"
-import { waitFor } from "../../../../partners/__tests__/testUtils"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 
 jest.mock("next/router", () => ({
   useRouter: jest.fn(),

@@ -97,6 +97,7 @@
   "applications.duplicates.duplicateGroup": "Duplicate group",
   "applications.duplicates.flaggedAsDuplicate": "Flagged as duplicate",
   "applications.duplicates.markedAsDuplicate": "Marked as duplicate",
+  "applications.duplicates.markedAsDuplicateAlert": "This application has been marked as a duplicate.",
   "applications.duplicates.primaryApplicant": "Primary applicant",
   "applications.duplicates.set": "Set",
   "applications.duplicates.sets": "Sets",

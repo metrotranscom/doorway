@@ -7786,6 +7786,30 @@ export interface UnitRentTypeUpdate {
   name: UnitRentTypeEnum
 }
 
+export interface ListingFeatureField {
+  /**  */
+  id: string
+}
+
+export interface ListingFeatureCategory {
+  /**  */
+  id: string
+
+  /**  */
+  fields: ListingFeatureField[]
+
+  /**  */
+  required?: boolean
+}
+
+export interface ListingFeaturesConfiguration {
+  /** Categorized features (use this or the flat list, not both) */
+  categories?: ListingFeatureCategory[]
+
+  /** Flat list of features (use this or the categories, not both) */
+  fields?: ListingFeatureField[]
+}
+
 export interface JurisdictionCreate {
   /**  */
   name: string
@@ -7852,6 +7876,9 @@ export interface JurisdictionCreate {
 
   /**  */
   regions: []
+
+  /**  */
+  listingFeaturesConfiguration?: ListingFeaturesConfiguration
 }
 
 export interface JurisdictionUpdate {
@@ -7923,6 +7950,9 @@ export interface JurisdictionUpdate {
 
   /**  */
   regions: []
+
+  /**  */
+  listingFeaturesConfiguration?: ListingFeaturesConfiguration
 }
 
 export interface FeatureFlag {
@@ -8029,6 +8059,9 @@ export interface Jurisdiction {
 
   /**  */
   regions: []
+
+  /**  */
+  listingFeaturesConfiguration?: ListingFeaturesConfiguration
 }
 
 export interface AddressInput {

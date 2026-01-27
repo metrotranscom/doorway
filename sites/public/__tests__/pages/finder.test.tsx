@@ -3,6 +3,7 @@ import RentalsFinder from "../../src/components/finder/RentalsFinder"
 import { render, screen, mockNextRouter, waitFor, within } from "../testUtils"
 import userEvent from "@testing-library/user-event"
 import { FeatureFlagEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { defaultListingFeaturesConfiguration } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
 
 window.scrollTo = jest.fn()
 
@@ -19,6 +20,7 @@ describe("<RentalsFinder>", () => {
           FeatureFlagEnum.enableAccessibilityFeatures,
         ]}
         multiselectData={[]}
+        listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
       />
     )
 
@@ -74,6 +76,7 @@ describe("<RentalsFinder>", () => {
         <RentalsFinder
           activeFeatureFlags={[FeatureFlagEnum.enableAccessibilityFeatures]}
           multiselectData={[]}
+          listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
         />
       )
 
@@ -270,6 +273,7 @@ describe("<RentalsFinder>", () => {
           FeatureFlagEnum.enableAccessibilityFeatures,
         ]}
         multiselectData={[]}
+        listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
       />
     )
 
@@ -596,6 +600,7 @@ describe("<RentalsFinder>", () => {
           FeatureFlagEnum.enableAccessibilityFeatures,
         ]}
         multiselectData={[]}
+        listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
       />
     )
 
@@ -651,8 +656,8 @@ describe("<RentalsFinder>", () => {
     })
   })
 
-  describe("should navigate with filter querry", () => {
-    it("should nagvigate withouth query params when no option selected", async () => {
+  describe("should navigate with filter query", () => {
+    it("should nagvigate without query params when no option selected", async () => {
       const { pushMock } = mockNextRouter()
       render(
         <RentalsFinder
@@ -689,6 +694,7 @@ describe("<RentalsFinder>", () => {
             FeatureFlagEnum.enableAccessibilityFeatures,
           ]}
           multiselectData={[]}
+          listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
         />
       )
 
@@ -763,7 +769,7 @@ describe("<RentalsFinder>", () => {
 
       await waitFor(() => {
         expect(pushMock).toBeCalledWith(
-          "/listings?bedroomTypes=studio,oneBdrm&regions=Greater_Downtown,Westside&monthlyRent=1,500.00-3,000.00&section8Acceptance=true&listingFeatures=wheelchairRamp,elevator,serviceAnimalsAllowed&reservedCommunityTypes=veteran"
+          "/listings?bedroomTypes=studio,oneBdrm&regions=Greater_Downtown,Westside&monthlyRent=1,500.00-3,000.00&section8Acceptance=true&listingFeatures=elevator,serviceAnimalsAllowed,wheelchairRamp&reservedCommunityTypes=veteran"
         )
       })
     })

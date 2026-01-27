@@ -3,9 +3,7 @@ import {
   NeighborhoodAmenitiesEnum,
   LanguagesEnum,
   ListingsStatusEnum,
-  MultiselectQuestions,
   MultiselectQuestionsApplicationSectionEnum,
-  Prisma,
   PrismaClient,
   UserRoleEnum,
 } from '@prisma/client';
@@ -41,6 +39,7 @@ import { blueSkyApartments } from './seed-helpers/listing-data/blue-sky-apartmen
 import { valleyHeightsSeniorCommunity } from './seed-helpers/listing-data/valley-heights-senior-community';
 import { littleVillageApartments } from './seed-helpers/listing-data/little-village-apartments';
 import { elmVillage } from './seed-helpers/listing-data/elm-village';
+import { ListingFeaturesConfiguration } from '../src/dtos/jurisdictions/listing-features-config.dto';
 
 export const stagingSeed = async (
   prismaClient: PrismaClient,
@@ -88,6 +87,31 @@ export const stagingSeed = async (
     featureFlags,
     languages,
     requiredListingFields,
+  };
+
+  const defaultListingFeatureConfiguration: ListingFeaturesConfiguration = {
+    fields: [
+      { id: 'wheelchairRamp' },
+      { id: 'elevator' },
+      { id: 'serviceAnimalsAllowed' },
+      { id: 'accessibleParking' },
+      { id: 'parkingOnSite' },
+      { id: 'inUnitWasherDryer' },
+      { id: 'laundryInBuilding' },
+      { id: 'barrierFreeEntrance' },
+      { id: 'rollInShower' },
+      { id: 'grabBars' },
+      { id: 'heatingInUnit' },
+      { id: 'acInUnit' },
+      { id: 'hearing' },
+      { id: 'mobility' },
+      { id: 'visual' },
+      { id: 'barrierFreeUnitEntrance' },
+      { id: 'loweredLightSwitch' },
+      { id: 'barrierFreeBathroom' },
+      { id: 'wideDoorways' },
+      { id: 'loweredCabinets' },
+    ],
   };
   // create main jurisdiction
   const jurisdiction = await prismaClient.jurisdictions.create({
@@ -248,6 +272,7 @@ export const stagingSeed = async (
         // LanguagesEnum.ar,
         // LanguagesEnum.bn,
       ],
+      listingFeaturesConfiguration: defaultListingFeatureConfiguration,
     }),
   });
   // Basic configuration jurisdiction
@@ -338,6 +363,74 @@ export const stagingSeed = async (
         'rentalAssistance',
         'units',
       ],
+      listingFeaturesConfiguration: {
+        categories: [
+          {
+            id: 'mobility',
+            fields: [
+              { id: 'accessibleParking' },
+              { id: 'barrierFreePropertyEntrance' },
+              { id: 'barrierFreeUnitEntrance' },
+              { id: 'elevator' },
+              { id: 'frontControlsDishwasher' },
+              { id: 'frontControlsStoveCookTop' },
+              { id: 'kitchenCounterLowered' },
+              { id: 'leverHandlesOnDoors' },
+              { id: 'loweredLightSwitch' },
+              { id: 'mobility' },
+              { id: 'noEntryStairs' },
+              { id: 'noStairsToParkingSpots' },
+              { id: 'noStairsWithinUnit' },
+              { id: 'refrigeratorWithBottomDoorFreezer' },
+              { id: 'streetLevelEntrance' },
+              { id: 'wheelchairRamp' },
+            ],
+          },
+          {
+            id: 'bathroom',
+            fields: [
+              { id: 'accessibleHeightToilet' },
+              { id: 'barrierFreeBathroom' },
+              { id: 'bathGrabBarsOrReinforcements' },
+              { id: 'bathroomCounterLowered' },
+              { id: 'rollInShower' },
+              { id: 'toiletGrabBarsOrReinforcements' },
+              { id: 'turningCircleInBathrooms' },
+              { id: 'walkInShower' },
+              { id: 'wideDoorways' },
+            ],
+          },
+          {
+            id: 'flooring',
+            fields: [{ id: 'carpetInUnit' }, { id: 'hardFlooringInUnit' }],
+            required: true,
+          },
+          {
+            id: 'utility',
+            fields: [
+              { id: 'acInUnit' },
+              { id: 'fireSuppressionSprinklerSystem' },
+              { id: 'heatingInUnit' },
+              { id: 'inUnitWasherDryer' },
+              { id: 'laundryInBuilding' },
+              { id: 'leverHandlesOnFaucets' },
+            ],
+          },
+          {
+            id: 'hearingVision',
+            fields: [
+              { id: 'brailleSignageInBuilding' },
+              { id: 'carbonMonoxideDetectorWithStrobe' },
+              { id: 'extraAudibleCarbonMonoxideDetector' },
+              { id: 'extraAudibleSmokeDetector' },
+              { id: 'hearingAndVision' },
+              { id: 'nonDigitalKitchenAppliances' },
+              { id: 'smokeDetectorWithStrobe' },
+              { id: 'ttyAmplifiedPhone' },
+            ],
+          },
+        ],
+      },
     }),
   });
   // create super admin user
@@ -672,453 +765,471 @@ export const stagingSeed = async (
   await unitAccessibilityPriorityTypeFactoryAll(prismaClient);
   await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
-  [
-    {
-      jurisdictionId: angelopolisJurisdiction.id,
-      listing: hollywoodHillsHeights,
-      units: [
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200.00',
-          numBathrooms: 1,
-          numBedrooms: 0,
-          number: '101',
-          sqFeet: '750.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[0].id,
+  const listingsToCreate: Parameters<typeof listingFactory>[] = [
+    [
+      angelopolisJurisdiction.id,
+      prismaClient,
+      {
+        listing: hollywoodHillsHeights,
+        units: [
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200.00',
+            numBathrooms: 1,
+            numBedrooms: 0,
+            number: '101',
+            sqFeet: '750.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[0].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          numBathrooms: 1,
-          numBedrooms: 1,
-          number: '101',
-          sqFeet: '750.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[1].id,
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            numBathrooms: 1,
+            numBedrooms: 1,
+            number: '101',
+            sqFeet: '750.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[1].id,
+              },
             },
           },
-        },
-      ],
-      multiselectQuestions: [
-        cityEmployeeQuestion,
-        workInCityQuestion,
-        multiselectQuestionPrograms,
-      ],
-      applications: [await applicationFactory(), await applicationFactory()],
-      userAccounts: [{ id: partnerUser.id }],
-    },
-    {
-      jurisdictionId: jurisdiction.id,
-      listing: districtViewApartments,
-      units: [
-        {
-          amiPercentage: '30',
-          annualIncomeMin: null,
-          monthlyIncomeMin: '1985',
-          floor: 2,
-          maxOccupancy: 5,
-          minOccupancy: 2,
-          monthlyRent: '800.00',
-          numBathrooms: 2,
-          numBedrooms: 2,
-          number: '',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[2].id,
+        ],
+        multiselectQuestions: [
+          cityEmployeeQuestion,
+          workInCityQuestion,
+          multiselectQuestionPrograms,
+        ],
+        applications: [await applicationFactory(), await applicationFactory()],
+        userAccounts: [{ id: partnerUser.id }],
+      },
+    ],
+    [
+      jurisdiction.id,
+      prismaClient,
+      {
+        listing: districtViewApartments,
+        units: [
+          {
+            amiPercentage: '30',
+            annualIncomeMin: null,
+            monthlyIncomeMin: '1985',
+            floor: 2,
+            maxOccupancy: 5,
+            minOccupancy: 2,
+            monthlyRent: '800.00',
+            numBathrooms: 2,
+            numBedrooms: 2,
+            number: '',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[2].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          annualIncomeMin: null,
-          monthlyIncomeMin: '2020',
-          floor: 2,
-          maxOccupancy: 5,
-          minOccupancy: 2,
-          monthlyRent: '800',
-          numBathrooms: 2,
-          numBedrooms: 2,
-          number: '',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[2].id,
+          {
+            amiPercentage: '30',
+            annualIncomeMin: null,
+            monthlyIncomeMin: '2020',
+            floor: 2,
+            maxOccupancy: 5,
+            minOccupancy: 2,
+            monthlyRent: '800',
+            numBathrooms: 2,
+            numBedrooms: 2,
+            number: '',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[2].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          annualIncomeMin: null,
-          monthlyIncomeMin: '1985',
-          floor: 2,
-          maxOccupancy: 5,
-          minOccupancy: 2,
-          monthlyRent: '800.0',
-          numBathrooms: 2,
-          numBedrooms: 2,
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[2].id,
+          {
+            amiPercentage: '30',
+            annualIncomeMin: null,
+            monthlyIncomeMin: '1985',
+            floor: 2,
+            maxOccupancy: 5,
+            minOccupancy: 2,
+            monthlyRent: '800.0',
+            numBathrooms: 2,
+            numBedrooms: 2,
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[2].id,
+              },
             },
           },
-        },
-      ],
-      multiselectQuestions: [cityEmployeeQuestion],
-      // has applications that are the same email and also same name/dob
-      applications: [
-        await applicationFactory(),
-        await applicationFactory(),
-        await applicationFactory({
-          submissionType: ApplicationSubmissionTypeEnum.paper,
-        }),
-        await applicationFactory({
-          applicant: {
-            emailAddress: 'user1@example.com',
-            firstName: 'first',
-            lastName: 'last',
-            birthDay: 1,
-            birthMonth: 1,
-            birthYear: 1970,
-          },
-        }),
-        await applicationFactory({
-          applicant: {
-            emailAddress: 'user1@example.com',
-            firstName: 'first2',
-            lastName: 'last2',
-            birthDay: 2,
-            birthMonth: 2,
-            birthYear: 1992,
-          },
-        }),
-        await applicationFactory({
-          applicant: {
-            emailAddress: 'user5@example.com',
-            firstName: 'first2',
-            lastName: 'last2',
-            birthDay: 2,
-            birthMonth: 2,
-            birthYear: 1992,
-          },
-        }),
-        await applicationFactory({
-          applicant: {
-            emailAddress: 'user1@example.com',
-            firstName: 'first',
-            lastName: 'last',
-            birthDay: 1,
-            birthMonth: 1,
-            birthYear: 1970,
-          },
-        }),
-        await applicationFactory({
-          applicant: { emailAddress: 'user2@example.com' },
-        }),
-        await applicationFactory({
-          applicant: { emailAddress: 'user2@example.com' },
-        }),
-        await applicationFactory({
-          applicant: {
-            emailAddress: 'user3@example.com',
-            firstName: 'first3',
-            lastName: 'last3',
-            birthDay: 1,
-            birthMonth: 1,
-            birthYear: 1970,
-          },
-          householdMember: [
-            householdMemberFactorySingle(1, {
-              firstName: 'householdFirst1',
-              lastName: 'householdLast1',
-              birthDay: 5,
-              birthMonth: 5,
-              birthYear: 1950,
-            }),
-            householdMemberFactorySingle(2, {
-              firstName: 'householdFirst2',
-              lastName: 'householdLast2',
-              birthDay: 8,
-              birthMonth: 8,
-              birthYear: 1980,
-            }),
-          ],
-        }),
-        await applicationFactory({
-          applicant: {
-            emailAddress: 'user3@example.com',
-            firstName: 'first3',
-            lastName: 'last3',
-            birthDay: 1,
-            birthMonth: 1,
-            birthYear: 1970,
-          },
-          householdMember: [
-            householdMemberFactorySingle(1, {
-              firstName: 'householdFirst1',
-              lastName: 'householdLast1',
-              birthDay: 5,
-              birthMonth: 5,
-              birthYear: 1950,
-            }),
-            householdMemberFactorySingle(2, {
-              firstName: 'householdFirst2',
-              lastName: 'householdLast2',
-              birthDay: 8,
-              birthMonth: 8,
-              birthYear: 1980,
-            }),
-          ],
-        }),
-        await applicationFactory({
-          applicant: {
-            emailAddress: 'user4@example.com',
-            firstName: 'first4',
-            lastName: 'last4',
-            birthDay: 2,
-            birthMonth: 2,
-            birthYear: 2002,
-          },
-        }),
-        await applicationFactory({
-          householdMember: [
-            {
+        ],
+        multiselectQuestions: [cityEmployeeQuestion],
+        // has applications that are the same email and also same name/dob
+        applications: [
+          await applicationFactory(),
+          await applicationFactory(),
+          await applicationFactory({
+            submissionType: ApplicationSubmissionTypeEnum.paper,
+          }),
+          await applicationFactory({
+            applicant: {
+              emailAddress: 'user1@example.com',
+              firstName: 'first',
+              lastName: 'last',
+              birthDay: 1,
+              birthMonth: 1,
+              birthYear: 1970,
+            },
+          }),
+          await applicationFactory({
+            applicant: {
+              emailAddress: 'user1@example.com',
+              firstName: 'first2',
+              lastName: 'last2',
+              birthDay: 2,
+              birthMonth: 2,
+              birthYear: 1992,
+            },
+          }),
+          await applicationFactory({
+            applicant: {
+              emailAddress: 'user5@example.com',
+              firstName: 'first2',
+              lastName: 'last2',
+              birthDay: 2,
+              birthMonth: 2,
+              birthYear: 1992,
+            },
+          }),
+          await applicationFactory({
+            applicant: {
+              emailAddress: 'user1@example.com',
+              firstName: 'first',
+              lastName: 'last',
+              birthDay: 1,
+              birthMonth: 1,
+              birthYear: 1970,
+            },
+          }),
+          await applicationFactory({
+            applicant: { emailAddress: 'user2@example.com' },
+          }),
+          await applicationFactory({
+            applicant: { emailAddress: 'user2@example.com' },
+          }),
+          await applicationFactory({
+            applicant: {
+              emailAddress: 'user3@example.com',
+              firstName: 'first3',
+              lastName: 'last3',
+              birthDay: 1,
+              birthMonth: 1,
+              birthYear: 1970,
+            },
+            householdMember: [
+              householdMemberFactorySingle(1, {
+                firstName: 'householdFirst1',
+                lastName: 'householdLast1',
+                birthDay: 5,
+                birthMonth: 5,
+                birthYear: 1950,
+              }),
+              householdMemberFactorySingle(2, {
+                firstName: 'householdFirst2',
+                lastName: 'householdLast2',
+                birthDay: 8,
+                birthMonth: 8,
+                birthYear: 1980,
+              }),
+            ],
+          }),
+          await applicationFactory({
+            applicant: {
+              emailAddress: 'user3@example.com',
+              firstName: 'first3',
+              lastName: 'last3',
+              birthDay: 1,
+              birthMonth: 1,
+              birthYear: 1970,
+            },
+            householdMember: [
+              householdMemberFactorySingle(1, {
+                firstName: 'householdFirst1',
+                lastName: 'householdLast1',
+                birthDay: 5,
+                birthMonth: 5,
+                birthYear: 1950,
+              }),
+              householdMemberFactorySingle(2, {
+                firstName: 'householdFirst2',
+                lastName: 'householdLast2',
+                birthDay: 8,
+                birthMonth: 8,
+                birthYear: 1980,
+              }),
+            ],
+          }),
+          await applicationFactory({
+            applicant: {
+              emailAddress: 'user4@example.com',
               firstName: 'first4',
               lastName: 'last4',
               birthDay: 2,
               birthMonth: 2,
               birthYear: 2002,
             },
-          ],
-        }),
-      ],
-      userAccounts: [{ id: partnerUser.id }],
-    },
-    {
-      jurisdictionId: jurisdiction.id,
-      listing: blueSkyApartments,
-      units: [
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200',
-          numBathrooms: 1,
-          numBedrooms: 1,
-          number: '101',
-          sqFeet: '750.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[1].id,
+          }),
+          await applicationFactory({
+            householdMember: [
+              {
+                firstName: 'first4',
+                lastName: 'last4',
+                birthDay: 2,
+                birthMonth: 2,
+                birthYear: 2002,
+              },
+            ],
+          }),
+        ],
+        userAccounts: [{ id: partnerUser.id }],
+      },
+    ],
+    [
+      jurisdiction.id,
+      prismaClient,
+      {
+        listing: blueSkyApartments,
+        units: [
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200',
+            numBathrooms: 1,
+            numBedrooms: 1,
+            number: '101',
+            sqFeet: '750.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[1].id,
+              },
             },
           },
-        },
-      ],
-      userAccounts: [{ id: partnerUser.id }],
-    },
-    {
-      jurisdictionId: jurisdiction.id,
-      listing: valleyHeightsSeniorCommunity,
-      applications: [
-        await applicationFactory({
-          isNewest: true,
-          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-            ? dayjs(new Date()).subtract(10, 'days').toDate()
-            : undefined,
-        }),
-        // applications below should have their PII removed via the cron job
-        await applicationFactory({
-          isNewest: false,
-          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-            ? dayjs(new Date()).subtract(10, 'days').toDate()
-            : undefined,
-        }),
-        await applicationFactory({
-          isNewest: false,
-          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-            ? dayjs(new Date()).subtract(10, 'days').toDate()
-            : undefined,
-        }),
-        await applicationFactory({
-          isNewest: false,
-          expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-            ? dayjs(new Date()).subtract(10, 'days').toDate()
-            : undefined,
-          householdMember: [
-            householdMemberFactorySingle(1, {}),
-            householdMemberFactorySingle(2, {}),
-            householdMemberFactorySingle(4, {}),
-          ],
-        }),
-      ],
-      userAccounts: [{ id: partnerUser.id }],
-    },
-    {
-      jurisdictionId: jurisdiction.id,
-      listing: littleVillageApartments,
-      multiselectQuestions: [workInCityQuestion],
-      userAccounts: [{ id: partnerUser.id }],
-    },
-    {
-      jurisdictionId: jurisdiction.id,
-      listing: elmVillage,
-      applications: [
-        await applicationFactory({
-          multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
-        }),
-        await applicationFactory({
-          multiselectQuestions: [
-            cityEmployeeQuestion,
-            workInCityQuestion,
-            veteranProgramQuestion,
-          ],
-        }),
-        await applicationFactory({
-          multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
-        }),
-        await applicationFactory({
-          multiselectQuestions: [workInCityQuestion],
-        }),
-        await applicationFactory({
-          multiselectQuestions: [workInCityQuestion],
-        }),
-        await applicationFactory(),
-      ],
-      multiselectQuestions: [
-        workInCityQuestion,
-        cityEmployeeQuestion,
-        veteranProgramQuestion,
-      ],
-      units: [
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200.00',
-          numBathrooms: 1,
-          numBedrooms: 0,
-          number: '101',
-          sqFeet: '750.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[0].id,
+        ],
+        userAccounts: [{ id: partnerUser.id }],
+      },
+    ],
+    [
+      jurisdiction.id,
+      prismaClient,
+      {
+        listing: valleyHeightsSeniorCommunity,
+        applications: [
+          await applicationFactory({
+            isNewest: true,
+            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+              ? dayjs(new Date()).subtract(10, 'days').toDate()
+              : undefined,
+          }),
+          // applications below should have their PII removed via the cron job
+          await applicationFactory({
+            isNewest: false,
+            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+              ? dayjs(new Date()).subtract(10, 'days').toDate()
+              : undefined,
+          }),
+          await applicationFactory({
+            isNewest: false,
+            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+              ? dayjs(new Date()).subtract(10, 'days').toDate()
+              : undefined,
+          }),
+          await applicationFactory({
+            isNewest: false,
+            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
+              ? dayjs(new Date()).subtract(10, 'days').toDate()
+              : undefined,
+            householdMember: [
+              householdMemberFactorySingle(1, {}),
+              householdMemberFactorySingle(2, {}),
+              householdMemberFactorySingle(4, {}),
+            ],
+          }),
+        ],
+        userAccounts: [{ id: partnerUser.id }],
+      },
+    ],
+    [
+      jurisdiction.id,
+      prismaClient,
+      {
+        listing: littleVillageApartments,
+        multiselectQuestions: [workInCityQuestion],
+        userAccounts: [{ id: partnerUser.id }],
+      },
+    ],
+    [
+      jurisdiction.id,
+      prismaClient,
+      {
+        listing: elmVillage,
+        applications: [
+          await applicationFactory({
+            multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
+          }),
+          await applicationFactory({
+            multiselectQuestions: [
+              cityEmployeeQuestion,
+              workInCityQuestion,
+              veteranProgramQuestion,
+            ],
+          }),
+          await applicationFactory({
+            multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
+          }),
+          await applicationFactory({
+            multiselectQuestions: [workInCityQuestion],
+          }),
+          await applicationFactory({
+            multiselectQuestions: [workInCityQuestion],
+          }),
+          await applicationFactory(),
+        ],
+        multiselectQuestions: [
+          workInCityQuestion,
+          cityEmployeeQuestion,
+          veteranProgramQuestion,
+        ],
+        units: [
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200.00',
+            numBathrooms: 1,
+            numBedrooms: 0,
+            number: '101',
+            sqFeet: '750.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[0].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200',
-          numBathrooms: 1,
-          numBedrooms: 0,
-          number: '101',
-          sqFeet: '750.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[5].id,
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200',
+            numBathrooms: 1,
+            numBedrooms: 0,
+            number: '101',
+            sqFeet: '750.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[5].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200.0',
-          numBathrooms: 1,
-          numBedrooms: 1,
-          number: '101',
-          sqFeet: '750.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[1].id,
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200.0',
+            numBathrooms: 1,
+            numBedrooms: 1,
+            number: '101',
+            sqFeet: '750.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[1].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200',
-          numBathrooms: 1,
-          numBedrooms: 2,
-          number: '101',
-          sqFeet: '1050.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[2].id,
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200',
+            numBathrooms: 1,
+            numBedrooms: 2,
+            number: '101',
+            sqFeet: '1050.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[2].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200.0',
-          numBathrooms: 2,
-          numBedrooms: 3,
-          number: '101',
-          sqFeet: '1250.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[3].id,
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200.0',
+            numBathrooms: 2,
+            numBedrooms: 3,
+            number: '101',
+            sqFeet: '1250.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[3].id,
+              },
             },
           },
-        },
-        {
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          monthlyRent: '1200',
-          numBathrooms: 3,
-          numBedrooms: 4,
-          number: '101',
-          sqFeet: '1750.00',
-          amiChart: { connect: { id: amiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[4].id,
+          {
+            amiPercentage: '30',
+            monthlyIncomeMin: '2000',
+            floor: 1,
+            maxOccupancy: 3,
+            minOccupancy: 1,
+            monthlyRent: '1200',
+            numBathrooms: 3,
+            numBedrooms: 4,
+            number: '101',
+            sqFeet: '1750.00',
+            amiChart: { connect: { id: amiChart.id } },
+            unitTypes: {
+              connect: {
+                id: unitTypes[4].id,
+              },
             },
           },
-        },
-      ],
-      userAccounts: [{ id: partnerUser.id }],
-    },
+        ],
+        userAccounts: [{ id: partnerUser.id }],
+      },
+    ],
     // lakeview listings shouldn't be in Doorway, but keeping here for keeping the same as Core
     // {
     //   jurisdictionId: lakeviewJurisdiction.id,
@@ -1210,53 +1321,43 @@ export const stagingSeed = async (
     //     },
     //   ],
     // },
-  ].map(
-    async (
-      value: {
-        jurisdictionId: string;
-        listing: Prisma.ListingsCreateInput;
-        units?: Prisma.UnitsCreateWithoutListingsInput[];
-        unitGroups?: Prisma.UnitGroupCreateWithoutListingsInput[];
-        multiselectQuestions?: MultiselectQuestions[];
-        applications?: Prisma.ApplicationsCreateInput[];
-        userAccounts?: Prisma.UserAccountsWhereUniqueInput[];
-      },
-      index,
-    ) => {
-      console.log(`Adding listing - ${value.listing?.name}`);
-      const listing = await listingFactory(value.jurisdictionId, prismaClient, {
-        amiChart: amiChart,
-        numberOfUnits: (!value.unitGroups && index) || 0,
-        listing: value.listing,
-        units: value.units,
-        unitGroups: value.unitGroups,
-        multiselectQuestions: value.multiselectQuestions,
-        applications: value.applications,
-        afsLastRunSetInPast: true,
-        address: stagingRealisticAddresses[index + 4],
-        userAccounts: value.userAccounts,
-      });
-      const savedListing = await prismaClient.listings.create({
-        data: listing,
-      });
-      await prismaClient.userAccounts.create({
-        data: await userFactory({
-          roles: {
-            isAdmin: false,
-            isPartner: true,
-            isJurisdictionalAdmin: false,
-          },
-          email: `partner-user-${savedListing.name
-            .toLowerCase()
-            .replaceAll(' ', '-')}@example.com`,
-          confirmedAt: new Date(),
-          jurisdictionIds: [savedListing.jurisdictionId],
-          acceptedTerms: true,
-          listings: [savedListing.id],
-        }),
-      });
-    },
-  );
+  ];
+
+  listingsToCreate.map(async (params, index) => {
+    console.log(`Adding listing - ${params[2].listing?.name}`);
+    const listingParams = params[2];
+    const listing = await listingFactory(params[0], params[1], {
+      amiChart: amiChart,
+      numberOfUnits: (!listingParams.unitGroups && index) || 0,
+      listing: listingParams.listing,
+      units: listingParams.units,
+      unitGroups: listingParams.unitGroups,
+      multiselectQuestions: listingParams.multiselectQuestions,
+      applications: listingParams.applications,
+      afsLastRunSetInPast: true,
+      userAccounts: listingParams.userAccounts,
+      optionalFeatures: listingParams.optionalFeatures,
+    });
+    const savedListing = await prismaClient.listings.create({
+      data: listing,
+    });
+    await prismaClient.userAccounts.create({
+      data: await userFactory({
+        roles: {
+          isAdmin: false,
+          isPartner: true,
+          isJurisdictionalAdmin: false,
+        },
+        email: `partner-user-${savedListing.name
+          .toLowerCase()
+          .replaceAll(' ', '-')}@example.com`,
+        confirmedAt: new Date(),
+        jurisdictionIds: [savedListing.jurisdictionId],
+        acceptedTerms: true,
+        listings: [savedListing.id],
+      }),
+    });
+  });
   // Creating a bunch of admin accounts if the environment variable is set to do load testing
   const adminAccounts: number =
     process.env.ADMIN_ACCOUNTS != undefined

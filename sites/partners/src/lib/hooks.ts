@@ -453,7 +453,7 @@ export function useListingsMultiselectQuestionList(multiselectQuestionId: string
     })
 
   const { data, error } = useSWR(
-    `/api/adapter/muliselectQuestions/listings/${multiselectQuestionId}`,
+    `/api/adapter/multiselectQuestions/listings/${multiselectQuestionId}`,
     fetcher
   )
 

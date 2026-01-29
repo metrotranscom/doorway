@@ -95,7 +95,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
   let closedUserListingId = '';
   let closedUserListingId2 = '';
   let userListingToBeDeleted = '';
-  let listingMulitselectQuestion = '';
+  let listingMultiselectQuestion = '';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -135,7 +135,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
       }),
     });
 
-    listingMulitselectQuestion = msq.id;
+    listingMultiselectQuestion = msq.id;
 
     const tomorrowsDate = new Date();
     tomorrowsDate.setDate(tomorrowsDate.getDate() + 1);
@@ -1155,7 +1155,7 @@ describe('Testing Permissioning of endpoints as partner with correct listing', (
 
     it('should succeed for retrieveListings endpoint', async () => {
       await request(app.getHttpServer())
-        .get(`/listings/byMultiselectQuestion/${listingMulitselectQuestion}`)
+        .get(`/listings/byMultiselectQuestion/${listingMultiselectQuestion}`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);

@@ -292,7 +292,7 @@ describe("Listing Management Tests", () => {
     cy.get("button").contains("Application process").click()
     cy.getByID("reviewOrderFCFS").check()
     cy.getByID("waitlistOpenNo").check()
-    cy.getByID("whatToExpect").clear()
+    cy.getByID("whatToExpect").children().first().clear()
     cy.getByID("whatToExpect").type("Custom unformatted text")
     cy.getByID("whatToExpect").type("{enter}Item A")
     cy.getByID("whatToExpect")

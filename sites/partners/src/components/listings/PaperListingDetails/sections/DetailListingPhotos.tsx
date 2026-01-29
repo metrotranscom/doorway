@@ -31,7 +31,11 @@ const DetailListingPhotos = () => {
       preview: {
         content: (
           <TableThumbnail>
-            <img src={getImageUrlFromAsset(image)} alt={t("listings.sections.photoTitle")} />
+            <img
+              src={getImageUrlFromAsset(image)}
+              alt={t("listings.sections.photoTitle")}
+              id={`listing-detail-image-${index}`}
+            />
           </TableThumbnail>
         ),
       },

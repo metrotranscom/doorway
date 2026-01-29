@@ -2452,7 +2452,7 @@ export class ScriptRunnerService {
           },
         ],
       })
-    )
+    ).items
       .filter((question) => question.createdAt < alamedaMigrationDate)
       .map((question) => question.id);
 
@@ -2509,7 +2509,7 @@ export class ScriptRunnerService {
           },
         ],
       })
-    )
+    ).items
       .filter((question) => question.createdAt < sanMateo22)
       .map((question) => question.id);
 

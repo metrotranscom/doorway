@@ -87,7 +87,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
   let jurisdictionId = '';
   let listingId = '';
   let listingIdToBeDeleted = '';
-  let listingMulitselectQuestion = '';
+  let listingMultiselectQuestion = '';
   let listingClosed = '';
 
   beforeAll(async () => {
@@ -124,7 +124,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
       }),
     });
 
-    listingMulitselectQuestion = msq.id;
+    listingMultiselectQuestion = msq.id;
 
     const listingData = await listingFactory(jurisdictionId, prisma, {
       multiselectQuestions: [msq],
@@ -1085,7 +1085,7 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
 
     it('should succeed for retrieveListings endpoint', async () => {
       await request(app.getHttpServer())
-        .get(`/listings/byMultiselectQuestion/${listingMulitselectQuestion}`)
+        .get(`/listings/byMultiselectQuestion/${listingMultiselectQuestion}`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);

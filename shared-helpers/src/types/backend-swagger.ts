@@ -641,7 +641,7 @@ export class MultiselectQuestionsService {
       view?: MultiselectQuestionViews
     } = {} as any,
     options: IRequestOptions = {}
-  ): Promise<MultiselectQuestion[]> {
+  ): Promise<PaginatedMultiselectQuestion> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/multiselectQuestions"
 
@@ -7778,6 +7778,14 @@ export interface MultiselectQuestionFilterParams {
 
   /**  */
   status?: MultiselectQuestionsStatusEnum
+}
+
+export interface PaginatedMultiselectQuestion {
+  /**  */
+  items: MultiselectQuestion[]
+
+  /**  */
+  meta: PaginationMeta
 }
 
 export interface AmiChartQueryParams {

@@ -75,8 +75,7 @@ const RankingsAndResults = ({
   })
 
   const showFSFCLotterySection =
-    (enableWaitlistLottery && waitlistOpen) ||
-    (availabilityQuestion !== "openWaitlist" && !enableWaitlistLottery)
+    (enableWaitlistLottery && waitlistOpen) || availabilityQuestion !== "openWaitlist"
 
   // Ensure the lottery fields only show when it's "available units" listing
   const showLotteryFields =
@@ -116,7 +115,9 @@ const RankingsAndResults = ({
                     disabled:
                       disableDueDates && listing?.reviewOrderType === ReviewOrderTypeEnum.lottery,
                     defaultChecked:
-                      listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe,
+                      listing?.reviewOrderType === ReviewOrderTypeEnum.firstComeFirstServe ||
+                      listing?.reviewOrderType === ReviewOrderTypeEnum.waitlist ||
+                      !listing?.reviewOrderType,
                   },
                   {
                     label: t("listings.lotteryTitle"),

@@ -609,6 +609,14 @@ export const stagingSeed = async (
       lakeviewJurisdiction.name,
     ),
   });
+  const angelopolisAmiChart = await prismaClient.amiChart.create({
+    data: amiChartFactory(
+      8,
+      angelopolisJurisdiction.id,
+      null,
+      angelopolisJurisdiction.name,
+    ),
+  });
   await prismaClient.amiChart.create({
     data: amiChartFactory(
       8,
@@ -771,6 +779,7 @@ export const stagingSeed = async (
   await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
   const listingsToCreate: Parameters<typeof listingFactory>[] = [
+    // angelopolis listings shouldn't be in Doorway, but keeping here for keeping the same as Core
     // [
     //   angelopolisJurisdiction.id,
     //   prismaClient,
@@ -783,12 +792,12 @@ export const stagingSeed = async (
     //         floor: 1,
     //         maxOccupancy: 3,
     //         minOccupancy: 1,
-    //         monthlyRent: '1200.00',
+    //         monthlyRent: '1200',
     //         numBathrooms: 1,
     //         numBedrooms: 0,
     //         number: '101',
     //         sqFeet: '750.00',
-    //         amiChart: { connect: { id: amiChart.id } },
+    //         amiChart: { connect: { id: angelopolisAmiChart.id } },
     //         unitTypes: {
     //           connect: {
     //             id: unitTypes[0].id,
@@ -805,7 +814,7 @@ export const stagingSeed = async (
     //         numBedrooms: 1,
     //         number: '101',
     //         sqFeet: '750.00',
-    //         amiChart: { connect: { id: amiChart.id } },
+    //         amiChart: { connect: { id: angelopolisAmiChart.id } },
     //         unitTypes: {
     //           connect: {
     //             id: unitTypes[1].id,
@@ -820,10 +829,11 @@ export const stagingSeed = async (
     //     ],
     //     applications: [await applicationFactory(), await applicationFactory()],
     //     userAccounts: [{ id: partnerUser.id }],
+    //     optionalFeatures: { carpetInUnit: true },
     //   },
     // ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: districtViewApartments,

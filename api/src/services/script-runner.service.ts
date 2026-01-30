@@ -2857,8 +2857,9 @@ export class ScriptRunnerService {
         user_id: string;
         application_id: string;
       }[] = await this.prisma
-        .$queryRaw`select a.user_id, (a.application_ids::jsonb)[0]::text as application_id from (
-                    select a.user_id, json_agg(a.id ORDER BY a.created_at DESC) as application_ids from applications a
+        .$queryRaw`select a.user_id, (a.application_ids)[1] as application_id from (
+                    select a.user_id, array_agg(a.id ORDER BY a.created_at DESC) as application_ids from applications a
+                    WHERE a.user_id is not null
                     GROUP BY a.user_id) a
                     OFFSET ${currentCount}
                     LIMIT 1000;`;

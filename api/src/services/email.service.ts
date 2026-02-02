@@ -19,6 +19,7 @@ import {
 } from '@prisma/client';
 import { JurisdictionService } from './jurisdiction.service';
 import { TranslationService } from './translation.service';
+import { Application } from '../dtos/applications/application.dto';
 import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
 import { Listing } from '../dtos/listings/listing.dto';
 import { IdDTO } from '../dtos/shared/id.dto';
@@ -27,7 +28,6 @@ import Unit from '../dtos/units/unit.dto';
 import { FeatureFlagEnum } from '../enums/feature-flags/feature-flags-enum';
 import { doJurisdictionHaveFeatureFlagSet } from '../utilities/feature-flag-utilities';
 import { getPublicEmailURL } from '../utilities/get-public-email-url';
-import { Application } from '../dtos/applications/application.dto';
 dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(advanced);

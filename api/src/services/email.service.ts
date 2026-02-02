@@ -19,7 +19,7 @@ import {
 } from '@prisma/client';
 import { JurisdictionService } from './jurisdiction.service';
 import { TranslationService } from './translation.service';
-import { ApplicationCreate } from '../dtos/applications/application-create.dto';
+import { Application } from '../dtos/applications/application.dto';
 import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
 import { Listing } from '../dtos/listings/listing.dto';
 import { IdDTO } from '../dtos/shared/id.dto';

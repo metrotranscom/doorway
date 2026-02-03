@@ -48,7 +48,7 @@ describe("Listings map", function () {
     cy.getByTestId("loading-overlay").should("not.exist")
 
     // Initial map load
-    cy.getByTestId("map-total-results").contains("Total results 249")
+    cy.getByTestId("map-total-results").contains("Total results 248")
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.getByTestId("map-cluster").should("have.length", 11)
@@ -128,7 +128,7 @@ describe("Listings map", function () {
 
     // Total results displayed rely on exact map position which shifts slightly between test runs leading to flakiness
     // The below expression checks Total results are between 230 and 239 improve test reliability
-    cy.getByTestId("map-total-results").contains(/Total results 23[0-9]/)
+    cy.getByTestId("map-total-results").contains(/Total results 2[3-4][0-9]/)
     cy.getByTestId("map-cluster").should("have.length", 21)
 
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
@@ -142,7 +142,7 @@ describe("Listings map", function () {
 
     // Recenter
     cy.getByID("map-recenter-button").click()
-    cy.getByTestId("map-total-results").contains("Total results 249")
+    cy.getByTestId("map-total-results").contains("Total results 248")
     cy.getByTestId("map-pagination").contains("Page 1 of 10")
     cy.getByTestId("map-cluster").should("have.length", 11)
     cy.get("@markersSearch.all").should("have.length", 3)

@@ -2,7 +2,7 @@ describe("Application Management Tests", () => {
   beforeEach(() => {
     cy.loginApi()
     cy.visit("/")
-    cy.getByTestId("listing-status-cell-Hollywood Hills Heights").click()
+    cy.getByTestId("listing-status-cell-Elm Village").click()
   })
 
   afterEach(() => {
@@ -10,14 +10,14 @@ describe("Application Management Tests", () => {
   })
 
   it("Application grid should display correct number of results", () => {
-    cy.getByID("lbTotalPages").contains("2")
+    cy.getByID("lbTotalPages").contains("6")
     cy.get(".applications-table")
       .first()
       .find(".ag-center-cols-container")
       .first()
       .find(".ag-row")
       .should((elems) => {
-        expect(elems).to.have.length(2)
+        expect(elems).to.have.length(6)
       })
   })
 

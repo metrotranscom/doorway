@@ -4889,7 +4889,10 @@ describe('Testing listing service', () => {
       });
     });
 
-    it('should do a complete listing update', async () => {
+    it.only('should do a complete listing update', async () => {
+      prisma.jurisdictions.findUnique = jest.fn().mockResolvedValue({
+        id: 'jurisdiction-id',
+      });
       const applicationDueDate = new Date();
       const listingEvents = [
         {

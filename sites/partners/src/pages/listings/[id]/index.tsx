@@ -41,12 +41,9 @@ import DetailCommunityType from "../../../components/listings/PaperListingDetail
 import DetailPrograms from "../../../components/listings/PaperListingDetails/sections/DetailPrograms"
 import DetailListingNotes from "../../../components/listings/PaperListingDetails/sections/DetailNotes"
 import DetailListingVerification from "../../../components/listings/PaperListingDetails/sections/DetailListingVerification"
-<<<<<<< HEAD
 import { logger } from "../../../logger"
-=======
 import DetailAccessibilityFeatures from "../../../components/listings/PaperListingDetails/sections/DetailAccessibilityFeatures"
 import { useJurisdiction } from "../../../lib/hooks"
->>>>>>> acac4850f (feat: configurable accessibility features with categories - partners (#5777))
 
 interface ListingProps {
   listing: Listing

@@ -531,7 +531,7 @@ describe("<SettingsProperties>", () => {
       screen.queryByText(/looks like something went wrong. please try again./i)
     ).not.toBeInTheDocument()
 
-    expect(await screen.queryByText(mockProperty.name)).not.toBeInTheDocument()
+    expect(screen.queryByText(mockProperty.name)).not.toBeInTheDocument()
     expect(await screen.findByText(updatedProperty.name)).toBeInTheDocument()
   })
 

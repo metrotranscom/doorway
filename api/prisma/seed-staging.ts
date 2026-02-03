@@ -766,57 +766,57 @@ export const stagingSeed = async (
   await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
   const listingsToCreate: Parameters<typeof listingFactory>[] = [
-    [
-      angelopolisJurisdiction.id,
-      prismaClient,
-      {
-        listing: hollywoodHillsHeights,
-        units: [
-          {
-            amiPercentage: '30',
-            monthlyIncomeMin: '2000',
-            floor: 1,
-            maxOccupancy: 3,
-            minOccupancy: 1,
-            monthlyRent: '1200.00',
-            numBathrooms: 1,
-            numBedrooms: 0,
-            number: '101',
-            sqFeet: '750.00',
-            amiChart: { connect: { id: amiChart.id } },
-            unitTypes: {
-              connect: {
-                id: unitTypes[0].id,
-              },
-            },
-          },
-          {
-            amiPercentage: '30',
-            monthlyIncomeMin: '2000',
-            floor: 1,
-            maxOccupancy: 3,
-            minOccupancy: 1,
-            numBathrooms: 1,
-            numBedrooms: 1,
-            number: '101',
-            sqFeet: '750.00',
-            amiChart: { connect: { id: amiChart.id } },
-            unitTypes: {
-              connect: {
-                id: unitTypes[1].id,
-              },
-            },
-          },
-        ],
-        multiselectQuestions: [
-          cityEmployeeQuestion,
-          workInCityQuestion,
-          multiselectQuestionPrograms,
-        ],
-        applications: [await applicationFactory(), await applicationFactory()],
-        userAccounts: [{ id: partnerUser.id }],
-      },
-    ],
+    // [
+    //   angelopolisJurisdiction.id,
+    //   prismaClient,
+    //   {
+    //     listing: hollywoodHillsHeights,
+    //     units: [
+    //       {
+    //         amiPercentage: '30',
+    //         monthlyIncomeMin: '2000',
+    //         floor: 1,
+    //         maxOccupancy: 3,
+    //         minOccupancy: 1,
+    //         monthlyRent: '1200.00',
+    //         numBathrooms: 1,
+    //         numBedrooms: 0,
+    //         number: '101',
+    //         sqFeet: '750.00',
+    //         amiChart: { connect: { id: amiChart.id } },
+    //         unitTypes: {
+    //           connect: {
+    //             id: unitTypes[0].id,
+    //           },
+    //         },
+    //       },
+    //       {
+    //         amiPercentage: '30',
+    //         monthlyIncomeMin: '2000',
+    //         floor: 1,
+    //         maxOccupancy: 3,
+    //         minOccupancy: 1,
+    //         numBathrooms: 1,
+    //         numBedrooms: 1,
+    //         number: '101',
+    //         sqFeet: '750.00',
+    //         amiChart: { connect: { id: amiChart.id } },
+    //         unitTypes: {
+    //           connect: {
+    //             id: unitTypes[1].id,
+    //           },
+    //         },
+    //       },
+    //     ],
+    //     multiselectQuestions: [
+    //       cityEmployeeQuestion,
+    //       workInCityQuestion,
+    //       multiselectQuestionPrograms,
+    //     ],
+    //     applications: [await applicationFactory(), await applicationFactory()],
+    //     userAccounts: [{ id: partnerUser.id }],
+    //   },
+    // ],
     [
       jurisdiction.id,
       prismaClient,

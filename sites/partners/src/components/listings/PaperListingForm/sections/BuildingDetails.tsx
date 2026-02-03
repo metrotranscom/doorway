@@ -481,7 +481,6 @@ const BuildingDetails = ({
             </Grid.Cell>
           </Grid.Row>
         )}
->>>>>>> df6339334 (feat: configurable regions (#5772))
         <Grid.Row columns={3}>
           <Grid.Cell className="seeds-grid-span-2">
             <FieldValue label={t("listings.mapPreview")} className={styles["custom-label"]}>

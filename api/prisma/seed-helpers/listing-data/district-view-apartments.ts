@@ -6,6 +6,7 @@ import {
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
+import { stagingRealisticAddresses } from '../address-factory';
 
 export const districtViewApartments: Prisma.ListingsCreateInput = {
   additionalApplicationSubmissionNotes: null,
@@ -78,6 +79,9 @@ export const districtViewApartments: Prisma.ListingsCreateInput = {
   customMapPin: false,
   contentUpdatedAt: new Date(),
   publishedAt: new Date(),
+  listingsBuildingAddress: {
+    create: stagingRealisticAddresses[3],
+  },
   listingsApplicationPickUpAddress: undefined,
   listingsApplicationDropOffAddress: undefined,
   listingsApplicationMailingAddress: undefined,

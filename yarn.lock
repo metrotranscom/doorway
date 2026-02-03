@@ -1322,25 +1322,6 @@
     tailwindcss-rtl "^0.9.0"
     typesafe-actions "^5.1.0"
 
-"@bloom-housing/ui-seeds@3.1.4":
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/@bloom-housing/ui-seeds/-/ui-seeds-3.1.4.tgz#d459b8be3d2ba416e401b244d272447870e18074"
-  integrity sha512-wg5ROd6D1U2W8SDv7EkeDoFrZwIH6dWRl/Ed1oAyYwLNYdoTrVMv7cXkVVTRRhOaTlARP0YiJKn/ss7+FMTv1w==
-  dependencies:
-    "@fortawesome/fontawesome-svg-core" "^6.3.0"
-    "@fortawesome/react-fontawesome" "^3.1.0"
-    "@heroicons/react" "^2.0.18"
-    "@types/mdx" "^2.0.3"
-    "@types/node" "^16.7.13"
-    "@types/react" "^19.1.1"
-    "@types/react-dom" "^19.1.1"
-    focus-trap-react "^11.0.3"
-    markdown-to-jsx "^7.7.12"
-    react "^19.1.1"
-    react-dom "^19.1.1"
-    react-tabs "^6.1.0"
-    typescript "^4.4.2"
-
 "@bloom-housing/ui-seeds@3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@bloom-housing/ui-seeds/-/ui-seeds-3.3.0.tgz#5313739aaf6e14aeb19fd2729a1b54babc78df6a"

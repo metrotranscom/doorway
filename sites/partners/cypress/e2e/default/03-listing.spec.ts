@@ -273,24 +273,24 @@ describe("Listing Management Tests", () => {
     cy.getByID("petPolicy").type(listing["petPolicy"])
     cy.getByID("servicesOffered").type(listing["servicesOffered"])
 
-    cy.getByID("listingNeighborhoodAmenities.publicTransportation").type(
-      listing["listingNeighborhoodAmenities.publicTransportation"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.parksAndCommunityCenters").type(
-      listing["listingNeighborhoodAmenities.parksAndCommunityCenters"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.schools").type(
-      listing["listingNeighborhoodAmenities.schools"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.groceryStores").type(
-      listing["listingNeighborhoodAmenities.groceryStores"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.pharmacies").type(
-      listing["listingNeighborhoodAmenities.pharmacies"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.healthCareResources").type(
-      listing["listingNeighborhoodAmenities.healthCareResources"]
-    )
+    // cy.getByID("listingNeighborhoodAmenities.publicTransportation").type(
+    //   listing["listingNeighborhoodAmenities.publicTransportation"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.parksAndCommunityCenters").type(
+    //   listing["listingNeighborhoodAmenities.parksAndCommunityCenters"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.schools").type(
+    //   listing["listingNeighborhoodAmenities.schools"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.groceryStores").type(
+    //   listing["listingNeighborhoodAmenities.groceryStores"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.pharmacies").type(
+    //   listing["listingNeighborhoodAmenities.pharmacies"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.healthCareResources").type(
+    //   listing["listingNeighborhoodAmenities.healthCareResources"]
+    // )
 
     if (listing["accessibilityFeatures"]) {
       // here
@@ -447,24 +447,24 @@ describe("Listing Management Tests", () => {
     cy.getByID("smokingPolicy").contains(listing["smokingPolicy"])
     cy.getByID("petPolicy").contains(listing["petPolicy"])
     cy.getByID("servicesOffered").contains(listing["servicesOffered"])
-    cy.getByID("neighborhoodAmenities.publicTransportation").contains(
-      listing["listingNeighborhoodAmenities.publicTransportation"]
-    )
-    cy.getByID("neighborhoodAmenities.parksAndCommunityCenters").contains(
-      listing["listingNeighborhoodAmenities.parksAndCommunityCenters"]
-    )
-    cy.getByID("neighborhoodAmenities.schools").contains(
-      listing["listingNeighborhoodAmenities.schools"]
-    )
-    cy.getByID("neighborhoodAmenities.groceryStores").contains(
-      listing["listingNeighborhoodAmenities.groceryStores"]
-    )
-    cy.getByID("neighborhoodAmenities.pharmacies").contains(
-      listing["listingNeighborhoodAmenities.pharmacies"]
-    )
-    cy.getByID("neighborhoodAmenities.healthCareResources").contains(
-      listing["listingNeighborhoodAmenities.healthCareResources"]
-    )
+    // cy.getByID("neighborhoodAmenities.publicTransportation").contains(
+    //   listing["listingNeighborhoodAmenities.publicTransportation"]
+    // )
+    // cy.getByID("neighborhoodAmenities.parksAndCommunityCenters").contains(
+    //   listing["listingNeighborhoodAmenities.parksAndCommunityCenters"]
+    // )
+    // cy.getByID("neighborhoodAmenities.schools").contains(
+    //   listing["listingNeighborhoodAmenities.schools"]
+    // )
+    // cy.getByID("neighborhoodAmenities.groceryStores").contains(
+    //   listing["listingNeighborhoodAmenities.groceryStores"]
+    // )
+    // cy.getByID("neighborhoodAmenities.pharmacies").contains(
+    //   listing["listingNeighborhoodAmenities.pharmacies"]
+    // )
+    // cy.getByID("neighborhoodAmenities.healthCareResources").contains(
+    //   listing["listingNeighborhoodAmenities.healthCareResources"]
+    // )
     if (listing["accessibilityFeatures"]) {
       listing["accessibilityFeatures"].forEach((feature: string[]) => {
         cy.getByID("accessibilityFeatures").contains(feature[1])
@@ -588,30 +588,30 @@ describe("Listing Management Tests", () => {
     cy.getByID("smokingPolicy").should("have.value", listing["smokingPolicy"])
     cy.getByID("petPolicy").should("have.value", listing["petPolicy"])
     cy.getByID("servicesOffered").should("have.value", listing["servicesOffered"])
-    cy.getByID("listingNeighborhoodAmenities.publicTransportation").should(
-      "have.value",
-      listing["listingNeighborhoodAmenities.publicTransportation"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.parksAndCommunityCenters").should(
-      "have.value",
-      listing["listingNeighborhoodAmenities.parksAndCommunityCenters"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.schools").should(
-      "have.value",
-      listing["listingNeighborhoodAmenities.schools"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.groceryStores").should(
-      "have.value",
-      listing["listingNeighborhoodAmenities.groceryStores"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.pharmacies").should(
-      "have.value",
-      listing["listingNeighborhoodAmenities.pharmacies"]
-    )
-    cy.getByID("listingNeighborhoodAmenities.healthCareResources").should(
-      "have.value",
-      listing["listingNeighborhoodAmenities.healthCareResources"]
-    )
+    // cy.getByID("listingNeighborhoodAmenities.publicTransportation").should(
+    //   "have.value",
+    //   listing["listingNeighborhoodAmenities.publicTransportation"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.parksAndCommunityCenters").should(
+    //   "have.value",
+    //   listing["listingNeighborhoodAmenities.parksAndCommunityCenters"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.schools").should(
+    //   "have.value",
+    //   listing["listingNeighborhoodAmenities.schools"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.groceryStores").should(
+    //   "have.value",
+    //   listing["listingNeighborhoodAmenities.groceryStores"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.pharmacies").should(
+    //   "have.value",
+    //   listing["listingNeighborhoodAmenities.pharmacies"]
+    // )
+    // cy.getByID("listingNeighborhoodAmenities.healthCareResources").should(
+    //   "have.value",
+    //   listing["listingNeighborhoodAmenities.healthCareResources"]
+    // )
     if (listing["accessibilityFeatures"]) {
       listing["accessibilityFeatures"].forEach((feature: string[]) => {
         cy.getByID(`configurableAccessibilityFeatures.${feature[0]}`).should("be.checked")

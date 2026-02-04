@@ -24,7 +24,7 @@ const FormTerms = (props: FormTermsProps) => {
   return (
     <Form id="terms" onSubmit={handleSubmit(props.onSubmit)}>
       <BloomCard
-        customIcon="gear"
+        iconSymbol="gear"
         title={t("authentication.terms.reviewToc")}
         headingPriority={1}
         iconClassName={styles["form-icon-partners"]}

@@ -7,15 +7,15 @@ import { CustomIconMap, CustomIconType } from "../CustomIconMap"
 import { ClickableCard } from "./ClickableCard"
 
 interface BloomCardProps {
-  customIcon?: CustomIconType
   standardIcon?: IconDefinition
   children: React.ReactElement
-  headingPriority?: 1 | 2 | 3 | 4 | 5 | 6
   className?: string
   iconClassName?: string
   variant?: "form" | "block"
   clickable?: boolean
   headerLink?: React.ReactNode
+  headingPriority?: 1 | 2 | 3 | 4 | 5 | 6
+  headingClass?: string
   iconClass?: string
   iconOutlined?: boolean
   iconSymbol?: CustomIconType
@@ -34,6 +34,8 @@ const BloomCard = (props: BloomCardProps) => {
   const iconClassNames = [styles["card-icon"]]
   if (props.iconClassName) iconClassNames.push(props.iconClassName)
 
+  const customIcon = props.iconSymbol ? CustomIconMap[props.iconSymbol] : undefined
+
   const getTitle = () => {
     if (props.title) {
       if (props.subtitle) {
@@ -44,6 +46,7 @@ const BloomCard = (props: BloomCardProps) => {
               priority: props.headingPriority || 1,
               size: "2xl",
               tabIndex: props.titleTabIndex,
+              className: props.headingClass ? props.headingClass : "",
             }}
             heading={props.title}
             subheading={props.subtitle}
@@ -55,7 +58,9 @@ const BloomCard = (props: BloomCardProps) => {
         <Heading
           size="2xl"
           priority={props.headingPriority || 1}
-          className={props.altHeading ? styles["card-alt-heading-font"] : undefined}
+          className={`${props.altHeading ? styles["card-alt-heading-font"] : ""} ${
+            props.headingClass ? props.headingClass : ""
+          }`}
           id={props.titleId}
           tabIndex={props.titleTabIndex}
         >
@@ -72,7 +77,7 @@ const BloomCard = (props: BloomCardProps) => {
     <>
       {title && (
         <Card.Header divider={props.variant === "block" ? undefined : "inset"}>
-          {props?.customIcon && (
+          {customIcon && (
             <Icon
               size={props.altHeading ? undefined : "2xl"}
               className={`${styles["card-icon"]} ${props.iconClass ? props.iconClass : ""} ${
@@ -80,7 +85,7 @@ const BloomCard = (props: BloomCardProps) => {
               }`}
               outlined={props.iconOutlined}
             >
-              {CustomIconMap[props?.customIcon]}
+              {customIcon}
             </Icon>
           )}
           {props?.standardIcon && (

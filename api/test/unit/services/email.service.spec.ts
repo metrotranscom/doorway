@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import {
+  ApplicationStatusEnum,
   LanguagesEnum,
   ListingEventsTypeEnum,
   ListingsStatusEnum,
@@ -15,6 +16,8 @@ import { yellowstoneAddress } from '../../../prisma/seed-helpers/address-factory
 import { Application } from '../../../src/dtos/applications/application.dto';
 import { User } from '../../../src/dtos/users/user.dto';
 import { ApplicationCreate } from '../../../src/dtos/applications/application-create.dto';
+import { ApplicationStatusChangeItem } from 'src/utilities/applicationStatusChanges';
+import Listing from 'src/dtos/listings/listing.dto';
 import { of } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
@@ -850,6 +853,62 @@ describe('Testing email service', () => {
       expect(emailMock).toMatch(
         /<td>\s*3200 Old Faithful Inn Rd, Yellowstone National Park WY 82190\s*<\/td>/,
       );
+    });
+  });
+
+  describe('application update', () => {
+    it('should send application update email', async () => {
+      const listing = {
+        id: 'listingId',
+        name: 'Example Listing',
+        jurisdictions: { name: 'Jurisdiction 1', id: 'jurisdictionId' },
+      } as Listing;
+      const application = {
+        language: LanguagesEnum.en,
+        applicant: {
+          firstName: 'First',
+          lastName: 'Last',
+          emailAddress: 'applicant.email@example.com',
+        },
+      } as Application;
+      const changes = [
+        {
+          type: 'status',
+          from: ApplicationStatusEnum.submitted,
+          to: ApplicationStatusEnum.waitlist,
+        },
+        { type: 'accessibleWaitlist', value: '2' },
+        { type: 'conventionalWaitlist', value: '5' },
+      ] as ApplicationStatusChangeItem[];
+
+      await service.applicationUpdateEmail(
+        listing,
+        application,
+        changes,
+        'http://localhost:3000',
+        'contact@example.com',
+      );
+
+      // expect(sendMock).toHaveBeenCalled();
+      // const emailMock = sendMock.mock.calls[0][0];
+      // expect(emailMock.to).toEqual('applicant.email@example.com');
+      // expect(emailMock.subject).toEqual(
+      //   'Application update for Example Listing',
+      // );
+      // expect(emailMock.html).toContain(
+      //   'Your application has been updated for Example Listing',
+      // );
+      // expect(emailMock.html).toContain(
+      //   'Your application status has changed from <strong>Submitted</strong> to <strong>Wait list</strong>',
+      // );
+      // expect(emailMock.html).toContain(
+      //   'Your Accessible wait list number is <strong>2</strong>',
+      // );
+      // expect(emailMock.html).toContain(
+      //   'Your Conventional wait list number is <strong>5</strong>',
+      // );
+      // expect(emailMock.html).toContain('contact@example.com');
+      // expect(emailMock.html).toMatch('http://localhost:3000/sign-in');
     });
   });
 

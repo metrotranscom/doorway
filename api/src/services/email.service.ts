@@ -28,6 +28,7 @@ import Unit from '../dtos/units/unit.dto';
 import { FeatureFlagEnum } from '../enums/feature-flags/feature-flags-enum';
 import { doJurisdictionHaveFeatureFlagSet } from '../utilities/feature-flag-utilities';
 import { getPublicEmailURL } from '../utilities/get-public-email-url';
+import type { ApplicationStatusChangeItem } from '../utilities/applicationStatusChanges';
 dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(advanced);
@@ -559,6 +560,74 @@ export class EmailService {
     );
   }
 
+  public async applicationUpdateEmail(
+    listing: Listing,
+    application: Application,
+    changes: ApplicationStatusChangeItem[],
+    appUrl: string,
+    contactEmail?: string,
+  ) {
+    const jurisdiction = await this.getJurisdiction([listing.jurisdictions]);
+    void (await this.loadTranslations(jurisdiction, application.language));
+
+    const summaryItems = changes.map((change) => {
+      if (change.type === 'status') {
+        const fromLabel = this.polyglot.t(
+          `applicationUpdate.applicationStatus.${change.from}`,
+        );
+        const toLabel = this.polyglot.t(
+          `applicationUpdate.applicationStatus.${change.to}`,
+        );
+        return new Handlebars.SafeString(
+          this.polyglot.t('applicationUpdate.statusChange', {
+            from: `<strong>${fromLabel}</strong>`,
+            to: `<strong>${toLabel}</strong>`,
+          }),
+        );
+      }
+      if (change.type === 'accessibleWaitlist') {
+        return new Handlebars.SafeString(
+          this.polyglot.t('applicationUpdate.accessibleWaitListChange', {
+            value: `<strong>${change.value}</strong>`,
+          }),
+        );
+      }
+      return new Handlebars.SafeString(
+        this.polyglot.t('applicationUpdate.conventionalWaitListChange', {
+          value: `<strong>${change.value}</strong>`,
+        }),
+      );
+    });
+
+    const applicantName = [
+      application.applicant.firstName,
+      application.applicant.lastName,
+    ]
+      .filter(Boolean)
+      .join(' ');
+    const subject = this.polyglot.t('applicationUpdate.subject', {
+      listingName: listing.name,
+    });
+    const loginUrl = appUrl ? `${appUrl}/sign-in` : '';
+
+    await this.sendSingleSES(
+      {
+        to: application.applicant.emailAddress,
+        subject: subject,
+        html: this.template('application-update')({
+          appOptions: {
+            listingName: listing.name,
+            applicantName,
+          },
+          summaryItems,
+          loginUrl,
+          contactEmail: contactEmail,
+        }),
+      },
+      'applicationUpdateEmail',
+    );
+  }
+
   public async requestApproval(
     jurisdictionId: IdDTO,
     listingInfo: IdDTO,
@@ -911,7 +980,7 @@ export class EmailService {
           signInUrl: signInUrl,
         }),
       },
-      'sendSingleUseCode',
+      'warnOfAccountRemoval',
     );
   }
 

@@ -8,6 +8,7 @@
   "buildingAddress.county": "Contra Costa",
   "buildingAddress.state": "California",
   "buildingAddress.zipCode": "94583",
+  "property.name": "property testing name",
   "yearBuilt": "2021",
   "reservedCommunityType.value": 2,
   "reservedCommunityType.id": "Seniors",

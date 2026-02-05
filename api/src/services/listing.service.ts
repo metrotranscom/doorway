@@ -80,6 +80,7 @@ export const selectViews: Partial<Record<ListingViews, Prisma.ListingsSelect>> =
     name: {
       name: true,
       id: true,
+      property: true,
       jurisdictions: {
         select: {
           id: true,
@@ -182,6 +183,7 @@ includeViews.full = {
   listingsApplicationDropOffAddress: true,
   listingsApplicationMailingAddress: true,
   requestedChangesUser: true,
+  property: true,
   requiredDocumentsList: true,
   units: {
     include: {
@@ -2979,10 +2981,16 @@ export class ListingService implements OnModuleInit {
               },
             },
           },
-          property: incomingDto?.property
+          property: incomingDto.property
             ? {
                 connect: {
                   id: incomingDto.property.id,
+                },
+              }
+            : storedListing.property
+            ? {
+                disconnect: {
+                  id: storedListing.property.id,
                 },
               }
             : undefined,

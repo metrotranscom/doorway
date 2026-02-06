@@ -3800,6 +3800,29 @@ export interface IdDTO {
   ordinal?: number
 }
 
+export interface ListingParkingType {
+  /**  */
+  id: string
+
+  /**  */
+  createdAt: Date
+
+  /**  */
+  updatedAt: Date
+
+  /**  */
+  onStreet?: boolean
+
+  /**  */
+  offStreet?: boolean
+
+  /**  */
+  garage?: boolean
+
+  /**  */
+  carport?: boolean
+}
+
 export interface ListingDocuments {
   /**  */
   socialSecurityCard?: boolean
@@ -5045,6 +5068,9 @@ export interface Listing {
   parkingFee?: string
 
   /**  */
+  parkType?: ListingParkingType
+
+  /**  */
   postmarkedApplicationsReceivedByDate?: Date
 
   /**  */
@@ -5531,6 +5557,20 @@ export interface ListingFeaturesCreate {
 
   /**  */
   wideDoorways?: boolean
+}
+
+export interface ListingParkingTypeCreate {
+  /**  */
+  onStreet?: boolean
+
+  /**  */
+  offStreet?: boolean
+
+  /**  */
+  garage?: boolean
+
+  /**  */
+  carport?: boolean
 }
 
 export interface UnitAmiChartOverrideCreate {
@@ -6143,6 +6183,9 @@ export interface ListingCreate {
   listingFeatures?: ListingFeaturesCreate
 
   /**  */
+  parkType?: ListingParkingTypeCreate
+
+  /**  */
   requestedChangesUser?: IdDTO
 
   /**  */
@@ -6612,6 +6655,23 @@ export interface ListingUtilitiesUpdate {
   id?: string
 }
 
+export interface ListingParkingTypeUpdate {
+  /**  */
+  onStreet?: boolean
+
+  /**  */
+  offStreet?: boolean
+
+  /**  */
+  garage?: boolean
+
+  /**  */
+  carport?: boolean
+
+  /**  */
+  id?: string
+}
+
 export interface ListingNeighborhoodAmenitiesUpdate {
   /**  */
   groceryStores?: string
@@ -7010,6 +7070,9 @@ export interface ListingUpdate {
 
   /**  */
   listingUtilities?: ListingUtilitiesUpdate
+
+  /**  */
+  parkType?: ListingParkingTypeUpdate
 
   /**  */
   requestedChangesUser?: IdDTO

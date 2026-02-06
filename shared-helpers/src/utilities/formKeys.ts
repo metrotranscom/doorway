@@ -384,3 +384,5 @@ export const listingUtilities = [
   "phone",
   "internet",
 ]
+
+export const listingParkingTypes = ["onStreet", "offStreet", "garage", "carport"]

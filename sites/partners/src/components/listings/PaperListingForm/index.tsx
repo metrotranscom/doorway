@@ -692,6 +692,11 @@ const ListingForm = ({
                               FeatureFlagEnum.enablePetPolicyCheckbox,
                               jurisdictionId
                             )}
+                            enableParkingType={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableParkingType,
+                              jurisdictionId
+                            )}
+                            existingParkingTypes={listing?.parkType}
                             requiredFields={requiredFields}
                           />
                           <NeighborhoodAmenities

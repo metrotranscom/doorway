@@ -185,6 +185,7 @@ includeViews.full = {
   requestedChangesUser: true,
   property: true,
   requiredDocumentsList: true,
+  parkType: true,
   units: {
     include: {
       unitAmiChartOverrides: true,
@@ -1408,6 +1409,9 @@ export class ListingService implements OnModuleInit {
     if (listing.listingUtilities) {
       listing.utilities = listing.listingUtilities;
     }
+    if (listing.parkingType) {
+      listing.parkingType = listing.parkingType;
+    }
     if (listing.listingFeatures) {
       listing.features = listing.listingFeatures;
     }
@@ -1694,6 +1698,13 @@ export class ListingService implements OnModuleInit {
           ? {
               create: {
                 ...dto.listingUtilities,
+              },
+            }
+          : undefined,
+        parkType: dto.parkType
+          ? {
+              create: {
+                ...dto.parkType,
               },
             }
           : undefined,
@@ -2500,6 +2511,7 @@ export class ListingService implements OnModuleInit {
 
     const previousFeaturesId = storedListing.listingFeatures?.id;
     const previousUtilitiesId = storedListing.listingUtilities?.id;
+    const previousParkingTypeId = storedListing.parkType?.id;
     const previousNeighborhoodAmenitiesId =
       storedListing.listingNeighborhoodAmenities?.id;
 
@@ -2746,6 +2758,21 @@ export class ListingService implements OnModuleInit {
                   },
                   update: {
                     ...incomingDto.listingUtilities,
+                  },
+                },
+              }
+            : undefined,
+          parkType: incomingDto.parkType
+            ? {
+                upsert: {
+                  where: {
+                    id: previousParkingTypeId,
+                  },
+                  create: {
+                    ...incomingDto.parkType,
+                  },
+                  update: {
+                    ...incomingDto.parkType,
                   },
                 },
               }

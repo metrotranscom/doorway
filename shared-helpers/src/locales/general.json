@@ -206,6 +206,8 @@
   "application.financial.vouchers.title": "Do you or anyone in your household receive Section 8 or Housing Authority issued vouchers, including Veterans Affairs Supportive Housing (VASH) vouchers, or rental assistance from other sources?",
   "application.form.general.saveAndFinishLater": "Save and finish later",
   "application.form.general.saveAndReturn": "Save and return to review",
+  "application.form.options.relationship.aideOrAttendant": "Aide or Attendant",
+  "application.form.options.relationship.aunt": "Aunt",
   "application.form.options.relationship.auntUncle": "Aunt/Uncle",
   "application.form.options.relationship.brotherSister": "Brother/Sister",
   "application.form.options.relationship.child": "Child",

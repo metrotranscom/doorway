@@ -9919,6 +9919,7 @@ export enum HouseholdMemberRelationship {
   "grandparentGreatGrandparent" = "grandparentGreatGrandparent",
   "liveInAide" = "liveInAide",
   "other" = "other",
+  "aideOrAttendant" = "aideOrAttendant",
 }
 export type AllExtraDataTypes = BooleanInput | TextInput | AddressInput
 export enum MultiselectQuestionOrderByKeys {

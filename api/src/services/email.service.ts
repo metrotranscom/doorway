@@ -617,8 +617,8 @@ export class EmailService {
         html: this.template('application-update')({
           appOptions: {
             listingName: listing.name,
-            applicantName,
           },
+          applicantName,
           summaryItems,
           loginUrl,
           contactEmail: contactEmail,

@@ -133,7 +133,7 @@ const CreateAccount = () => {
                   className={BloomCardStyles["account-card-settings-section"]}
                 >
                   <fieldset id="userName">
-                    <legend className={accountStyles["create-account-header"]}>
+                    <legend className={"text__caps-spaced"}>
                       {t("application.name.yourName")}
                     </legend>
 

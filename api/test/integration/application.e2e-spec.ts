@@ -2045,6 +2045,17 @@ describe('Application Controller Tests', () => {
   });
 
   describe('removePIICronJob endpoint', () => {
+    it('should not run the removePII cron job if env variable not set', async () => {
+      await request(app.getHttpServer())
+        .put(`/applications/removePIICronJob`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .set('Cookie', adminCookies)
+        .expect(200);
+
+      expect(logger.warn).toBeCalledWith(
+        'APPLICATION_DAYS_TILL_EXPIRY variable not set so the cron job will not run',
+      );
+    });
     it('should run the removePII cron job for expired applications', async () => {
       process.env.APPLICATION_DAYS_TILL_EXPIRY = '90';
       const juris = await prisma.jurisdictions.create({
@@ -2112,6 +2123,9 @@ describe('Application Controller Tests', () => {
 
       expect(logger.warn).toBeCalledWith(
         expect.stringContaining('removing PII information for '),
+      );
+      expect(logger.warn).toBeCalledWith(
+        expect.stringContaining('completed PII information removal for '),
       );
 
       const applicant1 = await prisma.applicant.findFirst({

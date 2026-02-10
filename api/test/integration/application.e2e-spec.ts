@@ -2091,6 +2091,9 @@ describe('Application Controller Tests', () => {
           isNewest: false,
           additionalPhone: '(123) 456-7890',
           expireAfter: dayjs(new Date()).subtract(2, 'days').toDate(),
+          applicant: {
+            emailAddress: 'applicantToBeCleaned@example.com',
+          },
           householdMember: [
             {
               firstName: 'firstNameMember',
@@ -2141,7 +2144,7 @@ describe('Application Controller Tests', () => {
         birthMonth: null,
         birthDay: null,
         birthYear: null,
-        emailAddress: null,
+        emailAddress: 'applicantToBeCleaned@example.com',
         noEmail: false,
         phoneNumber: null,
         phoneNumberType: 'home',

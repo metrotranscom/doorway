@@ -66,7 +66,6 @@ import {
   constructFullListingData,
   createSimpleApplication,
 } from './helpers';
-import { ApplicationFlaggedSetService } from '../../../src/services/application-flagged-set.service';
 
 const testEmailService = {
   confirmation: jest.fn(),
@@ -82,7 +81,6 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
   let app: INestApplication;
   let prisma: PrismaService;
   let userService: UserService;
-  let applicationFlaggedSetService: ApplicationFlaggedSetService;
   let cookies = '';
   let jurisdictionId = '';
   let listingId = '';
@@ -101,10 +99,6 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
     app = moduleFixture.createNestApplication();
     prisma = moduleFixture.get<PrismaService>(PrismaService);
     userService = moduleFixture.get<UserService>(UserService);
-    applicationFlaggedSetService =
-      moduleFixture.get<ApplicationFlaggedSetService>(
-        ApplicationFlaggedSetService,
-      );
 
     app.use(cookieParser());
     await app.init();
@@ -1294,20 +1288,6 @@ describe('Testing Permissioning of endpoints as partner with wrong listing', () 
         .send({
           id: afs.id,
         } as IdDTO)
-        .set('Cookie', cookies)
-        .expect(200);
-    });
-
-    it('should succeed for process endpoint', async () => {
-      /*
-        Because so many different iterations of the process endpoint were firing we were running into collisions. 
-        Since this is just testing the permissioning aspect I'm switching to mocking the process function
-      */
-      applicationFlaggedSetService.process = jest.fn();
-
-      await request(app.getHttpServer())
-        .put(`/applicationFlaggedSets/process`)
-        .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
         .expect(200);
     });

@@ -33,7 +33,7 @@ import {
 } from './seed-helpers/map-layer-factory';
 import { createAllFeatureFlags } from './seed-helpers/feature-flag-factory';
 import { FeatureFlagEnum } from '../src/enums/feature-flags/feature-flags-enum';
-import { hollywoodHillsHeights } from './seed-helpers/listing-data/hollywood-hills-heights';
+// import { hollywoodHillsHeights } from './seed-helpers/listing-data/hollywood-hills-heights';
 import { districtViewApartments } from './seed-helpers/listing-data/district-view-apartments';
 import { blueSkyApartments } from './seed-helpers/listing-data/blue-sky-apartments';
 import { valleyHeightsSeniorCommunity } from './seed-helpers/listing-data/valley-heights-senior-community';
@@ -604,14 +604,14 @@ export const stagingSeed = async (
       lakeviewJurisdiction.name,
     ),
   });
-  const angelopolisAmiChart = await prismaClient.amiChart.create({
-    data: amiChartFactory(
-      8,
-      angelopolisJurisdiction.id,
-      null,
-      angelopolisJurisdiction.name,
-    ),
-  });
+  // const angelopolisAmiChart = await prismaClient.amiChart.create({
+  //   data: amiChartFactory(
+  //     8,
+  //     angelopolisJurisdiction.id,
+  //     null,
+  //     angelopolisJurisdiction.name,
+  //   ),
+  // });
   await prismaClient.amiChart.create({
     data: amiChartFactory(
       8,
@@ -701,36 +701,34 @@ export const stagingSeed = async (
       }),
     },
   );
-  const multiselectQuestionPrograms =
-    await prismaClient.multiselectQuestions.create({
-      data: multiselectQuestionFactory(jurisdiction.id, {
-        multiselectQuestion: {
-          text: 'Housing Situation',
-          description:
-            'Thinking about the past 30 days, do either of these describe your housing situation?',
-          applicationSection:
-            MultiselectQuestionsApplicationSectionEnum.programs,
-          options: [
-            {
-              text: 'Not Permanent',
-              ordinal: 0,
-            },
-            {
-              text: 'Homeless',
-              ordinal: 1,
-            },
-            {
-              text: 'Do Not Consider',
-              ordinal: 2,
-            },
-            {
-              text: 'Prefer not to say',
-              ordinal: 3,
-            },
-          ],
-        },
-      }),
-    });
+  await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(jurisdiction.id, {
+      multiselectQuestion: {
+        text: 'Housing Situation',
+        description:
+          'Thinking about the past 30 days, do either of these describe your housing situation?',
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        options: [
+          {
+            text: 'Not Permanent',
+            ordinal: 0,
+          },
+          {
+            text: 'Homeless',
+            ordinal: 1,
+          },
+          {
+            text: 'Do Not Consider',
+            ordinal: 2,
+          },
+          {
+            text: 'Prefer not to say',
+            ordinal: 3,
+          },
+        ],
+      },
+    }),
+  });
   await prismaClient.multiselectQuestions.create({
     data: multiselectQuestionFactory(lakeviewJurisdiction.id, {
       multiselectQuestion: {

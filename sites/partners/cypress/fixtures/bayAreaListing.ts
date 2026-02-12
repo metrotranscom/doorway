@@ -1,16 +1,12 @@
 import {
-  HomeTypeEnum,
   UnitType,
   UnitAccessibilityPriorityType,
   Unit,
   ListingEventsTypeEnum,
-  ListingUtilities,
-  ListingFeatures,
   ApplicationMethodsTypeEnum,
   ApplicationMethod,
   ListingsStatusEnum,
   ReviewOrderTypeEnum,
-  ListingNeighborhoodAmenities,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { CypressAddress, CypressListing } from "./cypressListingHelpers"
 

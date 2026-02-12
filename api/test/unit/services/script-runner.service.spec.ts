@@ -49,15 +49,17 @@ describe('Testing script runner service', () => {
             create: jest.fn().mockResolvedValue({
               id: 'new id',
             }),
-            list: jest.fn().mockResolvedValue([
-              {
-                id: 'new id',
-                createdAt: dayjs(
-                  '2024-10-22 00:00',
-                  'YYYY-MM-DD HH:mm Z',
-                ).toDate(),
-              },
-            ]),
+            list: jest.fn().mockResolvedValue({
+              items: [
+                {
+                  id: 'new id',
+                  createdAt: dayjs(
+                    '2024-10-22 00:00',
+                    'YYYY-MM-DD HH:mm Z',
+                  ).toDate(),
+                },
+              ],
+            }),
           },
         },
       ],

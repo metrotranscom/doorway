@@ -185,6 +185,7 @@ export const MapClusterer = ({
         },
       },
       algorithm: new SuperClusterAlgorithm({ radius: 110 }),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onClusterClick: (_, cluster, map) => {
         setInfoWindowIndex(null)
         const zoomLevel = getBoundsZoomLevel(cluster.bounds)

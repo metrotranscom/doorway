@@ -49,6 +49,7 @@ const SettingsPreferences = () => {
   const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState<MultiselectQuestion | null>(
     null
   )
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editConfirmModalOpen, setEditConfirmModalOpen] = useState<MultiselectQuestion | null>(null)
 
   const { data, loading, cacheKey } = useJurisdictionalMultiselectQuestionList(

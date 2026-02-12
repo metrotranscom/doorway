@@ -5,7 +5,6 @@ import {
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
-import { stagingRealisticAddresses } from '../address-factory';
 
 export const littleVillageApartments: Prisma.ListingsCreateInput = {
   additionalApplicationSubmissionNotes: null,

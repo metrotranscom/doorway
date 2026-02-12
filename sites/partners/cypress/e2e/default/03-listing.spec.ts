@@ -15,7 +15,7 @@ describe("Listing Management Tests", () => {
     cy.signOutApi()
   })
 
-  it.skip("error messaging & save dialogs", () => {
+  it("error messaging & save dialogs", () => {
     // Test to check that the appropriate error messages happen on submit
     cy.visit("/")
     cy.get("button").contains("Add listing").click()
@@ -227,6 +227,12 @@ describe("Listing Management Tests", () => {
     // Test photo upload
     if (listing.cypressImages?.length) {
       listing.cypressImages.forEach((cypressImage, index) => {
+        cy.intercept("/api/adapter/upload", {
+          body: {
+            id: "123",
+            url: `https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/dev/${cypressImage.fixtureName}`,
+          },
+        })
         cy.intercept(
           "GET",
           `https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/dev/${cypressImage.fixtureName}`,

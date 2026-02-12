@@ -4895,6 +4895,32 @@ export interface ListingNeighborhoodAmenities {
   busStops?: string
 }
 
+export interface Property {
+  /**  */
+  id: string
+
+  /**  */
+  createdAt: Date
+
+  /**  */
+  updatedAt: Date
+
+  /**  */
+  name: string
+
+  /**  */
+  description?: string
+
+  /**  */
+  url?: string
+
+  /**  */
+  urlTitle?: string
+
+  /**  */
+  jurisdictions?: IdDTO
+}
+
 export interface Listing {
   /**  */
   id: string
@@ -5296,7 +5322,7 @@ export interface Listing {
   lastUpdatedByUser?: IdDTO
 
   /**  */
-  property?: IdDTO
+  property?: Property
 }
 
 export interface PaginationMeta {
@@ -6159,9 +6185,6 @@ export interface ListingCreate {
   lastUpdatedByUser?: IdDTO
 
   /**  */
-  property?: IdDTO
-
-  /**  */
   listingMultiselectQuestions?: IdDTO[]
 
   /**  */
@@ -6193,6 +6216,9 @@ export interface ListingCreate {
 
   /**  */
   requestedChangesUser?: IdDTO
+
+  /**  */
+  property?: IdDTO
 
   /**  */
   units?: UnitCreate[]
@@ -7018,9 +7044,6 @@ export interface ListingUpdate {
   lastUpdatedByUser?: IdDTO
 
   /**  */
-  property?: IdDTO
-
-  /**  */
   listingMultiselectQuestions?: IdDTO[]
 
   /**  */
@@ -7085,6 +7108,9 @@ export interface ListingUpdate {
 
   /**  */
   listingNeighborhoodAmenities?: ListingNeighborhoodAmenitiesUpdate
+
+  /**  */
+  property?: IdDTO
 }
 
 export interface Accessibility {
@@ -9535,32 +9561,6 @@ export interface PropertyQueryParams {
 
   /**  */
   filter?: string[]
-}
-
-export interface Property {
-  /**  */
-  id: string
-
-  /**  */
-  createdAt: Date
-
-  /**  */
-  updatedAt: Date
-
-  /**  */
-  name: string
-
-  /**  */
-  description?: string
-
-  /**  */
-  url?: string
-
-  /**  */
-  urlTitle?: string
-
-  /**  */
-  jurisdictions?: IdDTO
 }
 
 export interface PaginatedProperty {

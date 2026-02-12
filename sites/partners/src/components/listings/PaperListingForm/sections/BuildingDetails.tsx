@@ -48,10 +48,12 @@ interface MapboxApiResponse {
 
 type BuildingDetailsProps = {
   customMapPositionChosen?: boolean
+  enableConfigurableRegions?: boolean
   enableNonRegulatedListings?: boolean
   enableRegions?: boolean
   latLong?: LatitudeLongitude
   listing?: FormListing
+  regions?: string[]
   requiredFields: string[]
   setCustomMapPositionChosen?: (customMapPosition: boolean) => void
   setLatLong?: (latLong: LatitudeLongitude) => void
@@ -61,8 +63,10 @@ const BuildingDetails = ({
   customMapPositionChosen,
   enableNonRegulatedListings,
   enableRegions,
+  enableConfigurableRegions,
   latLong,
   listing,
+  regions,
   requiredFields,
   setCustomMapPositionChosen,
   setLatLong,
@@ -140,7 +144,6 @@ const BuildingDetails = ({
         .catch((err) => console.error(`Error calling Mapbox API: ${err}`))
     }
   }
-
   useEffect(() => {
     let timeout
     if (!customMapPositionChosen || mapPinPosition === "automatic") {
@@ -167,7 +170,11 @@ const BuildingDetails = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapPinPosition])
 
-  const { neighborhood, region } = watch(["neighborhood", "region"])
+  const { neighborhood, region, configurableRegion } = watch([
+    "neighborhood",
+    "region",
+    "configurableRegion",
+  ])
 
   useEffect(() => {
     const matchingConfig = neighborhoodRegions.find((entry) => entry.name == neighborhood)
@@ -176,6 +183,13 @@ const BuildingDetails = ({
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [neighborhood, setValue])
+
+  useEffect(() => {
+    if (regions && listing?.configurableRegion && configurableRegion === "") {
+      setValue("configurableRegion", listing.configurableRegion)
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listing, regions, setValue])
 
   const getError = (subfield: string) => {
     return getAddressErrorMessage(
@@ -188,6 +202,10 @@ const BuildingDetails = ({
       getValues
     )
   }
+
+  const showInitialRegion =
+    (enableRegions || enableConfigurableRegions) &&
+    (listingType === EnumListingListingType.regulated || !enableNonRegulatedListings)
 
   return (
     <>
@@ -319,7 +337,7 @@ const BuildingDetails = ({
             />
           </Grid.Cell>
           <Grid.Cell className="seeds-grid-span-2">
-            {enableRegions ? (
+            {showInitialRegion && enableRegions && (
               <Select
                 register={register}
                 controlClassName="control"
@@ -332,20 +350,40 @@ const BuildingDetails = ({
                 ]}
                 {...defaultFieldProps("region", t("t.region"), requiredFields, errors, clearErrors)}
               />
-            ) : (
-              (listingType === EnumListingListingType.regulated || !enableNonRegulatedListings) && (
-                <Field
-                  type={"number"}
-                  register={register}
-                  {...defaultFieldProps(
-                    "yearBuilt",
-                    t("listings.yearBuilt"),
-                    requiredFields,
-                    errors,
-                    clearErrors
-                  )}
-                />
-              )
+            )}
+            {showInitialRegion && enableConfigurableRegions && (
+              <Select
+                register={register}
+                controlClassName="control"
+                options={[
+                  { value: "", label: t("listings.sections.regionPlaceholder") },
+                  ...(regions?.map((entry) => ({
+                    value: entry,
+                    label: entry,
+                  })) ?? []),
+                ]}
+                {...defaultFieldProps(
+                  "configurableRegion",
+                  t("t.region"),
+                  requiredFields,
+                  errors,
+                  clearErrors
+                )}
+                defaultValue={listing?.configurableRegion || ""}
+              />
+            )}
+            {!showInitialRegion && (
+              <Field
+                type={"number"}
+                register={register}
+                {...defaultFieldProps(
+                  "yearBuilt",
+                  t("listings.yearBuilt"),
+                  requiredFields,
+                  errors,
+                  clearErrors
+                )}
+              />
             )}
           </Grid.Cell>
         </Grid.Row>
@@ -426,6 +464,23 @@ const BuildingDetails = ({
               </Grid.Cell>
             </Grid.Row>
           )}
+        {showInitialRegion && (
+          <Grid.Row columns={3}>
+            <Grid.Cell>
+              <Field
+                type={"number"}
+                register={register}
+                {...defaultFieldProps(
+                  "yearBuilt",
+                  t("listings.yearBuilt"),
+                  requiredFields,
+                  errors,
+                  clearErrors
+                )}
+              />
+            </Grid.Cell>
+          </Grid.Row>
+        )}
         <Grid.Row columns={3}>
           <Grid.Cell className="seeds-grid-span-2">
             <FieldValue label={t("listings.mapPreview")} className={styles["custom-label"]}>

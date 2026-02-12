@@ -35,13 +35,6 @@ interface Methods {
   referral: ApplicationMethodCreate
 }
 
-type ApplicationTypesProps = {
-  disableCommonApplication: boolean
-  jurisdiction: string
-  listing: FormListing
-  requiredFields: string[]
-}
-
 /**
  * Input for the phone fields need to be masked to make sure the format of
  * "(123) 456-7890" is the only accepted form.
@@ -83,8 +76,17 @@ export const phoneMask = (incomingNewValue: string): string => {
   return newValue
 }
 
+type ApplicationTypesProps = {
+  disableCommonApplication: boolean
+  enableReferralQuestionUnits: boolean
+  jurisdiction: string
+  listing: FormListing
+  requiredFields: string[]
+}
+
 const ApplicationTypes = ({
   disableCommonApplication,
+  // enableReferralQuestionUnits,
   jurisdiction,
   listing,
   requiredFields,

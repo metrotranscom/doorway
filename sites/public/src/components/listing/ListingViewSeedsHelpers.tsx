@@ -1,7 +1,7 @@
 import React from "react"
 import { UseFormMethods } from "react-hook-form"
 import dayjs from "dayjs"
-import { Button, Dialog, Link } from "@bloom-housing/ui-seeds"
+import { Button, Dialog, Heading, Link } from "@bloom-housing/ui-seeds"
 import {
   ApplicationAddressTypeEnum,
   ApplicationMethod,
@@ -14,6 +14,7 @@ import {
   Listing,
   ListingMultiselectQuestion,
   MultiselectQuestionsApplicationSectionEnum,
+  ListingFeaturesConfiguration,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
   FieldGroup,
@@ -24,8 +25,11 @@ import {
   TableHeaders,
 } from "@bloom-housing/ui-components"
 import {
+  allListingFeatures,
   cloudinaryPdfFromId,
   getOccupancyDescription,
+  ListingFeaturesValues,
+  listingUtilities,
   stackedOccupancyTable,
   stackedUnitGroupsOccupancyTable,
 } from "@bloom-housing/shared-helpers"
@@ -34,6 +38,7 @@ import { CardList, ContentCardProps } from "../../patterns/CardList"
 import { OrderedCardList } from "../../patterns/OrderedCardList"
 import { ReadMore } from "../../patterns/ReadMore"
 import { DateSectionFlyer } from "./listing_sections/DateSection"
+import styles from "./ListingViewSeeds.module.scss"
 
 export const getFilteredMultiselectQuestions = (
   multiselectQuestions: ListingMultiselectQuestion[],
@@ -136,24 +141,55 @@ export const getHasNonReferralMethods = (listing: Listing) => {
   return nonReferralMethods.length
 }
 
-export const getAccessibilityFeatures = (listing: Listing) => {
+export const getAccessibilityFeatures = (
+  listing: Listing,
+  config: ListingFeaturesConfiguration
+) => {
   const enabledFeatures = Object.entries(listing?.listingFeatures ?? {})
-    .filter(([_, value]) => value)
+    .filter(([key, value]) => value && allListingFeatures?.includes(key as ListingFeaturesValues))
     .map((item) => item[0])
-  if (enabledFeatures.length > 0) {
-    return enabledFeatures.map((feature, index) => {
-      return `${t(`eligibility.accessibility.${feature}`)}${
-        index < enabledFeatures.length - 1 ? ", " : ""
-      }`
+
+  const getList = (list: string[], spacing: boolean) => {
+    return (
+      <ul className={`${styles["two-column-list"]} ${spacing ? "seeds-m-be-text" : ""}`}>
+        {list.map((feature, index) => (
+          <li key={index} className={styles["list-item"]}>
+            {t(`eligibility.accessibility.${feature}`)}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  if (config?.categories?.length) {
+    return config.categories.map((category, index) => {
+      const categoryFeatures = enabledFeatures
+        .filter((feature) => category.fields.some((field) => field.id === feature))
+        .sort((a, b) =>
+          t(`eligibility.accessibility.${a}`).localeCompare(t(`eligibility.accessibility.${b}`))
+        )
+      if (!categoryFeatures.length) return null
+      return (
+        <div key={index}>
+          <Heading priority={4} size={"md"} className={styles["category-heading"]}>
+            {t(`eligibility.accessibility.categoryTitle.${category.id}`)}
+          </Heading>
+          {getList(categoryFeatures, index < config.categories.length - 1)}
+        </div>
+      )
     })
   }
 
-  return []
+  if (enabledFeatures.length > 0) {
+    return getList(enabledFeatures, false)
+  }
+
+  return null
 }
 
 export const getUtilitiesIncluded = (listing: Listing) => {
   const enabledUtilities = Object.entries(listing?.listingUtilities ?? {})
-    .filter(([_, value]) => value)
+    .filter(([key, value]) => value && listingUtilities.includes(key))
     .map((item) => item[0])
 
   if (enabledUtilities.length > 0) {
@@ -170,15 +206,34 @@ export const getUtilitiesIncluded = (listing: Listing) => {
 export const getFeatures = (
   listing: Listing,
   jurisdiction: Jurisdiction
-): { heading: string; subheading: string }[] => {
+): { heading: string; subheading?: string; content?: React.ReactNode }[] => {
   const features = []
   if (listing.yearBuilt) {
     features.push({ heading: t("t.built"), subheading: listing.yearBuilt })
   }
-  if (listing.smokingPolicy) {
-    features.push({ heading: t("t.smokingPolicy"), subheading: listing.smokingPolicy })
-  }
-  if (listing.petPolicy) {
+  const enablePetPolicyCheckbox = isFeatureFlagOn(
+    jurisdiction,
+    FeatureFlagEnum.enablePetPolicyCheckbox
+  )
+  if (enablePetPolicyCheckbox && (listing.allowsDogs || listing.allowsCats)) {
+    const petPolicy = []
+    if (listing.allowsDogs) petPolicy.push(t("listings.allowsDogs"))
+    if (listing.allowsCats) petPolicy.push(t("listings.allowsCats"))
+    if (petPolicy.length > 0) {
+      features.push({
+        heading: t("t.petsPolicy"),
+        content: (
+          <ul data-testid="pet-policy-list">
+            {petPolicy.map((petPolicyItem, index) => (
+              <li key={index} className={styles["list-item"]}>
+                {petPolicyItem}
+              </li>
+            ))}
+          </ul>
+        ),
+      })
+    }
+  } else if (listing.petPolicy) {
     features.push({ heading: t("t.petsPolicy"), subheading: listing.petPolicy })
   }
   if (listing.amenities) {
@@ -190,12 +245,27 @@ export const getFeatures = (
   if (listing.servicesOffered) {
     features.push({ heading: t("t.servicesOffered"), subheading: listing.servicesOffered })
   }
-  const accessibilityFeatures = getAccessibilityFeatures(listing)
+  if (listing.parkingFee) {
+    features.push({
+      heading: t("t.parkingFee"),
+      subheading: `$${listing.parkingFee}`,
+    })
+  }
+  if (listing.smokingPolicy) {
+    features.push({ heading: t("t.smokingPolicy"), subheading: listing.smokingPolicy })
+  }
+  const accessibilityFeatures = getAccessibilityFeatures(
+    listing,
+    jurisdiction.listingFeaturesConfiguration
+  )
   const enableAccessibilityFeatures = jurisdiction?.featureFlags?.some(
     (flag) => flag.name === "enableAccessibilityFeatures" && flag.active
   )
-  if (!!accessibilityFeatures.length && enableAccessibilityFeatures) {
-    features.push({ heading: t("t.accessibility"), subheading: accessibilityFeatures })
+  if (!!accessibilityFeatures && enableAccessibilityFeatures) {
+    features.push({
+      heading: t("t.accessibility"),
+      content: accessibilityFeatures,
+    })
   }
   if (listing.accessibility) {
     features.push({ heading: t("t.additionalAccessibility"), subheading: listing.accessibility })
@@ -597,9 +667,9 @@ export const getAdditionalInformation = (listing: Listing) => {
         <div>
           <ul>
             {Object.entries(listing.requiredDocumentsList).map(
-              ([key, value]) =>
+              ([key, value], index) =>
                 value && (
-                  <li className={"list-disc mx-5 mb-1 text-nowrap"}>
+                  <li className={"list-disc mx-5 mb-1 text-nowrap"} key={index}>
                     {t(`listings.requiredDocuments.${key}`)}
                   </li>
                 )

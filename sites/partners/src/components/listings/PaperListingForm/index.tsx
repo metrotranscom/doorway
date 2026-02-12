@@ -19,6 +19,7 @@ import {
   Listing,
   ListingCreate,
   ListingEventsTypeEnum,
+  ListingTypeEnum,
   ListingUpdate,
   ListingsStatusEnum,
   MarketingTypeEnum,
@@ -46,6 +47,7 @@ import AdditionalEligibility from "./sections/AdditionalEligibility"
 import LeasingAgent from "./sections/LeasingAgent"
 import AdditionalFees from "./sections/AdditionalFees"
 import Units from "./sections/Units"
+import AccessibilityFeatures from "./sections/AccessibilityFeatures"
 import BuildingDetails from "./sections/BuildingDetails"
 import ListingIntro from "./sections/ListingIntro"
 import ListingPhotos from "./sections/ListingPhotos"
@@ -67,14 +69,15 @@ import PublishListingDialog from "./dialogs/PublishListingDialog"
 import LiveConfirmationDialog from "./dialogs/LiveConfirmationDialog"
 import ListingApprovalDialog from "./dialogs/ListingApprovalDialog"
 import SaveBeforeExitDialog from "./dialogs/SaveBeforeExitDialog"
-
 import * as styles from "./ListingForm.module.scss"
+
 const CHARACTER_LIMIT = 1000
 
 type ListingFormProps = {
   jurisdictionId: string
   listing?: FormListing
   editMode?: boolean
+  isNonRegulated?: boolean
   setListingName?: React.Dispatch<React.SetStateAction<string>>
   updateListing?: (updatedListing: Listing) => void
 }
@@ -113,9 +116,16 @@ const ListingForm = ({
   editMode,
   setListingName,
   updateListing,
+  isNonRegulated,
 }: ListingFormProps) => {
-  const defaultValues = editMode ? listing : formDefaults
   const isListingActive = listing?.status === ListingsStatusEnum.active
+  const rawDefaultValues = editMode ? listing : formDefaults
+
+  const defaultValues: FormListing = {
+    ...rawDefaultValues,
+    smokingPolicy: rawDefaultValues?.smokingPolicy ?? "",
+  }
+
   const formMethods = useForm<FormListing>({
     defaultValues,
     mode: "onBlur",
@@ -125,7 +135,7 @@ const ListingForm = ({
   const router = useRouter()
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { getValues, setError, clearErrors, reset, watch } = formMethods
+  const { getValues, setError, clearErrors, reset, watch, setValue } = formMethods
 
   const marketingTypeChoice = watch("marketingType")
 
@@ -140,19 +150,23 @@ const ListingForm = ({
   const [unitGroups, setUnitGroups] = useState<TempUnitGroup[]>([])
   const [openHouseEvents, setOpenHouseEvents] = useState<TempEvent[]>([])
   const [preferences, setPreferences] = useState<MultiselectQuestion[]>(
-    listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.preferences)?.map(
-      (listingPref) => {
-        return { ...listingPref?.multiselectQuestions }
-      }
-    ) ?? []
+    listingSectionQuestions(
+      listing as unknown as Listing,
+      MultiselectQuestionsApplicationSectionEnum.preferences
+    )?.map((listingPref) => {
+      return { ...listingPref?.multiselectQuestions }
+    }) ?? []
   )
   const [programs, setPrograms] = useState<MultiselectQuestion[]>(
-    listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.map(
-      (listingProg) => {
-        return { ...listingProg?.multiselectQuestions }
-      }
-    )
+    listingSectionQuestions(
+      listing as unknown as Listing,
+      MultiselectQuestionsApplicationSectionEnum.programs
+    )?.map((listingProg) => {
+      return { ...listingProg?.multiselectQuestions }
+    })
   )
+
+  const [accessibilityFeatures, setAccessibilityFeatures] = useState<string[]>(null)
 
   const [latLong, setLatLong] = useState<LatitudeLongitude>({
     latitude: listing?.listingsBuildingAddress?.latitude ?? null,
@@ -251,6 +265,27 @@ const ListingForm = ({
     FeatureFlagEnum.enableListingImageAltText,
     jurisdictionId
   )
+
+  useEffect(() => {
+    if (enableNonRegulatedListings) {
+      setValue(
+        "listingType",
+        isNonRegulated ? ListingTypeEnum.nonRegulated : ListingTypeEnum.regulated
+      )
+    }
+  }, [enableNonRegulatedListings, isNonRegulated, setValue])
+
+  useEffect(() => {
+    if (listing && listing.listingFeatures && accessibilityFeatures === null) {
+      setAccessibilityFeatures(
+        Object.keys(listing.listingFeatures)
+          .map((feature) => {
+            return listing.listingFeatures[feature] === true ? feature : null
+          })
+          .filter((feature) => feature !== null)
+      )
+    }
+  }, [listing, accessibilityFeatures])
 
   useEffect(() => {
     if (listing?.units) {
@@ -354,6 +389,16 @@ const ListingForm = ({
             formData.listingType = undefined
           }
 
+          if (formData.configurableAccessibilityFeatures) {
+            setAccessibilityFeatures(
+              Object.values(formData.configurableAccessibilityFeatures).flat() as string[]
+            )
+          }
+
+          if (!formData.configurableAccessibilityFeatures) {
+            formData.configurableAccessibilityFeatures = accessibilityFeatures
+          }
+
           if (successful) {
             const dataPipeline = new ListingDataPipeline(formData, {
               preferences: disableListingPreferences ? [] : preferences,
@@ -417,7 +462,8 @@ const ListingForm = ({
               const fieldName = errorMessage.split(" ")[0]
               const readableError = getReadableErrorMessage(errorMessage)
               if (readableError) {
-                setError(fieldName, { message: readableError })
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                setError(fieldName as any, { message: readableError })
                 if (fieldName === "buildingAddress" || fieldName === "buildingAddress.nested") {
                   const setIfEmpty = (
                     fieldName: string,
@@ -425,7 +471,8 @@ const ListingForm = ({
                     errorMessage: string
                   ) => {
                     if (!fieldValue) {
-                      setError(fieldName, { message: errorMessage })
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      setError(fieldName as any, { message: errorMessage })
                     }
                   }
                   const address = formData.listingsBuildingAddress
@@ -468,7 +515,6 @@ const ListingForm = ({
       whatToExpectEditor,
     ]
   )
-
   return loading === true ? null : (
     <>
       <LoadingOverlay isLoading={loading}>
@@ -535,11 +581,16 @@ const ListingForm = ({
                           <BuildingDetails
                             customMapPositionChosen={customMapPositionChosen}
                             requiredFields={requiredFields}
+                            enableConfigurableRegions={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableConfigurableRegions,
+                              jurisdictionId
+                            )}
                             enableNonRegulatedListings={enableNonRegulatedListings}
                             enableRegions={doJurisdictionsHaveFeatureFlagOn(
                               FeatureFlagEnum.enableRegions,
                               jurisdictionId
                             )}
+                            regions={selectedJurisdictionData?.regions}
                             latLong={latLong}
                             listing={listing}
                             setCustomMapPositionChosen={setCustomMapPositionChosen}
@@ -585,10 +636,28 @@ const ListingForm = ({
                             existingUtilities={listing?.listingUtilities}
                             requiredFields={requiredFields}
                           />
-                          <BuildingFeatures
-                            existingFeatures={listing?.listingFeatures}
+                          <AccessibilityFeatures
+                            existingFeatures={accessibilityFeatures}
                             enableAccessibilityFeatures={doJurisdictionsHaveFeatureFlagOn(
                               FeatureFlagEnum.enableAccessibilityFeatures,
+                              jurisdictionId
+                            )}
+                            setAccessibilityFeatures={setAccessibilityFeatures}
+                            listingFeaturesConfiguration={
+                              selectedJurisdictionData?.listingFeaturesConfiguration
+                            }
+                          />
+                          <BuildingFeatures
+                            enableSmokingPolicyRadio={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableSmokingPolicyRadio,
+                              jurisdictionId
+                            )}
+                            enableParkingFee={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableParkingFee,
+                              jurisdictionId
+                            )}
+                            enablePetPolicyCheckbox={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enablePetPolicyCheckbox,
                               jurisdictionId
                             )}
                             requiredFields={requiredFields}
@@ -616,6 +685,7 @@ const ListingForm = ({
                             jurisdictionId
                           ) && <BuildingSelectionCriteria />}
                           <AdditionalDetails
+                            enableNonRegulatedListings={enableNonRegulatedListings}
                             existingDocuments={listing?.requiredDocumentsList}
                             requiredFields={requiredFields}
                           />
@@ -679,6 +749,10 @@ const ListingForm = ({
                           <ApplicationTypes
                             disableCommonApplication={doJurisdictionsHaveFeatureFlagOn(
                               FeatureFlagEnum.disableCommonApplication,
+                              jurisdictionId
+                            )}
+                            enableReferralQuestionUnits={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableReferralQuestionUnits,
                               jurisdictionId
                             )}
                             jurisdiction={jurisdictionId}

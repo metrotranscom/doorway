@@ -5,7 +5,9 @@ import {
   EnumListingDepositType,
   Listing,
   ListingEvent,
+  ListingFeaturesCreate,
   ListingsStatusEnum,
+  ListingUtilitiesCreate,
   MultiselectQuestion,
   PaperApplication,
   PaperApplicationCreate,
@@ -20,7 +22,7 @@ export enum AnotherAddressEnum {
   anotherAddress = "anotherAddress",
 }
 
-export type FormListing = Omit<Listing, "countyCode"> & {
+export type FormListing = Omit<Listing, "countyCode" | "listingFeatures" | "listingUtilities"> & {
   applicationDueDateField?: {
     month: string
     day: string
@@ -89,6 +91,12 @@ export type FormListing = Omit<Listing, "countyCode"> & {
   accessibilityFeatures?: string[]
   utilities?: string[]
   selectedRequiredDocuments?: string[]
+  listingFeatures?: ListingFeaturesCreate
+  listingUtilities?: ListingUtilitiesCreate
+  allowsDogs?: boolean
+  allowsCats?: boolean
+  petPolicyPreferences?: string[]
+  configurableAccessibilityFeatures?: unknown
 }
 
 export const addressTypes = {
@@ -127,7 +135,7 @@ export const formDefaults: FormListing = {
   depositType: EnumListingDepositType.fixedDeposit,
   depositMax: "0",
   depositMin: "0",
-  depositHelperText: "or one month's rent may be higher for lower credit scores",
+  depositHelperText: "Deposit will not exceed one month's rent",
   disableUnitsAccordion: false,
   displayWaitlistSize: false,
   listingEvents: [],
@@ -170,15 +178,22 @@ export const formDefaults: FormListing = {
   neighborhood: undefined,
   region: undefined,
   petPolicy: "",
+  allowsDogs: null,
+  allowsCats: null,
+  petPolicyPreferences: [],
   smokingPolicy: "",
   unitsAvailable: 0,
   unitAmenities: "",
   servicesOffered: "",
   yearBuilt: null,
+  configurableRegion: "",
+  // urlSlug: undefined,
+  // showWaitlist: false,
   reviewOrderType: null,
   unitsSummary: [],
   referralOpportunity: false,
   applicationLotteryTotals: [],
+  configurableAccessibilityFeatures: null,
 }
 
 export type TempUnit = Unit & {

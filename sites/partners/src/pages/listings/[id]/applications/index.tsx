@@ -134,13 +134,15 @@ const ApplicationsList = () => {
       maxHouseholdSize,
       enableFullTimeStudentQuestion,
       disableWorkInRegion,
-      enableApplicationStatus
+      enableApplicationStatus,
+      listingDto?.reviewOrderType
     )
   }, [
     maxHouseholdSize,
     enableFullTimeStudentQuestion,
     disableWorkInRegion,
     enableApplicationStatus,
+    listingDto?.reviewOrderType,
   ])
 
   const gridComponents = {

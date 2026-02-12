@@ -2,11 +2,13 @@ import {
   ApplicationMethodsTypeEnum,
   ListingEventsTypeEnum,
   ListingsStatusEnum,
+  Prisma,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
+import { stagingRealisticAddresses } from '../address-factory';
 
-export const districtViewApartments = {
+export const districtViewApartments: Prisma.ListingsCreateInput = {
   additionalApplicationSubmissionNotes: null,
   digitalApplication: true,
   commonDigitalApplication: true,
@@ -46,8 +48,7 @@ export const districtViewApartments = {
   criminalBackground: null,
   depositMin: '500',
   depositMax: '0',
-  depositHelperText:
-    "or one month's rent may be higher for lower credit scores",
+  depositHelperText: "Deposit will not exceed one month's rent",
   disableUnitsAccordion: false,
   leasingAgentEmail: 'sgates@abshousing.com',
   leasingAgentName: 'Samuel Gates',
@@ -78,6 +79,9 @@ export const districtViewApartments = {
   customMapPin: false,
   contentUpdatedAt: new Date(),
   publishedAt: new Date(),
+  listingsBuildingAddress: {
+    create: stagingRealisticAddresses[3],
+  },
   listingsApplicationPickUpAddress: undefined,
   listingsApplicationDropOffAddress: undefined,
   listingsApplicationMailingAddress: undefined,

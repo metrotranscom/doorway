@@ -421,7 +421,7 @@ export const unit: Unit = {
   numBathrooms: undefined,
   numBedrooms: undefined,
   number: undefined,
-  unitAccessibilityPriorityTypes: undefined,
+  accessibilityPriorityType: undefined,
   sqFeet: "285",
 
   unitTypes: {
@@ -748,6 +748,7 @@ export const jurisdiction: Jurisdiction = {
   allowSingleUseCodeLogin: false,
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
 }
 
@@ -1093,7 +1094,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1120,7 +1121,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1147,7 +1148,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1174,7 +1175,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1202,7 +1203,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1246,6 +1247,7 @@ export const mockBaseJurisdiction: Jurisdiction = {
   requiredListingFields: [],
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
 }
 

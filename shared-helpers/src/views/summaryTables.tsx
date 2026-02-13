@@ -718,8 +718,8 @@ export const getUnitTableData = (units: Unit[], unitSummary: UnitSummary) => {
       },
       floor: { content: <strong>{unit.floor}</strong> },
       accessibilityType: {
-        content: unit.unitAccessibilityPriorityTypes
-          ? t(`listings.unit.accessibilityType.${unit.unitAccessibilityPriorityTypes.name}`)
+        content: unit.accessibilityPriorityType
+          ? t(`listings.unit.accessibilityType.${unit.accessibilityPriorityType}`)
           : t("t.n/a"),
       },
     }
@@ -784,7 +784,7 @@ export const getStackedUnitTableData = (units: Unit[], unitSummary: UnitSummary)
   const noSqFeet = !availableUnits.some((unit) => !!unit.sqFeet)
   const noBathrooms = !availableUnits.some((unit) => !!unit.numBathrooms)
   const noFloors = !availableUnits.some((unit) => !!unit.floor)
-  const noA11yTypes = !availableUnits.some((unit) => !!unit.unitAccessibilityPriorityTypes)
+  const noA11yTypes = !availableUnits.some((unit) => !!unit.accessibilityPriorityType)
   let unitsFormatted: FormattedUnit[] = []
 
   if (!(noNumbers && noSqFeet && noBathrooms && noFloors && noA11yTypes)) {
@@ -794,8 +794,8 @@ export const getStackedUnitTableData = (units: Unit[], unitSummary: UnitSummary)
       if (!noA11yTypes) {
         unitFormatted = {
           accessibilityType: {
-            cellText: unit.unitAccessibilityPriorityTypes
-              ? t(`listings.unit.accessibilityType.${unit.unitAccessibilityPriorityTypes.name}`)
+            cellText: unit.accessibilityPriorityType
+              ? t(`listings.unit.accessibilityType.${unit.accessibilityPriorityType}`)
               : t("t.n/a"),
           },
         }

@@ -1469,6 +1469,10 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
             ? 'Fixed amount'
             : '',
       },
+      {
+        path: 'unit.accessibilityPriorityType',
+        label: 'Accessibility Priority Type',
+      },
     ];
   }
 

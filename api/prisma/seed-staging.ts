@@ -11,7 +11,6 @@ import {
 } from '@prisma/client';
 import dayjs from 'dayjs';
 import { randomInt } from 'node:crypto';
-import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
 import {
   realBayAreaPlaces,
   stagingRealisticAddresses,
@@ -24,7 +23,6 @@ import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import { listingFactory } from './seed-helpers/listing-factory';
 import { userFactory } from './seed-helpers/user-factory';
 import { unitTypeFactoryAll } from './seed-helpers/unit-type-factory';
-import { unitAccessibilityPriorityTypeFactoryAll } from './seed-helpers/unit-accessibility-priority-type-factory';
 import { multiselectQuestionFactory } from './seed-helpers/multiselect-question-factory';
 import { translationFactory } from './seed-helpers/translation-factory';
 import { propertyFactory } from './seed-helpers/property-factory';
@@ -34,6 +32,9 @@ import {
   redlinedMap,
   simplifiedDCMap,
 } from './seed-helpers/map-layer-factory';
+import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
+import { UnitAccessibilityPriorityTypeEnum } from '../src/enums/units/accessibility-priority-type-enum';
+import { ListingFeaturesConfiguration } from '../src/dtos/jurisdictions/listing-features-config.dto';
 import { createAllFeatureFlags } from './seed-helpers/feature-flag-factory';
 import { FeatureFlagEnum } from '../src/enums/feature-flags/feature-flags-enum';
 // import { hollywoodHillsHeights } from './seed-helpers/listing-data/hollywood-hills-heights';
@@ -42,7 +43,6 @@ import { blueSkyApartments } from './seed-helpers/listing-data/blue-sky-apartmen
 import { valleyHeightsSeniorCommunity } from './seed-helpers/listing-data/valley-heights-senior-community';
 import { littleVillageApartments } from './seed-helpers/listing-data/little-village-apartments';
 import { elmVillage } from './seed-helpers/listing-data/elm-village';
-import { ListingFeaturesConfiguration } from '../src/dtos/jurisdictions/listing-features-config.dto';
 
 export const stagingSeed = async (
   prismaClient: PrismaClient,
@@ -346,6 +346,11 @@ export const stagingSeed = async (
         NeighborhoodAmenitiesEnum.recreationalFacilities,
         NeighborhoodAmenitiesEnum.playgrounds,
         NeighborhoodAmenitiesEnum.busStops,
+      ],
+      visibleAccessibilityPriorityTypes: [
+        UnitAccessibilityPriorityTypeEnum.mobility,
+        UnitAccessibilityPriorityTypeEnum.hearingAndVision,
+        UnitAccessibilityPriorityTypeEnum.mobilityHearingAndVision,
       ],
       regions: [
         'Metro Area',
@@ -862,7 +867,6 @@ export const stagingSeed = async (
 
   // create pre-determined values
   const unitTypes = await unitTypeFactoryAll(prismaClient);
-  await unitAccessibilityPriorityTypeFactoryAll(prismaClient);
   await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
   const listingsToCreate: Parameters<typeof listingFactory>[] = [

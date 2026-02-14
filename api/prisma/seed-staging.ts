@@ -347,6 +347,16 @@ export const stagingSeed = async (
         NeighborhoodAmenitiesEnum.playgrounds,
         NeighborhoodAmenitiesEnum.busStops,
       ],
+      languages: [
+        LanguagesEnum.en,
+        LanguagesEnum.es,
+        LanguagesEnum.ko,
+        LanguagesEnum.hy,
+        LanguagesEnum.zh,
+        LanguagesEnum.tl,
+        LanguagesEnum.fa,
+        LanguagesEnum.vi,
+      ],
       visibleAccessibilityPriorityTypes: [
         UnitAccessibilityPriorityTypeEnum.mobility,
         UnitAccessibilityPriorityTypeEnum.hearingAndVision,
@@ -650,12 +660,12 @@ export const stagingSeed = async (
       angelopolisJurisdiction.name,
     ),
   });
-  const angelopolisProperty1 = await prismaClient.properties.create({
-    data: propertyFactory(
-      angelopolisJurisdiction.name,
-      angelopolisJurisdiction.id,
-    ),
-  });
+  // const angelopolisProperty1 = await prismaClient.properties.create({
+  //   data: propertyFactory(
+  //     angelopolisJurisdiction.name,
+  //     angelopolisJurisdiction.id,
+  //   ),
+  // });
   await prismaClient.properties.create({
     data: propertyFactory(
       angelopolisJurisdiction.name,

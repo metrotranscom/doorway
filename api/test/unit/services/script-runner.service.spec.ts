@@ -847,7 +847,7 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
       prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
-      const doorwayPriorityTypeId = randomUUID();
+      // const doorwayPriorityTypeId = randomUUID();
       const priorityTypeId = randomUUID();
       // prisma.unitAccessibilityPriorityTypes.findMany = jest
       //   .fn()

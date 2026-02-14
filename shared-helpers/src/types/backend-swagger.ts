@@ -9724,6 +9724,9 @@ export enum LanguagesEnum {
   "tl" = "tl",
   "bn" = "bn",
   "ar" = "ar",
+  "ko" = "ko",
+  "hy" = "hy",
+  "fa" = "fa",
 }
 
 export enum ListingEventsTypeEnum {

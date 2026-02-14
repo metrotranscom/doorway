@@ -21,6 +21,8 @@ const FormTerms = (props: FormTermsProps) => {
   const { handleSubmit, register, errors } = useForm<FormTermsInValues>()
   const [notChecked, setChecked] = useState(true)
 
+  // Note: The design of the terms form is different in Doorway
+  // e.g submit button is disabled by default
   return (
     <Form id="terms" onSubmit={handleSubmit(props.onSubmit)}>
       <BloomCard

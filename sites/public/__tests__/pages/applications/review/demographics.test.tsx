@@ -62,20 +62,20 @@ describe("applications pages", () => {
 
       expect(screen.queryByText("Asian Indian")).not.toBeInTheDocument()
       expect(screen.queryByText("Chinese")).not.toBeInTheDocument()
-      expect(screen.queryByRole("checkbox", { name: "Filipino" })).not.toBeInTheDocument()
+      expect(screen.queryByText("Filipino")).not.toBeInTheDocument()
       expect(screen.queryByText("Japanese")).not.toBeInTheDocument()
-      expect(screen.queryByRole("checkbox", { name: "Korean" })).not.toBeInTheDocument()
-      expect(screen.queryByRole("checkbox", { name: "Vietnamese" })).not.toBeInTheDocument()
+      expect(screen.queryByText("Korean")).not.toBeInTheDocument()
+      expect(screen.queryByText("Vietnamese")).not.toBeInTheDocument()
       expect(screen.queryByText("Other Asian")).not.toBeInTheDocument()
 
       fireEvent.click(screen.getByRole("checkbox", { name: "Asian" }))
 
       expect(screen.getByText("Mongolian")).toBeInTheDocument()
       expect(screen.getByText("Chinese")).toBeInTheDocument()
-      expect(screen.getByRole("checkbox", { name: "Filipino" })).toBeInTheDocument()
+      expect(screen.getByText("Filipino")).toBeInTheDocument()
       expect(screen.getByText("Japanese")).toBeInTheDocument()
-      expect(screen.queryByRole("checkbox", { name: "Korean" })).toBeInTheDocument()
-      expect(screen.queryByRole("checkbox", { name: "Vietnamese" })).toBeInTheDocument()
+      expect(screen.getByText("Korean")).toBeInTheDocument()
+      expect(screen.getByText("Vietnamese")).toBeInTheDocument()
       expect(screen.getByText("Other Asian")).toBeInTheDocument()
 
       expect(screen.queryByText("Native Hawaiian")).not.toBeInTheDocument()

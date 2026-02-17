@@ -142,4 +142,8 @@
 .underlined-text-heading {
   border-bottom: var(--seeds-s1) solid var(--seeds-color-primary-dark);
   padding-bottom: var(--seeds-s2);
+
+.lock-icon {
+  margin-inline-end: var(--seeds-s2);
+  color: var(--seeds-color-primary);
 }

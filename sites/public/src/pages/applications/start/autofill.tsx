@@ -37,6 +37,7 @@ const Autofill = () => {
   let useDetails = false
 
   const mounted = OnClientSide()
+  const isAdvocate = conductor.config?.isAdvocate
 
   const enableUnitGroups = isFeatureFlagOn(conductor.config, FeatureFlagEnum.enableUnitGroups)
   const preferredUnits = getPreferredUnitTypes(application, listing, enableUnitGroups)
@@ -84,6 +85,10 @@ const Autofill = () => {
   }, [profile])
 
   useEffect(() => {
+    if (isAdvocate) {
+      onSubmit()
+      return
+    }
     if (!previousApplication && initialStateLoaded) {
       if (profile) {
         void applicationsService
@@ -105,7 +110,7 @@ const Autofill = () => {
         onSubmit()
       }
     }
-  }, [profile, applicationsService, onSubmit, previousApplication, initialStateLoaded])
+  }, [profile, applicationsService, onSubmit, previousApplication, initialStateLoaded, isAdvocate])
 
   return previousApplication ? (
     <FormsLayout

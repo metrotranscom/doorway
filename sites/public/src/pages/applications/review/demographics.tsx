@@ -8,6 +8,7 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
+  ethnicityKeys,
   raceKeys,
   spokenLanguageKeys,
   isKeyIncluded,
@@ -55,15 +56,15 @@ const ApplicationDemographics = () => {
   const onSubmit = (data) => {
     conductor.currentStep.save({
       demographics: {
-        ethnicity: "",
+        ethnicity: data.ethnicity || "",
+        gender: data.gender,
+        sexualOrientation: data.sexualOrientation,
+        howDidYouHear: data.howDidYouHear,
         race: fieldGroupObjectToArray(data, "race"),
         spokenLanguage:
           data.spokenLanguage === "notListed"
             ? `${data.spokenLanguage}:${data.spokenLanguageNotListed}`
             : data.spokenLanguage,
-        gender: data.gender,
-        sexualOrientation: data.sexualOrientation,
-        howDidYouHear: data.howDidYouHear,
       },
     })
     conductor.routeToNextOrReturnUrl()
@@ -72,6 +73,11 @@ const ApplicationDemographics = () => {
   const enableLimitedHowDidYouHear = isFeatureFlagOn(
     conductor.config,
     FeatureFlagEnum.enableLimitedHowDidYouHear
+  )
+
+  const disableEthnicityQuestion = isFeatureFlagOn(
+    conductor.config,
+    FeatureFlagEnum.disableEthnicityQuestion
   )
 
   const howDidYouHearOptions = () => {
@@ -137,7 +143,9 @@ const ApplicationDemographics = () => {
           <CardSection divider={"inset"}>
             <fieldset>
               <legend className="text__caps-spaced">
-                {t("application.review.demographics.raceLabel")}
+                {!disableEthnicityQuestion
+                  ? t("application.review.demographics.raceLabelNoEthnicity")
+                  : t("application.review.demographics.raceLabel")}
               </legend>
               <FieldGroup
                 name="race"
@@ -147,7 +155,6 @@ const ApplicationDemographics = () => {
                 strings={{
                   description: "",
                 }}
-                dataTestId={"app-demographics-race"}
               />
             </fieldset>
             <div className={"pt-8"}>
@@ -213,6 +220,22 @@ const ApplicationDemographics = () => {
                 dataTestId={"app-demographics-sexual-orientation"}
               />
             </div>
+            {!disableEthnicityQuestion && (
+              <div className={"pt-4"}>
+                <Select
+                  id="ethnicity"
+                  name="ethnicity"
+                  label={t("application.review.demographics.ethnicityLabel")}
+                  placeholder={t("t.selectOne")}
+                  register={register}
+                  labelClassName="text__caps-spaced mb-3"
+                  controlClassName="control"
+                  options={ethnicityKeys}
+                  keyPrefix="application.review.demographics.ethnicityOptions"
+                  dataTestId={"app-demographics-ethnicity"}
+                />
+              </div>
+            )}
           </CardSection>
 
           <CardSection divider={"flush"} className="border-none">

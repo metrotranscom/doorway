@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form"
 import { t, Select, Field, FieldGroup } from "@bloom-housing/ui-components"
 import { Grid } from "@bloom-housing/ui-seeds"
 import {
+  ethnicityKeys,
   raceKeys,
   spokenLanguageKeys,
   genderKeys,
@@ -18,9 +19,14 @@ import SectionWithGrid from "../../../shared/SectionWithGrid"
 type FormDemographicsProps = {
   formValues: Demographic
   enableLimitedHowDidYouHear: boolean
+  disableEthnicityQuestion: boolean
 }
 
-const FormDemographics = ({ formValues, enableLimitedHowDidYouHear }: FormDemographicsProps) => {
+const FormDemographics = ({
+  formValues,
+  enableLimitedHowDidYouHear,
+  disableEthnicityQuestion,
+}: FormDemographicsProps) => {
   const formMethods = useFormContext()
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -111,6 +117,20 @@ const FormDemographics = ({ formValues, enableLimitedHowDidYouHear }: FormDemogr
               keyPrefix="application.review.demographics.sexualOrientationOptions"
             />
           </Grid.Cell>
+          {!disableEthnicityQuestion && (
+            <Grid.Cell>
+              <Select
+                id="application.demographics.ethnicity"
+                name="application.demographics.ethnicity"
+                placeholder={t("t.selectOne")}
+                label={t("application.add.ethnicity")}
+                register={register}
+                controlClassName="control"
+                options={ethnicityKeys}
+                keyPrefix="application.review.demographics.ethnicityOptions"
+              />
+            </Grid.Cell>
+          )}
         </Grid.Row>
         <Grid.Row columns={2}>
           <Grid.Cell>

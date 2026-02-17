@@ -64,6 +64,7 @@ export const stagingSeed = async (
   ];
   const featureFlags = [
     FeatureFlagEnum.disableWorkInRegion,
+    FeatureFlagEnum.disableEthnicityQuestion,
     FeatureFlagEnum.enableGeocodingPreferences,
     FeatureFlagEnum.enableListingOpportunity,
     FeatureFlagEnum.enablePartnerDemographics,
@@ -313,6 +314,7 @@ export const stagingSeed = async (
       publicSiteBaseURL: publicSiteBaseURL,
       featureFlags: [
         FeatureFlagEnum.disableBuildingSelectionCriteria,
+        FeatureFlagEnum.disableEthnicityQuestion,
         FeatureFlagEnum.disableListingPreferences,
         FeatureFlagEnum.enableAccessibilityFeatures,
         FeatureFlagEnum.enableApplicationStatus,

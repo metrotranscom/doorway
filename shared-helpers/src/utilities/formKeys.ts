@@ -80,6 +80,8 @@ export const relationshipKeys = ["", ...Object.values(HouseholdMemberRelationshi
 
 export const altContactRelationshipKeys = Object.values(AlternateContactRelationship)
 
+export const ethnicityKeys = ["hispanicLatino", "notHispanicLatino"]
+
 export const vouchersOrRentalAssistanceKeys = ["issuedVouchers", "rentalAssistance", "none"]
 
 export const rootRaceKeys = [

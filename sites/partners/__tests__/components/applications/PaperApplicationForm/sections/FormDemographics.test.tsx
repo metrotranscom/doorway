@@ -14,12 +14,11 @@ describe("<FormDemographics>", () => {
         <FormDemographics
           formValues={{
             id: "id",
-            createdAt: new Date(),
-            updatedAt: new Date(),
             race: [],
             howDidYouHear: [],
           }}
           enableLimitedHowDidYouHear={false}
+          disableEthnicityQuestion={false}
         />
       </FormProviderWrapper>
     )
@@ -62,12 +61,11 @@ describe("<FormDemographics>", () => {
         <FormDemographics
           formValues={{
             id: "id",
-            createdAt: new Date(),
-            updatedAt: new Date(),
             race: [],
             howDidYouHear: [],
           }}
           enableLimitedHowDidYouHear={true}
+          disableEthnicityQuestion={false}
         />
       </FormProviderWrapper>
     )
@@ -108,12 +106,11 @@ describe("<FormDemographics>", () => {
         <FormDemographics
           formValues={{
             id: "id",
-            createdAt: new Date(),
-            updatedAt: new Date(),
             race: [],
             howDidYouHear: [],
           }}
           enableLimitedHowDidYouHear={false}
+          disableEthnicityQuestion={false}
         />
       </FormProviderWrapper>
     )
@@ -175,5 +172,43 @@ describe("<FormDemographics>", () => {
     )
 
     expect(screen.getByRole("textbox", { name: "Please specify:" })).toBeInTheDocument()
+  })
+
+  it("should hide ethnicity field when disableEthnicityQuestion flag is enabled", () => {
+    render(
+      <FormProviderWrapper>
+        <FormDemographics
+          formValues={{
+            id: "id",
+            race: [],
+            howDidYouHear: [],
+          }}
+          enableLimitedHowDidYouHear={false}
+          disableEthnicityQuestion={true}
+        />
+      </FormProviderWrapper>
+    )
+
+    expect(screen.queryByLabelText("Ethnicity")).not.toBeInTheDocument()
+    expect(screen.getByText("Race", { selector: "legend" })).toBeInTheDocument()
+  })
+
+  it("should show ethnicity field when disableEthnicityQuestion flag is disabled", () => {
+    render(
+      <FormProviderWrapper>
+        <FormDemographics
+          formValues={{
+            id: "id",
+            race: [],
+            howDidYouHear: [],
+          }}
+          enableLimitedHowDidYouHear={false}
+          disableEthnicityQuestion={false}
+        />
+      </FormProviderWrapper>
+    )
+
+    expect(screen.getByLabelText("Ethnicity")).toBeInTheDocument()
+    expect(screen.getByText("Race", { selector: "legend" })).toBeInTheDocument()
   })
 })

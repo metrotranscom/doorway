@@ -9946,6 +9946,7 @@ export enum NeighborhoodAmenitiesEnum {
 export enum FeatureFlagEnum {
   "disableBuildingSelectionCriteria" = "disableBuildingSelectionCriteria",
   "disableCommonApplication" = "disableCommonApplication",
+  "disableEthnicityQuestion" = "disableEthnicityQuestion",
   "disableJurisdictionalAdmin" = "disableJurisdictionalAdmin",
   "disableListingPreferences" = "disableListingPreferences",
   "disableWorkInRegion" = "disableWorkInRegion",

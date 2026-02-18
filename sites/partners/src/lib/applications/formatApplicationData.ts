@@ -165,13 +165,11 @@ export const mapFormToApi = ({
   }
 
   if (demographics.spokenLanguage === "notListed") {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     demographics.spokenLanguage = `${demographics.spokenLanguage}:${demographics.spokenLanguageNotListed}`
   }
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+
   delete demographics.spokenLanguageNotListed
+
   const sendMailToMailingAddress = data.application.sendMailToMailingAddress
 
   const applicationsMailingAddress = getAddress(sendMailToMailingAddress, mailingAddressData)

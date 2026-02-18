@@ -8,6 +8,7 @@ import {
   UserRoleEnum,
   MultiselectQuestionsStatusEnum,
   Prisma,
+  SpokenLanguageEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
 import { randomInt } from 'node:crypto';
@@ -152,10 +153,17 @@ export const stagingSeed = async (
     FeatureFlagEnum.enableListingOpportunity,
     FeatureFlagEnum.enablePartnerDemographics,
     FeatureFlagEnum.enablePartnerSettings,
+    FeatureFlagEnum.enableSpokenLanguage,
     FeatureFlagEnum.enableSupportAdmin,
     FeatureFlagEnum.enableWaitlistLottery,
   ];
-  const languages = Object.values(LanguagesEnum);
+  const languages = [
+    LanguagesEnum.en,
+    LanguagesEnum.es,
+    LanguagesEnum.zh,
+    LanguagesEnum.tl,
+    LanguagesEnum.vi,
+  ];
   const requiredListingFields = [
     'listingsBuildingAddress',
     'name',
@@ -472,6 +480,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableResources,
         FeatureFlagEnum.enableSmokingPolicyRadio,
         FeatureFlagEnum.enableParkingType,
+        FeatureFlagEnum.enableSpokenLanguage,
       ],
       visibleNeighborhoodAmenities: [
         NeighborhoodAmenitiesEnum.groceryStores,
@@ -486,11 +495,11 @@ export const stagingSeed = async (
       languages: [
         LanguagesEnum.en,
         LanguagesEnum.es,
-        LanguagesEnum.ko,
-        LanguagesEnum.hy,
+        // LanguagesEnum.ko,
+        // LanguagesEnum.hy,
         LanguagesEnum.zh,
         LanguagesEnum.tl,
-        LanguagesEnum.fa,
+        // LanguagesEnum.fa,
         LanguagesEnum.vi,
       ],
       visibleAccessibilityPriorityTypes: [
@@ -1079,7 +1088,7 @@ export const stagingSeed = async (
     //   },
     // ],
     [
-      mainJurisdiction.id,
+      jurisdiction.id,
       prismaClient,
       {
         listing: districtViewApartments,

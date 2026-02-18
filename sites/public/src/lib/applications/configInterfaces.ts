@@ -21,5 +21,6 @@ export interface ApplicationFormConfig {
   featureFlags: FeatureFlag[]
   isAdvocate: boolean
   raceEthnicityConfiguration?: RaceEthnicityConfiguration
+  visibleSpokenLanguages?: string[]
   isPreview?: boolean
 }

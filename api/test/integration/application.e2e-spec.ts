@@ -170,6 +170,7 @@ describe('Application Controller Tests', () => {
         spokenLanguage: 'example language',
         howDidYouHear: ['example how did you hear'],
         race: ['example race'],
+        spokenLanguage: 'example spoken language',
       },
       householdMember: [
         {
@@ -667,6 +668,7 @@ describe('Application Controller Tests', () => {
           spokenLanguage: 'example language',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
+          spokenLanguage: 'example spoken language',
         },
         householdMember: [
           {
@@ -1119,7 +1121,7 @@ describe('Application Controller Tests', () => {
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
-          spokenLanguage: 'example language',
+          spokenLanguage: 'example spoken language',
         },
         householdMember: [
           {
@@ -1610,7 +1612,7 @@ describe('Application Controller Tests', () => {
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
-          spokenLanguage: 'example language',
+          spokenLanguage: 'example spoken language',
         },
         preferredUnitTypes: [
           {
@@ -1781,7 +1783,7 @@ describe('Application Controller Tests', () => {
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
-          spokenLanguage: 'example language',
+          spokenLanguage: 'example spoken language',
         },
         preferredUnitTypes: [
           {
@@ -1999,7 +2001,7 @@ describe('Application Controller Tests', () => {
           sexualOrientation: 'example sexual orientation',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
-          spokenLanguage: 'example language',
+          spokenLanguage: 'example spoken language',
         },
         preferredUnitTypes: [
           {

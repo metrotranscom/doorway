@@ -96,6 +96,7 @@ export const blankApplication = {
     sexualOrientation: "",
     spokenLanguage: "",
     howDidYouHear: [],
+    spokenLanguage: "",
   },
   preferences: [] as ApplicationMultiselectQuestion[],
   programs: [] as ApplicationMultiselectQuestion[],

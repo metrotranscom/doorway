@@ -7916,6 +7916,9 @@ export interface JurisdictionCreate {
   visibleAccessibilityPriorityTypes: UnitAccessibilityPriorityTypeEnum[]
 
   /**  */
+  visibleSpokenLanguages: SpokenLanguageEnum[]
+
+  /**  */
   regions: []
 
   /**  */
@@ -7994,6 +7997,9 @@ export interface JurisdictionUpdate {
 
   /**  */
   visibleAccessibilityPriorityTypes: UnitAccessibilityPriorityTypeEnum[]
+
+  /**  */
+  visibleSpokenLanguages: SpokenLanguageEnum[]
 
   /**  */
   regions: []
@@ -8109,6 +8115,9 @@ export interface Jurisdiction {
 
   /**  */
   visibleAccessibilityPriorityTypes: UnitAccessibilityPriorityTypeEnum[]
+
+  /**  */
+  visibleSpokenLanguages: SpokenLanguageEnum[]
 
   /**  */
   regions: []
@@ -9985,6 +9994,20 @@ export enum NeighborhoodAmenitiesEnum {
   "recreationalFacilities" = "recreationalFacilities",
   "playgrounds" = "playgrounds",
   "busStops" = "busStops",
+}
+
+export enum SpokenLanguageEnum {
+  "chineseCantonese" = "chineseCantonese",
+  "chineseMandarin" = "chineseMandarin",
+  "english" = "english",
+  "filipino" = "filipino",
+  "korean" = "korean",
+  "russian" = "russian",
+  "spanish" = "spanish",
+  "vietnamese" = "vietnamese",
+  "farsi" = "farsi",
+  "afghani" = "afghani",
+  "notListed" = "notListed",
 }
 
 export enum FeatureFlagEnum {

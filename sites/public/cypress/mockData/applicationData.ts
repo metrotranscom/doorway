@@ -61,6 +61,7 @@ export const ElmVillageApplication: Application = {
   listings: {
     id: "abcd1234",
   },
+  applicationLotteryPositions: [],
   applicant: {
     ...idDefaults,
     phoneNumber: "(444) 444-4444",
@@ -181,8 +182,8 @@ export const ElmVillageApplication: Application = {
     race: ["asian"],
     gender: "",
     sexualOrientation: "",
-    spokenLanguage: "",
     howDidYouHear: ["governmentWebsite", "propertyWebsite"],
+    spokenLanguage: "english",
   },
   preferences: [
     {

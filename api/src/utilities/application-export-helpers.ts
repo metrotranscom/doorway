@@ -47,6 +47,11 @@ export const getExportHeaders = (
     FeatureFlagEnum.enableApplicationStatus,
   );
 
+  const enableSpokenLanguage = doAnyJurisdictionHaveFeatureFlagSet(
+    user.jurisdictions,
+    FeatureFlagEnum.enableSpokenLanguage,
+  );
+
   const headers: CsvHeader[] = [
     {
       path: 'id',
@@ -411,6 +416,14 @@ export const getExportHeaders = (
             .join(',') || '',
       },
     );
+    if (enableSpokenLanguage) {
+      headers.push({
+        path: 'demographics.spokenLanguage',
+        label: 'Spoken Language',
+        format: (val: string): string =>
+          convertDemographicLanguageToReadable(val),
+      });
+    }
   }
   return headers;
 };
@@ -778,6 +791,8 @@ export const convertDemographicLanguageToReadable = (type: string): string => {
     russian: 'Russian',
     spanish: 'Spanish',
     vietnamese: 'Vietnamese',
+    farsi: 'Farsi',
+    afghani: 'Afghani (Dari)',
     notListed: notListedString,
   };
   return typeMap[rootKey] ?? rootKey;

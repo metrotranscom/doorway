@@ -33,8 +33,9 @@ export type ApplicationTypes = {
     race?: string[]
     gender?: string
     sexualOrientation?: string
+    howDidYouHear: string[]
     spokenLanguage?: string
-    howDidYouHear?: string[]
+    spokenLanguageNotListed?: string
   }
   alternateContact: {
     firstName?: string

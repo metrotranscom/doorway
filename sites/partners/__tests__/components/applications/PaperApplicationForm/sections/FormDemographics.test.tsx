@@ -144,6 +144,7 @@ describe("<FormDemographics>", () => {
           enableLimitedHowDidYouHear={false}
           disableEthnicityQuestion={false}
           raceEthnicityConfiguration={defaultRaceEthnicityConfiguration}
+          enableSpokenLanguage={false}
         />
       </FormProviderWrapper>
     )
@@ -352,5 +353,80 @@ describe("<FormDemographics>", () => {
     // But ethnicity and how did you hear should still render
     expect(screen.getByLabelText("Ethnicity")).toBeInTheDocument()
     expect(screen.getByText("How did you hear about us?")).toBeInTheDocument()
+  })
+
+  it("shows spoken language select when feature flag enabled", () => {
+    render(
+      <FormProviderWrapper>
+        <FormDemographics
+          formValues={{
+            id: "id",
+            race: [],
+            howDidYouHear: [],
+          }}
+          enableLimitedHowDidYouHear={false}
+          enableSpokenLanguage={true}
+          visibleSpokenLanguages={["spanish", "notListed"]}
+          disableEthnicityQuestion={false}
+        />
+      </FormProviderWrapper>
+    )
+
+    const select = screen.getByRole("combobox", {
+      name: "Spoken language",
+    })
+    expect(select).toBeInTheDocument()
+
+    const optionValues = Array.from(select.querySelectorAll("option")).map((option) => option.value)
+    expect(optionValues).toEqual(expect.arrayContaining(["spanish", "notListed"]))
+  })
+
+  it("hides spoken language select when feature flag disabled", () => {
+    render(
+      <FormProviderWrapper>
+        <FormDemographics
+          formValues={{
+            id: "id",
+            race: [],
+            howDidYouHear: [],
+          }}
+          enableLimitedHowDidYouHear={false}
+          enableSpokenLanguage={false}
+          visibleSpokenLanguages={["spanish", "english"]}
+          disableEthnicityQuestion={false}
+        />
+      </FormProviderWrapper>
+    )
+
+    expect(
+      screen.queryByRole("combobox", {
+        name: "Which language is most commonly spoken in your home? Please select one:",
+      })
+    ).not.toBeInTheDocument()
+  })
+
+  it("shows not listed textbox when not listed is selected", async () => {
+    render(
+      <FormProviderWrapper>
+        <FormDemographics
+          formValues={{
+            id: "id",
+            race: [],
+            howDidYouHear: [],
+          }}
+          enableLimitedHowDidYouHear={false}
+          enableSpokenLanguage={true}
+          visibleSpokenLanguages={["spanish", "english", "notListed"]}
+          disableEthnicityQuestion={false}
+        />
+      </FormProviderWrapper>
+    )
+
+    const select = screen.getByRole("combobox", {
+      name: "Spoken language",
+    })
+    await userEvent.selectOptions(select, "notListed")
+
+    expect(screen.getByLabelText("Please specify:")).toBeInTheDocument()
   })
 })

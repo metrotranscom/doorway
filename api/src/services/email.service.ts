@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import fs from 'fs';
@@ -18,6 +18,11 @@ import {
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import { JurisdictionService } from './jurisdiction.service';
+import {
+  EmailProvider,
+  SendEmailInput,
+  EmailAttachmentData,
+} from './email-provider.service';
 import { TranslationService } from './translation.service';
 import { Application } from '../dtos/applications/application.dto';
 import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
@@ -48,6 +53,7 @@ export class EmailService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly emailProvider: EmailProvider,
     private readonly translationService: TranslationService,
     private readonly jurisdictionService: JurisdictionService,
     private readonly httpService: HttpService,

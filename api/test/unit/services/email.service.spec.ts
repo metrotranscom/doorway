@@ -65,6 +65,7 @@ describe('Testing email service', () => {
     module = await Test.createTestingModule({
       imports: [ConfigModule],
       providers: [
+        EmailProvider,
         EmailService,
         {
           provide: TranslationService,

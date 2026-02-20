@@ -1897,31 +1897,6 @@ export class UserService {
     })
   }
   /**
-   * Creates a public only user
-   */
-  create(
-    params: {
-      /**  */
-      noWelcomeEmail?: boolean
-      /** requestBody */
-      body?: UserCreate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<User> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/user"
-
-      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
-      configs.params = { noWelcomeEmail: params["noWelcomeEmail"] }
-
-      let data = params.body
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
    * Delete user by id
    */
   delete(
@@ -2011,19 +1986,135 @@ export class UserService {
     })
   }
   /**
-   * Invite partner user
+   * Creates a public only user
    */
-  invite(
+  createPublic(
     params: {
+      /**  */
+      noWelcomeEmail?: boolean
       /** requestBody */
-      body?: UserInvite
+      body?: PublicUserCreate
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<User> {
     return new Promise((resolve, reject) => {
-      let url = basePath + "/user/invite"
+      let url = basePath + "/user/public"
 
       const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
+      configs.params = { noWelcomeEmail: params["noWelcomeEmail"] }
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Update user
+   */
+  updatePublic(
+    params: {
+      /** requestBody */
+      body?: PublicUserUpdate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<User> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/public"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Creates a partner only user
+   */
+  createPartner(
+    params: {
+      /** requestBody */
+      body?: PartnerUserCreate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<User> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/partner"
+
+      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Update user
+   */
+  updatePartner(
+    params: {
+      /** requestBody */
+      body?: PartnerUserUpdate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<User> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/partner"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Creates a advocate only user
+   */
+  createAdvocate(
+    params: {
+      /**  */
+      noWelcomeEmail?: boolean
+      /** requestBody */
+      body?: AdvocateUserCreate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<User> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/advocate"
+
+      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
+      configs.params = { noWelcomeEmail: params["noWelcomeEmail"] }
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Update user
+   */
+  updateAdvocate(
+    params: {
+      /** requestBody */
+      body?: AdvocateUserUpdate
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<User> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/advocate"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = params.body
 
@@ -2190,28 +2281,6 @@ export class UserService {
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
       let data = null
-
-      configs.data = data
-
-      axios(configs, resolve, reject)
-    })
-  }
-  /**
-   * Update user
-   */
-  update(
-    params: {
-      /** requestBody */
-      body?: UserUpdate
-    } = {} as any,
-    options: IRequestOptions = {}
-  ): Promise<User> {
-    return new Promise((resolve, reject) => {
-      let url = basePath + "/user/{id}"
-
-      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
-
-      let data = params.body
 
       configs.data = data
 
@@ -9038,6 +9107,581 @@ export interface UserRole {
   isSupportAdmin?: boolean
 }
 
+export interface Agency {
+  /**  */
+  id: string
+
+  /**  */
+  createdAt: Date
+
+  /**  */
+  updatedAt: Date
+
+  /**  */
+  name: string
+
+  /**  */
+  jurisdictions: IdDTO
+}
+
+export interface PublicUserCreate {
+  /**  */
+  confirmedAt?: Date
+
+  /**  */
+  email: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  phoneNumber?: string
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  userRoles?: UserRole
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  mfaEnabled?: boolean
+
+  /**  */
+  lastLoginAt?: Date
+
+  /**  */
+  failedLoginAttemptsCount?: number
+
+  /**  */
+  phoneNumberVerified?: boolean
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  hitConfirmationURL?: Date
+
+  /**  */
+  activeAccessToken?: string
+
+  /**  */
+  activeRefreshToken?: string
+
+  /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
+  title?: string
+
+  /**  */
+  agency?: Agency
+
+  /**  */
+  address?: Address
+
+  /**  */
+  phoneType?: string
+
+  /**  */
+  phoneExtension?: string
+
+  /**  */
+  additionalPhoneNumber?: string
+
+  /**  */
+  additionalPhoneNumberType?: string
+
+  /**  */
+  additionalPhoneExtension?: string
+
+  /**  */
+  dob: Date
+
+  /**  */
+  appUrl?: string
+
+  /**  */
+  jurisdictions?: IdDTO[]
+
+  /**  */
+  password: string
+
+  /**  */
+  passwordConfirmation: string
+
+  /**  */
+  emailConfirmation?: string
+}
+
+export interface PartnerUserCreate {
+  /**  */
+  confirmedAt?: Date
+
+  /**  */
+  email: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  dob?: Date
+
+  /**  */
+  phoneNumber?: string
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  mfaEnabled?: boolean
+
+  /**  */
+  lastLoginAt?: Date
+
+  /**  */
+  failedLoginAttemptsCount?: number
+
+  /**  */
+  phoneNumberVerified?: boolean
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  hitConfirmationURL?: Date
+
+  /**  */
+  activeAccessToken?: string
+
+  /**  */
+  activeRefreshToken?: string
+
+  /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
+  title?: string
+
+  /**  */
+  agency?: Agency
+
+  /**  */
+  address?: Address
+
+  /**  */
+  phoneType?: string
+
+  /**  */
+  phoneExtension?: string
+
+  /**  */
+  additionalPhoneNumber?: string
+
+  /**  */
+  additionalPhoneNumberType?: string
+
+  /**  */
+  additionalPhoneExtension?: string
+
+  /**  */
+  userRoles: UserRole
+
+  /**  */
+  appUrl?: string
+
+  /**  */
+  jurisdictions: IdDTO[]
+}
+
+export interface AdvocateUserCreate {
+  /**  */
+  confirmedAt?: Date
+
+  /**  */
+  email: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  dob?: Date
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  userRoles?: UserRole
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  mfaEnabled?: boolean
+
+  /**  */
+  lastLoginAt?: Date
+
+  /**  */
+  failedLoginAttemptsCount?: number
+
+  /**  */
+  phoneNumberVerified?: boolean
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  hitConfirmationURL?: Date
+
+  /**  */
+  activeAccessToken?: string
+
+  /**  */
+  activeRefreshToken?: string
+
+  /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
+  agency: Agency
+
+  /**  */
+  address: AddressUpdate
+
+  /**  */
+  appUrl?: string
+
+  /**  */
+  jurisdictions?: IdDTO[]
+}
+
+export interface PublicUserUpdate {
+  /**  */
+  id: string
+
+  /**  */
+  confirmedAt?: Date
+
+  /**  */
+  email: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  phoneNumber?: string
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  userRoles?: UserRole
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  mfaEnabled?: boolean
+
+  /**  */
+  lastLoginAt?: Date
+
+  /**  */
+  failedLoginAttemptsCount?: number
+
+  /**  */
+  phoneNumberVerified?: boolean
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  hitConfirmationURL?: Date
+
+  /**  */
+  activeAccessToken?: string
+
+  /**  */
+  activeRefreshToken?: string
+
+  /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
+  title?: string
+
+  /**  */
+  agency?: Agency
+
+  /**  */
+  address?: Address
+
+  /**  */
+  phoneType?: string
+
+  /**  */
+  phoneExtension?: string
+
+  /**  */
+  additionalPhoneNumber?: string
+
+  /**  */
+  additionalPhoneNumberType?: string
+
+  /**  */
+  additionalPhoneExtension?: string
+
+  /**  */
+  dob: Date
+
+  /**  */
+  newEmail?: string
+
+  /**  */
+  password?: string
+
+  /**  */
+  currentPassword?: string
+
+  /**  */
+  appUrl?: string
+
+  /**  */
+  jurisdictions?: IdDTO[]
+}
+
+export interface PartnerUserUpdate {
+  /**  */
+  id: string
+
+  /**  */
+  confirmedAt?: Date
+
+  /**  */
+  email: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  dob?: Date
+
+  /**  */
+  phoneNumber?: string
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  mfaEnabled?: boolean
+
+  /**  */
+  lastLoginAt?: Date
+
+  /**  */
+  failedLoginAttemptsCount?: number
+
+  /**  */
+  phoneNumberVerified?: boolean
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  hitConfirmationURL?: Date
+
+  /**  */
+  activeAccessToken?: string
+
+  /**  */
+  activeRefreshToken?: string
+
+  /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
+  title?: string
+
+  /**  */
+  agency?: Agency
+
+  /**  */
+  address?: Address
+
+  /**  */
+  phoneType?: string
+
+  /**  */
+  phoneExtension?: string
+
+  /**  */
+  additionalPhoneNumber?: string
+
+  /**  */
+  additionalPhoneNumberType?: string
+
+  /**  */
+  additionalPhoneExtension?: string
+
+  /**  */
+  userRoles: UserRole
+
+  /**  */
+  newEmail?: string
+
+  /**  */
+  password?: string
+
+  /**  */
+  currentPassword?: string
+
+  /**  */
+  appUrl?: string
+
+  /**  */
+  jurisdictions?: IdDTO[]
+}
+
+export interface AdvocateUserUpdate {
+  /**  */
+  id: string
+
+  /**  */
+  confirmedAt?: Date
+
+  /**  */
+  email: string
+
+  /**  */
+  firstName: string
+
+  /**  */
+  middleName?: string
+
+  /**  */
+  lastName: string
+
+  /**  */
+  dob?: Date
+
+  /**  */
+  listings: IdDTO[]
+
+  /**  */
+  userRoles?: UserRole
+
+  /**  */
+  language?: LanguagesEnum
+
+  /**  */
+  mfaEnabled?: boolean
+
+  /**  */
+  lastLoginAt?: Date
+
+  /**  */
+  failedLoginAttemptsCount?: number
+
+  /**  */
+  phoneNumberVerified?: boolean
+
+  /**  */
+  agreedToTermsOfService: boolean
+
+  /**  */
+  hitConfirmationURL?: Date
+
+  /**  */
+  activeAccessToken?: string
+
+  /**  */
+  activeRefreshToken?: string
+
+  /**  */
+  favoriteListings?: IdDTO[]
+
+  /**  */
+  title?: string
+
+  /**  */
+  phoneType?: string
+
+  /**  */
+  phoneExtension?: string
+
+  /**  */
+  additionalPhoneNumber?: string
+
+  /**  */
+  additionalPhoneNumberType?: string
+
+  /**  */
+  additionalPhoneExtension?: string
+
+  /**  */
+  agency: Agency
+
+  /**  */
+  address: AddressUpdate
+
+  /**  */
+  phoneNumber: string
+
+  /**  */
+  newEmail?: string
+
+  /**  */
+  password?: string
+
+  /**  */
+  currentPassword?: string
+
+  /**  */
+  appUrl?: string
+
+  /**  */
+  jurisdictions?: IdDTO[]
+}
+
 export interface User {
   /**  */
   id: string
@@ -9113,6 +9757,30 @@ export interface User {
 
   /**  */
   favoriteListings?: IdDTO[]
+
+  /**  */
+  title?: string
+
+  /**  */
+  agency?: Agency
+
+  /**  */
+  address?: Address
+
+  /**  */
+  phoneType?: string
+
+  /**  */
+  phoneExtension?: string
+
+  /**  */
+  additionalPhoneNumber?: string
+
+  /**  */
+  additionalPhoneNumberType?: string
+
+  /**  */
+  additionalPhoneExtension?: string
 }
 
 export interface UserFilterParams {
@@ -9128,103 +9796,12 @@ export interface PaginatedUser {
   meta: PaginationMeta
 }
 
-export interface UserCreate {
-  /**  */
-  firstName: string
-
-  /**  */
-  middleName?: string
-
-  /**  */
-  lastName: string
-
-  /**  */
-  dob?: Date
-
-  /**  */
-  phoneNumber?: string
-
-  /**  */
-  listings: IdDTO[]
-
-  /**  */
-  language?: LanguagesEnum
-
-  /**  */
-  agreedToTermsOfService: boolean
-
-  /**  */
-  favoriteListings?: IdDTO[]
-
-  /**  */
-  newEmail?: string
-
-  /**  */
-  appUrl?: string
-
-  /**  */
-  password: string
-
-  /**  */
-  passwordConfirmation: string
-
-  /**  */
-  email: string
-
-  /**  */
-  emailConfirmation?: string
-
-  /**  */
-  jurisdictions?: IdDTO[]
-}
-
 export interface UserDeleteDTO {
   /**  */
   id: string
 
   /**  */
   shouldRemoveApplication?: boolean
-}
-
-export interface UserInvite {
-  /**  */
-  firstName: string
-
-  /**  */
-  middleName?: string
-
-  /**  */
-  lastName: string
-
-  /**  */
-  dob?: Date
-
-  /**  */
-  phoneNumber?: string
-
-  /**  */
-  listings: IdDTO[]
-
-  /**  */
-  userRoles?: UserRole
-
-  /**  */
-  language?: LanguagesEnum
-
-  /**  */
-  favoriteListings?: IdDTO[]
-
-  /**  */
-  newEmail?: string
-
-  /**  */
-  appUrl?: string
-
-  /**  */
-  email: string
-
-  /**  */
-  jurisdictions: IdDTO[]
 }
 
 export interface RequestSingleUseCode {
@@ -9243,59 +9820,6 @@ export interface UserFavoriteListing {
 
   /**  */
   action: ModificationEnum
-}
-
-export interface UserUpdate {
-  /**  */
-  id: string
-
-  /**  */
-  firstName: string
-
-  /**  */
-  middleName?: string
-
-  /**  */
-  lastName: string
-
-  /**  */
-  dob?: Date
-
-  /**  */
-  phoneNumber?: string
-
-  /**  */
-  listings: IdDTO[]
-
-  /**  */
-  userRoles?: UserRole
-
-  /**  */
-  language?: LanguagesEnum
-
-  /**  */
-  agreedToTermsOfService: boolean
-
-  /**  */
-  favoriteListings?: IdDTO[]
-
-  /**  */
-  email?: string
-
-  /**  */
-  newEmail?: string
-
-  /**  */
-  password?: string
-
-  /**  */
-  currentPassword?: string
-
-  /**  */
-  appUrl?: string
-
-  /**  */
-  jurisdictions?: IdDTO[]
 }
 
 export interface Login {
@@ -9595,23 +10119,6 @@ export interface PaginatedProperty {
 }
 
 export interface AgencyCreate {
-  /**  */
-  name: string
-
-  /**  */
-  jurisdictions: IdDTO
-}
-
-export interface Agency {
-  /**  */
-  id: string
-
-  /**  */
-  createdAt: Date
-
-  /**  */
-  updatedAt: Date
-
   /**  */
   name: string
 

@@ -10,17 +10,15 @@ import { userFactory } from '../../prisma/seed-helpers/user-factory';
 import { translationFactory } from '../../prisma/seed-helpers/translation-factory';
 import cookieParser from 'cookie-parser';
 import { UserQueryParams } from '../../src/dtos/users/user-query-param.dto';
-import { UserUpdate } from '../../src/dtos/users/user-update.dto';
 import { IdDTO } from '../../src/dtos/shared/id.dto';
 import { EmailAndAppUrl } from '../../src/dtos/users/email-and-app-url.dto';
 import { ConfirmationRequest } from '../../src/dtos/users/confirmation-request.dto';
 import { UserService } from '../../src/services/user.service';
-import { UserCreate } from '../../src/dtos/users/user-create.dto';
 import { jurisdictionFactory } from '../../prisma/seed-helpers/jurisdiction-factory';
 import { listingFactory } from '../../prisma/seed-helpers/listing-factory';
 import { applicationFactory } from '../../prisma/seed-helpers/application-factory';
 import { randomName } from '../../prisma/seed-helpers/word-generator';
-import { UserInvite } from '../../src/dtos/users/user-invite.dto';
+import { EmailService } from '../../src/services/email.service';
 import { Login } from '../../src/dtos/auth/login.dto';
 import { RequestMfaCode } from '../../src/dtos/mfa/request-mfa-code.dto';
 import { ModificationEnum } from '../../src/enums/shared/modification-enum';
@@ -32,6 +30,12 @@ import {
   SESv2Client,
 } from '@aws-sdk/client-sesv2';
 import dayjs from 'dayjs';
+import { PublicUserUpdate } from '../../src/dtos/users/public-user-update.dto';
+import { PublicUserCreate } from '../../src/dtos/users/public-user-create.dto';
+import { PartnerUserCreate } from '../../src/dtos/users/partner-user-create.dto';
+import { AdvocateUserCreate } from '../../src/dtos/users/advocate-user-create.dto';
+import { addressFactory } from '../../prisma/seed-helpers/address-factory';
+import { AddressUpdate } from '../../src/dtos/addresses/address-update.dto';
 
 describe('User Controller Tests', () => {
   let app: INestApplication;
@@ -223,13 +227,13 @@ describe('User Controller Tests', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .put(`/user/${userA.id}`)
+        .put(`/user/public`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           id: userA.id,
           firstName: 'New User First Name',
           lastName: 'New User Last Name',
-        } as UserUpdate)
+        } as PublicUserUpdate)
         .set('Cookie', cookies)
         .expect(200);
 
@@ -252,13 +256,13 @@ describe('User Controller Tests', () => {
       });
       const randomId = randomUUID();
       const res = await request(app.getHttpServer())
-        .put(`/user/${randomId}`)
+        .put(`/user/public`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           id: randomId,
           firstName: 'New User First Name',
           lastName: 'New User Last Name',
-        } as UserUpdate)
+        } as PublicUserUpdate)
         .set('Cookie', cookies)
         .expect(404);
 
@@ -275,7 +279,7 @@ describe('User Controller Tests', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .delete(`/user/`)
+        .delete(`/user`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           id: userA.id,
@@ -292,7 +296,7 @@ describe('User Controller Tests', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .delete(`/user/`)
+        .delete(`/user`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           id: userA.id,
@@ -306,7 +310,7 @@ describe('User Controller Tests', () => {
     it("should error when deleting user that doesn't exist", async () => {
       const randomId = randomUUID();
       const res = await request(app.getHttpServer())
-        .delete(`/user/`)
+        .delete(`/user`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           id: randomId,
@@ -818,23 +822,89 @@ describe('User Controller Tests', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .post(`/user/`)
+        .post(`/user/public/`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
-          firstName: 'Public User firstName',
-          lastName: 'Public User lastName',
+          firstName: 'Public First Name',
+          lastName: 'Public Last Name',
           password: 'Abcdef12345!',
+          passwordConfirmation: 'Abcdef12345!',
           email: 'publicUser@email.com',
+          emailConfirmation: 'publicUser@email.com',
+          dob: new Date(),
           jurisdictions: [{ id: juris.id }],
-        } as UserCreate)
+        } as PublicUserCreate)
         .set('Cookie', cookies)
         .expect(201);
 
-      expect(res.body.firstName).toEqual('Public User firstName');
+      expect(res.body.firstName).toEqual('Public First Name');
       expect(res.body.jurisdictions).toEqual([
         expect.objectContaining({ id: juris.id, name: juris.name }),
       ]);
       expect(res.body.email).toEqual('publicuser@email.com');
+
+      const applicationsOnUser = await prisma.userAccounts.findUnique({
+        include: {
+          applications: true,
+        },
+        where: {
+          id: res.body.id,
+        },
+      });
+      expect(applicationsOnUser.applications.map((app) => app.id)).toContain(
+        application.id,
+      );
+    });
+
+    it('should create an advocate user', async () => {
+      const juris = await prisma.jurisdictions.create({
+        data: jurisdictionFactory(),
+      });
+
+      const agencyData = await prisma.agency.create({
+        data: {
+          name: 'Test Agency',
+          jurisdictions: {
+            connect: {
+              id: juris.id,
+            },
+          },
+        },
+      });
+
+      const data = await applicationFactory();
+      data.applicant.create.emailAddress = 'advocateuser@email.com';
+      const application = await prisma.applications.create({
+        data,
+      });
+
+      const advocateUserData: AdvocateUserCreate = {
+        firstName: 'Advocate First Name',
+        lastName: 'Advocate Last Name',
+        email: 'advocateUser@email.com',
+        agreedToTermsOfService: true,
+        agency: {
+          ...agencyData,
+          jurisdictions: {
+            id: agencyData.jurisdictionsId,
+          },
+        },
+        address: addressFactory() as AddressUpdate,
+        jurisdictions: [{ id: juris.id }],
+      };
+
+      const res = await request(app.getHttpServer())
+        .post(`/user/advocate`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send(advocateUserData)
+        .set('Cookie', cookies)
+        .expect(201);
+
+      expect(res.body.firstName).toEqual('Advocate First Name');
+      expect(res.body.jurisdictions).toEqual([
+        expect.objectContaining({ id: juris.id, name: juris.name }),
+      ]);
+      expect(res.body.email).toEqual('advocateuser@email.com');
 
       const applicationsOnUser = await prisma.userAccounts.findUnique({
         include: {
@@ -857,7 +927,7 @@ describe('User Controller Tests', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .post(`/user/invite`)
+        .post(`/user/partner`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .send({
           firstName: 'Partner User firstName',
@@ -869,7 +939,7 @@ describe('User Controller Tests', () => {
           userRoles: {
             isAdmin: true,
           },
-        } as UserInvite)
+        } as PartnerUserCreate)
         .set('Cookie', cookies)
         .expect(201);
 

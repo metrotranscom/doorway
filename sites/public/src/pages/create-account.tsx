@@ -26,7 +26,7 @@ import { TermsModal } from "../components/shared/TermsModal"
 import { LanguagesEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
 const CreateAccount = () => {
-  const { createUser, resendConfirmation } = useContext(AuthContext)
+  const { createPublicUser, resendConfirmation } = useContext(AuthContext)
   const [confirmationResent, setConfirmationResent] = useState<boolean>(false)
   const signUpCopy = process.env.showMandatedAccounts
   /* Form Handler */
@@ -62,12 +62,15 @@ const CreateAccount = () => {
       const { dob, ...rest } = data
       const listingIdRedirect =
         process.env.showMandatedAccounts && listingId ? listingId : undefined
-      const createUserObj = {
-        ...rest,
-        dob: dayjs(`${dob.birthYear}-${dob.birthMonth}-${dob.birthDay}`).toDate(),
-        language: language as LanguagesEnum,
-      }
-      await createUser(createUserObj, listingIdRedirect)
+      await createPublicUser(
+        {
+          ...rest,
+          dob: dayjs(`${dob.birthYear}-${dob.birthMonth}-${dob.birthDay}`),
+          language,
+        },
+        listingIdRedirect
+      )
+
       if (process.env.showPwdless) {
         const redirectUrl = router.query?.redirectUrl as string
         const listingId = router.query?.listingId as string

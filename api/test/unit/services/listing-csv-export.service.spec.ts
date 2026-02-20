@@ -39,9 +39,9 @@ describe('Testing listing csv export service', () => {
 
   afterEach(() => {
     writeStream.end();
-    fs.unlink('sampleFile.csv', () => {
-      // do nothing
-    });
+    if (fs.existsSync('sampleFile.csv')) {
+      fs.unlinkSync('sampleFile.csv');
+    }
     jest.restoreAllMocks();
   });
   const timestamp = new Date(1759430299657);
@@ -65,6 +65,8 @@ describe('Testing listing csv export service', () => {
     duplicateListingPermissions: [],
     requiredListingFields: [],
     visibleNeighborhoodAmenities: [],
+    regions: [],
+    visibleAccessibilityPriorityTypes: [],
   };
 
   const mockBaseUnit: Unit = {
@@ -116,8 +118,6 @@ describe('Testing listing csv export service', () => {
       latitude: 100.5,
       longitude: 200.5,
       id: 'listingbuildingaddress1-ID',
-      createdAt: timestamp,
-      updatedAt: timestamp,
     },
     neighborhood: 'neighborhood',
     yearBuilt: 2025,
@@ -155,8 +155,6 @@ describe('Testing listing csv export service', () => {
       latitude: 100.5,
       longitude: 200.5,
       id: 'listingleasingagentaddress1-ID',
-      createdAt: timestamp,
-      updatedAt: timestamp,
     },
     listingsApplicationMailingAddress: {
       street: '456 main st',
@@ -166,8 +164,6 @@ describe('Testing listing csv export service', () => {
       latitude: 100.5,
       longitude: 200.5,
       id: 'listingmailingaddress1-ID',
-      createdAt: timestamp,
-      updatedAt: timestamp,
     },
     listingsApplicationPickUpAddress: {
       street: '789 main st',
@@ -177,8 +173,6 @@ describe('Testing listing csv export service', () => {
       latitude: 100.5,
       longitude: 200.5,
       id: 'listingpickupaddress1-ID',
-      createdAt: timestamp,
-      updatedAt: timestamp,
     },
     applicationDueDate: timestamp,
     listingMultiselectQuestions: [],

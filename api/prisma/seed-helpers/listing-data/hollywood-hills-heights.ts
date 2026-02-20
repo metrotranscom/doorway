@@ -4,6 +4,8 @@ import {
   Prisma,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
+import { yellowstoneAddress } from '../address-factory';
+import dayjs from 'dayjs';
 
 export const hollywoodHillsHeights: Prisma.ListingsCreateInput = {
   additionalApplicationSubmissionNotes: null,
@@ -74,7 +76,10 @@ export const hollywoodHillsHeights: Prisma.ListingsCreateInput = {
   waitlistOpenSpots: null,
   customMapPin: false,
   contentUpdatedAt: new Date(),
-  publishedAt: new Date(),
+  publishedAt: dayjs(new Date())
+    .subtract(1, 'months')
+    .subtract(1, 'days')
+    .toDate(),
   // listingsBuildingAddress: {
   //   create: stagingRealisticAddresses[0],
   // },

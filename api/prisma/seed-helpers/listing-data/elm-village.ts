@@ -88,7 +88,11 @@ export const elmVillage: Prisma.ListingsCreateInput = {
   waitlistOpenSpots: null,
   customMapPin: false,
   contentUpdatedAt: new Date(),
-  publishedAt: new Date(),
+  publishedAt: dayjs(new Date())
+    .subtract(1, 'months')
+    .subtract(3, 'days')
+    .subtract(12, 'minutes')
+    .toDate(),
   listingsBuildingAddress: {
     create: stagingRealisticAddresses[4],
   },

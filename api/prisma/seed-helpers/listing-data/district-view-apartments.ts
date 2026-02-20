@@ -78,7 +78,7 @@ export const districtViewApartments: Prisma.ListingsCreateInput = {
   waitlistOpenSpots: null,
   customMapPin: false,
   contentUpdatedAt: new Date(),
-  publishedAt: new Date(),
+  publishedAt: dayjs(new Date()).subtract(2, 'months').toDate(),
   listingsBuildingAddress: {
     create: stagingRealisticAddresses[3],
   },

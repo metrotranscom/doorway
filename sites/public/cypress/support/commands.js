@@ -66,7 +66,7 @@ Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
   cy.getByID("use-password-instead").click()
   cy.get("[data-testid=sign-in-password-field]").type("abcdef")
   cy.getByID("sign-in-button").click()
-  cy.getByID("app-choose-language-button").eq(0).click()
+  cy.getByID("app-choose-language-button-en").eq(0).click()
   cy.getByID("app-next-step-button").click()
   cy.getByID("application-initial-page").then(() => {
     cy.get("h2").then(($header) => {
@@ -91,7 +91,7 @@ Cypress.Commands.add("beginApplicationSignedIn", (listingName, autofill) => {
     cy.get(".is-card-link").contains(listingName).parent().click()
   }
   cy.getByID("listing-view-apply-button").eq(1).click()
-  cy.getByID("app-choose-language-button").eq(0).click()
+  cy.getByID("app-choose-language-button-en").eq(0).click()
   cy.getByID("app-next-step-button").click()
   if (autofill) {
     cy.getByID("autofill-accept").click()

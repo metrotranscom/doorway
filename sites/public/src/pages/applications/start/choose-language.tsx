@@ -219,7 +219,7 @@ const ApplicationChooseLanguage = () => {
                         onLanguageSelect(lang)
                       }}
                       key={index}
-                      id={"app-choose-language-button"}
+                      id={`app-choose-language-button-${lang}`}
                     >
                       {t(`languages.${lang}`)}
                     </Button>

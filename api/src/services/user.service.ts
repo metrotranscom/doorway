@@ -662,7 +662,7 @@ export class UserService {
               },
             },
             listings: {
-              connect: dto.listings.map((listing) => ({ id: listing.id })),
+              connect: dto.listings?.map((listing) => ({ id: listing.id })),
             },
             confirmationToken:
               existingUser.confirmationToken ||
@@ -708,7 +708,11 @@ export class UserService {
         return mapTo(User, res);
       } else {
         // existing user && ((partner user -> trying to recreate user) || (public user -> trying to recreate a public user))
-        throw new ConflictException('emailInUse');
+        if (existingUser.isAdvocate && !existingUser.isApproved) {
+          throw new ConflictException('advocateNeedsApproval');
+        } else {
+          throw new ConflictException('emailInUse');
+        }
       }
     }
 
@@ -765,7 +769,7 @@ export class UserService {
           : undefined,
         listings: dto.listings
           ? {
-              connect: dto.listings.map((listing) => ({
+              connect: dto.listings?.map((listing) => ({
                 id: listing.id,
               })),
             }
@@ -866,7 +870,7 @@ export class UserService {
           : undefined,
         listings: dto.listings
           ? {
-              connect: dto.listings.map((listing) => ({
+              connect: dto.listings?.map((listing) => ({
                 id: listing.id,
               })),
             }
@@ -956,7 +960,7 @@ export class UserService {
           : undefined,
         listings: dto.listings
           ? {
-              connect: dto.listings.map((listing) => ({
+              connect: dto.listings?.map((listing) => ({
                 id: listing.id,
               })),
             }

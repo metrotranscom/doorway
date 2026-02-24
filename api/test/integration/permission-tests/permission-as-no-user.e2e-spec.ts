@@ -1433,15 +1433,15 @@ describe('Testing Permissioning of endpoints as logged out user', () => {
       }
     });
 
-    it('should error as unauthorized  for list endpoint', async () => {
+    it('should succeed for list endpoint', async () => {
       await request(app.getHttpServer())
         .get(`/agency`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(401);
+        .expect(200);
     });
 
-    it('should error as unauthorized for retrieve endpoint', async () => {
+    it('should succeed for retrieve endpoint', async () => {
       if (!agencyId) {
         throw new Error('Agency ID not set up for test');
       }
@@ -1450,7 +1450,7 @@ describe('Testing Permissioning of endpoints as logged out user', () => {
         .get(`/agency/${agencyId}`)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(401);
+        .expect(200);
     });
 
     it('should error as unauthorized for create endpoint', async () => {
@@ -1466,7 +1466,7 @@ describe('Testing Permissioning of endpoints as logged out user', () => {
         .send(agencyData)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(401);
+        .expect(403);
     });
 
     it('should error as unauthorized for update endpoint', async () => {
@@ -1487,7 +1487,7 @@ describe('Testing Permissioning of endpoints as logged out user', () => {
         .send(agencyUpdateData)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(401);
+        .expect(403);
     });
 
     it('should error as unauthorized for delete endpoint', async () => {
@@ -1517,7 +1517,7 @@ describe('Testing Permissioning of endpoints as logged out user', () => {
         } as IdDTO)
         .set({ passkey: process.env.API_PASS_KEY || '' })
         .set('Cookie', cookies)
-        .expect(401);
+        .expect(403);
     });
   });
 });

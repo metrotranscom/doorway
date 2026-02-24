@@ -1078,7 +1078,9 @@ describe('Testing auth service', () => {
     prisma.userAccounts.findFirst = jest
       .fn()
       .mockResolvedValue({ id, agreedToTermsOfService: true });
-    prisma.userAccounts.findFirst = jest.fn().mockResolvedValue({ id });
+    prisma.userAccounts.findFirst = jest
+      .fn()
+      .mockResolvedValue({ id, agreedToTermsOfService: true });
     prisma.userAccountSnapshot.create = jest.fn().mockResolvedValue({ id });
 
     await authService.updatePassword(

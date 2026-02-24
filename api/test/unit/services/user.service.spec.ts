@@ -2189,7 +2189,7 @@ describe('Testing user service', () => {
         {
           firstName: 'Partner User firstName',
           lastName: 'Partner User lastName',
-          agreedToTermsOfService: true,
+          agreedToTermsOfService: null,
           email: 'partnerUser@email.com',
           jurisdictions: [{ id: jurisId }],
           userRoles: {
@@ -2226,7 +2226,6 @@ describe('Testing user service', () => {
           email: 'partnerUser@email.com',
           firstName: 'Partner User firstName',
           lastName: 'Partner User lastName',
-          agreedToTermsOfService: false,
           mfaEnabled: true,
           jurisdictions: {
             connect: [{ id: jurisId }],
@@ -2475,6 +2474,7 @@ describe('Testing user service', () => {
       expect(prisma.userAccounts.create).toHaveBeenCalledWith({
         data: {
           dob: expect.anything(),
+          agreedToTermsOfService: true,
           passwordHash: expect.anything(),
           email: 'publicUser@email.com',
           firstName: 'public User firstName',

@@ -39,7 +39,7 @@ export const yosemiteAddress = {
 export const rockyMountainAddress = {
   placeName: 'Rocky Mountain National Park',
   city: 'Estes Park',
-  county: 'Larimer County',
+  county: 'Larimer',
   state: 'CO',
   street: '1000 US-36',
   zipCode: '80517',

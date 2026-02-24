@@ -286,6 +286,7 @@ const CreateAccount = () => {
                     }}
                     variant="primary"
                     loadingMessage={loading ? t("t.loading") : undefined}
+                    className={"seeds-p-bs-4"}
                   >
                     {t("account.createAccount")}
                   </Button>

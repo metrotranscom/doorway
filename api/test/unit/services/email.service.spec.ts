@@ -16,8 +16,8 @@ import { yellowstoneAddress } from '../../../prisma/seed-helpers/address-factory
 import { Application } from '../../../src/dtos/applications/application.dto';
 import { User } from '../../../src/dtos/users/user.dto';
 import { ApplicationCreate } from '../../../src/dtos/applications/application-create.dto';
-import { ApplicationStatusChangeItem } from 'src/utilities/applicationStatusChanges';
-import Listing from 'src/dtos/listings/listing.dto';
+import { ApplicationStatusChangeItem } from '../../../src/utilities/applicationStatusChanges';
+import Listing from '../../../src/dtos/listings/listing.dto';
 import { of } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
@@ -30,6 +30,7 @@ import {
 import 'aws-sdk-client-mock-jest';
 import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
+import { EmailProvider } from '../../../src/services/email-provider.service';
 
 let govSendMock;
 const translationServiceMock = {

@@ -1,6 +1,7 @@
-import React from "react"
+import React, { ReactElement } from "react"
 import dayjs from "dayjs"
 import { ListingCard } from "@bloom-housing/doorway-ui-components"
+import { useRouter } from "next/router"
 import InfoIcon from "@heroicons/react/20/solid/InformationCircleIcon"
 import LockClosedIcon from "@heroicons/react/20/solid/LockClosedIcon"
 import { t, ApplicationStatusType, StatusBarType } from "@bloom-housing/ui-components"
@@ -567,6 +568,20 @@ export const saveListingFavorite = async (
 
 export const fetchFavoriteListingIds = async (userId: string, userService: UserService) => {
   return (await userService.favoriteListings({ id: userId })).map((item) => item.id)
+}
+
+// RenderIf component to render content based on language (used in markdown components)
+export const RenderIf = (props: { language: string; children: ReactElement }) => {
+  const router = useRouter()
+
+  if (
+    props.language == "all" ||
+    props.language == router.locale ||
+    (router.locale == "en" && props.language == "default")
+  ) {
+    return props.children
+  }
+  return null
 }
 
 export const isTrue = (value) => {

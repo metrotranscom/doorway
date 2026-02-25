@@ -46,7 +46,7 @@ const initializeCloudinaryData = (
   if (attachType === "upload" && file?.fileId) {
     return {
       id: file.fileId,
-      url: cloudinaryUrlFromId(file.fileId, process.env.CLOUDINARY_CLOUD_NAME),
+      url: cloudinaryUrlFromId(file.fileId),
     }
   }
   return EMPTY_CLOUDINARY_DATA
@@ -209,10 +209,7 @@ const MarketingFlyer = ({ currentData, onSubmit }: MarketingFlyerProps) => {
         ? {
             content: (
               <TableThumbnail>
-                <img
-                  src={cloudinaryUrlFromId(fileId, process.env.CLOUDINARY_CLOUD_NAME)}
-                  alt={label}
-                />
+                <img src={cloudinaryUrlFromId(fileId)} alt={label} />
               </TableThumbnail>
             ),
           }
@@ -263,22 +260,28 @@ const MarketingFlyer = ({ currentData, onSubmit }: MarketingFlyerProps) => {
   ].filter(Boolean)
 
   const pdfUploader = async (file: File) => {
-    // await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue })
-    await uploadAssetAndSetData(file, "marketing-flyer", setProgressValue, setCloudinaryData)
+    if (process.env.cloudinaryCloudName) {
+      // await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue })
+    } else {
+      await uploadAssetAndSetData(file, "marketing-flyer", setProgressValue, setCloudinaryData)
+    }
   }
 
   const accessiblePdfUploader = async (file: File) => {
-    // await cloudinaryFileUploader({
-    //   file,
-    //   setCloudinaryData: setAccessibleCloudinaryData,
-    //   setProgressValue: setAccessibleProgressValue,
-    // })
-    await uploadAssetAndSetData(
-      file,
-      "marketing-flyer",
-      setAccessibleProgressValue,
-      setAccessibleCloudinaryData
-    )
+    if (process.env.cloudinaryCloudName) {
+      // await cloudinaryFileUploader({
+      //   file,
+      //   setCloudinaryData: setAccessibleCloudinaryData,
+      //   setProgressValue: setAccessibleProgressValue,
+      // })
+    } else {
+      await uploadAssetAndSetData(
+        file,
+        "marketing-flyer",
+        setAccessibleProgressValue,
+        setAccessibleCloudinaryData
+      )
+    }
   }
 
   const buildPreviewTableRow = (data: CloudinaryData, onDelete: () => void): StandardTableData => {

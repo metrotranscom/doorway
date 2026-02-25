@@ -9,12 +9,29 @@ import { ListingEvent, ListingEventsTypeEnum } from "../src/types/backend-swagge
 afterEach(cleanup)
 
 describe("pdfs helpers", () => {
+  const oldEnv = process.env
+
+  beforeEach(() => {
+    process.env = { ...oldEnv }
+  })
+
+  afterAll(() => {
+    process.env = oldEnv
+  })
   it("should format cloudinary url", () => {
     expect(cloudinaryPdfFromId("1234", "test")).toBe(
       `https://res.cloudinary.com/test/image/upload/1234.pdf`
     )
   })
 
+  it("should return original id when cloudinary env is not set", () => {
+    delete process.env.CLOUDINARY_CLOUD_NAME
+    delete process.env.cloudinaryCloudName
+
+    expect(cloudinaryPdfFromId("https://aws.example.com/file.pdf")).toBe(
+      "https://aws.example.com/file.pdf"
+    )
+  })
   it("should return correct pdf url for event if event type exists and file is cloudinary type", () => {
     // set CLOUDINARY_CLOUD_NAME to known value for cloudinaryPdfFromId
     const prevCloudName = process.env.CLOUDINARY_CLOUD_NAME
@@ -79,5 +96,18 @@ describe("pdfs helpers", () => {
     tests.forEach((test) => {
       expect(getPdfUrlFromAsset(test.asset, test.cloudinaryCloudName)).toBe(test.expect)
     })
+  })
+
+  it("should return original event file id if cloudinary env is not set", () => {
+    const listingEvents = [
+      {
+        type: ListingEventsTypeEnum.lotteryResults,
+        assets: { fileId: "https://aws.example.com/lottery-results.pdf", label: "cloudinaryPDF" },
+      },
+    ] as ListingEvent[]
+
+    expect(
+      pdfUrlFromListingEvents(listingEvents, ListingEventsTypeEnum.lotteryResults, undefined)
+    ).toBe("https://aws.example.com/lottery-results.pdf")
   })
 })

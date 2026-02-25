@@ -353,7 +353,15 @@ const ListingPhotos = (props: ListingPhotosProps) => {
    Pass the file for the dropzone callback along to the uploader
    */
   const photoUploader = async (file: File) => {
-    await uploadAssetAndSetData(file, "building", setProgressValue, setLatestUpload)
+    if (process.env.cloudinaryCloudName) {
+      // void (await cloudinaryFileUploader({
+      //   file,
+      //   setCloudinaryData: setLatestUpload,
+      //   setProgressValue,
+      // }))
+    } else {
+      await uploadAssetAndSetData(file, "building", setProgressValue, setLatestUpload)
+    }
   }
 
   const saveEditedPhoto = (newDescription: string) => {

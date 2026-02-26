@@ -26,6 +26,8 @@ const mockUser: User = {
   passwordValidForDays: 180,
   agreedToTermsOfService: true,
   listings: [],
+  isAdvocate: false,
+  isApproved: false,
 }
 
 const adminUser: User = {
@@ -118,6 +120,8 @@ describe("<FormUserManage>", () => {
               firstName: "firstName",
               lastName: "lastName",
               email: "email@example.com",
+              isAdvocate: false,
+              isApproved: false,
               userRoles: {
                 isAdmin: true,
                 isPartner: false,
@@ -198,6 +202,8 @@ describe("<FormUserManage>", () => {
             expect(requestSpy).toHaveBeenCalledWith({
               firstName: "firstName",
               lastName: "lastName",
+              isAdvocate: false,
+              isApproved: false,
               email: "eamil@example.com",
               userRoles: {
                 isAdmin: false,
@@ -285,6 +291,8 @@ describe("<FormUserManage>", () => {
             expect(requestSpy).toHaveBeenCalledWith({
               firstName: "firstName",
               lastName: "lastName",
+              isAdvocate: false,
+              isApproved: false,
               email: "email@example.com",
               userRoles: {
                 isAdmin: false,
@@ -648,6 +656,8 @@ describe("<FormUserManage>", () => {
           id: "existingUserId",
           firstName: "existingFirstName",
           lastName: "existingLastName",
+          isAdvocate: false,
+          isApproved: false,
           email: "existingEmail@email.com",
           userRoles: {
             isAdmin: false,

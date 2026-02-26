@@ -12,6 +12,7 @@ import {
 import {
   FeatureFlagEnum,
   Listing,
+  PartnerUserCreate,
   User,
   UserRole,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -223,7 +224,7 @@ const FormUserManage = ({
       selectedJurisdictions = jurisdictionOptions.map((elem) => ({ id: elem.id }))
     }
 
-    const body = {
+    const body: PartnerUserCreate = {
       firstName,
       lastName,
       email,
@@ -231,6 +232,8 @@ const FormUserManage = ({
       listings: leasingAgentInListings,
       jurisdictions: selectedJurisdictions,
       agreedToTermsOfService: user?.agreedToTermsOfService ?? false,
+      isAdvocate: false,
+      isApproved: false,
     }
 
     return body

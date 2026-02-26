@@ -179,6 +179,8 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findMany).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -230,6 +232,8 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findMany).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -335,6 +339,8 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findMany).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -402,6 +408,8 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findMany).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -456,6 +464,8 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          address: true,
+          agency: true,
           favoriteListings: {
             select: {
               id: true,
@@ -517,6 +527,8 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          address: true,
+          agency: true,
           favoriteListings: {
             select: {
               id: true,
@@ -575,6 +587,8 @@ describe('Testing user service', () => {
           jurisdictions: true,
           listings: true,
           userRoles: true,
+          address: true,
+          agency: true,
           favoriteListings: {
             select: {
               id: true,
@@ -614,6 +628,8 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          agency: true,
+          address: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -639,6 +655,8 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          agency: true,
+          address: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -730,6 +748,8 @@ describe('Testing user service', () => {
       expect(res).toEqual({ id });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -776,6 +796,8 @@ describe('Testing user service', () => {
       expect(res).toEqual({ email });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1051,6 +1073,8 @@ describe('Testing user service', () => {
       await service.forgotPassword({ email, appUrl: 'http://localhost:3000' });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1097,6 +1121,8 @@ describe('Testing user service', () => {
       });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1135,6 +1161,8 @@ describe('Testing user service', () => {
       });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1180,6 +1208,8 @@ describe('Testing user service', () => {
       });
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1211,6 +1241,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1250,6 +1282,8 @@ describe('Testing user service', () => {
       await service.resendConfirmation({ email }, true);
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1294,6 +1328,8 @@ describe('Testing user service', () => {
       await service.resendConfirmation({ email }, false);
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1337,6 +1373,8 @@ describe('Testing user service', () => {
       await service.resendConfirmation({ email }, false);
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1368,6 +1406,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1551,6 +1591,8 @@ describe('Testing user service', () => {
       } as unknown as Request);
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1576,6 +1618,8 @@ describe('Testing user service', () => {
           agreedToTermsOfService: true,
         }),
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1648,6 +1692,8 @@ describe('Testing user service', () => {
 
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1672,6 +1718,8 @@ describe('Testing user service', () => {
           agreedToTermsOfService: true,
         }),
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1741,6 +1789,8 @@ describe('Testing user service', () => {
       ).rejects.toThrowError(`userID ${id}: request missing currentPassword`);
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1808,6 +1858,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1875,6 +1927,8 @@ describe('Testing user service', () => {
       } as unknown as Request);
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1898,6 +1952,8 @@ describe('Testing user service', () => {
           agreedToTermsOfService: true,
         }),
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -1971,6 +2027,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2034,6 +2092,8 @@ describe('Testing user service', () => {
           agreedToTermsOfService: true,
         }),
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2109,6 +2169,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2157,6 +2219,8 @@ describe('Testing user service', () => {
           agreedToTermsOfService: true,
         }),
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2232,6 +2296,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2280,6 +2346,8 @@ describe('Testing user service', () => {
           agreedToTermsOfService: true,
         }),
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2335,6 +2403,8 @@ describe('Testing user service', () => {
       ).rejects.toThrowError(`user id: ${id} was requested but not found`);
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2389,6 +2459,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2469,6 +2541,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2485,6 +2559,8 @@ describe('Testing user service', () => {
       });
       expect(prisma.userAccounts.update).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2569,6 +2645,8 @@ describe('Testing user service', () => {
       ).rejects.toThrowError('emailInUse');
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2640,6 +2718,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2671,6 +2751,8 @@ describe('Testing user service', () => {
       });
       expect(prisma.userAccounts.update).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2776,6 +2858,8 @@ describe('Testing user service', () => {
       );
       expect(prisma.userAccounts.findUnique).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -2811,6 +2895,8 @@ describe('Testing user service', () => {
       });
       expect(prisma.userAccounts.update).toHaveBeenCalledWith({
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -3181,6 +3267,8 @@ describe('Testing user service', () => {
           },
         },
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,
@@ -3230,6 +3318,8 @@ describe('Testing user service', () => {
           },
         },
         include: {
+          address: true,
+          agency: true,
           jurisdictions: true,
           listings: true,
           userRoles: true,

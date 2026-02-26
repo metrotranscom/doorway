@@ -1931,6 +1931,10 @@ export class UserService {
       filter?: UserFilterParams[]
       /**  */
       search?: string
+      /**  */
+      orderBy?: UserOrderByKeys[]
+      /**  */
+      orderDir?: OrderByEnum[]
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<PaginatedUser> {
@@ -1943,6 +1947,8 @@ export class UserService {
         limit: params["limit"],
         filter: params["filter"],
         search: params["search"],
+        orderBy: params["orderBy"],
+        orderDir: params["orderDir"],
       }
 
       /** 适配ios13，get请求不允许带body */
@@ -9206,6 +9212,9 @@ export interface PublicUserCreate {
   additionalPhoneExtension?: string
 
   /**  */
+  isApproved?: boolean
+
+  /**  */
   dob: Date
 
   /**  */
@@ -9304,6 +9313,9 @@ export interface PartnerUserCreate {
   additionalPhoneExtension?: string
 
   /**  */
+  isApproved?: boolean
+
+  /**  */
   userRoles: UserRole
 
   /**  */
@@ -9367,6 +9379,9 @@ export interface AdvocateUserCreate {
 
   /**  */
   favoriteListings?: IdDTO[]
+
+  /**  */
+  isApproved?: boolean
 
   /**  */
   agency: IdDTO
@@ -9462,6 +9477,9 @@ export interface PublicUserUpdate {
 
   /**  */
   additionalPhoneExtension?: string
+
+  /**  */
+  isApproved?: boolean
 
   /**  */
   dob: Date
@@ -9565,6 +9583,9 @@ export interface PartnerUserUpdate {
   additionalPhoneExtension?: string
 
   /**  */
+  isApproved?: boolean
+
+  /**  */
   userRoles: UserRole
 
   /**  */
@@ -9658,6 +9679,9 @@ export interface AdvocateUserUpdate {
 
   /**  */
   additionalPhoneExtension?: string
+
+  /**  */
+  isApproved?: boolean
 
   /**  */
   agency: IdDTO
@@ -9783,11 +9807,17 @@ export interface User {
 
   /**  */
   additionalPhoneExtension?: string
+
+  /**  */
+  isApproved?: boolean
 }
 
 export interface UserFilterParams {
   /**  */
   isPortalUser?: boolean
+
+  /**  */
+  isAdvocateUser?: boolean
 }
 
 export interface PaginatedUser {
@@ -10650,6 +10680,10 @@ export enum ApplicationsFilterEnum {
   "lottery" = "lottery",
   "closed" = "closed",
   "open" = "open",
+}
+
+export enum UserOrderByKeys {
+  "isApproved" = "isApproved",
 }
 
 export enum ModificationEnum {

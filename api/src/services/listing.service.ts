@@ -61,6 +61,7 @@ import {
 import {
   summarizeUnitsByTypeAndRent,
   summarizeUnits,
+  summarizeByPriorityType,
 } from '../utilities/unit-utilities';
 import { ListingOrderByKeys } from '../enums/listings/order-by-enum';
 import { fillModelStringFields } from '../utilities/model-fields';
@@ -295,6 +296,7 @@ export class ListingService implements OnModuleInit {
             listing.units,
             listing,
           ),
+          priorityTypes: summarizeByPriorityType(listing),
         };
       }
     });

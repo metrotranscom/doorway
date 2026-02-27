@@ -9373,9 +9373,6 @@ export interface AdvocateUserCreate {
   isApproved?: boolean
 
   /**  */
-  isAdvocate?: boolean
-
-  /**  */
   agency: IdDTO
 
   /**  */
@@ -9680,9 +9677,6 @@ export interface AdvocateUserUpdate {
 
   /**  */
   isApproved?: boolean
-
-  /**  */
-  isAdvocate?: boolean
 
   /**  */
   agency: IdDTO

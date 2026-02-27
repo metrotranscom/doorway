@@ -94,7 +94,6 @@ export const blankApplication = {
     race: [],
     gender: "",
     sexualOrientation: "",
-    spokenLanguage: "",
     howDidYouHear: [],
     spokenLanguage: "",
   },

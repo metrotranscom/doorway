@@ -95,9 +95,7 @@ describe("photos helper", () => {
     ]
 
     tests.forEach((test) => {
-      expect(getImageUrlFromAsset(test.asset, test.size, test.cloudinaryCloudName)).toBe(
-        test.expect
-      )
+      expect(getImageUrlFromAsset(test.asset, test.size)).toBe(test.expect)
     })
   })
 })

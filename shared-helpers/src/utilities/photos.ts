@@ -38,11 +38,7 @@ export const cloudinaryUrlFromId = (publicId: string, size = 400) => {
  * @param cloudinaryCloudName The "cloud name" for assets in Cloudinary
  * @returns                   The URL to use to access the asset or null
  */
-export const getImageUrlFromAsset = (
-  asset: AssetCreate,
-  size = 400,
-  cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME || "exygy"
-): string => {
+export const getImageUrlFromAsset = (asset: AssetCreate, size = 400): string => {
   // ): string | null => {
   const fileId = asset.fileId
 
@@ -58,7 +54,7 @@ export const getImageUrlFromAsset = (
   }
 
   //// TODO: fix external listings' asset label; remember to unskip tests.
-  return cloudinaryUrlFromId(asset.fileId, cloudinaryCloudName, size)
+  return cloudinaryUrlFromId(asset.fileId, size)
   // // handle the specific case where it's an image stored in cloudinary
   // if (asset.label == "cloudinaryBuilding") {
   //   return cloudinaryUrlFromId(asset.fileId, cloudinaryCloudName, size)

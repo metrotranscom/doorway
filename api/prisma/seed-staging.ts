@@ -783,6 +783,7 @@ export const stagingSeed = async (
     //   prismaClient,
     //   {
     //     listing: hollywoodHillsHeights,
+    //     propertyId: angelopolisProperty1.id,
     //     units: [
     //       {
     //         amiPercentage: '30',
@@ -824,10 +825,20 @@ export const stagingSeed = async (
     //       cityEmployeeQuestion,
     //       workInCityQuestion,
     //       multiselectQuestionPrograms,
+    //       mobilityAccessibilityNeedsProgramQuestion,
+    //       hearingVisionAccessibilityNeedsProgramQuestion,
     //     ],
-    //     applications: [await applicationFactory(), await applicationFactory()],
+    //     applications: [
+    //       await applicationFactory({
+    //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
+    //       }),
+    //       await applicationFactory({
+    //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
+    //       }),
+    //     ],
     //     userAccounts: [{ id: partnerUser.id }],
     //     optionalFeatures: { carpetInUnit: true },
+    //     enableListingFeaturesAndUtilities: true,
     //   },
     // ],
     [
@@ -1019,6 +1030,7 @@ export const stagingSeed = async (
           }),
         ],
         userAccounts: [{ id: partnerUser.id }],
+        enableListingFeaturesAndUtilities: true,
       },
     ],
     [
@@ -1047,6 +1059,7 @@ export const stagingSeed = async (
           },
         ],
         userAccounts: [{ id: partnerUser.id }],
+        enableListingFeaturesAndUtilities: true,
       },
     ],
     [
@@ -1087,6 +1100,7 @@ export const stagingSeed = async (
           }),
         ],
         userAccounts: [{ id: partnerUser.id }],
+        enableListingFeaturesAndUtilities: true,
       },
     ],
     [
@@ -1096,6 +1110,7 @@ export const stagingSeed = async (
         listing: littleVillageApartments,
         multiselectQuestions: [workInCityQuestion],
         userAccounts: [{ id: partnerUser.id }],
+        enableListingFeaturesAndUtilities: true,
       },
     ],
     [
@@ -1241,99 +1256,108 @@ export const stagingSeed = async (
           },
         ],
         userAccounts: [{ id: partnerUser.id }],
+        enableListingFeaturesAndUtilities: true,
       },
     ],
     // lakeview listings shouldn't be in Doorway, but keeping here for keeping the same as Core
-    // {
-    //   jurisdictionId: lakeviewJurisdiction.id,
-    //   listing: lakeviewVilla,
-    //   unitGroups: [
-    //     {
-    //       floorMin: 1,
-    //       floorMax: 2,
-    //       maxOccupancy: 3,
-    //       minOccupancy: 1,
-    //       bathroomMin: 1,
-    //       bathroomMax: 1,
-    //       totalCount: 10,
-    //       totalAvailable: 5,
-    //       sqFeetMin: '750.00',
-    //       sqFeetMax: '1000.00',
-    //       unitGroupAmiLevels: {
-    //         create: {
-    //           amiPercentage: 30,
-    //           monthlyRentDeterminationType:
-    //             MonthlyRentDeterminationTypeEnum.flatRent,
-    //           flatRentValue: 1400.0,
-    //           amiChart: { connect: { id: amiChart.id } },
+    // [
+    //   lakeviewJurisdiction.id,
+    //   prismaClient,
+    //   {
+    //     listing: lakeviewVilla,
+    //     unitGroups: [
+    //       {
+    //         floorMin: 1,
+    //         floorMax: 2,
+    //         maxOccupancy: 3,
+    //         minOccupancy: 1,
+    //         bathroomMin: 1,
+    //         bathroomMax: 1,
+    //         totalCount: 10,
+    //         totalAvailable: 5,
+    //         sqFeetMin: '750.00',
+    //         sqFeetMax: '1000.00',
+    //         unitGroupAmiLevels: {
+    //           create: {
+    //             amiPercentage: 30,
+    //             monthlyRentDeterminationType:
+    //               MonthlyRentDeterminationTypeEnum.flatRent,
+    //             flatRentValue: 1400.0,
+    //             amiChart: { connect: { id: lakeviewAmiChart.id } },
+    //           },
+    //         },
+    //         unitTypes: {
+    //           connect: {
+    //             id: unitTypes[0].id,
+    //           },
     //         },
     //       },
-    //       unitTypes: {
-    //         connect: {
-    //           id: unitTypes[0].id,
+    //     ],
+    //     enableListingFeaturesAndUtilities: true,
+    //   },
+    // ],
+    // [
+    //   lakeviewJurisdiction.id,
+    //   prismaClient,
+    //   {
+    //     listing: sunshineFlats,
+    //     unitGroups: [
+    //       {
+    //         floorMin: 1,
+    //         floorMax: 1,
+    //         maxOccupancy: 6,
+    //         minOccupancy: 1,
+    //         bathroomMin: 1,
+    //         bathroomMax: 2,
+    //         totalCount: 12,
+    //         totalAvailable: 12,
+    //         sqFeetMin: '750.00',
+    //         sqFeetMax: '1600.00',
+    //         unitGroupAmiLevels: {
+    //           create: {
+    //             amiPercentage: 45,
+    //             monthlyRentDeterminationType:
+    //               MonthlyRentDeterminationTypeEnum.percentageOfIncome,
+    //             percentageOfIncomeValue: 30.0,
+    //             amiChart: { connect: { id: lakeviewAmiChart.id } },
+    //           },
+    //         },
+    //         unitTypes: {
+    //           connect: {
+    //             id: unitTypes[1].id,
+    //           },
     //         },
     //       },
-    //     },
-    //   ],
-    // },
-    // {
-    //   jurisdictionId: lakeviewJurisdiction.id,
-    //   listing: sunshineFlats,
-    //   unitGroups: [
-    //     {
-    //       floorMin: 1,
-    //       floorMax: 1,
-    //       maxOccupancy: 6,
-    //       minOccupancy: 1,
-    //       bathroomMin: 1,
-    //       bathroomMax: 2,
-    //       totalCount: 12,
-    //       totalAvailable: 12,
-    //       sqFeetMin: '750.00',
-    //       sqFeetMax: '1600.00',
-    //       unitGroupAmiLevels: {
-    //         create: {
-    //           amiPercentage: 45,
-    //           monthlyRentDeterminationType:
-    //             MonthlyRentDeterminationTypeEnum.percentageOfIncome,
-    //           percentageOfIncomeValue: 30.0,
-    //           amiChart: { connect: { id: amiChart.id } },
+    //       {
+    //         floorMin: 2,
+    //         floorMax: 2,
+    //         maxOccupancy: 6,
+    //         minOccupancy: 3,
+    //         bathroomMin: 2,
+    //         bathroomMax: 2,
+    //         totalCount: 6,
+    //         totalAvailable: 6,
+    //         sqFeetMin: '1200.00',
+    //         sqFeetMax: '1800.00',
+    //         unitGroupAmiLevels: {
+    //           create: {
+    //             amiPercentage: 45,
+    //             monthlyRentDeterminationType:
+    //               MonthlyRentDeterminationTypeEnum.flatRent,
+    //             flatRentValue: 1800.0,
+    //             amiChart: { connect: { id: lakeviewAmiChart.id } },
+    //           },
+    //         },
+    //         unitTypes: {
+    //           connect: {
+    //             id: unitTypes[3].id,
+    //           },
     //         },
     //       },
-    //       unitTypes: {
-    //         connect: {
-    //           id: unitTypes[1].id,
-    //         },
-    //       },
-    //     },
-    //     {
-    //       floorMin: 2,
-    //       floorMax: 2,
-    //       maxOccupancy: 6,
-    //       minOccupancy: 3,
-    //       bathroomMin: 2,
-    //       bathroomMax: 2,
-    //       totalCount: 6,
-    //       totalAvailable: 6,
-    //       sqFeetMin: '1200.00',
-    //       sqFeetMax: '1800.00',
-    //       unitGroupAmiLevels: {
-    //         create: {
-    //           amiPercentage: 45,
-    //           monthlyRentDeterminationType:
-    //             MonthlyRentDeterminationTypeEnum.flatRent,
-    //           flatRentValue: 1800.0,
-    //           amiChart: { connect: { id: amiChart.id } },
-    //         },
-    //       },
-    //       unitTypes: {
-    //         connect: {
-    //           id: unitTypes[3].id,
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
+    //     ],
+    //     enableListingFeaturesAndUtilities: true,
+    //   },
+    // ],
   ];
 
   listingsToCreate.map(async (params, index) => {

@@ -1186,6 +1186,7 @@ export const stagingSeed = async (
     //     ],
     //     userAccounts: [{ id: partnerUser.id }],
     //     optionalFeatures: { carpetInUnit: true },
+    //     enableListingFeaturesAndUtilities: true,
     //   },
     // ],
     [

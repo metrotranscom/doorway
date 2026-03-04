@@ -1476,6 +1476,8 @@ export class ApplicationsService {
       filterType?: ApplicationsFilterEnum
       /**  */
       includeLotteryApps?: boolean
+      /**  */
+      applicantNameSearch?: string
     } = {} as any,
     options: IRequestOptions = {}
   ): Promise<PublicAppsViewResponse> {
@@ -1489,6 +1491,7 @@ export class ApplicationsService {
         userId: params["userId"],
         filterType: params["filterType"],
         includeLotteryApps: params["includeLotteryApps"],
+        applicantNameSearch: params["applicantNameSearch"],
       }
 
       axios(configs, resolve, reject)

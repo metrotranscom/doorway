@@ -17,7 +17,10 @@ import {
   stagingRealisticAddresses,
 } from './seed-helpers/address-factory';
 import { amiChartFactory } from './seed-helpers/ami-chart-factory';
-import { applicationFactory } from './seed-helpers/application-factory';
+import {
+  applicationFactory,
+  applicationFactoryMany,
+} from './seed-helpers/application-factory';
 import { randomBoolean } from './seed-helpers/boolean-generator';
 import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import { listingFactory } from './seed-helpers/listing-factory';
@@ -215,7 +218,7 @@ export const stagingSeed = async (
     ],
   };
   // create main jurisdiction
-  const jurisdiction = await prismaClient.jurisdictions.create({
+  const mainJurisdiction = await prismaClient.jurisdictions.create({
     data: {
       ...jurisdictionFactory(jurisdictionName || 'Bay Area', {
         ...doorwaySpecificSettings,
@@ -327,55 +330,55 @@ export const stagingSeed = async (
   };
   // create main jurisdiction with as many feature flags turned on as possible
   console.log('jurisdictionName', jurisdictionName);
-  const mainJurisdiction = await prismaClient.jurisdictions.create({
-    data: jurisdictionFactory(jurisdictionName, {
-      publicSiteBaseURL: publicSiteBaseURL,
-      listingApprovalPermissions: [UserRoleEnum.admin],
-      featureFlags: [
-        ...optionalMainFlags,
-        FeatureFlagEnum.enableAccessibilityFeatures,
-        FeatureFlagEnum.enableCompanyWebsite,
-        FeatureFlagEnum.enableGeocodingPreferences,
-        FeatureFlagEnum.enableGeocodingRadiusMethod,
-        FeatureFlagEnum.enableHomeType,
-        FeatureFlagEnum.enableIsVerified,
-        FeatureFlagEnum.enableLeasingAgentAltText,
-        FeatureFlagEnum.enableListingFavoriting,
-        FeatureFlagEnum.enableListingFiltering,
-        FeatureFlagEnum.enableListingOpportunity,
-        FeatureFlagEnum.enableListingPagination,
-        FeatureFlagEnum.enableMarketingStatus,
-        FeatureFlagEnum.enableNeighborhoodAmenities,
-        FeatureFlagEnum.enablePartnerDemographics,
-        FeatureFlagEnum.enablePartnerSettings,
-        FeatureFlagEnum.enableResources,
-        FeatureFlagEnum.enableSection8Question,
-        FeatureFlagEnum.enableSingleUseCode,
-        FeatureFlagEnum.enableSupportAdmin,
-        FeatureFlagEnum.enableUtilitiesIncluded,
-        FeatureFlagEnum.enableWaitlistLottery,
-        FeatureFlagEnum.enableWhatToExpectAdditionalField,
-      ],
-      languages: Object.values(LanguagesEnum),
-      requiredListingFields: [
-        'developer',
-        'digitalApplication',
-        'jurisdictions',
-        'leasingAgentEmail',
-        'leasingAgentName',
-        'leasingAgentPhone',
-        'listingImages',
-        'listingsBuildingAddress',
-        'name',
-        'paperApplication',
-        'referralOpportunity',
-        'rentalAssistance',
-        'units',
-      ],
-      listingFeaturesConfiguration: defaultListingFeatureConfiguration,
-      raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
-    }),
-  });
+  // const mainJurisdiction = await prismaClient.jurisdictions.create({
+  //   data: jurisdictionFactory(jurisdictionName, {
+  //     publicSiteBaseURL: publicSiteBaseURL,
+  //     listingApprovalPermissions: [UserRoleEnum.admin],
+  //     featureFlags: [
+  //       ...optionalMainFlags,
+  //       FeatureFlagEnum.enableAccessibilityFeatures,
+  //       FeatureFlagEnum.enableCompanyWebsite,
+  //       FeatureFlagEnum.enableGeocodingPreferences,
+  //       FeatureFlagEnum.enableGeocodingRadiusMethod,
+  //       FeatureFlagEnum.enableHomeType,
+  //       FeatureFlagEnum.enableIsVerified,
+  //       FeatureFlagEnum.enableLeasingAgentAltText,
+  //       FeatureFlagEnum.enableListingFavoriting,
+  //       FeatureFlagEnum.enableListingFiltering,
+  //       FeatureFlagEnum.enableListingOpportunity,
+  //       FeatureFlagEnum.enableListingPagination,
+  //       FeatureFlagEnum.enableMarketingStatus,
+  //       FeatureFlagEnum.enableNeighborhoodAmenities,
+  //       FeatureFlagEnum.enablePartnerDemographics,
+  //       FeatureFlagEnum.enablePartnerSettings,
+  //       FeatureFlagEnum.enableResources,
+  //       FeatureFlagEnum.enableSection8Question,
+  //       FeatureFlagEnum.enableSingleUseCode,
+  //       FeatureFlagEnum.enableSupportAdmin,
+  //       FeatureFlagEnum.enableUtilitiesIncluded,
+  //       FeatureFlagEnum.enableWaitlistLottery,
+  //       FeatureFlagEnum.enableWhatToExpectAdditionalField,
+  //     ],
+  //     languages: Object.values(LanguagesEnum),
+  //     requiredListingFields: [
+  //       'developer',
+  //       'digitalApplication',
+  //       'jurisdictions',
+  //       'leasingAgentEmail',
+  //       'leasingAgentName',
+  //       'leasingAgentPhone',
+  //       'listingImages',
+  //       'listingsBuildingAddress',
+  //       'name',
+  //       'paperApplication',
+  //       'referralOpportunity',
+  //       'rentalAssistance',
+  //       'units',
+  //     ],
+  //     listingFeaturesConfiguration: defaultListingFeatureConfiguration,
+  //     raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
+  //   }),
+  // });
   // jurisdiction with unit groups enabled
   const lakeviewJurisdiction = await prismaClient.jurisdictions.create({
     data: jurisdictionFactory('Lakeview', {
@@ -628,7 +631,6 @@ export const stagingSeed = async (
         bridgeBayJurisdiction.id,
         nadaHill.id,
         angelopolisJurisdiction.id,
-        jurisdiction.id,
         ...Object.values(jurisdictionNameMap),
       ],
       acceptedTerms: true,
@@ -642,7 +644,7 @@ export const stagingSeed = async (
       email: 'admin@example.com',
       confirmedAt: new Date(),
       jurisdictionIds: [
-        jurisdiction.id,
+        mainJurisdiction.id,
         alamedaCounty.id,
         contraCostaCounty.id,
         marinCounty.id,
@@ -665,7 +667,7 @@ export const stagingSeed = async (
       confirmedAt: new Date(),
       acceptedTerms: true,
       jurisdictionIds: [
-        jurisdiction.id,
+        mainJurisdiction.id,
         alamedaCounty.id,
         contraCostaCounty.id,
         marinCounty.id,
@@ -684,7 +686,7 @@ export const stagingSeed = async (
       roles: { isJurisdictionalAdmin: true },
       email: 'jurisdiction-admin@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
     }),
   });
@@ -694,7 +696,7 @@ export const stagingSeed = async (
       roles: { isLimitedJurisdictionalAdmin: true },
       email: 'limited-jurisdiction-admin@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
     }),
   });
@@ -704,7 +706,7 @@ export const stagingSeed = async (
       roles: { isPartner: true },
       email: 'partner@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
     }),
   });
@@ -713,7 +715,7 @@ export const stagingSeed = async (
       roles: { isAdmin: true },
       email: 'unverified@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: false,
     }),
   });
@@ -722,7 +724,7 @@ export const stagingSeed = async (
       roles: { isAdmin: true },
       email: 'mfauser@bloom.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
       mfaEnabled: true,
       singleUseCode: '12345',
@@ -732,7 +734,7 @@ export const stagingSeed = async (
     data: await userFactory({
       email: 'public-user@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
       password: 'abcdef',
     }),
@@ -761,7 +763,7 @@ export const stagingSeed = async (
       jurisdictionsId: angelopolisJurisdiction.id,
     },
   });
-  await prismaClient.userAccounts.create({
+  const advocate = await prismaClient.userAccounts.create({
     data: await userFactory({
       email: 'advocate@example.com',
       confirmedAt: new Date(),
@@ -770,10 +772,11 @@ export const stagingSeed = async (
       agencyId: agency.id,
     }),
   });
+
   // add jurisdiction specific translations and default ones
   await prismaClient.translations.create({
     data: translationFactory({
-      jurisdiction: { id: jurisdiction.id, name: jurisdiction.name },
+      jurisdiction: { id: mainJurisdiction.id, name: mainJurisdiction.name },
     }),
   });
   await prismaClient.translations.create({
@@ -784,10 +787,10 @@ export const stagingSeed = async (
   });
   // build ami charts
   const amiChart = await prismaClient.amiChart.create({
-    data: amiChartFactory(10, jurisdiction.id, null, jurisdiction.name),
+    data: amiChartFactory(10, mainJurisdiction.id, null, mainJurisdiction.name),
   });
   await prismaClient.amiChart.create({
-    data: amiChartFactory(10, jurisdiction.id, null, jurisdiction.name),
+    data: amiChartFactory(10, mainJurisdiction.id, null, mainJurisdiction.name),
   });
   const NUM_AMI_CHARTS = 5;
   for (let index = 0; index < NUM_AMI_CHARTS; index++) {
@@ -844,10 +847,18 @@ export const stagingSeed = async (
   });
   // Create map layers
   await prismaClient.mapLayers.create({
-    data: mapLayerFactory(jurisdiction.id, 'Redlined Districts', redlinedMap),
+    data: mapLayerFactory(
+      mainJurisdiction.id,
+      'Redlined Districts',
+      redlinedMap,
+    ),
   });
   const mapLayer = await prismaClient.mapLayers.create({
-    data: mapLayerFactory(jurisdiction.id, 'Washington DC', simplifiedDCMap),
+    data: mapLayerFactory(
+      mainJurisdiction.id,
+      'Washington DC',
+      simplifiedDCMap,
+    ),
   });
   // NOTE: the previous V1 msq factory had a bug where options aren't actually used
   // and random data is generated no matter what. I've only fixed this in V2 seeding.
@@ -979,7 +990,7 @@ export const stagingSeed = async (
       },
     });
   } else {
-    veteranProgramMsqData = multiselectQuestionFactory(jurisdiction.id, {
+    veteranProgramMsqData = multiselectQuestionFactory(mainJurisdiction.id, {
       multiselectQuestion: {
         text: 'Veteran',
         description:
@@ -1000,7 +1011,7 @@ export const stagingSeed = async (
     },
   );
   await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(jurisdiction.id, {
+    data: multiselectQuestionFactory(mainJurisdiction.id, {
       multiselectQuestion: {
         text: 'Housing Situation',
         description:
@@ -1141,8 +1152,12 @@ export const stagingSeed = async (
 
   // create pre-determined values
   const unitTypes = await unitTypeFactoryAll(prismaClient);
-  await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
+  await reservedCommunityTypeFactoryAll(mainJurisdiction.id, prismaClient);
+  const expiredApplicationDate = process.env.APPLICATION_DAYS_TILL_EXPIRY
+    ? dayjs(new Date()).subtract(10, 'days').toDate()
+    : undefined;
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
+
   const listingsToCreate: Parameters<typeof listingFactory>[] = [
     // angelopolis listings shouldn't be in Doorway, but keeping here for keeping the same as Core
     // [
@@ -1196,12 +1211,13 @@ export const stagingSeed = async (
     //       hearingVisionAccessibilityNeedsProgramQuestion,
     //     ],
     //     applications: [
-    //       await applicationFactory({
+    //       ...(await applicationFactoryMany(2, {
     //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
-    //       }),
-    //       await applicationFactory({
+    //       })),
+    //       ...(await applicationFactoryMany(20, {
     //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
-    //       }),
+    //         userId: advocate.id,
+    //       })),
     //     ],
     //     userAccounts: [{ id: partnerUser.id }],
     //     optionalFeatures: { carpetInUnit: true },
@@ -1209,7 +1225,7 @@ export const stagingSeed = async (
     //   },
     // ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: districtViewApartments,
@@ -1271,8 +1287,7 @@ export const stagingSeed = async (
         multiselectQuestions: [cityEmployeeQuestion],
         // has applications that are the same email and also same name/dob
         applications: [
-          await applicationFactory(),
-          await applicationFactory(),
+          ...(await applicationFactoryMany(2)),
           await applicationFactory({
             submissionType: ApplicationSubmissionTypeEnum.paper,
           }),
@@ -1316,13 +1331,10 @@ export const stagingSeed = async (
               birthYear: 1970,
             },
           }),
-          await applicationFactory({
+          ...(await applicationFactoryMany(2, {
             applicant: { emailAddress: 'user2@example.com' },
-          }),
-          await applicationFactory({
-            applicant: { emailAddress: 'user2@example.com' },
-          }),
-          await applicationFactory({
+          })),
+          ...(await applicationFactoryMany(2, {
             applicant: {
               emailAddress: 'user3@example.com',
               firstName: 'first3',
@@ -1347,33 +1359,7 @@ export const stagingSeed = async (
                 birthYear: 1980,
               }),
             ],
-          }),
-          await applicationFactory({
-            applicant: {
-              emailAddress: 'user3@example.com',
-              firstName: 'first3',
-              lastName: 'last3',
-              birthDay: 1,
-              birthMonth: 1,
-              birthYear: 1970,
-            },
-            householdMember: [
-              householdMemberFactorySingle(1, {
-                firstName: 'householdFirst1',
-                lastName: 'householdLast1',
-                birthDay: 5,
-                birthMonth: 5,
-                birthYear: 1950,
-              }),
-              householdMemberFactorySingle(2, {
-                firstName: 'householdFirst2',
-                lastName: 'householdLast2',
-                birthDay: 8,
-                birthMonth: 8,
-                birthYear: 1980,
-              }),
-            ],
-          }),
+          })),
           await applicationFactory({
             applicant: {
               emailAddress: 'user4@example.com',
@@ -1401,7 +1387,7 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: blueSkyApartments,
@@ -1430,35 +1416,23 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: valleyHeightsSeniorCommunity,
         applications: [
           await applicationFactory({
             isNewest: true,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
+            expireAfter: expiredApplicationDate,
           }),
           // applications below should have their PII removed via the cron job
+          ...(await applicationFactoryMany(2, {
+            isNewest: false,
+            expireAfter: expiredApplicationDate,
+          })),
           await applicationFactory({
             isNewest: false,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
-          }),
-          await applicationFactory({
-            isNewest: false,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
-          }),
-          await applicationFactory({
-            isNewest: false,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
+            expireAfter: expiredApplicationDate,
             householdMember: [
               householdMemberFactorySingle(1, {}),
               householdMemberFactorySingle(2, {}),
@@ -1471,7 +1445,7 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: littleVillageApartments,
@@ -1481,7 +1455,7 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: elmVillage,
@@ -1499,12 +1473,9 @@ export const stagingSeed = async (
           await applicationFactory({
             multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
           }),
-          await applicationFactory({
+          ...(await applicationFactoryMany(2, {
             multiselectQuestions: [workInCityQuestion],
-          }),
-          await applicationFactory({
-            multiselectQuestions: [workInCityQuestion],
-          }),
+          })),
           await applicationFactory(),
         ],
         multiselectQuestions: [
@@ -1774,7 +1745,7 @@ export const stagingSeed = async (
         roles: { isAdmin: true },
         email: `admin${i}@example.com`,
         confirmedAt: new Date(),
-        jurisdictionIds: [jurisdiction.id],
+        jurisdictionIds: [mainJurisdiction.id],
         acceptedTerms: true,
         password: 'abcdef',
       }),

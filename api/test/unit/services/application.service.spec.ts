@@ -1050,6 +1050,12 @@ describe('Testing application service', () => {
       confirmationCode: true,
       accessibleUnitWaitlistNumber: true,
       conventionalUnitWaitlistNumber: true,
+      applicant: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
       updatedAt: true,
       status: true,
       markedAsDuplicate: true,

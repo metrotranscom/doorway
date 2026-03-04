@@ -8,6 +8,7 @@ import {
   Listing,
   RaceEthnicityConfiguration,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { t } from "@bloom-housing/ui-components"
 import { defaultRaceEthnicityConfiguration } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
 import { mockNextRouter, render } from "../../../testUtils"
 import ApplicationConductor from "../../../../src/lib/applications/ApplicationConductor"
@@ -74,11 +75,55 @@ describe("Demographics", () => {
       // expect(screen.getByRole("checkbox", { name: "Other / Multiracial" })).toBeInTheDocument()
       // expect(screen.getByRole("checkbox", { name: "Decline to respond" })).toBeInTheDocument()
       expect(screen.getByLabelText("Which best describes your ethnicity?")).toBeInTheDocument()
+      const howDidYouHearGroup = screen.getByRole("group", {
+        name: "How did you hear about this listing?",
+      })
+      expect(within(howDidYouHearGroup).getAllByRole("checkbox")).toHaveLength(9)
       expect(
-        screen.getAllByRole("checkbox", {
-          name: /Government website|Property website|Flyer|Email alert|Friend|Housing counselor|Radio ad|Bus ad|Other/,
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.flyer"),
         })
-      ).toHaveLength(9)
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.emailAlert"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.friend"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.housingCounselor"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.propertyWebsite"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.governmentWebsite"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.busAd"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.radioAd"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.other"),
+        })
+      ).toBeInTheDocument()
     })
 
     it("should render sub demographics fields when parent is checked", () => {
@@ -218,17 +263,55 @@ describe("Demographics", () => {
         <ApplicationDemographics />
       </AppSubmissionContext.Provider>
     )
-    expect(screen.getByText("How did you hear about this listing?")).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Government website" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Property website" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Flyer" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Email alert" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Friend" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Friend" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Housing counselor" })).toBeInTheDocument()
-    expect(screen.queryByRole("checkbox", { name: "Radio ad" })).not.toBeInTheDocument()
-    expect(screen.queryByRole("checkbox", { name: "Bus ad" })).not.toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Other" })).toBeInTheDocument()
+    const howDidYouHearGroup = screen.getByRole("group", {
+      name: "How did you hear about this listing?",
+    })
+    expect(within(howDidYouHearGroup).getAllByRole("checkbox")).toHaveLength(7)
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.flyer"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.emailAlert"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.friend"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.housingCounselor"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.propertyWebsite"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.governmentWebsite"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).queryByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.busAd"),
+      })
+    ).not.toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).queryByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.radioAd"),
+      })
+    ).not.toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.other"),
+      })
+    ).toBeInTheDocument()
   })
 
   it("should hide ethnicity field when disabledEthnicityQuestion flag is on", () => {

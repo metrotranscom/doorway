@@ -201,7 +201,7 @@ const SettingsPreferences = () => {
         {!v2Preferences && (
           <TabView
             hideTabs={!enableProperties}
-            tabs={getSettingsTabs(SettingsIndexEnum.preferences, router, v2Preferences)}
+            tabs={getSettingsTabs(SettingsIndexEnum.preferences, v2Preferences)}
           >
             <LoadingOverlay isLoading={loading}>
               <StandardCard

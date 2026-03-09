@@ -67,10 +67,10 @@ describe('Testing listing csv export service', () => {
     listingApprovalPermissions: [],
     duplicateListingPermissions: [],
     requiredListingFields: [],
-    visibleNeighborhoodAmenities: [],
-    regions: [],
     visibleAccessibilityPriorityTypes: [],
+    visibleNeighborhoodAmenities: [],
     visibleSpokenLanguages: [],
+    regions: [],
   };
 
   const mockBaseUnit: Unit = {

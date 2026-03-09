@@ -1599,7 +1599,7 @@ describe('Testing application service', () => {
       });
     });
 
-    it("should throw error when findOne() is called and Id doens't exists", async () => {
+    it('should throw error when findOne() is called and Id does not exists', async () => {
       prisma.applications.findUnique = jest.fn().mockResolvedValue(null);
 
       await expect(
@@ -1826,7 +1826,7 @@ describe('Testing application service', () => {
       });
     });
 
-    it("should throw error when asking for application that doesen't exist", async () => {
+    it('should throw error when asking for application that does not exist', async () => {
       prisma.applications.findUnique = jest.fn().mockResolvedValue(null);
 
       await expect(
@@ -1922,7 +1922,7 @@ describe('Testing application service', () => {
       );
     });
 
-    it("should throw error when trying to delete application that doesen't exist", async () => {
+    it('should throw error when trying to delete application that does not exist', async () => {
       prisma.applications.findUnique = jest.fn().mockResolvedValue(null);
 
       await expect(

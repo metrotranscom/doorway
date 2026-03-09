@@ -1384,6 +1384,12 @@ export class UserService {
       }
     }
 
+    await this.prisma.userAccountSnapshot.deleteMany({
+      where: {
+        originalId: user.id,
+      },
+    });
+
     if (user.userRoles) {
       await this.prisma.userRoles.delete({
         where: {

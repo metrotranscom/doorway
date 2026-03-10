@@ -1164,106 +1164,42 @@ export const stagingSeed = async (
     //   angelopolisJurisdiction.id,
     //   prismaClient,
     //   {
-    //     listing: hollywoodHillsHeights,
+    //     listing: { ...hollywoodHillsHeights, name: '200 Acre Woods' },
     //     propertyId: angelopolisProperty1.id,
-    //     units: [
-    //       {
-    //         amiPercentage: '30',
-    //         monthlyIncomeMin: '2000',
-    //         floor: 1,
-    //         maxOccupancy: 3,
-    //         minOccupancy: 1,
-    //         monthlyRent: '1200',
-    //         numBathrooms: 1,
-    //         numBedrooms: 0,
-    //         number: '101',
-    //         sqFeet: '750.00',
-    //         amiChart: { connect: { id: angelopolisAmiChart.id } },
-    //         unitTypes: {
-    //           connect: {
-    //             id: unitTypes[0].id,
-    //           },
+    //     units: Array.from({ length: 200 }, (_, i) => ({
+    //       amiPercentage: '30',
+    //       monthlyIncomeMin: '2000',
+    //       floor: 1,
+    //       maxOccupancy: 3,
+    //       minOccupancy: 1,
+    //       numBathrooms: 1,
+    //       numBedrooms: 1,
+    //       number: `${i}`,
+    //       sqFeet: `${i}`,
+    //       amiChart: { connect: { id: angelopolisAmiChart.id } },
+    //       unitTypes: {
+    //         connect: {
+    //           id: unitTypes[1].id,
     //         },
     //       },
-    //       {
-    //         amiPercentage: '30',
-    //         monthlyIncomeMin: '2000',
-    //         floor: 1,
-    //         maxOccupancy: 3,
-    //         minOccupancy: 1,
-    //         numBathrooms: 1,
-    //         numBedrooms: 1,
-    //         number: '101',
-    //         sqFeet: '750.00',
-    //         amiChart: { connect: { id: angelopolisAmiChart.id } },
-    //         unitTypes: {
-    //           connect: {
-    //             id: unitTypes[1].id,
-    //           },
-    //         },
-    //       },
-    //     ],
+    //     })),
     //     multiselectQuestions: [
     //       cityEmployeeQuestion,
     //       workInCityQuestion,
     //       multiselectQuestionPrograms,
-    //       mobilityAccessibilityNeedsProgramQuestion,
-    //       hearingVisionAccessibilityNeedsProgramQuestion,
     //     ],
     //     applications: [
-    //       ...(await applicationFactoryMany(2, {
+    //       await applicationFactory({
     //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
-    //       })),
-    //       ...(await applicationFactoryMany(20, {
+    //       }),
+    //       await applicationFactory({
     //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
-    //         userId: advocate.id,
-    //       })),
+    //       }),
     //     ],
     //     userAccounts: [{ id: partnerUser.id }],
     //     optionalFeatures: { carpetInUnit: true },
-    //     enableListingFeaturesAndUtilities: true,
     //   },
     // ],
-    [
-      angelopolisJurisdiction.id,
-      prismaClient,
-      {
-        listing: { ...hollywoodHillsHeights, name: '200 Acre Woods' },
-        propertyId: angelopolisProperty1.id,
-        units: Array.from({ length: 200 }, (_, i) => ({
-          amiPercentage: '30',
-          monthlyIncomeMin: '2000',
-          floor: 1,
-          maxOccupancy: 3,
-          minOccupancy: 1,
-          numBathrooms: 1,
-          numBedrooms: 1,
-          number: `${i}`,
-          sqFeet: `${i}`,
-          amiChart: { connect: { id: angelopolisAmiChart.id } },
-          unitTypes: {
-            connect: {
-              id: unitTypes[1].id,
-            },
-          },
-        })),
-        multiselectQuestions: [
-          cityEmployeeQuestion,
-          workInCityQuestion,
-          multiselectQuestionPrograms,
-        ],
-        applications: [
-          await applicationFactory({
-            raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
-          }),
-          await applicationFactory({
-            raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
-          }),
-        ],
-        userAccounts: [{ id: partnerUser.id }],
-        optionalFeatures: { carpetInUnit: true },
-      },
-    ],
     [
       mainJurisdiction.id,
       prismaClient,

@@ -43,6 +43,7 @@ import { permissionActions } from '../enums/permissions/permission-actions-enum'
 import { UserViews } from '../enums/user/view-enum';
 import { buildWhereClause } from '../utilities/build-user-where';
 import { getPublicEmailURL } from '../utilities/get-public-email-url';
+import { UserRole } from '../dtos/users/user-role.dto';
 import { RequestSingleUseCode } from '../dtos/single-use-code/request-single-use-code.dto';
 import { getSingleUseCode } from '../utilities/get-single-use-code';
 import { UserFavoriteListing } from '../dtos/users/user-favorite-listing.dto';
@@ -57,6 +58,7 @@ import { PartnerUserCreate } from '../dtos/users/partner-user-create.dto';
 import { AdvocateUserCreate } from '../dtos/users/advocate-user-create.dto';
 import { SnapshotCreateService } from './snapshot-create.service';
 import { toAddHelper, toRemoveHelper } from '../utilities/snapshot-helpers';
+import { AdvocateUserAccept } from '../dtos/users/advocate-user-accept.dto';
 
 /*
   this is the service for users
@@ -1075,6 +1077,69 @@ export class UserService {
     return mapTo(User, newUser);
   }
 
+  async acceptAdvocateUser(
+    dto: AdvocateUserAccept,
+    req: Request,
+  ): Promise<SuccessDTO> {
+    const requestingUser = mapTo(User, req['user']);
+
+    if (!requestingUser?.userRoles || !requestingUser.userRoles?.isAdmin) {
+      throw new ForbiddenException(
+        'Accepting advocates is only allowed for admin users',
+      );
+    }
+
+    const targetUser = await this.prisma.userAccounts.findFirst({
+      where: {
+        id: dto.advocateId.id,
+      },
+      include: {
+        jurisdictions: true,
+      },
+    });
+
+    if (!targetUser) {
+      throw new NotFoundException(
+        `User with id: ${dto.advocateId.id} was not found`,
+      );
+    }
+
+    // Make sure that the found user is an advocate
+    if (!targetUser.isAdvocate) {
+      throw new BadRequestException(
+        `The user with id ${dto.advocateId.id} is not an advocate`,
+      );
+    }
+
+    await this.prisma.userAccounts.update({
+      data: {
+        isApproved: dto.isAccepted,
+      },
+      where: {
+        id: targetUser.id,
+      },
+    });
+
+    const appUrl =
+      targetUser.jurisdictions && targetUser.jurisdictions.length
+        ? targetUser.jurisdictions[0].publicUrl
+        : null;
+
+    if (dto.isAccepted) {
+      this.emailService.advocateAccepted(
+        mapTo(User, targetUser),
+        appUrl,
+        appUrl, // TODO: Update this path for the advocate creation followup form when ready
+      );
+    } else {
+      this.emailService.advocateRejected(mapTo(User, targetUser), appUrl);
+    }
+
+    return {
+      success: true,
+    };
+  }
+
   /*
     connects a newly created public user with any applications they may have already submitted
   */
@@ -1146,7 +1211,7 @@ export class UserService {
   ): Promise<void> {
     if (!requestingUser) {
       throw new UnauthorizedException(
-        `User attempted ${action} wihtout being signed in`,
+        `User attempted ${action} without being signed in`,
       );
     }
 
@@ -1230,6 +1295,22 @@ export class UserService {
 
   containsInvalidCharacters(value: string): boolean {
     return value.includes('.') || value.includes('http');
+  }
+
+  isUserRoleChangeAllowed(
+    requestingUser: User,
+    userRoleChange: UserRole,
+  ): boolean {
+    if (requestingUser?.userRoles?.isAdmin) {
+      return true;
+    } else if (requestingUser?.userRoles?.isJurisdictionalAdmin) {
+      if (userRoleChange?.isAdmin) {
+        return false;
+      }
+      return true;
+    }
+
+    return false;
   }
 
   /**

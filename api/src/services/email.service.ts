@@ -166,6 +166,31 @@ export class EmailService {
     );
   }
 
+  private async send(
+    to: string | string[],
+    from: string,
+    subject: string,
+    body: string,
+    attachment?: EmailAttachmentData,
+  ) {
+    const isMultipleRecipients = Array.isArray(to);
+    if (isMultipleRecipients && to.length === 0) {
+      console.warn(
+        'Got email send request with empty array for the "to" field. Doing nothing.',
+      );
+      return;
+    }
+
+    const emailParams: SendEmailInput = {
+      to,
+      from,
+      subject,
+      body,
+      attachment,
+    };
+    await this.emailProvider.send(emailParams);
+  }
+
   public async sendSingleSES(
     mailOptions: {
       to: string;
@@ -302,6 +327,24 @@ export class EmailService {
     return null;
   }
 
+  private async getEmailToSendFrom(
+    jurisdictionIds: IdDTO[],
+    jurisdiction: Jurisdiction,
+  ): Promise<string> {
+    if (jurisdiction) {
+      return jurisdiction.emailFromAddress;
+    }
+    // An admin will be attached to more than one jurisdiction so we want generic translations
+    // but still need an email to send from
+    if (jurisdictionIds.length > 1) {
+      const firstJurisdiction = await this.jurisdictionService.findOne({
+        jurisdictionId: jurisdictionIds[0].id,
+      });
+      return firstJurisdiction?.emailFromAddress || '';
+    }
+    return '';
+  }
+
   /* Send welcome email to new public users */
   public async welcome(
     jurisdictionName: string,
@@ -407,6 +450,11 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(user.jurisdictions);
     void (await this.loadTranslations(jurisdiction, user.language));
 
+    const emailFromAddress = await this.getEmailToSendFrom(
+      user.jurisdictions,
+      jurisdiction,
+    );
+
     await this.sendSingleSES(
       {
         to: user.email,
@@ -453,6 +501,7 @@ export class EmailService {
     listing: Listing,
     application: Application,
     appUrl: string,
+    isAdvocate = false,
   ) {
     const jurisdiction = await this.getJurisdiction([listing.jurisdictions]);
     void (await this.loadTranslations(jurisdiction, application.language));
@@ -1079,6 +1128,44 @@ export class EmailService {
   // ensure we don't let real HTML through which is an XSS risk
   stripAngleBrackets(markup: string): string {
     return markup.replace(/[<>]/g, '');
+  }
+
+  public async advocateAccepted(user: User, appUrl: string, formUrl: string) {
+    const jurisdiction = await this.getJurisdiction(user.jurisdictions);
+    void (await this.loadTranslations(jurisdiction, user.language));
+    const emailFromAddress = await this.getEmailToSendFrom(
+      user.jurisdictions,
+      jurisdiction,
+    );
+    await this.send(
+      user.email,
+      emailFromAddress,
+      this.polyglot.t('advocateApproved.subject'),
+      this.template('advocate-approved')({
+        user: user,
+        formUrl,
+        appOptions: { appUrl },
+      }),
+    );
+  }
+
+  public async advocateRejected(user: User, appUrl: string) {
+    const jurisdiction = await this.getJurisdiction(user.jurisdictions);
+    void (await this.loadTranslations(jurisdiction, user.language));
+    const emailFromAddress = await this.getEmailToSendFrom(
+      user.jurisdictions,
+      jurisdiction,
+    );
+    await this.send(
+      user.email,
+      emailFromAddress,
+      this.polyglot.t('advocateRejected.subject'),
+      this.template('advocate-rejected')({
+        user: user,
+        contactEmail: process.env.ADVOCATE_CONTACT_EMAIL,
+        appOptions: { appUrl },
+      }),
+    );
   }
 
   formatLocalDate(rawDate: string | Date, format: string): string {

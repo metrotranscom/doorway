@@ -796,6 +796,28 @@ export class SnapshotService {
       axios(configs, resolve, reject)
     })
   }
+  /**
+   * Create Listing Snapshot
+   */
+  createListingSnapshot(
+    params: {
+      /** requestBody */
+      body?: IdDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/snapshot/createListingSnapshot"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
 }
 
 export class AmiChartsService {
@@ -1937,8 +1959,6 @@ export class UserService {
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
 
-      /** 适配ios13，get请求不允许带body */
-
       axios(configs, resolve, reject)
     })
   }
@@ -2091,6 +2111,28 @@ export class UserService {
       let url = basePath + "/user/advocate"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Accept or decline advocate user request
+   */
+  approveAdvocate(
+    params: {
+      /** requestBody */
+      body?: AdvocateUserAccept
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/advocate/approve"
+
+      const configs: IRequestConfig = getConfigs("post", "application/json", url, options)
 
       let data = params.body
 
@@ -9709,6 +9751,15 @@ export interface AdvocateUserUpdate {
 
   /**  */
   jurisdictions?: IdDTO[]
+}
+
+/** AdvocateUserAccept */
+export interface AdvocateUserAccept {
+  /**  */
+  advocateId: IdDTO
+
+  /**  */
+  isAccepted: boolean
 }
 
 /** User */

@@ -292,7 +292,7 @@ const FormSummaryDetails = ({
               />
             </FieldValue>
           )}
-        {application.contactPreferences && (
+        {application.contactPreferences && !!application.contactPreferences.length && (
           <FieldValue
             testId={"app-summary-contact-preference-type"}
             id="applicantPreferredContactType"
@@ -315,7 +315,8 @@ const FormSummaryDetails = ({
           </FieldValue>
         )}
       </Card.Section>
-      {application.alternateContact.type && application.alternateContact.type !== "noContact" && (
+
+      {application.alternateContact?.type && application.alternateContact?.type !== "noContact" && (
         <>
           <Card.Header className={styles["summary-header"]}>
             <Heading priority={3} size="xl">
@@ -519,6 +520,8 @@ const FormSummaryDetails = ({
         </Card.Section>
 
         {!hidePrograms &&
+          Array.isArray(application.programs) &&
+          application.programs.length > 0 &&
           multiselectQuestionSection(
             MultiselectQuestionsApplicationSectionEnum.programs,
             swapCommunityTypeWithPrograms
@@ -577,6 +580,8 @@ const FormSummaryDetails = ({
         </Card.Section>
 
         {!hidePreferences &&
+          Array.isArray(application.preferences) &&
+          application.preferences.length > 0 &&
           multiselectQuestionSection(
             MultiselectQuestionsApplicationSectionEnum.preferences,
             "/applications/preferences/all",

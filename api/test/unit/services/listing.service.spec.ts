@@ -49,7 +49,6 @@ import { ApplicationService } from '../../../src/services/application.service';
 import { GeocodingService } from '../../../src/services/geocoding.service';
 import { FilterAvailabilityEnum } from '../../../src/enums/listings/filter-availability-enum';
 import { CronJobService } from '../../../src/services/cron-job.service';
-import { orderBy } from 'lodash';
 
 /*
  generates a super simple mock listing for us to test logic with

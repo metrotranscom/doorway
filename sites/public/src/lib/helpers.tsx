@@ -4,7 +4,12 @@ import { ListingCard } from "@bloom-housing/doorway-ui-components"
 import { useRouter } from "next/router"
 import InfoIcon from "@heroicons/react/20/solid/InformationCircleIcon"
 import LockClosedIcon from "@heroicons/react/20/solid/LockClosedIcon"
-import { t, ApplicationStatusType, StatusBarType } from "@bloom-housing/ui-components"
+import {
+  t,
+  ApplicationStatusType,
+  StatusBarType,
+  AppearanceStyleType,
+} from "@bloom-housing/ui-components"
 import {
   imageUrlFromListing,
   getSummariesTable,
@@ -359,6 +364,28 @@ export const getListings = (listings: Listing[]) => {
 }
 
 export const getListingCard = (listing: Listing, index: number) => {
+  const generateTableSubHeader = (listing) => {
+    if (
+      listing.reviewOrderType !== ReviewOrderTypeEnum.waitlist &&
+      listing.reviewOrderType !== ReviewOrderTypeEnum.waitlistLottery
+    ) {
+      return {
+        content: t("listings.availableUnits"),
+        styleType: AppearanceStyleType.success,
+        isPillType: true,
+      }
+    } else if (
+      listing.reviewOrderType === ReviewOrderTypeEnum.waitlist ||
+      listing.reviewOrderType === ReviewOrderTypeEnum.waitlistLottery
+    ) {
+      return {
+        content: t("listings.waitlist.open"),
+        styleType: AppearanceStyleType.primary,
+        isPillType: true,
+      }
+    }
+    return null
+  }
   const uri = getListingUrl(listing)
   return (
     <ListingCard
@@ -398,6 +425,7 @@ export const getListingCard = (listing: Listing, index: number) => {
           priority: 3,
         },
         contentSubheader: { content: getListingCardSubtitle(listing.listingsBuildingAddress) },
+        tableHeader: generateTableSubHeader(listing),
       }}
     />
   )

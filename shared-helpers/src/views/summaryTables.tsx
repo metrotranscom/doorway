@@ -94,10 +94,12 @@ export const unitSummariesTable = (
           <span>
             {unitSummary.totalAvailable > 0 ? (
               <>
-                {unitSummary.totalAvailable} {unitPluralization}
+                <strong>{unitSummary.totalAvailable}</strong> {unitPluralization}
               </>
             ) : (
-              <span>{t("listings.waitlist.open")}</span>
+              <span>
+                <strong>{t("listings.waitlist.open")}</strong>
+              </span>
             )}
           </span>
         )
@@ -105,7 +107,11 @@ export const unitSummariesTable = (
         listingReviewOrder === ReviewOrderTypeEnum.waitlist ||
         listingReviewOrder === ReviewOrderTypeEnum.waitlistLottery
       ) {
-        availability = <span>{t("listings.waitlist.open")}</span>
+        availability = (
+          <span>
+            <strong>{t("listings.waitlist.open")}</strong>
+          </span>
+        )
       }
     }
     return {

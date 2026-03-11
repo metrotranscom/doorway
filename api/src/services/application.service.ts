@@ -40,7 +40,6 @@ import { PublicAppsViewQueryParams } from '../dtos/applications/public-apps-view
 import { ApplicationsFilterEnum } from '../enums/applications/filter-enum';
 import { PublicAppsViewResponse } from '../dtos/applications/public-apps-view-response.dto';
 import { CronJobService } from './cron-job.service';
-import { DefaultArgs } from '@prisma/client/runtime/library';
 
 export const view: Partial<
   Record<ApplicationViews, Prisma.ApplicationsInclude>
@@ -656,7 +655,13 @@ export class ApplicationService {
       }
     }
     // if closed listing and non-admin user
-    if (listing?.status === 'closed' && !requestingUser.userRoles?.isAdmin) {
+    if (
+      listing?.status === 'closed' &&
+      !(
+        requestingUser.userRoles?.isAdmin ||
+        requestingUser.userRoles?.isSupportAdmin
+      )
+    ) {
       throw new BadRequestException(
         `Non-administrators cannot submit applications to closed listings`,
       );

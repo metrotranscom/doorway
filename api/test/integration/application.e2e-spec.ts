@@ -1165,6 +1165,8 @@ describe('Application Controller Tests', () => {
         programs: [],
         receivedAt: null,
         receivedBy: null,
+        wasCreatedExternally: false,
+        wasPIICleared: false,
       });
       expect(mockApplicationConfirmation).toBeCalledTimes(1);
     });

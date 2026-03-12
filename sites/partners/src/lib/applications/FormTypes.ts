@@ -62,6 +62,9 @@ export type ApplicationTypes = {
   status?: ApplicationStatusEnum
   phoneNumber?: string
   receivedBy?: string
+  accessibleUnitWaitlistNumber?: number
+  conventionalUnitWaitlistNumber?: number
+  manualLotteryPositionNumber?: number
 }
 
 export type FormTypes = {

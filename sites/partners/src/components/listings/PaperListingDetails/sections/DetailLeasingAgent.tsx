@@ -16,11 +16,32 @@ const DetailLeasingAgent = () => {
     listing.jurisdictions.id
   )
 
+  const enableLeasingAgentAltText = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableLeasingAgentAltText,
+    listing.jurisdictions.id
+  )
+
+  const leasingAgentNameText = enableLeasingAgentAltText
+    ? t("leasingAgent.ManagerPropName")
+    : t("leasingAgent.name")
+
+  const leasingAgentTitleText = enableLeasingAgentAltText
+    ? t("listings.sections.leasingAgentManagerPropTitle")
+    : t("leasingAgent.title")
+
+  const leasingAgentAddressText = enableLeasingAgentAltText
+    ? t("listings.leasingAgentAddressManagerProp")
+    : t("listings.leasingAgentAddress")
+
+  const leasingAgentSectionTitleText = enableLeasingAgentAltText
+    ? t("listings.sections.leasingAgentManagerPropSectionTitle")
+    : t("listings.sections.leasingAgentTitle")
+
   return (
-    <SectionWithGrid heading={t("listings.sections.leasingAgentTitle")} inset>
+    <SectionWithGrid heading={leasingAgentSectionTitleText} inset>
       <Grid.Row>
         <Grid.Cell>
-          <FieldValue id="leasingAgentName" label={t("leasingAgent.name")}>
+          <FieldValue id="leasingAgentName" label={leasingAgentNameText}>
             {getDetailFieldString(listing.leasingAgentName)}
           </FieldValue>
         </Grid.Cell>
@@ -39,7 +60,7 @@ const DetailLeasingAgent = () => {
       </Grid.Row>
       <Grid.Row columns={3}>
         <Grid.Cell>
-          <FieldValue id="leasingAgentTitle" label={t("leasingAgent.title")}>
+          <FieldValue id="leasingAgentTitle" label={leasingAgentTitleText}>
             {getDetailFieldString(listing.leasingAgentTitle)}
           </FieldValue>
         </Grid.Cell>
@@ -65,7 +86,7 @@ const DetailLeasingAgent = () => {
       {getDetailAddress(
         listing.listingsLeasingAgentAddress,
         "leasingAgentAddress",
-        t("listings.leasingAgentAddress")
+        leasingAgentAddressText
       )}
     </SectionWithGrid>
   )

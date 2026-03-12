@@ -21,10 +21,10 @@ import {
   AddressCreate,
   IncomePeriodEnum,
   ApplicationStatusEnum,
-  ApplicationUpdate,
   Accessibility,
   Listing,
   MultiselectQuestionsApplicationSectionEnum,
+  Application,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 dayjs.extend(customParseFormat)
 
@@ -225,6 +225,12 @@ export const mapFormToApi = ({
       return acc
     }, {})
 
+  const {
+    accessibleUnitWaitlistNumber,
+    conventionalUnitWaitlistNumber,
+    manualLotteryPositionNumber,
+  } = data.application
+
   const result = {
     receivedAt,
     receivedBy,
@@ -254,6 +260,15 @@ export const mapFormToApi = ({
     applicationsAlternateAddress: alternateAddress,
     householdMember: householdMembers,
     householdSize,
+    accessibleUnitWaitlistNumber: accessibleUnitWaitlistNumber
+      ? Number(accessibleUnitWaitlistNumber)
+      : null,
+    conventionalUnitWaitlistNumber: conventionalUnitWaitlistNumber
+      ? Number(conventionalUnitWaitlistNumber)
+      : null,
+    manualLotteryPositionNumber: manualLotteryPositionNumber
+      ? Number(manualLotteryPositionNumber)
+      : null,
   }
 
   return result
@@ -263,7 +278,7 @@ export const mapFormToApi = ({
   Format data which comes from the API into correct react-hook-form format.
 */
 
-export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listing) => {
+export const mapApiToForm = (applicationData: Application, listing: Listing) => {
   const submissionDate = applicationData.submissionDate
     ? dayjs(new Date(applicationData.submissionDate))
     : null
@@ -374,6 +389,9 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
       additionalPhoneNumberType,
       alternateContact,
       status,
+      accessibleUnitWaitlistNumber,
+      conventionalUnitWaitlistNumber,
+      manualLotteryPositionNumber,
     } = applicationData
 
     const acceptedTerms = getYesNoValue(applicationData.acceptedTerms)
@@ -421,6 +439,9 @@ export const mapApiToForm = (applicationData: ApplicationUpdate, listing: Listin
       programs,
       receivedBy,
       status,
+      accessibleUnitWaitlistNumber,
+      conventionalUnitWaitlistNumber,
+      manualLotteryPositionNumber,
     }
 
     return result

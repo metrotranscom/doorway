@@ -3,6 +3,7 @@ import RentalsFinder from "../../src/components/finder/RentalsFinder"
 import { render, screen, mockNextRouter, waitFor, within } from "../testUtils"
 import userEvent from "@testing-library/user-event"
 import { FeatureFlagEnum } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { defaultListingFeaturesConfiguration } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
 
 window.scrollTo = jest.fn()
 
@@ -18,6 +19,8 @@ describe("<RentalsFinder>", () => {
           FeatureFlagEnum.enableRegions,
           FeatureFlagEnum.enableAccessibilityFeatures,
         ]}
+        multiselectData={[]}
+        listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
       />
     )
 
@@ -69,7 +72,13 @@ describe("<RentalsFinder>", () => {
 
   describe("should hide toggle sections based on feature flags", () => {
     it("should hide regions section if not toggled on", async () => {
-      render(<RentalsFinder activeFeatureFlags={[FeatureFlagEnum.enableAccessibilityFeatures]} />)
+      render(
+        <RentalsFinder
+          activeFeatureFlags={[FeatureFlagEnum.enableAccessibilityFeatures]}
+          multiselectData={[]}
+          listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
+        />
+      )
 
       const finderHeaderTitle = screen.getByRole("heading", {
         name: /find listings for you/i,
@@ -114,7 +123,7 @@ describe("<RentalsFinder>", () => {
       ).not.toBeInTheDocument()
       expect(
         screen.queryByRole(
-          /we will use your selections to find you rentals that may match your housing needs./i
+          "We will use your selections to find you rentals that may match your housing needs."
         )
       ).not.toBeInTheDocument()
 
@@ -140,7 +149,9 @@ describe("<RentalsFinder>", () => {
     })
 
     it("should hide accessibility section if not toggled on", async () => {
-      render(<RentalsFinder activeFeatureFlags={[FeatureFlagEnum.enableRegions]} />)
+      render(
+        <RentalsFinder activeFeatureFlags={[FeatureFlagEnum.enableRegions]} multiselectData={[]} />
+      )
 
       const finderHeaderTitle = screen.getByRole("heading", {
         name: /find listings for you/i,
@@ -225,7 +236,7 @@ describe("<RentalsFinder>", () => {
       ).not.toBeInTheDocument()
       expect(
         screen.queryByRole(
-          /accessibility features include many designed specifically for residents with disabilities as well as a number of other building and unit amenities./i
+          "Accessibility features include many designed specifically for residents with disabilities as well as a number of other building and unit amenities."
         )
       ).not.toBeInTheDocument()
 
@@ -261,6 +272,8 @@ describe("<RentalsFinder>", () => {
           FeatureFlagEnum.enableRegions,
           FeatureFlagEnum.enableAccessibilityFeatures,
         ]}
+        multiselectData={[]}
+        listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
       />
     )
 
@@ -408,13 +421,13 @@ describe("<RentalsFinder>", () => {
     expect(screen.getByRole("checkbox", { name: /heating in unit/i })).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: /ac in unit/i })).toBeInTheDocument()
     expect(
-      screen.getByRole("checkbox", { name: /units for those with hearing disabilities/i })
+      screen.getByRole("checkbox", { name: /units for those with hearing accessibility needs/i })
     ).toBeInTheDocument()
     expect(
-      screen.getByRole("checkbox", { name: /units for those with mobility disabilities/i })
+      screen.getByRole("checkbox", { name: /units for those with mobility accessibility needs/i })
     ).toBeInTheDocument()
     expect(
-      screen.getByRole("checkbox", { name: /units for those with visual disabilities/i })
+      screen.getByRole("checkbox", { name: /units for those with vision accessibility needs/i })
     ).toBeInTheDocument()
     expect(
       screen.getByRole("checkbox", { name: /barrier-free \(no-step\) unit entrances/i })
@@ -528,6 +541,7 @@ describe("<RentalsFinder>", () => {
           FeatureFlagEnum.enableRegions,
           FeatureFlagEnum.enableAccessibilityFeatures,
         ]}
+        multiselectData={[]}
       />
     )
 
@@ -585,6 +599,8 @@ describe("<RentalsFinder>", () => {
           FeatureFlagEnum.enableRegions,
           FeatureFlagEnum.enableAccessibilityFeatures,
         ]}
+        multiselectData={[]}
+        listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
       />
     )
 
@@ -640,8 +656,8 @@ describe("<RentalsFinder>", () => {
     })
   })
 
-  describe("should navigate with filter querry", () => {
-    it("should nagvigate withouth query params when no option selected", async () => {
+  describe("should navigate with filter query", () => {
+    it("should nagvigate without query params when no option selected", async () => {
       const { pushMock } = mockNextRouter()
       render(
         <RentalsFinder
@@ -649,6 +665,7 @@ describe("<RentalsFinder>", () => {
             FeatureFlagEnum.enableRegions,
             FeatureFlagEnum.enableAccessibilityFeatures,
           ]}
+          multiselectData={[]}
         />
       )
 
@@ -676,6 +693,8 @@ describe("<RentalsFinder>", () => {
             FeatureFlagEnum.enableRegions,
             FeatureFlagEnum.enableAccessibilityFeatures,
           ]}
+          multiselectData={[]}
+          listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
         />
       )
 
@@ -750,7 +769,7 @@ describe("<RentalsFinder>", () => {
 
       await waitFor(() => {
         expect(pushMock).toBeCalledWith(
-          "/listings?bedroomTypes=studio,oneBdrm&regions=Greater_Downtown,Westside&monthlyRent=1,500.00-3,000.00&section8Acceptance=true&listingFeatures=wheelchairRamp,elevator,serviceAnimalsAllowed&reservedCommunityTypes=veteran"
+          "/listings?bedroomTypes=studio,oneBdrm&regions=Greater_Downtown,Westside&monthlyRent=1,500.00-3,000.00&section8Acceptance=true&listingFeatures=elevator,serviceAnimalsAllowed,wheelchairRamp&reservedCommunityTypes=veteran"
         )
       })
     })

@@ -1162,7 +1162,7 @@ export class EmailService {
       this.polyglot.t('advocateRejected.subject'),
       this.template('advocate-rejected')({
         user: user,
-        contactEmail: process.env.ADVOCATE_CONTACT_EMAIL,
+        contactEmail: process.env.CONTACT_EMAIL,
         appOptions: { appUrl },
       }),
     );

@@ -745,6 +745,8 @@ describe('Application Controller Tests', () => {
           name: listing1.name,
         },
         isNewest: true,
+        wasCreatedExternally: false,
+        wasPIICleared: false,
       });
       expect(mockApplicationConfirmation).toBeCalledTimes(1);
     });

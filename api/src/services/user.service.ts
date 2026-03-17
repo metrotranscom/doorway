@@ -1275,6 +1275,7 @@ export class UserService {
     });
 
     for (const app of applications) {
+      await this.snapshotCreateService.createApplicationSnapshot(app.id);
       await this.prisma.applications.update({
         data: {
           userAccounts: {

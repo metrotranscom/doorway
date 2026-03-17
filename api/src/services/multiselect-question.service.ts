@@ -19,6 +19,7 @@ import { MultiselectQuestion } from '../dtos/multiselect-questions/multiselect-q
 import { MultiselectQuestionCreate } from '../dtos/multiselect-questions/multiselect-question-create.dto';
 import { MultiselectQuestionUpdate } from '../dtos/multiselect-questions/multiselect-question-update.dto';
 import { MultiselectQuestionQueryParams } from '../dtos/multiselect-questions/multiselect-question-query-params.dto';
+import { PaginatedMultiselectQuestionDto } from '../dtos/multiselect-questions/paginated-multiselect-question.dto';
 import { SuccessDTO } from '../dtos/shared/success.dto';
 import { User } from '../dtos/users/user.dto';
 import { FeatureFlagEnum } from '../enums/feature-flags/feature-flags-enum';
@@ -26,8 +27,14 @@ import { MultiselectQuestionFilterKeys } from '../enums/multiselect-questions/fi
 import { MultiselectQuestionViews } from '../enums/multiselect-questions/view-enum';
 import { permissionActions } from '../enums/permissions/permission-actions-enum';
 import { buildFilter } from '../utilities/build-filter';
+import { buildOrderByForMultiselectQuestions } from '../utilities/build-order-by';
 import { doJurisdictionHaveFeatureFlagSet } from '../utilities/feature-flag-utilities';
 import { mapTo } from '../utilities/mapTo';
+import {
+  buildPaginationMetaInfo,
+  calculateSkip,
+  calculateTake,
+} from '../utilities/pagination-helpers';
 
 export const includeViews: Partial<
   Record<MultiselectQuestionViews, Prisma.MultiselectQuestionsInclude>
@@ -73,20 +80,63 @@ export class MultiselectQuestionService {
   */
   async list(
     params: MultiselectQuestionQueryParams,
-  ): Promise<MultiselectQuestion[]> {
-    let rawMultiselectQuestions =
+  ): Promise<PaginatedMultiselectQuestionDto> {
+    const whereClause = this.buildWhere(params);
+
+    const count = await this.prisma.multiselectQuestions.count({
+      where: whereClause,
+    });
+
+    // if passed in page and limit would result in no results because there aren't that many
+    // multiselectQuestions revert back to the first page
+    let page = params.page;
+    if (count && params.limit && params.limit !== 'all' && params.page > 1) {
+      if (Math.ceil(count / params.limit) < params.page) {
+        page = 1;
+      }
+    }
+
+    const query = {
+      skip: calculateSkip(params.limit, page),
+      take: calculateTake(params.limit),
+      orderBy: buildOrderByForMultiselectQuestions(
+        params.orderBy,
+        params.orderDir,
+      ),
+      where: whereClause,
+    };
+
+    const rawMultiselectQuestions =
       await this.prisma.multiselectQuestions.findMany({
-        include: includeViews.fundamentals,
-        where: this.buildWhere(params),
+        ...query,
+        include: includeViews[params.view ?? 'fundamentals'],
       });
 
-    rawMultiselectQuestions = rawMultiselectQuestions.map((msq) => {
-      return {
-        ...msq,
-        jurisdictions: [msq.jurisdiction],
-      };
-    });
-    return mapTo(MultiselectQuestion, rawMultiselectQuestions);
+    // TODO: Can be removed after MSQ refactor
+    const multiselectQuestionsWithJurisdictions = rawMultiselectQuestions.map(
+      (msq) => {
+        return {
+          ...msq,
+          jurisdictions: [msq.jurisdiction],
+        };
+      },
+    );
+
+    const multiselectQuestions = mapTo(
+      MultiselectQuestion,
+      multiselectQuestionsWithJurisdictions,
+    );
+
+    const paginationInfo = buildPaginationMetaInfo(
+      params,
+      count,
+      multiselectQuestions.length,
+    );
+
+    return {
+      items: multiselectQuestions,
+      meta: paginationInfo,
+    };
   }
 
   /*
@@ -96,42 +146,62 @@ export class MultiselectQuestionService {
     params: MultiselectQuestionQueryParams,
   ): Prisma.MultiselectQuestionsWhereInput {
     const filters: Prisma.MultiselectQuestionsWhereInput[] = [];
-    if (!params?.filter?.length) {
-      return {
-        AND: filters,
-      };
+    if (params?.filter?.length) {
+      params.filter.forEach((filter) => {
+        if (filter[MultiselectQuestionFilterKeys.applicationSection]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[MultiselectQuestionFilterKeys.applicationSection],
+            key: MultiselectQuestionFilterKeys.applicationSection,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              applicationSection: filt,
+            })),
+          });
+        } else if (filter[MultiselectQuestionFilterKeys.jurisdiction]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[MultiselectQuestionFilterKeys.jurisdiction],
+            key: MultiselectQuestionFilterKeys.jurisdiction,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              jurisdiction: {
+                id: filt,
+              },
+            })),
+          });
+        } else if (filter[MultiselectQuestionFilterKeys.status]) {
+          const builtFilter = buildFilter({
+            $comparison: filter.$comparison,
+            $include_nulls: false,
+            value: filter[MultiselectQuestionFilterKeys.status],
+            key: MultiselectQuestionFilterKeys.status,
+            caseSensitive: true,
+          });
+          filters.push({
+            OR: builtFilter.map((filt) => ({
+              status: filt,
+            })),
+          });
+        }
+      });
     }
-    params.filter.forEach((filter) => {
-      if (filter[MultiselectQuestionFilterKeys.jurisdiction]) {
-        const builtFilter = buildFilter({
-          $comparison: filter.$comparison,
-          $include_nulls: false,
-          value: filter[MultiselectQuestionFilterKeys.jurisdiction],
-          key: MultiselectQuestionFilterKeys.jurisdiction,
-          caseSensitive: true,
-        });
-        filters.push({
-          OR: builtFilter.map((filt) => ({
-            jurisdiction: {
-              id: filt,
-            },
-          })),
-        });
-      } else if (filter[MultiselectQuestionFilterKeys.applicationSection]) {
-        const builtFilter = buildFilter({
-          $comparison: filter.$comparison,
-          $include_nulls: false,
-          value: filter[MultiselectQuestionFilterKeys.applicationSection],
-          key: MultiselectQuestionFilterKeys.applicationSection,
-          caseSensitive: true,
-        });
-        filters.push({
-          OR: builtFilter.map((filt) => ({
-            applicationSection: filt,
-          })),
-        });
-      }
-    });
+
+    if (params?.search) {
+      filters.push({
+        name: {
+          contains: params.search,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      });
+    }
+
     return {
       AND: filters,
     };

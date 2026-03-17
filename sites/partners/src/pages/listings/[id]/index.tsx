@@ -4,6 +4,7 @@ import axios from "axios"
 import { t, AlertBox, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import {
+  FeatureFlagEnum,
   Listing,
   ListingsStatusEnum,
   ReviewOrderTypeEnum,
@@ -41,6 +42,8 @@ import DetailPrograms from "../../../components/listings/PaperListingDetails/sec
 import DetailListingNotes from "../../../components/listings/PaperListingDetails/sections/DetailNotes"
 import DetailListingVerification from "../../../components/listings/PaperListingDetails/sections/DetailListingVerification"
 import { logger } from "../../../logger"
+import DetailAccessibilityFeatures from "../../../components/listings/PaperListingDetails/sections/DetailAccessibilityFeatures"
+import { useJurisdiction } from "../../../lib/hooks"
 
 interface ListingProps {
   listing: Listing
@@ -48,12 +51,24 @@ interface ListingProps {
 
 export default function ListingDetail(props: ListingProps) {
   const { listing } = props
-  const { profile } = useContext(AuthContext)
+  const { profile, doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
   const [errorAlert, setErrorAlert] = useState<string>(null)
   const [unitDrawer, setUnitDrawer] = useState<UnitDrawer>(null)
   const [copyListingDialog, setCopyListingDialog] = useState(false)
 
+  const { data: jurisdictionData } = useJurisdiction(listing.jurisdictions.id)
+
   if (!listing) return null
+
+  const enableConfigurableRegions = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableConfigurableRegions,
+    listing.jurisdictions.id
+  )
+
+  const enableRegions = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableRegions,
+    listing.jurisdictions.id
+  )
 
   return (
     <ListingContext.Provider value={listing}>
@@ -112,12 +127,18 @@ export default function ListingDetail(props: ListingProps) {
                     <DetailListingNotes />
                     <DetailListingIntro />
                     <DetailListingPhotos />
-                    <DetailBuildingDetails />
+                    <DetailBuildingDetails
+                      enableRegions={enableRegions}
+                      enableConfigurableRegions={enableConfigurableRegions}
+                    />
                     <DetailCommunityType />
                     <DetailUnits setUnitDrawer={setUnitDrawer} />
                     <DetailPreferences />
                     <DetailPrograms />
                     <DetailAdditionalFees />
+                    <DetailAccessibilityFeatures
+                      listingFeaturesConfiguration={jurisdictionData?.listingFeaturesConfiguration}
+                    />
                     <DetailBuildingFeatures />
                     <DetailNeighborhoodAmenities />
                     <DetailAdditionalEligibility />

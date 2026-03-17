@@ -31,8 +31,8 @@
   "amenities": "Basic Amenity Info",
   "accessibility": "Basic Accessibility Info",
   "unitAmenities": "Basic Unit Amenity Info",
-  "smokingPolicy": "No Thanks",
-  "petPolicy": "Pets welcome. Please send in pictures, they aren't required, we just like pictures",
+  "smokingPolicy": "Basic smoking policy",
+  "petPolicy": "Basic pets policy",
   "servicesOffered": "Basic Services",
   "creditHistory": "Basic Credit History",
   "rentalHistory": "Basic Rental History",
@@ -62,7 +62,5 @@
   "endTime.hours": "11",
   "endTime.minutes": "05",
   "note": "Basic Note",
-  "editedName": "Basic Listing Edited Name",
-  "utilities": [],
-  "accessibilityFeatures": []
+  "editedName": "Basic Listing Edited Name"
 }

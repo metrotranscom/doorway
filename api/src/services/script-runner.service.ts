@@ -2452,8 +2452,8 @@ export class ScriptRunnerService {
           },
         ],
       })
-    )
-      .filter((question) => question.createdAt < alamedaMigrationDate)
+    ).items
+      ?.filter((question) => question.createdAt < alamedaMigrationDate)
       .map((question) => question.id);
 
     const alamedaMultiselectCount =
@@ -2509,8 +2509,8 @@ export class ScriptRunnerService {
           },
         ],
       })
-    )
-      .filter((question) => question.createdAt < sanMateo22)
+    ).items
+      ?.filter((question) => question.createdAt < sanMateo22)
       .map((question) => question.id);
 
     const sanMateoMultiselectCount =

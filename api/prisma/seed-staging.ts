@@ -329,7 +329,6 @@ export const stagingSeed = async (
     ],
   };
   // create main jurisdiction with as many feature flags turned on as possible
-  console.log('jurisdictionName', jurisdictionName);
   // const mainJurisdiction = await prismaClient.jurisdictions.create({
   //   data: jurisdictionFactory(jurisdictionName, {
   //     publicSiteBaseURL: publicSiteBaseURL,
@@ -338,9 +337,11 @@ export const stagingSeed = async (
   //       ...optionalMainFlags,
   //       FeatureFlagEnum.enableAccessibilityFeatures,
   //       FeatureFlagEnum.enableCompanyWebsite,
+  //       FeatureFlagEnum.enableFaq,
   //       FeatureFlagEnum.enableGeocodingPreferences,
   //       FeatureFlagEnum.enableGeocodingRadiusMethod,
   //       FeatureFlagEnum.enableHomeType,
+  //       FeatureFlagEnum.enableHousingBasics,
   //       FeatureFlagEnum.enableIsVerified,
   //       FeatureFlagEnum.enableLeasingAgentAltText,
   //       FeatureFlagEnum.enableListingFavoriting,
@@ -379,6 +380,7 @@ export const stagingSeed = async (
   //     raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
   //   }),
   // });
+
   // jurisdiction with unit groups enabled
   const lakeviewJurisdiction = await prismaClient.jurisdictions.create({
     data: jurisdictionFactory('Lakeview', {
@@ -393,6 +395,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableCompanyWebsite,
         FeatureFlagEnum.enableGeocodingRadiusMethod,
         FeatureFlagEnum.enableHomeType,
+        FeatureFlagEnum.enableHousingBasics,
         FeatureFlagEnum.enableIsVerified,
         FeatureFlagEnum.enableLimitedHowDidYouHear,
         FeatureFlagEnum.enableLeasingAgentAltText,
@@ -468,6 +471,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableApplicationStatus,
         FeatureFlagEnum.enableConfigurableRegions,
         FeatureFlagEnum.enableCreditScreeningFee,
+        FeatureFlagEnum.enableFaq,
         FeatureFlagEnum.enableHousingAdvocate,
         FeatureFlagEnum.enableHousingDeveloperOwner,
         FeatureFlagEnum.enableLeasingAgentAltText,

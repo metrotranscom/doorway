@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { parseArgs } from 'node:util';
-import { env } from 'node:process';
+// import { env } from 'node:process';
 import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import { stagingSeed } from './seed-staging';
 import { devSeeding } from './seed-dev';
@@ -18,7 +18,7 @@ async function main() {
   const {
     values: { environment, jurisdictionName },
   } = parseArgs({ options });
-  const publicSiteBaseURL = env.DBSEED_PUBLIC_SITE_BASE_URL;
+  const publicSiteBaseURL = undefined; // env.PUBLIC_SITE_BASE_URL;
 
   switch (environment) {
     case 'production':

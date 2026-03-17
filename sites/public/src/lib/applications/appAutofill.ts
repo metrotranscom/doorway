@@ -39,6 +39,7 @@ class AutofillCleaner {
 
   removeAdditionalKeys() {
     const unsetIdentifiers = (obj: { id: string; createdAt: Date; updatedAt: Date }) => {
+      if (!obj) return
       delete obj.id
       delete obj.createdAt
       delete obj.updatedAt

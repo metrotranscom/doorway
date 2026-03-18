@@ -103,16 +103,17 @@ graph TB
 
 ### 1. Deploy dev
 
-1. Create the AWS managed certificate for your domain:
+1. Create the AWS managed certificate for the dev domain:
 
    ```bash
-   docker run --rm -it ghcr.io/<YOUR_GITHUB_ORG>/bloom/infra:gitsha-SOMESHA bloom_dev apply -exclude=module.bloom_deployment
+   INFRA_CONTAINER=<from your 'Fork Bloom Repo' step 8 notes>
+   docker run --rm -it "${INFRA_CONTAINER:?}" bloom_dev apply -exclude=module.bloom_deployment
    ```
 
 2. Validate the AWS managed certificate:
 
    The `tofu apply` command from step 1 will output the DNS records that need to be added for AWS to
-   issue the certificate. Add the two required CNAME records in your DNS provider then wait for AWS
+   issue the certificate. Add the two required CNAME records in the DNS provider then wait for AWS
    to validate the certificate (can take a few minutes).
 
    For example, the following records need to be added for the following output:
@@ -153,8 +154,31 @@ graph TB
 3. Deploy Bloom:
 
    ```bash
-   docker run --rm -it ghcr.io/<YOUR_GITHUB_ORG>/bloom/infra:gitsha-SOMESHA bloom_dev apply
+   INFRA_CONTAINER=<from your 'Fork Bloom Repo' step 8 notes>
+   docker run --rm -it "${INFRA_CONTAINER:?}" bloom_dev apply
    ```
+
+   While the apply is running, set API key secret values. The following secrets need to be set:
+
+   - **Mapbox** (`bloom-mapbox-api-key`): A Mapbox access token. Used by the public and partners
+     sites to render maps. Obtain a token from https://account.mapbox.com/access-tokens/. Make sure
+     to add the public and partners sites to the list of allowed URLs in the Mapbox access token
+     screen.
+   - **Google Translate** (`bloom-google-translate-api-key`): A Google Cloud API key for the Google
+     Translate API. Used by the API service. Obtain a key from the Google Cloud console under 'APIs
+     & Services > Credentials'. Set the project_id and iam_user in the root module
+     `google_translate_settings` parameter in the `module "bloom_deployment"`.
+
+   If you do not have valid API keys available, it is okay to set a placeholder 'placeholder'
+   value. The secrets need values for the API ECS task to successfully start, but they does not need
+   to have valid values (the deployment will just not have functioning Mapbox and Google Translate
+   integrations until valid values are provided).
+
+   1. Log in to the bloom-dev AWS account and go to the 'Secrets Manager > Secrets' page.
+   2. Click on the secret name (e.g. `bloom-mapbox-api-key-AbCdEf`).
+   3. In the 'Secret value' section, click 'Retrieve secret value' then 'Set secret value'.
+   4. Select 'Plaintext' and enter the API key or 'placeholder' value.
+   5. Click 'Save'.
 
 4. Add DNS records for the public and partner site URLs:
 
@@ -187,7 +211,7 @@ graph TB
    Individual emails are validated by clicking an email validation link AWS sends in an email with
    subject like 'Amazon Web Services - Email Address Verification Request in region...'.
 
-   Domains are validated by publishing a set of DNS records. Add the required CNAME records in your
+   Domains are validated by publishing a set of DNS records. Add the required CNAME records in the
    DNS provider then wait for AWS to validate the identity (can take a few minutes).
 
    For example, the following records need to be added for the following output:
@@ -237,16 +261,17 @@ graph TB
 
 ### 2. Deploy prod
 
-1. Create the AWS managed certificate for your domain:
+1. Create the AWS managed certificate for the prod domain:
 
    ```bash
-   docker run --rm -it ghcr.io/<YOUR_GITHUB_ORG>/bloom/infra:gitsha-SOMESHA bloom_prod apply -exclude=module.bloom_deployment
+   INFRA_CONTAINER=<from your 'Fork Bloom Repo' step 8 notes>
+   docker run --rm -it "${INFRA_CONTAINER:?}" bloom_prod apply -exclude=module.bloom_deployment
    ```
 
 2. Validate the AWS managed certificate:
 
    The `tofu apply` command from step 1 will output the DNS records that need to be added for AWS to
-   issue the certificate. Add the two required CNAME records in your DNS provider then wait for AWS
+   issue the certificate. Add the two required CNAME records in the DNS provider then wait for AWS
    to validate the certificate (can take a few minutes).
 
    For example, the following records need to be added for the following output:
@@ -287,8 +312,31 @@ graph TB
 3. Deploy the Bloom services:
 
    ```bash
-   docker run --rm -it ghcr.io/<YOUR_GITHUB_ORG>/bloom/infra:gitsha-SOMESHA bloom_prod apply
+   INFRA_CONTAINER=<from your 'Fork Bloom Repo' step 8 notes>
+   docker run --rm -it "${INFRA_CONTAINER:?}" bloom_prod apply
    ```
+
+   While the apply is running, set API key secret values. The following secrets need to be set:
+
+   - **Mapbox** (`bloom-mapbox-api-key`): A Mapbox access token. Used by the public and partners
+     sites to render maps. Obtain a token from https://account.mapbox.com/access-tokens/. Make sure
+     to add the public and partners sites to the list of allowed URLs in the Mapbox access token
+     screen.
+   - **Google Translate** (`bloom-google-translate-api-key`): A Google Cloud API key for the Google
+     Translate API. Used by the API service. Obtain a key from the Google Cloud console under 'APIs
+     & Services > Credentials'. Set the project_id and iam_user in the root module
+     `google_translate_settings` parameter in the `module "bloom_deployment"`.
+
+   If you do not have valid API keys available, it is okay to set a placeholder 'placeholder'
+   value. The secrets need values for the API ECS task to successfully start, but they does not need
+   to have valid values (the deployment will just not have functioning Mapbox and Google Translate
+   integrations until valid values are provided).
+
+   1. Log in to the bloom-dev AWS account and go to the 'Secrets Manager > Secrets' page.
+   2. Click on the secret name (e.g. `bloom-mapbox-api-key-AbCdEf`).
+   3. In the 'Secret value' section, click 'Retrieve secret value' then 'Set secret value'.
+   4. Select 'Plaintext' and enter the API key or 'placeholder' value.
+   5. Click 'Save'.
 
 4. Add DNS records for the public and partner site URLs:
 
@@ -317,14 +365,14 @@ graph TB
    https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html. Follow the AWS
    instructions to take SES out of sandbox mode. Follow the quota request instructions at
    https://docs.aws.amazon.com/ses/latest/dg/manage-sending-quotas-request-increase.html to request
-   a sending quota and sending rate required by your Bloom deployment.
+   a sending quota and sending rate required by the prod Bloom deployment.
 
    Individual emails are validated by clicking an email validation link AWS sends in an email with
    subject like 'Amazon Web Services - Email Address Verification Request in region...'. If using
    a no-reply email address that does not receive email, you must either give it an inbox first then
    validate in AWS or use domain validation.
 
-   Domains are validated by publishing a set of DNS records. Add the required CNAME records in your
+   Domains are validated by publishing a set of DNS records. Add the required CNAME records in the
    DNS provider then wait for AWS to validate the identity (can take a few minutes).
 
    For example, the following records need to be added for the following output:
@@ -383,7 +431,8 @@ the existing VPC. To create the VPC peering:
 2. Apply the Bloom deployment root module:
 
    ```bash
-   docker run --rm -it ghcr.io/<YOUR_GITHUB_ORG>/bloom/infra:gitsha-SOMESHA <bloom_dev|bloom_prod> apply
+   INFRA_CONTAINER=<from your 'Fork Bloom Repo' step 8 notes>
+   docker run --rm -it "${INFRA_CONTAINER:?}" <bloom_dev|bloom_prod> apply
    ```
 
    The apply will create the peering connection then return an expected error "VPC peering not accepted. Skipping creation of dependent

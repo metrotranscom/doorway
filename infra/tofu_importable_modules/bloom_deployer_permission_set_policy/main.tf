@@ -55,6 +55,7 @@ data "aws_iam_policy_document" "deployer" {
       "cloudwatch:List*",
       "dms:ListDataProviders",
       "ec2:Describe*",
+      "ec2:Get*",
       "ecs:List*",
       "elasticloadbalancing:Describe*",
       "events:Describe*",

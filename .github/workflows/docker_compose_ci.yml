@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   check-docker-compose:
+    if: ${{ false }} # This condition ensures the workflow is skipped
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository

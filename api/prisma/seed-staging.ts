@@ -1170,6 +1170,70 @@ export const stagingSeed = async (
     //   angelopolisJurisdiction.id,
     //   prismaClient,
     //   {
+    //     listing: hollywoodHillsHeights,
+    //     propertyId: angelopolisProperty1.id,
+    //     units: [
+    //       {
+    //         amiPercentage: '30',
+    //         monthlyIncomeMin: '2000',
+    //         floor: 1,
+    //         maxOccupancy: 3,
+    //         minOccupancy: 1,
+    //         monthlyRent: '1200',
+    //         numBathrooms: 1,
+    //         numBedrooms: 0,
+    //         number: '101',
+    //         sqFeet: '750.00',
+    //         amiChart: { connect: { id: angelopolisAmiChart.id } },
+    //         unitTypes: {
+    //           connect: {
+    //             id: unitTypes[0].id,
+    //           },
+    //         },
+    //       },
+    //       {
+    //         amiPercentage: '30',
+    //         monthlyIncomeMin: '2000',
+    //         floor: 1,
+    //         maxOccupancy: 3,
+    //         minOccupancy: 1,
+    //         numBathrooms: 1,
+    //         numBedrooms: 1,
+    //         number: '101',
+    //         sqFeet: '750.00',
+    //         amiChart: { connect: { id: angelopolisAmiChart.id } },
+    //         unitTypes: {
+    //           connect: {
+    //             id: unitTypes[1].id,
+    //           },
+    //         },
+    //       },
+    //     ],
+    //     multiselectQuestions: [
+    //       cityEmployeeQuestion,
+    //       workInCityQuestion,
+    //       multiselectQuestionPrograms,
+    //       mobilityAccessibilityNeedsProgramQuestion,
+    //       hearingVisionAccessibilityNeedsProgramQuestion,
+    //     ],
+    //     applications: [
+    //       ...(await applicationFactoryMany(2, {
+    //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
+    //       })),
+    //       ...(await applicationFactoryMany(20, {
+    //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
+    //         userId: advocate.id,
+    //       })),
+    //     ],
+    //     userAccounts: [{ id: partnerUser.id }],
+    //     optionalFeatures: { carpetInUnit: true },
+    //     enableListingFeaturesAndUtilities: true,
+    //   },
+    // ],
+    // [
+    //   angelopolisJurisdiction.id,
+    //   prismaClient,
+    //   {
     //     listing: { ...hollywoodHillsHeights, name: '200 Acre Woods' },
     //     propertyId: angelopolisProperty1.id,
     //     units: Array.from({ length: 200 }, (_, i) => ({
@@ -1204,6 +1268,7 @@ export const stagingSeed = async (
     //     ],
     //     userAccounts: [{ id: partnerUser.id }],
     //     optionalFeatures: { carpetInUnit: true },
+    //     enableListingFeaturesAndUtilities: true,
     //   },
     // ],
     [
@@ -1694,6 +1759,8 @@ export const stagingSeed = async (
       afsLastRunSetInPast: true,
       userAccounts: listingParams.userAccounts,
       optionalFeatures: listingParams.optionalFeatures,
+      enableListingFeaturesAndUtilities:
+        listingParams.enableListingFeaturesAndUtilities,
       propertyId: listingParams.propertyId,
     });
     const savedListing = await prismaClient.listings.create({

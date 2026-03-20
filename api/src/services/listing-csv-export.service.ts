@@ -55,6 +55,7 @@ import {
 import { UnitGroupSummary } from '../dtos/unit-groups/unit-group-summary.dto';
 import { addUnitGroupsSummarized } from '../utilities/unit-groups-transformations';
 import { ListingDocuments } from '../dtos/listings/listing-documents.dto';
+import { ListingParkingType } from '../dtos/listings/listing-parking-type.dto';
 
 includeViews.csv = {
   listingMultiselectQuestions: {
@@ -429,7 +430,11 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
   };
 
   buildSelectList(
-    val: ListingUtilities | ListingDocuments | ListingFeatures,
+    val:
+      | ListingUtilities
+      | ListingDocuments
+      | ListingFeatures
+      | ListingParkingType,
   ): string {
     if (!val) return '';
     const selectedValues = Object.entries(val).reduce((combined, entry) => {
@@ -994,6 +999,23 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
         path: 'parkingFee',
         label: 'Parking Fee',
       });
+    }
+
+    if (
+      doAnyJurisdictionHaveFeatureFlagSet(
+        user.jurisdictions,
+        FeatureFlagEnum.enableParkingType,
+      )
+    ) {
+      headers.push(
+        ...[
+          {
+            path: 'parkType',
+            label: 'Parking Types',
+            format: this.buildSelectList,
+          },
+        ],
+      );
     }
 
     headers.push(

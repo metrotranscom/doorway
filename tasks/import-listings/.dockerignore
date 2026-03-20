@@ -1,4 +1,7 @@
 .build
+node_modules
+dist
+test
 coverage
 node_modules
 README.md

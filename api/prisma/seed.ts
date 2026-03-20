@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import { parseArgs } from 'node:util';
-// import { env } from 'node:process';
+import { env } from 'node:process';
+import { PrismaService } from '../src/services/prisma.service';
 import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import { stagingSeed } from './seed-staging';
 import { devSeeding } from './seed-dev';
@@ -11,14 +11,15 @@ import { reservedCommunityTypeFactoryAll } from './seed-helpers/reserved-communi
 const options: { [name: string]: { type: 'string' | 'boolean' } } = {
   environment: { type: 'string' },
   jurisdictionName: { type: 'string' },
+  msqV2: { type: 'boolean' },
 };
 
-const prisma = new PrismaClient();
+const prisma = new PrismaService();
 async function main() {
   const {
-    values: { environment, jurisdictionName },
+    values: { environment, jurisdictionName, msqV2 },
   } = parseArgs({ options });
-  const publicSiteBaseURL = undefined; // env.PUBLIC_SITE_BASE_URL;
+  const publicSiteBaseURL = env.PUBLIC_SITE_BASE_URL;
 
   switch (environment) {
     case 'production':
@@ -35,7 +36,12 @@ async function main() {
     case 'staging':
       // Staging setup should have realistic looking data with a preset list of listings
       // along with all of the required tables (ami, users, etc)
-      stagingSeed(prisma, jurisdictionName as string, publicSiteBaseURL);
+      stagingSeed(
+        prisma,
+        jurisdictionName as string,
+        publicSiteBaseURL,
+        msqV2 as boolean,
+      );
       break;
     case 'development':
     default:

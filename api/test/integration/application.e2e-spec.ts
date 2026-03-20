@@ -60,11 +60,16 @@ describe('Application Controller Tests', () => {
   const testEmailService = {
     /* eslint-disable @typescript-eslint/no-empty-function */
     applicationConfirmation: async () => {},
+    applicationUpdateEmail: async () => {},
   };
 
   const mockApplicationConfirmation = jest.spyOn(
     testEmailService,
     'applicationConfirmation',
+  );
+  const mockApplicationUpdateEmail = jest.spyOn(
+    testEmailService,
+    'applicationUpdateEmail',
   );
 
   const createMultiselectQuestion = async (
@@ -1857,6 +1862,53 @@ describe('Application Controller Tests', () => {
     });
   });
 
+  describe('notify update endpoint', () => {
+    it('should send application update email when changes exist', async () => {
+      const unitTypeA = await unitTypeFactorySingle(
+        prisma,
+        UnitTypeEnum.oneBdrm,
+      );
+      const jurisdiction = await prisma.jurisdictions.create({
+        data: jurisdictionFactory(),
+      });
+      await reservedCommunityTypeFactoryAll(jurisdiction.id, prisma);
+      const listing = await prisma.listings.create({
+        data: await listingFactory(jurisdiction.id, prisma),
+      });
+
+      const appData = await applicationFactory({
+        unitTypeId: unitTypeA.id,
+        listingId: listing.id,
+      });
+      const application = await prisma.applications.create({
+        data: appData,
+        include: { applicant: true },
+      });
+      await prisma.applications.update({
+        where: { id: application.id },
+        data: {
+          status: ApplicationStatusEnum.waitlist,
+          accessibleUnitWaitlistNumber: 2,
+          conventionalUnitWaitlistNumber: 5,
+        },
+      });
+
+      const res = await request(app.getHttpServer())
+        .post(`/applications/${application.id}/notify-update`)
+        .set({ passkey: process.env.API_PASS_KEY || '' })
+        .send({
+          previousStatus: ApplicationStatusEnum.submitted,
+          previousAccessibleUnitWaitlistNumber: 1,
+          previousConventionalUnitWaitlistNumber: 3,
+        })
+        .set('Cookie', adminCookies)
+        .expect(201);
+
+      expect(res.body).toEqual({ success: true });
+      expect(mockApplicationUpdateEmail).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('verify endpoint', () => {
     it('should verify an application', async () => {
       const unitTypeA = await unitTypeFactorySingle(
@@ -2108,6 +2160,8 @@ describe('Application Controller Tests', () => {
         userId: user.id,
         filterType: ApplicationsFilterEnum.all,
         includeLotteryApps: true,
+        page: 1,
+        limit: 10,
       };
       const query = stringify(queryParams as any);
 
@@ -2122,8 +2176,11 @@ describe('Application Controller Tests', () => {
       expect(res.body.applicationsCount.closed).toEqual(1);
       expect(res.body.applicationsCount.open).toEqual(1);
 
-      expect(res.body.displayApplications.length).toBe(3);
-      expect(res.body.displayApplications[0].id).not.toBeNull();
+      expect(res.body.items.length).toBe(3);
+      expect(res.body.items[0].id).not.toBeNull();
+      expect(res.body.meta.currentPage).toEqual(1);
+      expect(res.body.meta.totalItems).toEqual(3);
+      expect(res.body.meta.totalPages).toEqual(1);
     });
 
     it('should not retrieve applications nor error when none exist', async () => {
@@ -2135,6 +2192,8 @@ describe('Application Controller Tests', () => {
         userId: userA.id,
         filterType: ApplicationsFilterEnum.all,
         includeLotteryApps: true,
+        page: 1,
+        limit: 10,
       };
       const query = stringify(queryParams as any);
 
@@ -2145,7 +2204,9 @@ describe('Application Controller Tests', () => {
         .expect(200);
 
       expect(res.body.applicationsCount.total).toEqual(0);
-      expect(res.body.displayApplications.length).toEqual(0);
+      expect(res.body.items.length).toEqual(0);
+      expect(res.body.meta.currentPage).toEqual(1);
+      expect(res.body.meta.totalItems).toEqual(0);
     });
   });
 

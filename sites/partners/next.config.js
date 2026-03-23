@@ -46,6 +46,8 @@ module.exports = withBundleAnalyzer(
       // esmExternals: "loose"
     },
     env: {
+      // Set ALLOW_SEO_INDEXING=TRUE only in production so dev/staging get noindex
+      allowSeoIndexing: process.env.ALLOW_SEO_INDEXING === "TRUE" ? "TRUE" : "",
       backendApiBase: BACKEND_API_BASE,
       backendProxyBase: BACKEND_PROXY_BASE,
       listingServiceUrl: BACKEND_API_BASE + LISTINGS_QUERY,
@@ -107,7 +109,14 @@ module.exports = withBundleAnalyzer(
     },
     // eslint-disable-next-line @typescript-eslint/require-await
     async headers() {
+      if (process.env.ALLOW_SEO_INDEXING === "TRUE") {
+        return []
+      }
       return [
+        {
+          source: "/:path*",
+          headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+        },
         {
           source: "/(.*)",
           headers: [

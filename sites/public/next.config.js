@@ -38,9 +38,11 @@ module.exports = withBundleAnalyzer({
     // esmExternals: "loose"
   },
   env: {
-    backendApiBase: BACKEND_API_BASE, // this has to be set for tests
+    // Set ALLOW_SEO_INDEXING=true only in production so dev/staging get noindex
+    allowSeoIndexing: process.env.ALLOW_SEO_INDEXING === "TRUE" ? "TRUE" : "",
+    backendApiBase: BACKEND_API_BASE,
     backendProxyBase: process.env.BACKEND_PROXY_BASE,
-    listingsQuery: LISTINGS_QUERY,
+    listingServiceUrl: BACKEND_API_BASE + LISTINGS_QUERY,
     listingPhotoSize: process.env.LISTING_PHOTO_SIZE || "1302",
     mapBoxToken: MAPBOX_TOKEN,
     housingCounselorServiceUrl: HOUSING_COUNSELOR_SERVICE_URL,
@@ -120,12 +122,19 @@ module.exports = withBundleAnalyzer({
     ]
   },
   redirects() {
+    if (process.env.ALLOW_SEO_INDEXING === "TRUE") {
+      return []
+    }
     return [
       // get-assistance page doesn't exist in Doorway so re-route to the get started page
       {
         source: "/get-assistance",
         destination: "/help/get-started",
         permanent: true,
+      },
+      {
+        source: "/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ]
   },

@@ -818,6 +818,28 @@ export class SnapshotService {
       axios(configs, resolve, reject)
     })
   }
+  /**
+   * Create Application Snapshot
+   */
+  createApplicationSnapshot(
+    params: {
+      /** requestBody */
+      body?: IdDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/snapshot/createApplicationSnapshot"
+
+      const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
+
+      let data = params.body
+
+      configs.data = data
+
+      axios(configs, resolve, reject)
+    })
+  }
 }
 
 export class AmiChartsService {
@@ -7106,10 +7128,10 @@ export interface Demographic {
   sexualOrientation?: string
 
   /**  */
-  howDidYouHear?: string[]
+  howDidYouHear: string[]
 
   /**  */
-  race?: string[]
+  race: string[]
 
   /**  */
   spokenLanguage?: string
@@ -8642,10 +8664,10 @@ export interface DemographicCreate {
   sexualOrientation?: string
 
   /**  */
-  howDidYouHear?: string[]
+  howDidYouHear: string[]
 
   /**  */
-  race?: string[]
+  race: string[]
 
   /**  */
   spokenLanguage?: string
@@ -8975,10 +8997,10 @@ export interface DemographicUpdate {
   sexualOrientation?: string
 
   /**  */
-  howDidYouHear?: string[]
+  howDidYouHear: string[]
 
   /**  */
-  race?: string[]
+  race: string[]
 
   /**  */
   spokenLanguage?: string

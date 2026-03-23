@@ -307,6 +307,7 @@ const SignIn = (props: SignInProps) => {
       <FormsLayout
         className={signUpCopy ? "sm:max-w-lg md:max-w-full" : undefined}
         pageTitle={t("nav.signIn")}
+        metaDescription={t("pageDescription.signIn")}
       >
         <div className={signUpCopy ? signUpBenefitsStyles["benefits-container"] : undefined}>
           {signUpCopy && (

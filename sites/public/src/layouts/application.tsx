@@ -9,7 +9,6 @@ import { MenuLink, t, SiteHeader as UICSiteHeader } from "@bloom-housing/ui-comp
 import { Icon, Message, Toast } from "@bloom-housing/ui-seeds"
 import { User } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ToastProps } from "@bloom-housing/ui-seeds/src/blocks/Toast"
-import { MetaTags } from "../components/shared/MetaTags"
 import CustomSiteFooter from "../components/shared/CustomSiteFooter"
 import { HeaderLink, SiteHeader } from "../patterns/SiteHeader"
 import styles from "./application.module.scss"
@@ -313,58 +312,34 @@ const Layout = (props: LayoutProps) => {
     }
   }
 
+  const metaTitle = props.pageTitle
+    ? `${props.pageTitle} - ${t("nav.siteTitle")}`
+    : t("nav.siteTitle")
+  const metaDescription = props.metaDescription ?? t("pageDescription.default")
+
   return (
-    <div className="site-wrapper">
-      <div className="site-content">
-        <Head>
-          <title>
-            {props.pageTitle ? `${props.pageTitle} - ${t("nav.siteTitle")}` : t("nav.siteTitle")}
-          </title>
-          {props.pageTitle && (
-            <MetaTags
-              title={props.pageTitle}
-              description={props.metaDescription ?? ""}
-              image={props.metaImage ?? ""}
-            />
-          )}
-        </Head>
-        {process.env.showNewSeedsDesigns ? (
-          <SiteHeader
-            title={t("nav.siteTitle")}
-            languageDropdown={true}
-            languages={languages?.map((lang) => {
-              return {
-                label: lang.label,
-                onClick: () =>
-                  void router.push(router.asPath, router.asPath, { locale: lang.prefix || "en" }),
-                active: t("config.routePrefix") === lang.prefix,
-              }
-            })}
-            links={getHeaderLinks(router, profile, signOut, addToast, {
-              applications: showApplications,
-              favorites: showFavorites,
-            })}
-            titleLink={"/"}
-            logo={
-              <Icon size={"lg"}>
-                <HomeIcon />
-              </Icon>
-            }
-            mainContentId="main-content"
-            showMessageBar={true}
-          />
-        ) : (
-          <>
-            <AlertBanner windowEnv={process.env.maintenanceWindow} variant={"alert"}>
-              <Markdown>{t("alert.maintenance")}</Markdown>
-            </AlertBanner>
-            <AlertBanner windowEnv={process.env.siteMessageWindow} variant={"primary"}>
-              <Markdown>{t("siteMessage.achpTranstion")}</Markdown>
-            </AlertBanner>
-            <DUICSiteHeader
-              logoSrc="/images/doorway-logo.png"
-              homeURL="/"
-              mainContentId="main-content"
+    <>
+      <Head>
+        <title>{metaTitle}</title>
+        {process.env.allowSeoIndexing !== "TRUE" && (
+          <meta name="robots" content="noindex, nofollow" />
+        )}
+        <meta name="description" content={metaDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={metaTitle} />
+        {props.metaImage && <meta property="og:image" content={props.metaImage} />}
+        <meta property="og:description" content={metaDescription} />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content={metaTitle} />
+        {props.metaImage && <meta property="twitter:image" content={props.metaImage} />}
+        <meta property="twitter:description" content={metaDescription} />
+      </Head>
+      <div className="site-wrapper">
+        <div className="site-content">
+          {process.env.showNewSeedsDesigns ? (
+            <SiteHeader
+              title={t("nav.siteTitle")}
+              languageDropdown={true}
               languages={languages?.map((lang) => {
                 return {
                   label: lang.label,
@@ -373,32 +348,68 @@ const Layout = (props: LayoutProps) => {
                   active: t("config.routePrefix") === lang.prefix,
                 }
               })}
-              menuLinks={menuLinks.map((menuLink) => {
-                return {
-                  ...menuLink,
-                  className:
-                    router.pathname === menuLink.href ||
-                    menuLink.subMenuLinks?.map((link) => link.href).indexOf(router.pathname) >= 0
-                      ? "secondary"
-                      : "",
-                }
+              links={getHeaderLinks(router, profile, signOut, addToast, {
+                applications: showApplications,
+                favorites: showFavorites,
               })}
-              strings={{ skipToMainContent: t("t.skipToMainContent") }}
+              titleLink={"/"}
+              logo={
+                <Icon size={"lg"}>
+                  <HomeIcon />
+                </Icon>
+              }
+              mainContentId="main-content"
+              showMessageBar={true}
             />
-          </>
-        )}
+          ) : (
+            <>
+              <AlertBanner windowEnv={process.env.maintenanceWindow} variant={"alert"}>
+                <Markdown>{t("alert.maintenance")}</Markdown>
+              </AlertBanner>
+              <AlertBanner windowEnv={process.env.siteMessageWindow} variant={"primary"}>
+                <Markdown>{t("siteMessage.achpTranstion")}</Markdown>
+              </AlertBanner>
+              <DUICSiteHeader
+                logoSrc="/images/doorway-logo.png"
+                homeURL="/"
+                mainContentId="main-content"
+                languages={languages?.map((lang) => {
+                  return {
+                    label: lang.label,
+                    onClick: () =>
+                      void router.push(router.asPath, router.asPath, {
+                        locale: lang.prefix || "en",
+                      }),
+                    active: t("config.routePrefix") === lang.prefix,
+                  }
+                })}
+                menuLinks={menuLinks.map((menuLink) => {
+                  return {
+                    ...menuLink,
+                    className:
+                      router.pathname === menuLink.href ||
+                      menuLink.subMenuLinks?.map((link) => link.href).indexOf(router.pathname) >= 0
+                        ? "secondary"
+                        : "",
+                  }
+                })}
+                strings={{ skipToMainContent: t("t.skipToMainContent") }}
+              />
+            </>
+          )}
 
-        <main id="main-content" className="md:overflow-x-hidden relative">
-          {toastMessagesRef.current?.map((toastMessage) => (
-            <Toast {...toastMessage.props} testId="toast-alert" key={toastMessage.timestamp}>
-              {toastMessage.message}
-            </Toast>
-          ))}
-          {props.children}
-        </main>
+          <main id="main-content" className="md:overflow-x-hidden relative">
+            {toastMessagesRef.current?.map((toastMessage) => (
+              <Toast {...toastMessage.props} testId="toast-alert" key={toastMessage.timestamp}>
+                {toastMessage.message}
+              </Toast>
+            ))}
+            {props.children}
+          </main>
+        </div>
+        {!props.hideFooter && <CustomSiteFooter />}
       </div>
-      {!props.hideFooter && <CustomSiteFooter />}
-    </div>
+    </>
   )
 }
 

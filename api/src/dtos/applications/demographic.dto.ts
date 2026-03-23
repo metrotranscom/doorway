@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ArrayMaxSize, IsDefined, IsString, MaxLength } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { IdOnlyDTO } from '../shared/id-only.dto';
@@ -27,18 +27,17 @@ export class Demographic extends IdOnlyDTO {
   sexualOrientation?: string;
 
   @Expose()
-  @ArrayMaxSize(64, { groups: [ValidationsGroupsEnum.default] })
   @IsString({ groups: [ValidationsGroupsEnum.default], each: true })
-  @IsDefined({ groups: [ValidationsGroupsEnum.applicants] })
+  @ArrayMaxSize(64, { groups: [ValidationsGroupsEnum.default] })
   @MaxLength(64, { groups: [ValidationsGroupsEnum.default], each: true })
-  @ApiPropertyOptional()
-  howDidYouHear?: string[];
+  @ApiProperty()
+  howDidYouHear: string[];
 
   @Expose()
   @ArrayMaxSize(64, { groups: [ValidationsGroupsEnum.default] })
   @IsString({ groups: [ValidationsGroupsEnum.default], each: true })
   @IsDefined({ groups: [ValidationsGroupsEnum.applicants] })
-  @ApiPropertyOptional()
+  @ApiProperty()
   race?: string[];
 
   @Expose()

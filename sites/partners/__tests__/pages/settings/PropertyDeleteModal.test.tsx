@@ -98,6 +98,14 @@ describe("Testing PropertyDeleteModal component", () => {
               meta: { totalItems: 1, totalPages: 1 },
             })
           )
+        }),
+        rest.post("http://localhost:3100/listings/list", (_req, res, ctx) => {
+          return res(
+            ctx.json({
+              items: [mockListingWithProperty],
+              meta: { totalItems: 1, totalPages: 1 },
+            })
+          )
         })
       )
 
@@ -147,6 +155,18 @@ describe("Testing PropertyDeleteModal component", () => {
               meta: { totalItems: 3, totalPages: 1 },
             })
           )
+        }),
+        rest.post("http://localhost:3100/listings/list", (_req, res, ctx) => {
+          return res(
+            ctx.json({
+              items: [
+                mockListingWithProperty,
+                anotherListingWithProperty,
+                mockListingWithoutProperty,
+              ],
+              meta: { totalItems: 3, totalPages: 1 },
+            })
+          )
         })
       )
 
@@ -165,6 +185,9 @@ describe("Testing PropertyDeleteModal component", () => {
     it("should show delete confirmation modal", async () => {
       server.use(
         rest.get("http://localhost:3100/listings", (_req, res, ctx) => {
+          return res(ctx.json({ items: [], meta: { totalItems: 0, totalPages: 0 } }))
+        }),
+        rest.post("http://localhost:3100/listings/list", (_req, res, ctx) => {
           return res(ctx.json({ items: [], meta: { totalItems: 0, totalPages: 0 } }))
         })
       )
@@ -193,6 +216,14 @@ describe("Testing PropertyDeleteModal component", () => {
               meta: { totalItems: 1, totalPages: 1 },
             })
           )
+        }),
+        rest.post("http://localhost:3100/listings/list", (_req, res, ctx) => {
+          return res(
+            ctx.json({
+              items: [mockListingWithoutProperty],
+              meta: { totalItems: 1, totalPages: 1 },
+            })
+          )
         })
       )
 
@@ -208,6 +239,9 @@ describe("Testing PropertyDeleteModal component", () => {
     it("should delete property and show success toast when Delete is clicked", async () => {
       server.use(
         rest.get("http://localhost:3100/listings", (_req, res, ctx) => {
+          return res(ctx.json({ items: [], meta: { totalItems: 0, totalPages: 0 } }))
+        }),
+        rest.post("http://localhost:3100/listings/list", (_req, res, ctx) => {
           return res(ctx.json({ items: [], meta: { totalItems: 0, totalPages: 0 } }))
         }),
         rest.delete("http://localhost/api/adapter/properties", (_req, res, ctx) => {

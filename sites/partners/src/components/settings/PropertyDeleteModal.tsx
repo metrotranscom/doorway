@@ -51,7 +51,7 @@ export const PropertyDeleteModal = ({ property, onClose }: PreferenceDeleteModal
       })
   }
 
-  if (listingsWithProperty.length > 0) {
+  if (listingsWithProperty?.length > 0) {
     return (
       <Dialog
         isOpen={!!property}

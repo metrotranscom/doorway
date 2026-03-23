@@ -52,7 +52,13 @@ async function main() {
     case 'staging-large':
       // Staging setup should have a large amount of realistic looking data
       // along with all of the required tables (ami, users, etc)
-      stagingSeed(prisma, jurisdictionName as string, publicSiteBaseURL, true);
+      stagingSeed(
+        prisma,
+        jurisdictionName as string,
+        publicSiteBaseURL,
+        msqV2 as boolean,
+        true,
+      );
       break;
   }
 }

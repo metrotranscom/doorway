@@ -928,7 +928,14 @@ describe('Testing application service', () => {
             listings: {
               is: {
                 status: { not: ListingsStatusEnum.active },
-                lotteryStatus: LotteryStatusEnum.publishedToPublic,
+                OR: [
+                  {
+                    lotteryStatus: LotteryStatusEnum.publishedToPublic,
+                  },
+                  {
+                    lotteryStatus: LotteryStatusEnum.expired,
+                  },
+                ],
               },
             },
           },

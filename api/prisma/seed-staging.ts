@@ -978,12 +978,12 @@ export const stagingSeed = async (
   const workInCityQuestion = await prismaClient.multiselectQuestions.create({
     data: workInCityMsqData,
   });
-  let veteranProgramMsqData: Prisma.MultiselectQuestionsCreateInput;
+  let veteransProgramMsqData: Prisma.MultiselectQuestionsCreateInput;
   if (msqV2) {
-    veteranProgramMsqData = multiselectQuestionFactory(mainJurisdiction.id, {
+    veteransProgramMsqData = multiselectQuestionFactory(mainJurisdiction.id, {
       multiselectQuestion: {
         status: MultiselectQuestionsStatusEnum.active,
-        name: 'Veteran',
+        name: 'Veterans',
         description:
           'Have you or anyone in your household served in the US military?',
         applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
@@ -996,9 +996,9 @@ export const stagingSeed = async (
       },
     });
   } else {
-    veteranProgramMsqData = multiselectQuestionFactory(mainJurisdiction.id, {
+    veteransProgramMsqData = multiselectQuestionFactory(mainJurisdiction.id, {
       multiselectQuestion: {
-        text: 'Veteran',
+        text: 'Veterans',
         description:
           'Have you or anyone in your household served in the US military?',
         applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
@@ -1011,39 +1011,11 @@ export const stagingSeed = async (
       },
     });
   }
-  const veteranProgramQuestion = await prismaClient.multiselectQuestions.create(
-    {
-      data: veteranProgramMsqData,
-    },
-  );
-  await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(mainJurisdiction.id, {
-      multiselectQuestion: {
-        text: 'Housing Situation',
-        description:
-          'Thinking about the past 30 days, do either of these describe your housing situation?',
-        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
-        options: [
-          {
-            text: 'Not Permanent',
-            ordinal: 0,
-          },
-          {
-            text: 'Homeless',
-            ordinal: 1,
-          },
-          {
-            text: 'Do Not Consider',
-            ordinal: 2,
-          },
-          {
-            text: 'Prefer not to say',
-            ordinal: 3,
-          },
-        ],
-      },
-    }),
-  });
+  const veteransProgramQuestion =
+    await prismaClient.multiselectQuestions.create({
+      data: veteransProgramMsqData,
+    });
+
   const mobilityAccessibilityNeedsProgramQuestion =
     await prismaClient.multiselectQuestions.create({
       data: multiselectQuestionFactory(angelopolisJurisdiction.id, {
@@ -1514,7 +1486,7 @@ export const stagingSeed = async (
             multiselectQuestions: [
               cityEmployeeQuestion,
               workInCityQuestion,
-              veteranProgramQuestion,
+              veteransProgramQuestion,
             ],
           }),
           await applicationFactory({
@@ -1528,7 +1500,7 @@ export const stagingSeed = async (
         multiselectQuestions: [
           workInCityQuestion,
           cityEmployeeQuestion,
-          veteranProgramQuestion,
+          veteransProgramQuestion,
         ],
         units: [
           {

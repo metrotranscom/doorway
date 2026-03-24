@@ -56,7 +56,10 @@ describe("Listing Management Tests", () => {
     cy.getByID("units-error").contains("This field is required")
     cy.getByID("communityDisclaimerTitle-error").contains("This field is required")
     cy.get(".textarea-error-message").contains("This field is required")
-    cy.getByID("applicationProcessButton").contains("Application process").click()
+    cy.getByID("applicationProcessButton")
+      .contains("Application process")
+      .should("be.visible")
+      .click()
     cy.getByID("leasingAgentName-error").contains("This field is required")
     cy.getByID("leasingAgentEmail-error").contains("This field is required")
     cy.getByID("leasingAgentPhone-error").contains("This field is required")
@@ -102,7 +105,10 @@ describe("Listing Management Tests", () => {
     cy.getByID("listingsBuildingAddress.state-error").contains("Cannot enter a partial address")
     cy.getByID("listingsBuildingAddress.zipCode-error").contains("Cannot enter a partial address")
     cy.getByID("units-error").should("not.exist")
-    cy.getByID("applicationProcessButton").contains("Application process").click()
+    cy.getByID("applicationProcessButton")
+      .contains("Application process")
+      .should("be.visible")
+      .click()
     cy.getByID("leasingAgentName-error").contains("This field is required").should("not.exist")
     cy.getByID("leasingAgentEmail-error").contains("This field is required").should("not.exist")
     cy.getByID("leasingAgentPhone-error").should("not.exist")
@@ -589,7 +595,7 @@ describe("Listing Management Tests", () => {
     fillIfDataExists(cy, "specialNotes", listing.specialNotes, "type")
 
     // Second tab
-    cy.get("button").contains("Application process").click()
+    cy.get("button").contains("Application process").should("be.visible").click()
 
     // ----------
     // Section - Rankings and results
@@ -1656,7 +1662,7 @@ describe("Listing Management Tests", () => {
     verifyDataIfExists(cy, "specialNotes", listing.specialNotes, "type")
 
     // Second tab
-    cy.get("button").contains("Application process").click()
+    cy.get("button").contains("Application process").should("be.visible").click()
 
     // ----------
     // Section - Rankings and results

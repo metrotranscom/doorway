@@ -414,8 +414,10 @@ export function useJurisdictionalMultiselectQuestionList(
 
   const params: {
     filter: MultiselectQuestionFilterParams[]
+    limit: number | "all"
   } = {
     filter: [],
+    limit: "all",
   }
   params.filter.push({
     $comparison: EnumMultiselectQuestionFilterParamsComparison["IN"],

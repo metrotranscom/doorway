@@ -213,6 +213,7 @@ model Applications {
   additionalPhoneNumber          String?                       @map("additional_phone_number")
   additionalPhoneNumberType      String?                       @map("additional_phone_number_type")
   contactPreferences             String[]                      @map("contact_preferences")
+  historicalUserId               String?                       @map("historical_user_id") @db.Uuid
   householdSize                  Int?                          @map("household_size")
   housingStatus                  String?                       @map("housing_status")
   sendMailToMailingAddress       Boolean?                      @map("send_mail_to_mailing_address")

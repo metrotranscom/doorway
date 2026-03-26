@@ -129,7 +129,21 @@ export class ListingController {
     return await this.listingCsvExportService.exportFile(req, res, queryParams);
   }
 
-  @Post('mapMarkers')
+  @Get(`csvSecure`)
+  @ApiOperation({
+    summary: 'Get listings and units as secured zip',
+    operationId: 'listAsCsvSecure',
+  })
+  @UseInterceptors(ExportLogInterceptor)
+  async listAsCsvSecure(
+    @Request() req: ExpressRequest,
+    @Query(new ValidationPipe(defaultValidationPipeOptions))
+    queryParams: ListingCsvQueryParams,
+  ): Promise<string> {
+    return await this.listingCsvExportService.exporterSecure(req, queryParams);
+  }
+
+  @Get('mapMarkers')
   @ApiOperation({
     summary: 'Get listing map markers',
     operationId: 'mapMarkers',

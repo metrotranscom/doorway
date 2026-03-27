@@ -54,9 +54,18 @@ class AutofillCleaner {
     //handles case of autofilling with applications submitted before app.service sets workAddress to undefined
     this.application.applicant.applicantWorkAddress = undefined
     unsetIdentifiers(this.application.applicationsMailingAddress)
+    unsetIdentifiers(this.application.applicationsAlternateAddress)
 
-    if (this.application.applicationsAlternateAddress)
-      unsetIdentifiers(this.application.applicationsAlternateAddress)
+    if (this.application.householdMember) {
+      this.application.householdMember
+        .sort((a, b) => a.orderId - b.orderId)
+        .forEach((member, index) => {
+          unsetIdentifiers(member)
+          member.orderId = index
+          unsetIdentifiers(member.householdMemberAddress)
+          unsetIdentifiers(member.householdMemberWorkAddress)
+        })
+    }
 
     this.application.householdMember
       .sort((a, b) => a.orderId - b.orderId)

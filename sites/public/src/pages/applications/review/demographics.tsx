@@ -97,7 +97,7 @@ const ApplicationDemographics = () => {
     return (enableLimitedHowDidYouHear ? limitedHowDidYouHear : howDidYouHear)?.map((item) => ({
       id: item.id,
       label: t(`application.review.demographics.howDidYouHearOptions.${item.id}`),
-      defaultChecked: application.demographics.howDidYouHear?.includes(item.id),
+      defaultChecked: application.demographics?.howDidYouHear?.includes(item.id),
       register,
     }))
   }
@@ -264,9 +264,9 @@ const ApplicationDemographics = () => {
                   id="spokenLanguage"
                   name="spokenLanguage"
                   defaultValue={
-                    application.demographics.spokenLanguage?.includes("notListed")
+                    application.demographics?.spokenLanguage?.includes("notListed")
                       ? "notListed"
-                      : application.demographics.spokenLanguage
+                      : application.demographics?.spokenLanguage
                   }
                   label={t("application.review.demographics.spokenLanguageLabel")}
                   placeholder={t("t.selectOne")}
@@ -282,8 +282,8 @@ const ApplicationDemographics = () => {
                     id="spokenLanguageNotListed"
                     name="spokenLanguageNotListed"
                     defaultValue={
-                      application.demographics.spokenLanguage?.includes("notListed")
-                        ? application.demographics.spokenLanguage.split(":")[1]
+                      application.demographics?.spokenLanguage?.includes("notListed")
+                        ? application.demographics?.spokenLanguage.split(":")[1]
                         : undefined
                     }
                     label={t("application.review.demographics.spokenLanguageSpecify")}

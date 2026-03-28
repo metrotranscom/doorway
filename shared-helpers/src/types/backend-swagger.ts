@@ -7395,6 +7395,9 @@ export interface Application {
   householdStudent?: boolean
 
   /**  */
+  reasonableAccommodations?: string
+
+  /**  */
   incomeVouchers?: string[]
 
   /**  */
@@ -8412,6 +8415,9 @@ export interface PublicAppsFiltered {
   householdStudent?: boolean
 
   /**  */
+  reasonableAccommodations?: string
+
+  /**  */
   incomeVouchers?: string[]
 
   /**  */
@@ -8757,6 +8763,9 @@ export interface ApplicationCreate {
   householdStudent?: boolean
 
   /**  */
+  reasonableAccommodations?: string
+
+  /**  */
   incomeVouchers?: string[]
 
   /**  */
@@ -9097,6 +9106,9 @@ export interface ApplicationUpdate {
 
   /**  */
   householdStudent?: boolean
+
+  /**  */
+  reasonableAccommodations?: string
 
   /**  */
   incomeVouchers?: string[]

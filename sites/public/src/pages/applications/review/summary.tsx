@@ -157,6 +157,10 @@ const ApplicationSummary = () => {
               conductor.config,
               FeatureFlagEnum.enableAdaOtherOption
             )}
+            enableReasonableAccommodations={isFeatureFlagOn(
+              conductor.config,
+              FeatureFlagEnum.enableReasonableAccommodations
+            )}
             swapCommunityTypeWithPrograms={isFeatureFlagOn(
               conductor.config,
               FeatureFlagEnum.swapCommunityTypeWithPrograms

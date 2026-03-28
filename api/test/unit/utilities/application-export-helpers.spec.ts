@@ -229,6 +229,10 @@ describe('Testing application export helpers', () => {
       label: 'Household Includes Student or Member Nearing 18',
     },
     {
+      path: 'reasonableAccommodations',
+      label: 'Reasonable Accommodations',
+    },
+    {
       path: 'incomeVouchers',
       label: 'Vouchers or Subsidies',
     },
@@ -286,6 +290,7 @@ describe('Testing application export helpers', () => {
     it('tests getCsvHeaders with no household members, multiselect questions or demographics', () => {
       const headers = getExportHeaders(0, [], process.env.TIME_ZONE, {
         enableAdaOtherOption: true,
+        enableReasonableAccommodations: true,
       });
       const testHeaders = [
         ...getCsvHeader(),
@@ -311,6 +316,7 @@ describe('Testing application export helpers', () => {
     it('tests getCsvHeaders with household members and no multiselect questions or demographics', () => {
       const headers = getExportHeaders(3, [], process.env.TIME_ZONE, {
         enableAdaOtherOption: true,
+        enableReasonableAccommodations: true,
       });
 
       const testHeaders = [
@@ -339,6 +345,7 @@ describe('Testing application export helpers', () => {
       const headers = getExportHeaders(3, [], process.env.TIME_ZONE, {
         disableWorkInRegion: true,
         enableAdaOtherOption: true,
+        enableReasonableAccommodations: true,
       });
 
       const testHeaders = [
@@ -380,6 +387,7 @@ describe('Testing application export helpers', () => {
         process.env.TIME_ZONE,
         {
           enableAdaOtherOption: true,
+          enableReasonableAccommodations: true,
           enableV2MSQ: true,
         },
       );

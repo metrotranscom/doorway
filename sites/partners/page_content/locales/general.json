@@ -81,6 +81,7 @@
   "application.details.receivedBy": "Received by",
   "application.details.receivedDate": "Application received date",
   "application.details.receivedTime": "Application received time",
+  "application.details.reasonableAccommodations": "Reasonable accommodations",
   "application.details.residenceAddress": "Residence address",
   "application.details.signatureOnTerms": "Signature on Terms of Agreement",
   "application.details.submissionType.digital": "Digital",

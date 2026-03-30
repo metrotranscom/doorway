@@ -8988,9 +8988,6 @@ export interface ApplicationSelectionOptionUpdate {
 /** ApplicationSelectionUpdate */
 export interface ApplicationSelectionUpdate {
   /**  */
-  application: IdDTO
-
-  /**  */
   hasOptedOut?: boolean
 
   /**  */

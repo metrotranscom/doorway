@@ -76,6 +76,8 @@ includeViews.csv = {
     },
   },
   userAccounts: true,
+  units: { select: { id: true } },
+  unitGroups: { select: { id: true } },
 };
 const NUMBER_TO_PAGINATE_BY = 100;
 
@@ -544,7 +546,29 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
               new Promise(async (resolve) => {
                 // grab listings NUMBER_TO_PAGINATE_BY at a time
                 const paginatedListings = await this.prisma.listings.findMany({
-                  include: includeViews.csv,
+                  include: {
+                    jurisdictions: true,
+                    units: {
+                      include: {
+                        unitTypes: true,
+                        unitAmiChartOverrides: true,
+                      },
+                    },
+                    unitGroups: {
+                      include: {
+                        unitTypes: true,
+                        unitGroupAmiLevels: {
+                          include: {
+                            amiChart: {
+                              include: {
+                                jurisdictions: true,
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
                   where: {
                     id: {
                       in: listings

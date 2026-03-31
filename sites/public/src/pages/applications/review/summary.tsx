@@ -33,6 +33,7 @@ const ApplicationSummary = () => {
   const { profile, applicationsService } = useContext(AuthContext)
   const toastyRef = useToastyRef()
   const [validationError, setValidationError] = useState(false)
+  const [loading, setLoading] = useState(false)
   const { conductor, application, listing } = useFormConductor("summary")
   let currentPageSection = 4
   if (listingSectionQuestions(listing, MultiselectQuestionsApplicationSectionEnum.programs)?.length)
@@ -76,10 +77,15 @@ const ApplicationSummary = () => {
   }, [conductor])
 
   const onSubmit = () => {
+    setLoading(true)
     applicationsService
       .submissionValidation({
         body: {
           ...application,
+          alternateContact:
+            application.alternateContact?.type === "noContact"
+              ? null
+              : application.alternateContact,
           reviewStatus: ApplicationReviewStatusEnum.pending,
           listing: {
             id: listing.id,
@@ -181,6 +187,7 @@ const ApplicationSummary = () => {
                 conductor.config.isPreview
               }
               type={"submit"}
+              loadingMessage={loading ? t("t.loading") : undefined}
             >
               {t("t.confirm")}
             </Button>

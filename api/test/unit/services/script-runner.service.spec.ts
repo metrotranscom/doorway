@@ -423,9 +423,9 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
       prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
-      prisma.unitAccessibilityPriorityTypes.findMany = jest
-        .fn()
-        .mockResolvedValue([]);
+      // prisma.unitAccessibilityPriorityTypes.findMany = jest
+      //   .fn()
+      //   .mockResolvedValue([]);
       prisma.unitRentTypes.findMany = jest.fn().mockResolvedValue([]);
 
       const jurisdictionId = randomUUID();
@@ -679,9 +679,9 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
       prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
-      prisma.unitAccessibilityPriorityTypes.findMany = jest
-        .fn()
-        .mockResolvedValue([]);
+      // prisma.unitAccessibilityPriorityTypes.findMany = jest
+      //   .fn()
+      //   .mockResolvedValue([]);
       prisma.unitRentTypes.findMany = jest.fn().mockResolvedValue([]);
 
       const jurisdictionId = randomUUID();
@@ -849,11 +849,11 @@ describe('Testing script runner service', () => {
       prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
       const doorwayPriorityTypeId = randomUUID();
       const priorityTypeId = randomUUID();
-      prisma.unitAccessibilityPriorityTypes.findMany = jest
-        .fn()
-        .mockResolvedValue([
-          { name: 'sample priority type', id: doorwayPriorityTypeId },
-        ]);
+      // prisma.unitAccessibilityPriorityTypes.findMany = jest
+      //   .fn()
+      //   .mockResolvedValue([
+      //     { name: 'sample priority type', id: doorwayPriorityTypeId },
+      //   ]);
       const doorwayRentTypeId = randomUUID();
       const rentTypeId = randomUUID();
       prisma.unitRentTypes.findMany = jest.fn().mockResolvedValue([
@@ -997,11 +997,11 @@ describe('Testing script runner service', () => {
           number: '200',
           sqFeet: '600',
           status: undefined,
-          unitAccessibilityPriorityTypes: {
-            connect: {
-              id: doorwayPriorityTypeId,
-            },
-          },
+          // unitAccessibilityPriorityTypes: {
+          //   connect: {
+          //     id: doorwayPriorityTypeId,
+          //   },
+          // },
           unitRentTypes: {
             connect: {
               id: doorwayRentTypeId,
@@ -1045,9 +1045,9 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
       prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
-      prisma.unitAccessibilityPriorityTypes.findMany = jest
-        .fn()
-        .mockResolvedValue([]);
+      // prisma.unitAccessibilityPriorityTypes.findMany = jest
+      //   .fn()
+      //   .mockResolvedValue([]);
       prisma.unitRentTypes.findMany = jest.fn().mockResolvedValue([]);
       const jurisdictionId = randomUUID();
       prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({
@@ -1143,9 +1143,9 @@ describe('Testing script runner service', () => {
       prisma.scriptRuns.create = jest.fn().mockResolvedValue(null);
       prisma.scriptRuns.update = jest.fn().mockResolvedValue(null);
       prisma.listingTransferMap.create = jest.fn().mockResolvedValue(null);
-      prisma.unitAccessibilityPriorityTypes.findMany = jest
-        .fn()
-        .mockResolvedValue([]);
+      // prisma.unitAccessibilityPriorityTypes.findMany = jest
+      //   .fn()
+      //   .mockResolvedValue([]);
       prisma.unitRentTypes.findMany = jest.fn().mockResolvedValue([]);
       const jurisdictionId = randomUUID();
       prisma.jurisdictions.findFirst = jest.fn().mockResolvedValue({

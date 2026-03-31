@@ -72,14 +72,14 @@ describe("User Terms", () => {
       "I have reviewed, understand and agree to the Terms of Use."
     )
     // Note: Doorway's submit button is disabled by default.
-    // // Check if the submit button is disabled
-    // expect(submitButton).toHaveAttribute("disabled")
+    // Check if the submit button is disabled
+    expect(submitButton).toHaveAttribute("disabled")
     // // Check if the button becomes available after checkbox change
     // fireEvent.click(agreeCheckbox)
-    expect(submitButton).not.toHaveAttribute("disabled")
+    // expect(submitButton).not.toHaveAttribute("disabled")
     // Should revert to disabled on unclick
     fireEvent.click(agreeCheckbox)
-    expect(submitButton).toHaveAttribute("disabled")
+    expect(submitButton).not.toHaveAttribute("disabled")
     // Check if the error will disappear after user checks the agreement
     expect(queryByText("You must agree to the terms in order to continue")).not.toBeInTheDocument()
   })

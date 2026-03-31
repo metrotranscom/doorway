@@ -42,6 +42,6 @@ describe("Create advocate page", () => {
     expect(screen.getByText("For example: example@mail.com")).toBeInTheDocument()
 
     expect(screen.getByRole("button", { name: "Create account" })).toBeInTheDocument()
-    expect(screen.getAllByRole("link", { name: "Sign in" })).toHaveLength(2)
+    expect(screen.getAllByRole("link", { name: "Sign in" })).toHaveLength(1)
   })
 })

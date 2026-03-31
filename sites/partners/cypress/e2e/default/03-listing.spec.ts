@@ -257,6 +257,12 @@ describe("Listing Management Tests", () => {
     // Section - Listing photos
     if (listing.cypressImages?.length) {
       listing.cypressImages.forEach((cypressImage, index) => {
+        cy.intercept("/api/adapter/upload", {
+          body: {
+            id: "123",
+            url: `https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/dev/${cypressImage.fixtureName}`,
+          },
+        })
         cy.intercept(
           "GET",
           `https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/dev/${cypressImage.fixtureName}`,

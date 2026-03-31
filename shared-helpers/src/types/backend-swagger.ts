@@ -7302,7 +7302,7 @@ export interface ApplicationSelection {
   multiselectQuestion: IdDTO
 
   /**  */
-  selections: ApplicationSelectionOption
+  selections: ApplicationSelectionOption[]
 }
 
 /** ApplicationMultiselectQuestionOption */

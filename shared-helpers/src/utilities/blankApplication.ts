@@ -1,5 +1,6 @@
 import {
   ApplicationMultiselectQuestion,
+  ApplicationSelection,
   ApplicationStatusEnum,
   ApplicationSubmissionTypeEnum,
   LanguagesEnum,
@@ -100,6 +101,7 @@ export const blankApplication = {
   },
   preferences: [] as ApplicationMultiselectQuestion[],
   programs: [] as ApplicationMultiselectQuestion[],
+  applicationSelections: [] as ApplicationSelection[],
   confirmationCode: "",
   id: "",
 }

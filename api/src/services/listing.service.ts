@@ -184,6 +184,22 @@ includeViews.full = {
   listingsApplicationPickUpAddress: true,
   listingsApplicationDropOffAddress: true,
   listingsApplicationMailingAddress: true,
+  listingMultiselectQuestions: {
+    orderBy: {
+      ordinal: 'asc',
+    },
+    include: {
+      multiselectQuestions: {
+        include: {
+          multiselectOptions: {
+            orderBy: {
+              ordinal: 'asc',
+            },
+          },
+        },
+      },
+    },
+  },
   requestedChangesUser: true,
   property: true,
   requiredDocumentsList: true,

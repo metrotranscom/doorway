@@ -16,5 +16,6 @@ export interface ApplicationFormConfig {
   languages: string[]
   steps: StepConfig[]
   featureFlags: FeatureFlag[]
+  isAdvocate: boolean
   isPreview?: boolean
 }

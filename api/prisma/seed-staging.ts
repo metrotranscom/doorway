@@ -6,10 +6,11 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
   PrismaClient,
   UserRoleEnum,
+  MultiselectQuestionsStatusEnum,
+  Prisma,
 } from '@prisma/client';
 import dayjs from 'dayjs';
 import { randomInt } from 'node:crypto';
-import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
 import {
   realBayAreaPlaces,
   stagingRealisticAddresses,
@@ -22,15 +23,18 @@ import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import { listingFactory } from './seed-helpers/listing-factory';
 import { userFactory } from './seed-helpers/user-factory';
 import { unitTypeFactoryAll } from './seed-helpers/unit-type-factory';
-import { unitAccessibilityPriorityTypeFactoryAll } from './seed-helpers/unit-accessibility-priority-type-factory';
 import { multiselectQuestionFactory } from './seed-helpers/multiselect-question-factory';
 import { translationFactory } from './seed-helpers/translation-factory';
+import { propertyFactory } from './seed-helpers/property-factory';
 import { reservedCommunityTypeFactoryAll } from './seed-helpers/reserved-community-type-factory';
 import {
   mapLayerFactory,
   redlinedMap,
   simplifiedDCMap,
 } from './seed-helpers/map-layer-factory';
+import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
+import { UnitAccessibilityPriorityTypeEnum } from '../src/enums/units/accessibility-priority-type-enum';
+import { ListingFeaturesConfiguration } from '../src/dtos/jurisdictions/listing-features-config.dto';
 import { createAllFeatureFlags } from './seed-helpers/feature-flag-factory';
 import { FeatureFlagEnum } from '../src/enums/feature-flags/feature-flags-enum';
 // import { hollywoodHillsHeights } from './seed-helpers/listing-data/hollywood-hills-heights';
@@ -39,16 +43,17 @@ import { blueSkyApartments } from './seed-helpers/listing-data/blue-sky-apartmen
 import { valleyHeightsSeniorCommunity } from './seed-helpers/listing-data/valley-heights-senior-community';
 import { littleVillageApartments } from './seed-helpers/listing-data/little-village-apartments';
 import { elmVillage } from './seed-helpers/listing-data/elm-village';
-import { ListingFeaturesConfiguration } from '../src/dtos/jurisdictions/listing-features-config.dto';
 
 export const stagingSeed = async (
   prismaClient: PrismaClient,
   jurisdictionName: string,
   publicSiteBaseURL: string,
+  msqV2: boolean,
   largeSeed?: boolean,
 ) => {
   // Seed feature flags
   await createAllFeatureFlags(prismaClient);
+  const optionalMainFlags = msqV2 ? [FeatureFlagEnum.enableV2MSQ] : [];
   //doorway-specific settings
   const listingApprovalPermissions = [UserRoleEnum.admin];
   const duplicateListingPermissions = [
@@ -186,6 +191,7 @@ export const stagingSeed = async (
       publicSiteBaseURL: publicSiteBaseURL,
       listingApprovalPermissions: [UserRoleEnum.admin],
       featureFlags: [
+        ...optionalMainFlags,
         FeatureFlagEnum.enableAccessibilityFeatures,
         FeatureFlagEnum.enableCompanyWebsite,
         FeatureFlagEnum.enableGeocodingPreferences,
@@ -201,6 +207,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableNeighborhoodAmenities,
         FeatureFlagEnum.enablePartnerDemographics,
         FeatureFlagEnum.enablePartnerSettings,
+        FeatureFlagEnum.enableResources,
         FeatureFlagEnum.enableSection8Question,
         FeatureFlagEnum.enableSingleUseCode,
         FeatureFlagEnum.enableSupportAdmin,
@@ -254,6 +261,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enablePartnerDemographics,
         FeatureFlagEnum.enablePartnerSettings,
         FeatureFlagEnum.enableRegions,
+        FeatureFlagEnum.enableResources,
         FeatureFlagEnum.enableSection8Question,
         FeatureFlagEnum.enableSingleUseCode,
         FeatureFlagEnum.enableUnderConstructionHome,
@@ -310,6 +318,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableApplicationStatus,
         FeatureFlagEnum.enableConfigurableRegions,
         FeatureFlagEnum.enableCreditScreeningFee,
+        FeatureFlagEnum.enableHousingAdvocate,
         FeatureFlagEnum.enableHousingDeveloperOwner,
         FeatureFlagEnum.enableLeasingAgentAltText,
         FeatureFlagEnum.enableListingFileNumber,
@@ -324,7 +333,9 @@ export const stagingSeed = async (
         FeatureFlagEnum.enablePetPolicyCheckbox,
         FeatureFlagEnum.enableProperties,
         FeatureFlagEnum.enableReferralQuestionUnits,
+        FeatureFlagEnum.enableResources,
         FeatureFlagEnum.enableSmokingPolicyRadio,
+        FeatureFlagEnum.enableParkingType,
       ],
       visibleNeighborhoodAmenities: [
         NeighborhoodAmenitiesEnum.groceryStores,
@@ -335,6 +346,21 @@ export const stagingSeed = async (
         NeighborhoodAmenitiesEnum.recreationalFacilities,
         NeighborhoodAmenitiesEnum.playgrounds,
         NeighborhoodAmenitiesEnum.busStops,
+      ],
+      languages: [
+        LanguagesEnum.en,
+        LanguagesEnum.es,
+        LanguagesEnum.ko,
+        LanguagesEnum.hy,
+        LanguagesEnum.zh,
+        LanguagesEnum.tl,
+        LanguagesEnum.fa,
+        LanguagesEnum.vi,
+      ],
+      visibleAccessibilityPriorityTypes: [
+        UnitAccessibilityPriorityTypeEnum.mobility,
+        UnitAccessibilityPriorityTypeEnum.hearingAndVision,
+        UnitAccessibilityPriorityTypeEnum.mobilityHearingAndVision,
       ],
       regions: [
         'Metro Area',
@@ -362,6 +388,7 @@ export const stagingSeed = async (
         'referralOpportunity',
         'rentalAssistance',
         'units',
+        'property',
       ],
       listingFeaturesConfiguration: {
         categories: [
@@ -633,6 +660,18 @@ export const stagingSeed = async (
       angelopolisJurisdiction.name,
     ),
   });
+  // const angelopolisProperty1 = await prismaClient.properties.create({
+  //   data: propertyFactory(
+  //     angelopolisJurisdiction.name,
+  //     angelopolisJurisdiction.id,
+  //   ),
+  // });
+  await prismaClient.properties.create({
+    data: propertyFactory(
+      angelopolisJurisdiction.name,
+      angelopolisJurisdiction.id,
+    ),
+  });
   // Create map layers
   await prismaClient.mapLayers.create({
     data: mapLayerFactory(jurisdiction.id, 'Redlined Districts', redlinedMap),
@@ -640,8 +679,32 @@ export const stagingSeed = async (
   const mapLayer = await prismaClient.mapLayers.create({
     data: mapLayerFactory(jurisdiction.id, 'Washington DC', simplifiedDCMap),
   });
-  const cityEmployeeQuestion = await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(jurisdiction.id, {
+  // NOTE: the previous V1 msq factory had a bug where options aren't actually used
+  // and random data is generated no matter what. I've only fixed this in V2 seeding.
+  let cityEmployeeMsqData: Prisma.MultiselectQuestionsCreateInput;
+  if (msqV2) {
+    cityEmployeeMsqData = multiselectQuestionFactory(
+      mainJurisdiction.id,
+      {
+        multiselectQuestion: {
+          status: MultiselectQuestionsStatusEnum.active,
+          name: 'City Employees',
+          description: 'Employees of the local city.',
+          applicationSection:
+            MultiselectQuestionsApplicationSectionEnum.preferences,
+          options: [
+            {
+              name: 'At least one member of my household is a city employee',
+              shouldCollectAddress: false,
+              ordinal: 1,
+            },
+          ],
+        },
+      },
+      true,
+    );
+  } else {
+    cityEmployeeMsqData = multiselectQuestionFactory(mainJurisdiction.id, {
       multiselectQuestion: {
         text: 'City Employees',
         description: 'Employees of the local city.',
@@ -655,10 +718,48 @@ export const stagingSeed = async (
           },
         ],
       },
-    }),
+    });
+  }
+  const cityEmployeeQuestion = await prismaClient.multiselectQuestions.create({
+    data: cityEmployeeMsqData,
   });
-  const workInCityQuestion = await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(jurisdiction.id, {
+  let workInCityMsqData: Prisma.MultiselectQuestionsCreateInput;
+  if (msqV2) {
+    workInCityMsqData = multiselectQuestionFactory(
+      mainJurisdiction.id,
+      {
+        optOut: true,
+        status: MultiselectQuestionsStatusEnum.active,
+        multiselectQuestion: {
+          name: 'Work in the city',
+          description: 'At least one member of my household works in the city',
+          applicationSection:
+            MultiselectQuestionsApplicationSectionEnum.preferences,
+          options: [
+            {
+              name: 'At least one member of my household works in the city',
+              ordinal: 1,
+              shouldCollectAddress: true,
+              shouldCollectName: true,
+              shouldCollectRelationship: true,
+              mapLayerId: mapLayer.id,
+              validationMethod: ValidationMethod.map,
+            },
+            {
+              name: 'All members of the household work in the city',
+              ordinal: 2,
+              shouldCollectAddress: true,
+              validationMethod: ValidationMethod.none,
+              shouldCollectName: false,
+              shouldCollectRelationship: false,
+            },
+          ],
+        },
+      },
+      true,
+    );
+  } else {
+    workInCityMsqData = multiselectQuestionFactory(mainJurisdiction.id, {
       optOut: true,
       multiselectQuestion: {
         text: 'Work in the city',
@@ -685,7 +786,10 @@ export const stagingSeed = async (
           },
         ],
       },
-    }),
+    });
+  }
+  const workInCityQuestion = await prismaClient.multiselectQuestions.create({
+    data: workInCityMsqData,
   });
   const veteranProgramQuestion = await prismaClient.multiselectQuestions.create(
     {
@@ -773,7 +877,6 @@ export const stagingSeed = async (
 
   // create pre-determined values
   const unitTypes = await unitTypeFactoryAll(prismaClient);
-  await unitAccessibilityPriorityTypeFactoryAll(prismaClient);
   await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
   const listingsToCreate: Parameters<typeof listingFactory>[] = [
@@ -1374,6 +1477,7 @@ export const stagingSeed = async (
       afsLastRunSetInPast: true,
       userAccounts: listingParams.userAccounts,
       optionalFeatures: listingParams.optionalFeatures,
+      propertyId: listingParams.propertyId,
     });
     const savedListing = await prismaClient.listings.create({
       data: listing,

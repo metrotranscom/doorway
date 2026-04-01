@@ -72,6 +72,40 @@ export const multiselectQuestionPreference: MultiselectQuestion = {
   applicationSection: MultiselectQuestionsApplicationSectionEnum.preferences,
 }
 
+export const multiselectQuestionPreferenceV2: MultiselectQuestion = {
+  id: "id1",
+  status: MultiselectQuestionsStatusEnum.visible,
+  name: "Live/Work in County",
+  subText: "Live/Work in County subtitle",
+  jurisdictions: [{ id: "1", name: "Bloomington" }],
+  createdAt: new Date("2022-09-14T22:53:09.982Z"),
+  updatedAt: new Date("2022-09-15T22:53:09.982Z"),
+  description: "At least one household member lives or works in County",
+  links: [
+    {
+      title: "Live/Work in County Link Title",
+      url: "https://www.example.com",
+    },
+  ],
+  optOutText: "I don't want this preference",
+  multiselectOptions: [
+    {
+      name: "Live in County",
+      ordinal: 1,
+      description: "A description of the option.",
+      links: [
+        {
+          title: "Live in County Link Title",
+          url: "https://www.example.com",
+        },
+      ],
+      collectAddress: false,
+    },
+    { name: "Work in County", ordinal: 1, collectAddress: false },
+  ],
+  applicationSection: MultiselectQuestionsApplicationSectionEnum.preferences,
+}
+
 export const householdMember = {
   id: "hh_member_id",
   createdAt: new Date(),
@@ -387,7 +421,7 @@ export const unit: Unit = {
   numBathrooms: undefined,
   numBedrooms: undefined,
   number: undefined,
-  unitAccessibilityPriorityTypes: undefined,
+  accessibilityPriorityType: undefined,
   sqFeet: "285",
 
   unitTypes: {
@@ -714,6 +748,7 @@ export const jurisdiction: Jurisdiction = {
   allowSingleUseCodeLogin: false,
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
 }
 
@@ -1059,7 +1094,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1086,7 +1121,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1113,7 +1148,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1140,7 +1175,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1168,7 +1203,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1212,6 +1247,7 @@ export const mockBaseJurisdiction: Jurisdiction = {
   requiredListingFields: [],
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
 }
 

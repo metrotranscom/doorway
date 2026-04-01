@@ -51,6 +51,7 @@ import { GeocodingService } from '../../../src/services/geocoding.service';
 import { FilterAvailabilityEnum } from '../../../src/enums/listings/filter-availability-enum';
 import { CronJobService } from '../../../src/services/cron-job.service';
 import { MultiselectQuestionService } from '../../../src/services/multiselect-question.service';
+import { UnitAccessibilityPriorityTypeEnum } from '../../../src/enums/units/accessibility-priority-type-enum';
 
 /*
  generates a super simple mock listing for us to test logic with
@@ -378,9 +379,8 @@ describe('Testing listing service', () => {
               amiChart: {
                 id: randomUUID(),
               },
-              unitAccessibilityPriorityTypes: {
-                id: randomUUID(),
-              },
+              accessibilityPriorityType:
+                UnitAccessibilityPriorityTypeEnum.mobility,
               unitRentTypes: {
                 id: randomUUID(),
               },
@@ -468,9 +468,8 @@ describe('Testing listing service', () => {
               floorMax: 10,
               sqFeetMin: '11',
               sqFeetMax: '12',
-              unitAccessibilityPriorityTypes: {
-                id: randomUUID(),
-              },
+              accessibilityPriorityType:
+                UnitAccessibilityPriorityTypeEnum.mobility,
               totalCount: 13,
               totalAvailable: 14,
             },
@@ -573,6 +572,12 @@ describe('Testing listing service', () => {
         wideDoorways: true,
         loweredCabinets: false,
       },
+      parkType: {
+        onStreet: false,
+        offStreet: false,
+        garage: false,
+        carport: false,
+      },
       listingUtilities: {
         water: false,
         gas: true,
@@ -633,6 +638,7 @@ describe('Testing listing service', () => {
               assets: true,
             },
           },
+          property: true,
           lastUpdatedByUser: true,
           listingMultiselectQuestions: {
             include: {
@@ -665,12 +671,12 @@ describe('Testing listing service', () => {
           listingsApplicationPickUpAddress: true,
           listingsApplicationDropOffAddress: true,
           listingsApplicationMailingAddress: true,
+          parkType: true,
           units: {
             include: {
               unitAmiChartOverrides: true,
               unitTypes: true,
               unitRentTypes: true,
-              unitAccessibilityPriorityTypes: true,
               amiChart: {
                 include: {
                   jurisdictions: true,
@@ -2390,6 +2396,7 @@ describe('Testing listing service', () => {
         select: {
           id: true,
           name: true,
+          property: true,
           jurisdictions: {
             select: {
               id: true,
@@ -2455,16 +2462,17 @@ describe('Testing listing service', () => {
             },
           },
           listingsResult: true,
+          property: true,
           listingsLeasingAgentAddress: true,
           listingsApplicationPickUpAddress: true,
           listingsApplicationDropOffAddress: true,
           listingsApplicationMailingAddress: true,
+          parkType: true,
           units: {
             include: {
               unitAmiChartOverrides: true,
               unitTypes: true,
               unitRentTypes: true,
-              unitAccessibilityPriorityTypes: true,
               amiChart: {
                 include: {
                   jurisdictions: true,
@@ -2976,16 +2984,17 @@ describe('Testing listing service', () => {
             },
           },
           listingsResult: true,
+          property: true,
           listingsLeasingAgentAddress: true,
           listingsApplicationPickUpAddress: true,
           listingsApplicationDropOffAddress: true,
           listingsApplicationMailingAddress: true,
+          parkType: true,
           units: {
             include: {
               unitAmiChartOverrides: true,
               unitTypes: true,
               unitRentTypes: true,
-              unitAccessibilityPriorityTypes: true,
               amiChart: {
                 include: {
                   jurisdictions: true,
@@ -3252,9 +3261,11 @@ describe('Testing listing service', () => {
           listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -3263,7 +3274,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -3381,9 +3391,11 @@ describe('Testing listing service', () => {
           listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -3392,7 +3404,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -3524,6 +3535,14 @@ describe('Testing listing service', () => {
               internet: true,
             },
           },
+          parkType: {
+            create: {
+              carport: false,
+              garage: false,
+              offStreet: false,
+              onStreet: false,
+            },
+          },
           listingsApplicationMailingAddress: {
             create: {
               ...exampleAddress,
@@ -3627,11 +3646,8 @@ describe('Testing listing service', () => {
                     ],
                   },
                 },
-                unitAccessibilityPriorityTypes: {
-                  connect: {
-                    id: expect.anything(),
-                  },
-                },
+                accessibilityPriorityType:
+                  UnitAccessibilityPriorityTypeEnum.mobility,
                 unitRentTypes: {
                   connect: {
                     id: expect.anything(),
@@ -3666,11 +3682,8 @@ describe('Testing listing service', () => {
                     id: expect.anything(),
                   },
                 },
-                unitAccessibilityPriorityTypes: {
-                  connect: {
-                    id: expect.anything(),
-                  },
-                },
+                accessibilityPriorityType:
+                  UnitAccessibilityPriorityTypeEnum.mobility,
               },
             ],
           },
@@ -3762,9 +3775,11 @@ describe('Testing listing service', () => {
           listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -3773,7 +3788,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -3905,9 +3919,11 @@ describe('Testing listing service', () => {
           listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -3916,7 +3932,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -4044,6 +4059,14 @@ describe('Testing listing service', () => {
               cable: true,
               phone: false,
               internet: true,
+            },
+          },
+          parkType: {
+            create: {
+              carport: false,
+              garage: false,
+              offStreet: false,
+              onStreet: false,
             },
           },
           listingsApplicationMailingAddress: {
@@ -4251,9 +4274,11 @@ describe('Testing listing service', () => {
           listingsAccessibleMarketingFlyerFile: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -4262,7 +4287,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -4394,6 +4418,14 @@ describe('Testing listing service', () => {
               internet: true,
             },
           },
+          parkType: {
+            create: {
+              carport: false,
+              garage: false,
+              offStreet: false,
+              onStreet: false,
+            },
+          },
           listingsApplicationMailingAddress: {
             create: {
               ...exampleAddress,
@@ -4497,11 +4529,8 @@ describe('Testing listing service', () => {
                     ],
                   },
                 },
-                unitAccessibilityPriorityTypes: {
-                  connect: {
-                    id: expect.anything(),
-                  },
-                },
+                accessibilityPriorityType:
+                  UnitAccessibilityPriorityTypeEnum.mobility,
                 unitRentTypes: {
                   connect: {
                     id: expect.anything(),
@@ -4536,11 +4565,8 @@ describe('Testing listing service', () => {
                     id: expect.anything(),
                   },
                 },
-                unitAccessibilityPriorityTypes: {
-                  connect: {
-                    id: expect.anything(),
-                  },
-                },
+                accessibilityPriorityType:
+                  UnitAccessibilityPriorityTypeEnum.mobility,
               },
             ],
           },
@@ -4651,9 +4677,11 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -4662,7 +4690,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -4767,9 +4794,11 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -4778,7 +4807,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -4870,9 +4898,11 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -4881,7 +4911,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -5330,9 +5359,11 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -5341,7 +5372,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -5691,7 +5721,6 @@ describe('Testing listing service', () => {
     it('should process duplicates and expire applications on listing close', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2025-11-22T12:25:00.000Z'));
       process.env.APPLICATION_DAYS_TILL_EXPIRY = '90';
-      process.env.DUPLICATES_CLOSE_DATE = '2024-06-28 00:00 -08:00';
       const listingId = randomUUID();
       prisma.listings.findUnique = jest.fn().mockResolvedValue({
         id: listingId,
@@ -5898,9 +5927,11 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -5909,7 +5940,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,
@@ -6173,9 +6203,11 @@ describe('Testing listing service', () => {
           listingsApplicationMailingAddress: true,
           listingsLeasingAgentAddress: true,
           listingsResult: true,
+          property: true,
           requestedChangesUser: true,
           reservedCommunityTypes: true,
           requiredDocumentsList: true,
+          parkType: true,
           units: {
             include: {
               amiChart: {
@@ -6184,7 +6216,6 @@ describe('Testing listing service', () => {
                   unitGroupAmiLevels: true,
                 },
               },
-              unitAccessibilityPriorityTypes: true,
               unitAmiChartOverrides: true,
               unitRentTypes: true,
               unitTypes: true,

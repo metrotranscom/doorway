@@ -29,6 +29,14 @@ const bloomTheme = require("./tailwind.config.js")
 const tailwindVars = require("@bloom-housing/ui-components/tailwind.tosass.js")(bloomTheme)
 
 module.exports = withBundleAnalyzer({
+  typescript: {
+    ignoreBuildErrors: process.env.DISABLE_NEXT_TYPECHECK === "TRUE",
+  },
+  experimental: {
+    webpackBuildWorker: true,
+    // Uncomment line below before building when using symlink for UI-C
+    // esmExternals: "loose"
+  },
   env: {
     backendApiBase: BACKEND_API_BASE, // this has to be set for tests
     backendProxyBase: process.env.BACKEND_PROXY_BASE,
@@ -58,7 +66,7 @@ module.exports = withBundleAnalyzer({
     fileService: process.env.FILE_SERVICE,
     reCaptchaKey: process.env.RECAPTCHA_KEY,
     maxBrowseListings: process.env.MAX_BROWSE_LISTINGS,
-    rtlLanguages: process.env.RTL_LANGUAGES || "ar",
+    rtlLanguages: "ar,fa",
   },
   i18n: {
     locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],
@@ -121,8 +129,6 @@ module.exports = withBundleAnalyzer({
       },
     ]
   },
-  // Uncomment line below before building when using symlink for UI-C
-  // experimental: { esmExternals: "loose" },
 })
 
 if (process.env.SENTRY_ORG) {

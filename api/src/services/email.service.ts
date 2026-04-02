@@ -788,10 +788,24 @@ export class EmailService {
       };
     });
 
+    const footerLinks = [
+      {
+        text: 'Learn about a 50% transit discount with ',
+        name: 'Clipper START',
+        url: 'https://links-2.govdelivery.com/CL0/https:%2F%2Fwww.clipperstartcard.com%2Fs%2F%3Futm_source=doorway%26utm_medium=email%26utm_campaign=rental_notifs/1/0101019c8c58330c-36ebe110-1890-40c9-8035-93b4e884f4d8-000000/cGX47-6Dds1b9elbgto4-GN0ACidbVNrlspsoMqHRY4=445',
+      },
+      {
+        text: 'Learn about a 50% express lane toll discount with ',
+        name: 'Express Lanes START',
+        url: 'https://links-2.govdelivery.com/CL0/https:%2F%2Fwww.expresslanesstart.org%2Fs%2F%3Futm_source=doorway%26utm_medium=email%26utm_campaign=rental_notifs/1/0101019c8c58330c-36ebe110-1890-40c9-8035-93b4e884f4d8-000000/o9zPBFhzhDDt8lRnAjYw6fTuWto9D62FuBOlTK29NGY=445',
+      },
+    ];
+
     const compiled = compiledTemplate({
       listingName: this.stripAngleBrackets(listing.name),
       tableRows,
       languageUrls,
+      footerLinks,
     });
 
     await this.govSend(compiled, 'New rental opportunity');

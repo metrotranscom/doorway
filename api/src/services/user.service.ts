@@ -924,7 +924,6 @@ export class UserService {
         lastName: dto.lastName,
         dob: dto.dob,
         phoneNumber: dto.phoneNumber,
-        language: dto.language,
         agreedToTermsOfService:
           'agreedToTermsOfService' in dto ? dto.agreedToTermsOfService : false,
         jurisdictions: jurisdictionsToConnect

@@ -139,6 +139,18 @@ export class RootService {
     })
   }
   /**
+   * Prisma database metrics in Prometheus format
+   */
+  prismaMetrics(options: IRequestOptions = {}): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/prisma_metrics"
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
    * Trigger the removal of CSVs job
    */
   clearTempFiles(options: IRequestOptions = {}): Promise<SuccessDTO> {

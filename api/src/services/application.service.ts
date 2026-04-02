@@ -1278,6 +1278,7 @@ export class ApplicationService {
       select: {
         id: true,
         mailingAddressId: true,
+        userId: true,
         applicant: {
           select: {
             id: true,
@@ -1400,6 +1401,7 @@ export class ApplicationService {
         data: {
           additionalPhoneNumber: null,
           wasPIICleared: true,
+          historicalUserId: application.userId,
         },
         where: {
           id: application.id,

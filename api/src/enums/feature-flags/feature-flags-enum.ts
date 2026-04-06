@@ -2,8 +2,10 @@
 // Note, these are just used to keep backend and frontend in sync. We store feature flags as strings so this list might not include every flag.
 // Keep alphabetized for readability.
 export enum FeatureFlagEnum {
+  disableAccessibilityFeaturesTag = 'disableAccessibilityFeaturesTag',
   disableBuildingSelectionCriteria = 'disableBuildingSelectionCriteria',
   disableCommonApplication = 'disableCommonApplication',
+  disableEthnicityQuestion = 'disableEthnicityQuestion',
   disableJurisdictionalAdmin = 'disableJurisdictionalAdmin',
   disableListingPreferences = 'disableListingPreferences',
   disableWorkInRegion = 'disableWorkInRegion',
@@ -14,11 +16,14 @@ export enum FeatureFlagEnum {
   enableCompanyWebsite = 'enableCompanyWebsite',
   enableConfigurableRegions = 'enableConfigurableRegions',
   enableCreditScreeningFee = 'enableCreditScreeningFee',
+  enableFaq = 'enableFaq',
   enableFullTimeStudentQuestion = 'enableFullTimeStudentQuestion',
   enableGeocodingPreferences = 'enableGeocodingPreferences',
   enableGeocodingRadiusMethod = 'enableGeocodingRadiusMethod',
   enableHomeType = 'enableHomeType',
+  enableHousingAdvocate = 'enableHousingAdvocate',
   enableHousingDeveloperOwner = 'enableHousingDeveloperOwner',
+  enableHousingBasics = 'enableHousingBasics',
   enableIsVerified = 'enableIsVerified',
   enableLimitedHowDidYouHear = 'enableLimitedHowDidYouHear',
   enableListingFavoriting = 'enableListingFavoriting',
@@ -40,18 +45,24 @@ export enum FeatureFlagEnum {
   enablePartnerSettings = 'enablePartnerSettings',
   enablePetPolicyCheckbox = 'enablePetPolicyCheckbox',
   enableProperties = 'enableProperties',
+  enableReasonableAccommodations = 'enableReasonableAccommodations',
   enableReferralQuestionUnits = 'enableReferralQuestionUnits',
   enableRegions = 'enableRegions',
+  enableResources = 'enableResources',
   enableSection8Question = 'enableSection8Question',
   enableSingleUseCode = 'enableSingleUseCode',
   enableSmokingPolicyRadio = 'enableSmokingPolicyRadio',
+  enableSpokenLanguage = 'enableSpokenLanguage',
   enableSupportAdmin = 'enableSupportAdmin',
   enableUnderConstructionHome = 'enableUnderConstructionHome',
+  enableUnitAccessibilityTypeTags = 'enableUnitAccessibilityTypeTags',
   enableUnitGroups = 'enableUnitGroups',
   enableUtilitiesIncluded = 'enableUtilitiesIncluded',
+  enableVerifyIncome = 'enableVerifyIncome',
   enableWaitlistAdditionalFields = 'enableWaitlistAdditionalFields',
   enableWaitlistLottery = 'enableWaitlistLottery',
   enableWhatToExpectAdditionalField = 'enableWhatToExpectAdditionalField',
+  enableParkingType = 'enableParkingType',
   enableV2MSQ = 'enableV2MSQ',
   example = 'example', // sample feature flag for testing purposes
   hideCloseListingButton = 'hideCloseListingButton',
@@ -66,6 +77,11 @@ export const featureFlagMap: {
   description: string;
 }[] = [
   {
+    name: FeatureFlagEnum.disableAccessibilityFeaturesTag,
+    description:
+      "When true, the listing 'accessibility features' tag is hidden on public listing cards and details",
+  },
+  {
     name: FeatureFlagEnum.disableBuildingSelectionCriteria,
     description:
       'When true, building selection criteria is not displayed in the listing',
@@ -74,6 +90,11 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.disableCommonApplication,
     description:
       'When true, the digital common application is not an option for listings',
+  },
+  {
+    name: FeatureFlagEnum.disableEthnicityQuestion,
+    description:
+      'When true, the ethnicity question is hidden in the application demographics section',
   },
   {
     name: FeatureFlagEnum.disableJurisdictionalAdmin,
@@ -124,6 +145,11 @@ export const featureFlagMap: {
     description: 'When true, credit screening fee is enabled for listings',
   },
   {
+    name: FeatureFlagEnum.enableFaq,
+    description:
+      'When true, a link to the FAQ page is displayed on the get assistance page',
+  },
+  {
     name: FeatureFlagEnum.enableFullTimeStudentQuestion,
     description:
       'When true, the full time student question is displayed in the application form',
@@ -143,9 +169,18 @@ export const featureFlagMap: {
     description: 'When true, home type feature is turned on',
   },
   {
+    name: FeatureFlagEnum.enableHousingAdvocate,
+    description: 'When true, partners can view housing advocate users',
+  },
+  {
     name: FeatureFlagEnum.enableHousingDeveloperOwner,
     description:
       "When true, the 'Housing developer' field label becomes 'Housing developer / owner'",
+  },
+  {
+    name: FeatureFlagEnum.enableHousingBasics,
+    description:
+      'When true, a link to the housing basics page is displayed on the get assistance page',
   },
   {
     name: FeatureFlagEnum.enableIsVerified,
@@ -247,6 +282,11 @@ export const featureFlagMap: {
     description: 'When true, the properties feature is enabled',
   },
   {
+    name: FeatureFlagEnum.enableReasonableAccommodations,
+    description:
+      'When true, the reasonable accommodations question is shown in the public and partner application flow',
+  },
+  {
     name: FeatureFlagEnum.enableReferralQuestionUnits,
     description: 'when true, updates the the referral details question labels',
   },
@@ -254,6 +294,11 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableRegions,
     description:
       'When true, the region can be defined for the building address',
+  },
+  {
+    name: FeatureFlagEnum.enableResources,
+    description:
+      'When true, the public site displays links to resources on various pages',
   },
   {
     name: FeatureFlagEnum.enableSection8Question,
@@ -270,6 +315,11 @@ export const featureFlagMap: {
       "When true, the listing 'Smoking policy' field is a radio group",
   },
   {
+    name: FeatureFlagEnum.enableSpokenLanguage,
+    description:
+      'When true, the application demographics section displays a spoken language question with options configured on the jurisdiction',
+  },
+  {
     name: FeatureFlagEnum.enableSupportAdmin,
     description: 'When true, support admins can be created',
   },
@@ -279,6 +329,11 @@ export const featureFlagMap: {
       "When true, the 'under construction' section is displayed on the home page",
   },
   {
+    name: FeatureFlagEnum.enableUnitAccessibilityTypeTags,
+    description:
+      "When true, unit accessibility type tags (for example, 'Mobility units') are displayed on listing cards and details",
+  },
+  {
     name: FeatureFlagEnum.enableUnitGroups,
     description: 'When true, uses unit groups instead of units',
   },
@@ -286,6 +341,11 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableUtilitiesIncluded,
     description:
       "When true, the 'utilities included' section is displayed in listing creation/edit and the public listing view",
+  },
+  {
+    name: FeatureFlagEnum.enableVerifyIncome,
+    description:
+      'When true, the income question on the application will be validated against the income limits for the listing and an error message will be shown if income is outside limits',
   },
   {
     name: FeatureFlagEnum.enableWaitlistAdditionalFields,
@@ -301,6 +361,11 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableWhatToExpectAdditionalField,
     description:
       'When true, the what to expect additional field is displayed in listing creation/edit form on the partner site',
+  },
+  {
+    name: FeatureFlagEnum.enableParkingType,
+    description:
+      'When true, the parking type field is visible in the listing form',
   },
   {
     name: FeatureFlagEnum.enableV2MSQ,

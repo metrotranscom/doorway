@@ -1122,6 +1122,8 @@ export class UserService {
       where: { lastLoginAt: { lt: deleteBeforeDate }, userRoles: null },
     });
 
+    this.logger.warn(`deleting ${usersToBeDeleted.length} users`);
+
     for (const user of usersToBeDeleted) {
       if (!user.wasWarnedOfDeletion) {
         this.logger.warn(

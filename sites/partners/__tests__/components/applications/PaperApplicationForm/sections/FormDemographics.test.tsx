@@ -9,20 +9,17 @@ const customConfig: RaceEthnicityConfiguration = {
   options: [
     {
       id: "blackAfricanAmerican",
-      hasSubOptions: false,
       subOptions: [],
       allowOtherText: false,
     },
     {
       id: "white",
-      hasSubOptions: false,
       subOptions: [],
       allowOtherText: false,
     },
 
     {
       id: "otherMultiracial",
-      hasSubOptions: false,
       subOptions: [],
       allowOtherText: true,
     },
@@ -94,7 +91,7 @@ describe("<FormDemographics>", () => {
             race: [],
             howDidYouHear: [],
           }}
-          raceEthnicityConfiguration={customConfig}
+          raceEthnicityConfiguration={defaultRaceEthnicityConfiguration}
           enableLimitedHowDidYouHear={true}
           disableEthnicityQuestion={false}
         />
@@ -220,44 +217,6 @@ describe("<FormDemographics>", () => {
           }}
           enableLimitedHowDidYouHear={false}
           disableEthnicityQuestion={true}
-        />
-      </FormProviderWrapper>
-    )
-
-    expect(screen.queryByLabelText("Ethnicity")).not.toBeInTheDocument()
-    expect(screen.getByText("Race", { selector: "legend" })).toBeInTheDocument()
-  })
-
-  it("should show ethnicity field when disableEthnicityQuestion flag is disabled", () => {
-    render(
-      <FormProviderWrapper>
-        <FormDemographics
-          formValues={{
-            id: "id",
-            race: [],
-            howDidYouHear: [],
-          }}
-          enableLimitedHowDidYouHear={false}
-          disableEthnicityQuestion={false}
-        />
-      </FormProviderWrapper>
-    )
-
-    expect(screen.getByLabelText("Ethnicity")).toBeInTheDocument()
-    expect(screen.getByText("Race", { selector: "legend" })).toBeInTheDocument()
-  })
-
-  it("should hide ethnicity field when disableEthnicityQuestion flag is enabled", () => {
-    render(
-      <FormProviderWrapper>
-        <FormDemographics
-          formValues={{
-            id: "id",
-            race: [],
-            howDidYouHear: [],
-          }}
-          enableLimitedHowDidYouHear={false}
-          disableEthnicityQuestion={true}
           raceEthnicityConfiguration={defaultRaceEthnicityConfiguration}
         />
       </FormProviderWrapper>
@@ -321,7 +280,6 @@ describe("<FormDemographics>", () => {
       options: [
         {
           id: "asian",
-          hasSubOptions: true,
           subOptions: [
             { id: "chinese", allowOtherText: false },
             { id: "vietnamese", allowOtherText: false },
@@ -330,7 +288,6 @@ describe("<FormDemographics>", () => {
         },
         {
           id: "otherMultiracial",
-          hasSubOptions: false,
           subOptions: [],
           allowOtherText: true,
         },

@@ -106,28 +106,29 @@ describe("applications pages", () => {
         </AppSubmissionContext.Provider>
       )
 
-      expect(screen.queryByText("Asian Indian")).not.toBeInTheDocument()
+      expect(screen.queryByText("Mongolian")).not.toBeInTheDocument()
       expect(screen.queryByText("Chinese")).not.toBeInTheDocument()
-      expect(screen.queryByText("Filipino")).not.toBeInTheDocument()
+      // Due to spoken language, some text is already present
+      expect(screen.queryAllByText("Filipino").length).toEqual(1)
       expect(screen.queryByText("Japanese")).not.toBeInTheDocument()
-      expect(screen.queryByText("Korean")).not.toBeInTheDocument()
-      expect(screen.queryByText("Vietnamese")).not.toBeInTheDocument()
+      expect(screen.queryAllByText("Korean").length).toEqual(1)
+      expect(screen.queryAllByText("Vietnamese").length).toEqual(1)
       expect(screen.queryByText("Other Asian")).not.toBeInTheDocument()
 
       fireEvent.click(screen.getByRole("checkbox", { name: "Asian" }))
 
       expect(screen.getByText("Mongolian")).toBeInTheDocument()
       expect(screen.getByText("Chinese")).toBeInTheDocument()
-      expect(screen.getByText("Filipino")).toBeInTheDocument()
+      expect(screen.getAllByText("Filipino").length).toEqual(2)
       expect(screen.getByText("Japanese")).toBeInTheDocument()
-      expect(screen.getByText("Korean")).toBeInTheDocument()
-      expect(screen.getByText("Vietnamese")).toBeInTheDocument()
+      expect(screen.getAllByText("Korean").length).toEqual(2)
+      expect(screen.getAllByText("Vietnamese").length).toEqual(2)
       expect(screen.getByText("Other Asian")).toBeInTheDocument()
 
       expect(screen.queryByText("Native Hawaiian")).not.toBeInTheDocument()
       expect(screen.queryByText("Chamorro")).not.toBeInTheDocument()
       expect(screen.queryByText("Samoan")).not.toBeInTheDocument()
-      // expect(screen.queryByText("Other Pacific Islander")).not.toBeInTheDocument()
+      expect(screen.queryByText("Other Pacific Islander")).not.toBeInTheDocument()
 
       fireEvent.click(screen.getByRole("checkbox", { name: "Pacific Islander" }))
 
@@ -268,19 +269,16 @@ describe("applications pages", () => {
         options: [
           {
             id: "blackAfricanAmerican",
-            hasSubOptions: false,
             subOptions: [],
             allowOtherText: false,
           },
           {
             id: "white",
-            hasSubOptions: false,
             subOptions: [],
             allowOtherText: false,
           },
           {
             id: "otherMultiracial",
-            hasSubOptions: false,
             subOptions: [],
             allowOtherText: true,
           },
@@ -328,10 +326,9 @@ describe("applications pages", () => {
         options: [
           {
             id: "asian",
-            hasSubOptions: true,
             subOptions: [
               { id: "chinese", allowOtherText: false },
-              { id: "vietnamese", allowOtherText: false },
+              { id: "mongolian", allowOtherText: false },
             ],
             allowOtherText: false,
           },
@@ -367,7 +364,7 @@ describe("applications pages", () => {
 
       // Custom suboptions should not be visible until parent is checked
       expect(screen.queryByText("Chinese")).not.toBeInTheDocument()
-      expect(screen.queryByText("Vietnamese")).not.toBeInTheDocument()
+      expect(screen.queryByText("Mongolian")).not.toBeInTheDocument()
 
       // Click asian checkbox to expand suboptions
       const asianCheckbox = screen.getByTestId("asian")
@@ -375,11 +372,10 @@ describe("applications pages", () => {
 
       // Custom suboptions should now be visible
       expect(screen.getByText("Chinese")).toBeInTheDocument()
-      expect(screen.getByText("Vietnamese")).toBeInTheDocument()
+      expect(screen.getByText("Mongolian")).toBeInTheDocument()
 
       // Other Asian suboptions should not be visible (not in config)
       expect(screen.queryByText("Japanese")).not.toBeInTheDocument()
-      expect(screen.queryByText("Filipino")).not.toBeInTheDocument()
     })
 
     it("should handle empty race configuration", () => {
@@ -412,9 +408,7 @@ describe("applications pages", () => {
       )
 
       // Should still render form title and ethnicity field
-      expect(
-        screen.getByText("Help us ensure we are meeting our goal to serve all people")
-      ).toBeInTheDocument()
+      expect(screen.getByText("Help us better serve you.")).toBeInTheDocument()
       expect(screen.getByText(/ethnicity/i)).toBeInTheDocument()
 
       // But no race options should be present

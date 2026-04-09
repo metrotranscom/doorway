@@ -28,3 +28,11 @@
 backend/core/dist
 backend/core/test
 README.md
+
+**/.jest
+**/__mocks__
+**/__tests__
+**/.cypress
+**/.next
+
+**/.terraform

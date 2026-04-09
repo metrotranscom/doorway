@@ -8,7 +8,7 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
-  raceKeys,
+  ethnicityKeys,
   spokenLanguageKeys,
   isKeyIncluded,
   getCustomValue,
@@ -22,6 +22,7 @@ import {
   genderKeys,
   sexualOrientationKeys,
   limitedHowDidYouHear,
+  getRaceEthnicityOptions,
 } from "@bloom-housing/shared-helpers"
 import FormsLayout from "../../../layouts/forms"
 import { isFeatureFlagOn } from "../../../lib/helpers"
@@ -55,15 +56,15 @@ const ApplicationDemographics = () => {
   const onSubmit = (data) => {
     conductor.currentStep.save({
       demographics: {
-        ethnicity: "",
+        ethnicity: data.ethnicity || "",
+        gender: data.gender,
+        sexualOrientation: data.sexualOrientation,
+        howDidYouHear: data.howDidYouHear,
         race: fieldGroupObjectToArray(data, "race"),
         spokenLanguage:
           data.spokenLanguage === "notListed"
             ? `${data.spokenLanguage}:${data.spokenLanguageNotListed}`
             : data.spokenLanguage,
-        gender: data.gender,
-        sexualOrientation: data.sexualOrientation,
-        howDidYouHear: data.howDidYouHear,
       },
     })
     conductor.routeToNextOrReturnUrl()
@@ -72,6 +73,11 @@ const ApplicationDemographics = () => {
   const enableLimitedHowDidYouHear = isFeatureFlagOn(
     conductor.config,
     FeatureFlagEnum.enableLimitedHowDidYouHear
+  )
+
+  const disableEthnicityQuestion = isFeatureFlagOn(
+    conductor.config,
+    FeatureFlagEnum.disableEthnicityQuestion
   )
 
   const howDidYouHearOptions = () => {
@@ -84,6 +90,8 @@ const ApplicationDemographics = () => {
   }
 
   const raceOptions = useMemo(() => {
+    const raceKeys = getRaceEthnicityOptions(conductor.config.raceEthnicityConfiguration)
+    if (!raceKeys) return []
     return Object.keys(raceKeys).map((rootKey) => ({
       id: rootKey,
       label: t(`application.review.demographics.raceOptions.${rootKey}`),
@@ -102,6 +110,7 @@ const ApplicationDemographics = () => {
       })),
       dataTestId: rootKey,
     }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [register])
 
   useEffect(() => {
@@ -111,6 +120,8 @@ const ApplicationDemographics = () => {
       status: profile ? UserStatus.LoggedIn : UserStatus.NotLoggedIn,
     })
   }, [profile])
+
+  const showRaceQuestion = raceOptions.length > 0
 
   return (
     <FormsLayout
@@ -135,21 +146,26 @@ const ApplicationDemographics = () => {
           conductor={conductor}
         >
           <CardSection divider={"inset"}>
-            <fieldset>
-              <legend className="text__caps-spaced">
-                {t("application.review.demographics.raceLabel")}
-              </legend>
-              <FieldGroup
-                name="race"
-                fields={raceOptions}
-                type="checkbox"
-                register={register}
-                strings={{
-                  description: "",
-                }}
-                dataTestId={"app-demographics-race"}
-              />
-            </fieldset>
+            {showRaceQuestion && (
+              <fieldset>
+                <legend className="text__caps-spaced">
+                  {!disableEthnicityQuestion
+                    ? t("application.review.demographics.raceLabelNoEthnicity")
+                    : t("application.review.demographics.raceLabel")}
+                </legend>
+
+                <FieldGroup
+                  name="race"
+                  fields={raceOptions}
+                  type="checkbox"
+                  register={register}
+                  strings={{
+                    description: "",
+                  }}
+                  dataTestId={"app-demographics-race"}
+                />
+              </fieldset>
+            )}
             <div className={"pt-8"}>
               <Select
                 id="spokenLanguage"
@@ -213,6 +229,22 @@ const ApplicationDemographics = () => {
                 dataTestId={"app-demographics-sexual-orientation"}
               />
             </div>
+            {!disableEthnicityQuestion && (
+              <div className={`${showRaceQuestion ? "pt-4" : ""}`}>
+                <Select
+                  id="ethnicity"
+                  name="ethnicity"
+                  label={t("application.review.demographics.ethnicityLabel")}
+                  placeholder={t("t.selectOne")}
+                  register={register}
+                  labelClassName="text__caps-spaced mb-3"
+                  controlClassName="control"
+                  options={ethnicityKeys}
+                  keyPrefix="application.review.demographics.ethnicityOptions"
+                  dataTestId={"app-demographics-ethnicity"}
+                />
+              </div>
+            )}
           </CardSection>
 
           <CardSection divider={"flush"} className="border-none">

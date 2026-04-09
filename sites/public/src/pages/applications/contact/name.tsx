@@ -2,30 +2,32 @@ import React, { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { DOBField, Field, Form, t } from "@bloom-housing/ui-components"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
-import { Alert, Icon } from "@bloom-housing/ui-seeds"
+import { Alert } from "@bloom-housing/ui-seeds"
 import {
   OnClientSide,
   PageView,
   pushGtmEvent,
   AuthContext,
-  CustomIconMap,
   emailRegex,
 } from "@bloom-housing/shared-helpers"
 import FormsLayout from "../../../layouts/forms"
 import { useFormConductor } from "../../../lib/hooks"
 import { UserStatus } from "../../../lib/constants"
-import ApplicationFormLayout from "../../../layouts/application-form"
+import ApplicationFormLayout, { LockIcon } from "../../../layouts/application-form"
 import styles from "../../../layouts/application-form.module.scss"
 
 const ApplicationName = () => {
   const { profile } = useContext(AuthContext)
   const { conductor, application, listing } = useFormConductor("primaryApplicantName")
   const [autofilled, setAutofilled] = useState(false)
+  const isAdvocate = conductor?.config?.isAdvocate
 
   const currentPageSection = 1
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { register, handleSubmit, watch, errors, trigger } = useForm<Record<string, any>>({
+  const { register, handleSubmit, watch, errors, trigger, clearErrors } = useForm<
+    Record<string, any>
+  >({
     shouldFocusError: false,
     defaultValues: {
       "applicant.emailAddress": application.applicant.emailAddress,
@@ -49,16 +51,10 @@ const ApplicationName = () => {
   const noEmail: boolean = watch("applicant.noEmail")
   const clientLoaded = OnClientSide()
   if (!autofilled && clientLoaded && application.autofilled) setAutofilled(true)
-
-  const LockIcon = () => {
-    return (
-      autofilled && (
-        <Icon className="ml-2 text-primary" size="md">
-          {CustomIconMap.lockClosed}
-        </Icon>
-      )
-    )
-  }
+  const emailErrorMessage =
+    errors.applicant?.emailAddress?.type === "advocateEmail"
+      ? t("errors.advocateEmailAddressError")
+      : t("errors.emailAddressError")
 
   useEffect(() => {
     pushGtmEvent<PageView>({
@@ -105,8 +101,8 @@ const ApplicationName = () => {
                 <legend
                   className={`text__caps-spaced ${errors.applicant?.firstName ? "text-alert" : ""}`}
                 >
+                  <LockIcon locked={autofilled} />
                   {t("application.name.yourName")}
-                  <LockIcon />
                 </legend>
 
                 <Field
@@ -173,8 +169,8 @@ const ApplicationName = () => {
               errorMessage={t("errors.dateOfBirthErrorAge")}
               label={
                 <>
+                  <LockIcon locked={autofilled} />
                   {t("application.name.yourDateOfBirth")}
-                  <LockIcon />
                 </>
               }
             />
@@ -184,8 +180,8 @@ const ApplicationName = () => {
             <legend
               className={`text__caps-spaced ${errors.applicant?.emailAddress ? "text-alert" : ""}`}
             >
+              <LockIcon locked={autofilled} />
               {t("application.name.yourEmailAddress")}
-              <LockIcon />
             </legend>
 
             <p className="field-note mb-4">{t("application.name.emailPrivacy")}</p>
@@ -196,10 +192,20 @@ const ApplicationName = () => {
               label={t("application.name.yourEmailAddress")}
               readerOnly={true}
               defaultValue={application.applicant.emailAddress}
-              validation={{ required: !noEmail, pattern: emailRegex }}
+              validation={{
+                required: !noEmail,
+                pattern: emailRegex,
+                validate: {
+                  advocateEmail: (value: string) => {
+                    if (!isAdvocate || !value || !profile?.email) return true
+                    return value.trim().toLowerCase() !== profile.email.trim().toLowerCase()
+                  },
+                },
+              }}
               error={errors.applicant?.emailAddress}
-              errorMessage={t("errors.emailAddressError")}
+              errorMessage={emailErrorMessage}
               register={register}
+              onChange={() => clearErrors("applicant.emailAddress")}
               disabled={clientLoaded && (noEmail || autofilled)}
               dataTestId={"app-primary-email"}
               subNote={"example@mail.com"}
@@ -213,6 +219,9 @@ const ApplicationName = () => {
               primary={true}
               register={register}
               disabled={clientLoaded && (emailPresent?.length > 0 || autofilled)}
+              onChange={(e) => {
+                if (e.target.checked) clearErrors("applicant.emailAddress")
+              }}
               inputProps={{
                 defaultChecked: clientLoaded && noEmail,
               }}

@@ -80,6 +80,8 @@ export const relationshipKeys = ["", ...Object.values(HouseholdMemberRelationshi
 
 export const altContactRelationshipKeys = Object.values(AlternateContactRelationship)
 
+export const ethnicityKeys = ["hispanicLatino", "notHispanicLatino"]
+
 export const vouchersOrRentalAssistanceKeys = ["issuedVouchers", "rentalAssistance", "none"]
 
 export const rootRaceKeys = [
@@ -175,10 +177,6 @@ export const prependRoot = (root: string, subKeys: string[]) => {
   return subKeys.map((key) => `${root}-${key}`)
 }
 
-interface subCheckboxes {
-  [key: string]: string[]
-}
-
 // Transform an object with keys that may be prepended with a string to an array of only the values with the string
 export const fieldGroupObjectToArray = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -209,16 +207,6 @@ export const fieldGroupObjectToArray = (
       }
     })
   return modifiedArray
-}
-
-export const raceKeys: subCheckboxes = {
-  asian: prependRoot("asian", asianKeys),
-  black: prependRoot("black", blackKeys),
-  indigenous: prependRoot("indigenous", indigenousKeys),
-  latino: prependRoot("latino", latinoKeys),
-  middleEasternOrAfrican: prependRoot("middleEasternOrAfrican", middleEasternOrAfricanKeys),
-  pacificIslander: prependRoot("pacificIslander", pacificIslanderKeys),
-  white: prependRoot("white", whiteKeys),
 }
 
 export const isKeyIncluded = (
@@ -384,3 +372,5 @@ export const listingUtilities = [
   "phone",
   "internet",
 ]
+
+export const listingParkingTypes = ["onStreet", "offStreet", "garage", "carport"]

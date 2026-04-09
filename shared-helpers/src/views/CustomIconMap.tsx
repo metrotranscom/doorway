@@ -12,6 +12,8 @@ import Cog8ToothIcon from "@heroicons/react/24/solid/Cog8ToothIcon"
 import MapPinIcon from "@heroicons/react/24/outline/MapPinIcon"
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon"
 import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon"
+import UserCircle from "@heroicons/react/24/outline/UserCircleIcon"
+import Cog from "@heroicons/react/24/outline/Cog8ToothIcon"
 
 export const CustomIconMap = {
   application: Application,
@@ -29,6 +31,8 @@ export const CustomIconMap = {
   house: <HouseIcon />,
   questionMarkCircle: <QuestionMarkCircleIcon />,
   listBullet: <ListBulletIcon />,
+  userCircle: <UserCircle />,
+  cog: <Cog />,
 }
 
 export type CustomIconType = keyof typeof CustomIconMap

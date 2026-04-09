@@ -26,6 +26,7 @@ import {
   User,
   MultiselectQuestionsStatusEnum,
   ListingFeaturesConfiguration,
+  RaceEthnicityConfiguration,
 } from "../src/types/backend-swagger"
 
 export const multiselectQuestionPreference: MultiselectQuestion = {
@@ -68,6 +69,40 @@ export const multiselectQuestionPreference: MultiselectQuestion = {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+  ],
+  applicationSection: MultiselectQuestionsApplicationSectionEnum.preferences,
+}
+
+export const multiselectQuestionPreferenceV2: MultiselectQuestion = {
+  id: "id1",
+  status: MultiselectQuestionsStatusEnum.visible,
+  name: "Live/Work in County",
+  subText: "Live/Work in County subtitle",
+  jurisdictions: [{ id: "1", name: "Bloomington" }],
+  createdAt: new Date("2022-09-14T22:53:09.982Z"),
+  updatedAt: new Date("2022-09-15T22:53:09.982Z"),
+  description: "At least one household member lives or works in County",
+  links: [
+    {
+      title: "Live/Work in County Link Title",
+      url: "https://www.example.com",
+    },
+  ],
+  optOutText: "I don't want this preference",
+  multiselectOptions: [
+    {
+      name: "Live in County",
+      ordinal: 1,
+      description: "A description of the option.",
+      links: [
+        {
+          title: "Live in County Link Title",
+          url: "https://www.example.com",
+        },
+      ],
+      collectAddress: false,
+    },
+    { name: "Work in County", ordinal: 1, collectAddress: false },
   ],
   applicationSection: MultiselectQuestionsApplicationSectionEnum.preferences,
 }
@@ -387,7 +422,7 @@ export const unit: Unit = {
   numBathrooms: undefined,
   numBedrooms: undefined,
   number: undefined,
-  unitAccessibilityPriorityTypes: undefined,
+  accessibilityPriorityType: undefined,
   sqFeet: "285",
 
   unitTypes: {
@@ -714,6 +749,7 @@ export const jurisdiction: Jurisdiction = {
   allowSingleUseCodeLogin: false,
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
 }
 
@@ -1059,7 +1095,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1086,7 +1122,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1113,7 +1149,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1140,7 +1176,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1168,7 +1204,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1212,6 +1248,7 @@ export const mockBaseJurisdiction: Jurisdiction = {
   requiredListingFields: [],
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
 }
 
@@ -1321,6 +1358,88 @@ export const expandedListingFeaturesConfiguration: ListingFeaturesConfiguration 
         { id: "smokeDetectorWithStrobe" },
         { id: "ttyAmplifiedPhone" },
       ],
+    },
+  ],
+}
+
+export const defaultRaceEthnicityConfiguration: RaceEthnicityConfiguration = {
+  options: [
+    {
+      id: "asian",
+      subOptions: [
+        { id: "chinese", allowOtherText: false },
+        { id: "filipino", allowOtherText: false },
+        { id: "japanese", allowOtherText: false },
+        { id: "korean", allowOtherText: false },
+        { id: "mongolian", allowOtherText: false },
+        { id: "vietnamese", allowOtherText: false },
+        { id: "centralAsian", allowOtherText: false },
+        { id: "southAsian", allowOtherText: false },
+        { id: "southeastAsian", allowOtherText: false },
+        { id: "otherAsian", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "black",
+      subOptions: [
+        { id: "african", allowOtherText: false },
+        { id: "africanAmerican", allowOtherText: false },
+        { id: "caribbeanCentralSouthAmericanMexican", allowOtherText: false },
+        { id: "otherBlack", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "indigenous",
+      subOptions: [
+        { id: "alaskanNative", allowOtherText: false },
+        { id: "nativeAmerican", allowOtherText: false },
+        {
+          id: "indigenousFromMexicoCaribbeanCentralSouthAmerica",
+          allowOtherText: false,
+        },
+        { id: "otherIndigenous", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "latino",
+      subOptions: [
+        { id: "caribbean", allowOtherText: false },
+        { id: "centralAmerican", allowOtherText: false },
+        { id: "mexican", allowOtherText: false },
+        { id: "southAmerican", allowOtherText: false },
+        { id: "otherLatino", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "middleEasternOrAfrican",
+      subOptions: [
+        { id: "northAfrican", allowOtherText: false },
+        { id: "westAsian", allowOtherText: false },
+        { id: "otherMiddleEasternNorthAfrican", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "pacificIslander",
+      subOptions: [
+        { id: "chamorro", allowOtherText: false },
+        { id: "nativeHawaiian", allowOtherText: false },
+        { id: "samoan", allowOtherText: false },
+        { id: "otherPacificIslander", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "white",
+      subOptions: [
+        { id: "european", allowOtherText: false },
+        { id: "otherWhite", allowOtherText: true },
+      ],
+      allowOtherText: false,
     },
   ],
 }

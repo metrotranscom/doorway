@@ -26,7 +26,7 @@ import {
 } from "@bloom-housing/ui-components"
 import { Card, Heading as SeedsHeading, Icon, Message } from "@bloom-housing/ui-seeds"
 import {
-  getOccupancyDescription,
+  cloudinaryPdfFromId,
   imageUrlFromListing,
   occupancyTable,
   getTimeRangeString,
@@ -188,7 +188,6 @@ export const ListingView = (props: ListingProps) => {
     )
   } // else condition is handled inline below
 
-  const occupancyDescription = getOccupancyDescription(listing)
   const occupancyHeaders = {
     unitType: "t.unitType",
     occupancy: "t.occupancy",
@@ -847,7 +846,10 @@ export const ListingView = (props: ListingProps) => {
               />
             </ListSection>
 
-            <ListSection title={t("t.occupancy")} subtitle={occupancyDescription}>
+            <ListSection
+              title={t("t.occupancy")}
+              subtitle={t("listings.occupancyDescriptionNoSro")}
+            >
               <StandardTable
                 className="table-container"
                 headers={occupancyHeaders}

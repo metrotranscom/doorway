@@ -23,7 +23,6 @@ import { randomNoun } from './word-generator';
 import { RaceEthnicityConfiguration } from '../../src/dtos/jurisdictions/race-ethnicity-configuration.dto';
 import { generateConfirmationCode } from '../../src/utilities/applications-utilities';
 
-// TODO: Needs to handle V2MSQ
 export const applicationFactory = async (optionalParams?: {
   additionalPhone?: string;
   applicant?: Prisma.ApplicantCreateWithoutApplicationsInput;
@@ -141,6 +140,7 @@ export const applicationFactory = async (optionalParams?: {
     isNewest: optionalParams?.isNewest || false,
     expireAfter: optionalParams?.expireAfter,
     wasPIICleared: optionalParams?.wasPIICleared || false,
+    acceptedTerms: true,
   };
 };
 

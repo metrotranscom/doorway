@@ -119,7 +119,7 @@ describe('Testing auth service', () => {
       iat?: number;
     };
     expect(decoded.sub).toBe(id);
-    expect(decoded.expiresIn).toBe(86400000 / 24);
+    expect(decoded.expiresIn).toBe(86400000 / 8);
     expect(decoded).toHaveProperty('iat');
     expect(typeof decoded.iat).toBe('number');
   });
@@ -1078,7 +1078,7 @@ describe('Testing auth service', () => {
     prisma.userAccounts.findFirst = jest
       .fn()
       .mockResolvedValue({ id, agreedToTermsOfService: true });
-    prisma.userAccounts.findFirst = jest
+    prisma.userAccounts.findUnique = jest
       .fn()
       .mockResolvedValue({ id, agreedToTermsOfService: true });
     prisma.userAccountSnapshot.create = jest.fn().mockResolvedValue({ id });
@@ -1134,6 +1134,7 @@ describe('Testing auth service', () => {
 
     expect(prisma.userAccountSnapshot.create).toHaveBeenCalledWith({
       data: {
+        agreedToTermsOfService: true,
         originalId: id,
       },
     });

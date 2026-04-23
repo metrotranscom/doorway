@@ -153,21 +153,20 @@ describe("Demographics", () => {
 
       expect(screen.queryByText("Mongolian")).not.toBeInTheDocument()
       expect(screen.queryByText("Chinese")).not.toBeInTheDocument()
-      // Due to spoken language, some text is already present
-      expect(screen.queryAllByText("Filipino").length).toEqual(1)
+      expect(screen.queryByText("Filipino")).not.toBeInTheDocument()
       expect(screen.queryByText("Japanese")).not.toBeInTheDocument()
-      expect(screen.queryAllByText("Korean").length).toEqual(1)
-      expect(screen.queryAllByText("Vietnamese").length).toEqual(1)
+      expect(screen.queryByText("Korean")).not.toBeInTheDocument()
+      expect(screen.queryByText("Vietnamese")).not.toBeInTheDocument()
       expect(screen.queryByText("Other Asian")).not.toBeInTheDocument()
 
       fireEvent.click(screen.getByRole("checkbox", { name: "Asian" }))
 
       expect(screen.getByText("Mongolian")).toBeInTheDocument()
       expect(screen.getByText("Chinese")).toBeInTheDocument()
-      expect(screen.getAllByText("Filipino").length).toEqual(2)
+      expect(screen.getByText("Filipino")).toBeInTheDocument()
       expect(screen.getByText("Japanese")).toBeInTheDocument()
-      expect(screen.getAllByText("Korean").length).toEqual(2)
-      expect(screen.getAllByText("Vietnamese").length).toEqual(2)
+      expect(screen.getByText("Korean")).toBeInTheDocument()
+      expect(screen.getByText("Vietnamese")).toBeInTheDocument()
       expect(screen.getByText("Other Asian")).toBeInTheDocument()
 
       expect(screen.queryByText("Native Hawaiian")).not.toBeInTheDocument()
@@ -507,26 +506,29 @@ describe("Demographics", () => {
       { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
       { name: FeatureFlagEnum.enableSpokenLanguage, active: true } as FeatureFlag,
     ]
-    ;(conductor.config.visibleSpokenLanguages = ["spanish", "english"]),
-      render(
-        <AppSubmissionContext.Provider
-          value={{
-            conductor: conductor,
-            application: JSON.parse(JSON.stringify(blankApplication)),
-            listing: {} as unknown as Listing,
-            syncApplication: () => {
-              return
-            },
-            syncListing: () => {
-              return
-            },
-          }}
-        >
-          <ApplicationDemographics />
-        </AppSubmissionContext.Provider>
-      )
+    conductor.config.visibleSpokenLanguages = ["spanish", "english"]
 
-    const select = screen.getByLabelText("Which language is most commonly spoken in your home?")
+    render(
+      <AppSubmissionContext.Provider
+        value={{
+          conductor: conductor,
+          application: JSON.parse(JSON.stringify(blankApplication)),
+          listing: {} as unknown as Listing,
+          syncApplication: () => {
+            return
+          },
+          syncListing: () => {
+            return
+          },
+        }}
+      >
+        <ApplicationDemographics />
+      </AppSubmissionContext.Provider>
+    )
+
+    const select = screen.getByLabelText(
+      "Which language is most commonly spoken in your home? Please select one:"
+    )
     expect(select).toBeInTheDocument()
 
     expect(within(select).getByRole("option", { name: "English" })).toBeInTheDocument()
@@ -595,26 +597,28 @@ describe("Demographics", () => {
       { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
       { name: FeatureFlagEnum.enableSpokenLanguage, active: true } as FeatureFlag,
     ]
-    ;(conductor.config.visibleSpokenLanguages = ["english", "notListed"]),
-      render(
-        <AppSubmissionContext.Provider
-          value={{
-            conductor: conductor,
-            application: JSON.parse(JSON.stringify(blankApplication)),
-            listing: {} as unknown as Listing,
-            syncApplication: () => {
-              return
-            },
-            syncListing: () => {
-              return
-            },
-          }}
-        >
-          <ApplicationDemographics />
-        </AppSubmissionContext.Provider>
-      )
+    conductor.config.visibleSpokenLanguages = ["english", "notListed"]
+    render(
+      <AppSubmissionContext.Provider
+        value={{
+          conductor: conductor,
+          application: JSON.parse(JSON.stringify(blankApplication)),
+          listing: {} as unknown as Listing,
+          syncApplication: () => {
+            return
+          },
+          syncListing: () => {
+            return
+          },
+        }}
+      >
+        <ApplicationDemographics />
+      </AppSubmissionContext.Provider>
+    )
 
-    const select = screen.getByLabelText("Which language is most commonly spoken in your home?")
+    const select = screen.getByLabelText(
+      "Which language is most commonly spoken in your home? Please select one:"
+    )
     fireEvent.change(select, { target: { value: "notListed" } })
 
     expect(screen.getByRole("textbox", { name: "Please specify:" })).toBeInTheDocument()

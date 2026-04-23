@@ -24,13 +24,16 @@ Cypress.Commands.add("signOut", () => {
     // See https://github.com/bloom-housing/ui-components/blob/c35c094554e8199f202d67a405272035189060ec/src/headers/SiteHeader.tsx#L175
     // Use keypress instead of mouseover: the span's onKeyPress(Enter) sets activeMenu state
     // and there's no keyboard-based close mechanism, keeping the dropdown open reliably.
-    cy.get(`[data-testid="My account-2"]`).trigger("keypress", {
-      key: "Enter",
-      keyCode: 13,
-      charCode: 13,
-      which: 13,
-    })
-    cy.contains("button", "Sign out", { timeout: 10000 }).click({ force: true })
+    // cy.get(`[data-testid="My account-4"]`).trigger("keypress", {
+    //   key: "Enter",
+    //   keyCode: 13,
+    //   charCode: 13,
+    //   which: 13,
+    // })
+    // cy.contains("button", "Sign out", { timeout: 10000 }).click({ force: true })
+
+    cy.get(`[data-testid="My account-4"]`).trigger("mouseover")
+    cy.get(`[data-testid="Sign out-3"]`).trigger("click")
   }
 })
 
@@ -67,10 +70,16 @@ Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
   cy.visit("/")
   cy.getByTestId("View listings-1").click()
   if (Cypress.env("showSeedsDesign")) {
+    cy.getByID("listings-map-filter-button").click()
+    cy.getByID("propertyName").type(listingName)
+    cy.getByID("listings-map-filter-dialog-show-button").click()
     cy.getByID("listing-seeds-link").contains(listingName).parent().click()
   } else {
     cy.getByTestId("map-pagination").should("include.text", "(Page 1 of 10)")
     cy.getByTestId("loading-overlay").should("not.exist")
+    cy.getByID("listings-map-filter-button").click()
+    cy.getByID("propertyName").type(listingName)
+    cy.getByID("listings-map-filter-dialog-show-button").click()
     cy.get(".is-card-link").contains(listingName).parent().click()
   }
   cy.getByID("listing-view-apply-button").eq(1).click()
@@ -96,10 +105,16 @@ Cypress.Commands.add("beginApplicationRejectAutofill", (listingName) => {
 Cypress.Commands.add("beginApplicationSignedIn", (listingName, autofill) => {
   cy.visit("/listings")
   if (Cypress.env("showSeedsDesign")) {
+    cy.getByID("listings-map-filter-button").click()
+    cy.getByID("propertyName").type(listingName)
+    cy.getByID("listings-map-filter-dialog-show-button").click()
     cy.getByID("listing-seeds-link").contains(listingName).parent().click()
   } else {
     cy.getByTestId("map-pagination").should("include.text", "(Page 1 of 10)")
     cy.getByTestId("loading-overlay").should("not.exist")
+    cy.getByID("listings-map-filter-button").click()
+    cy.getByID("propertyName").type(listingName)
+    cy.getByID("listings-map-filter-dialog-show-button").click()
     cy.get(".is-card-link").contains(listingName).parent().click()
   }
   cy.getByID("listing-view-apply-button").eq(1).click()

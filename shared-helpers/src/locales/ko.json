@@ -98,6 +98,7 @@
   "advocateAccount.accountType.header": "계정 유형을 선택하세요",
   "advocateAccount.accountType.legend": "어떤 것이 당신에게 해당되나요?",
   "advocateAccount.agencyLabel": "대행사",
+  "advocateAccount.agencyNotListed": "소속 기관이 목록에 없는 경우 <a href='mailto:%{contactEmail}'>지원팀에 문의하십시오</a>.",
   "advocateAccount.completeAccountSubtitle": "계정 설정을 완료하려면 필수 입력란을 모두 작성해 주세요.",
   "advocateAccount.completeAccountTitle": "옹호자 계정 생성",
   "advocateAccount.emailNote": "회사 이메일 주소로 등록하세요.",

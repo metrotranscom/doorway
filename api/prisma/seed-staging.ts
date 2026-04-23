@@ -7,7 +7,6 @@ import {
   PrismaClient,
   UserRoleEnum,
   MultiselectQuestionsStatusEnum,
-  Prisma,
   SpokenLanguageEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
@@ -48,8 +47,8 @@ import { blueSkyApartments } from './seed-helpers/listing-data/blue-sky-apartmen
 import { valleyHeightsSeniorCommunity } from './seed-helpers/listing-data/valley-heights-senior-community';
 import { littleVillageApartments } from './seed-helpers/listing-data/little-village-apartments';
 import { elmVillage } from './seed-helpers/listing-data/elm-village';
-import { lakeviewVilla } from './seed-helpers/listing-data/lakeview-villa';
-import { sunshineFlats } from './seed-helpers/listing-data/sunshine-flats';
+// import { lakeviewVilla } from './seed-helpers/listing-data/lakeview-villa';
+// import { sunshineFlats } from './seed-helpers/listing-data/sunshine-flats';
 import { agencyFactory } from './seed-helpers/agency-factory';
 
 export const defaultRaceEthnicityConfiguration: RaceEthnicityConfiguration = {
@@ -185,6 +184,17 @@ export const stagingSeed = async (
     'paperApplication',
     'applicationDueDate',
   ];
+  const visibleSpokenLanguages = [
+    SpokenLanguageEnum.chineseCantonese,
+    SpokenLanguageEnum.chineseMandarin,
+    SpokenLanguageEnum.english,
+    SpokenLanguageEnum.filipino,
+    SpokenLanguageEnum.korean,
+    SpokenLanguageEnum.russian,
+    SpokenLanguageEnum.spanish,
+    SpokenLanguageEnum.vietnamese,
+    SpokenLanguageEnum.notListed,
+  ];
   const doorwaySpecificSettings = {
     listingApprovalPermissions,
     duplicateListingPermissions,
@@ -192,6 +202,7 @@ export const stagingSeed = async (
     languages,
     requiredListingFields,
     raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
+    visibleSpokenLanguages,
   };
 
   const defaultListingFeatureConfiguration: ListingFeaturesConfiguration = {
@@ -774,7 +785,7 @@ export const stagingSeed = async (
       jurisdictionsId: angelopolisJurisdiction.id,
     },
   });
-  const advocate = await prismaClient.userAccounts.create({
+  await prismaClient.userAccounts.create({
     data: await userFactory({
       email: 'advocate@example.com',
       confirmedAt: new Date(),
@@ -1045,16 +1056,16 @@ export const stagingSeed = async (
         ],
         text: 'Mobility accessibility needs',
       };
-  const mobilityAccessibilityNeedsProgramQuestion =
-    await prismaClient.multiselectQuestions.create({
-      data: multiselectQuestionFactory(
-        angelopolisJurisdiction.id,
-        {
-          multiselectQuestion: mobilityAccessibilityNeedsProgramMsqData,
-        },
-        msqV2,
-      ),
-    });
+
+  await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(
+      angelopolisJurisdiction.id,
+      {
+        multiselectQuestion: mobilityAccessibilityNeedsProgramMsqData,
+      },
+      msqV2,
+    ),
+  });
   const hearingVisionAccessibilityNeedsProgramMsqData = msqV2
     ? {
         applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
@@ -1100,16 +1111,16 @@ export const stagingSeed = async (
         ],
         text: 'Hearing/vision accessibility needs',
       };
-  const hearingVisionAccessibilityNeedsProgramQuestion =
-    await prismaClient.multiselectQuestions.create({
-      data: multiselectQuestionFactory(
-        angelopolisJurisdiction.id,
-        {
-          multiselectQuestion: hearingVisionAccessibilityNeedsProgramMsqData,
-        },
-        msqV2,
-      ),
-    });
+
+  await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(
+      angelopolisJurisdiction.id,
+      {
+        multiselectQuestion: hearingVisionAccessibilityNeedsProgramMsqData,
+      },
+      msqV2,
+    ),
+  });
   const housingSituationProgramMsqData = msqV2
     ? {
         applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
@@ -1165,16 +1176,15 @@ export const stagingSeed = async (
         ],
         text: 'Housing Situation',
       };
-  const housingSituationProgramQuestion =
-    await prismaClient.multiselectQuestions.create({
-      data: multiselectQuestionFactory(
-        angelopolisJurisdiction.id,
-        {
-          multiselectQuestion: housingSituationProgramMsqData,
-        },
-        msqV2,
-      ),
-    });
+  await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(
+      angelopolisJurisdiction.id,
+      {
+        multiselectQuestion: housingSituationProgramMsqData,
+      },
+      msqV2,
+    ),
+  });
   const senior62PlusProgramMsqData = msqV2
     ? {
         applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,

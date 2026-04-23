@@ -7,8 +7,6 @@ import {
   ApplicationMethod,
   ListingsStatusEnum,
   ReviewOrderTypeEnum,
-  FeatureFlagEnum,
-  FeatureFlag,
   Jurisdiction,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { CypressAddress, CypressListing } from "./cypressListingHelpers"

@@ -60,7 +60,7 @@ const translations = (
         },
         accountRemoval: {
           subject:
-            'Eliminación programada de cuenta de Bloom Housing debido a inactividad',
+            'Eliminación programada de cuenta de Doorway debido a inactividad',
           courtesyText:
             'Este es un correo electrónico de cortesía para informarle que, debido a que su cuenta del Portal de Bloom Housing ha estado inactiva durante 3 años, se eliminará en 30 días según nuestros Términos de Uso y Política de Privacidad. Si desea conservar su cuenta, inicie sesión durante el próximo mes y la consideraremos activa de nuevo.',
           signIn: 'Iniciar sesión en Bloom Housing',
@@ -338,8 +338,7 @@ const translations = (
           footer: 'Bloom Housing',
         },
         header: {
-          logoUrl:
-            'https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/dev/bloom_logo_generic_zgb4sg.jpg',
+          logoUrl: 'https://housingbayarea.mtc.ca.gov/images/doorway-logo.png',
           logoTitle: 'Bloom Housing Portal',
         },
         invite: {
@@ -453,6 +452,10 @@ const translations = (
           contactedForAnInterview:
             'If you are contacted for an interview, you will need to fill out a more detailed application and provide supporting documents.',
           gotYourConfirmationNumber: 'We got your application for',
+          submitAnotherApplication:
+            'If you’re not changing the primary applicant or any household members, you can just submit another application.  We’ll take the last one submitted, per the duplicate application policy.',
+          otherChanges:
+            'For other changes, please contact doorway@bayareametro.gov.',
         },
         leasingAgent: {
           officeHours: 'Office Hours:',
@@ -465,15 +468,15 @@ const translations = (
           mfaCode: 'Your access code is: %{singleUseCode}',
         },
         forgotPassword: {
-          subject: 'Forgot your password?',
+          subject: 'Reset your password',
           callToAction:
             'If you did make this request, please click on the link below to reset your password:',
           passwordInfo:
             "Your password won't change until you access the link above and create a new one.",
           resetRequest:
-            'A request to reset your Bloom Housing Portal website password for %{appUrl} has recently been made.',
+            'We received a request to reset your password for your Doorway Housing Portal account. You must click the following link to complete the reset:',
           ignoreRequest:
-            "If you didn't request this, please ignore this email.",
+            'This password reset is only valid for the next hour. If you didn’t make this request, please ignore this email.',
           changePassword: 'Change my password',
         },
         requestApproval: {
@@ -510,6 +513,37 @@ const translations = (
           message:
             'Use the following code to sign in to your %{jurisdictionName} account. This code will be valid for 10 minutes. Never share this code.',
           singleUseCode: '%{singleUseCode}',
+        },
+        rentalOpportunity: {
+          subject: 'New rental opportunity',
+          intro: 'Rental opportunity at',
+          viewListingNotice: {
+            line1: 'THIS INFORMATION MAY CHANGE',
+            line2: 'Please view listing for the most updated information',
+          },
+          applicationsDue: 'Applications Due',
+          community: 'Community',
+          address: 'Address',
+          doorwayAccountRequirement:
+            'You will need a Doorway account in order to apply. Receipt of this email does not equate to a Doorway account',
+          rent: 'Rent',
+          minIncome: 'Minimum Income',
+          maxIncome: 'Maximum Income',
+          lottery: 'Lottery Date',
+          studio: 'Studios',
+          oneBdrm: '1 Bedrooms',
+          twoBdrm: '2 Bedrooms',
+          threeBdrm: '3 Bedrooms',
+          fourBdrm: '4 Bedrooms',
+          fiveBdrm: '5 Bedrooms',
+          SRO: 'SROs',
+          viewButton: {
+            en: 'View listing & apply',
+            es: 'Ver anuncio y solicitar',
+            zh: '查看房源和申請',
+            vi: 'Xem tin đăng & nộp đơn',
+            tl: 'Tingnan ang Listahan at Mag-apply',
+          },
         },
         scriptRunner: {
           information:
@@ -550,9 +584,9 @@ const translations = (
           otherOpportunities4: 'Housing Portal Help Center',
         },
         accountRemoval: {
-          subject: 'Bloom Housing Scheduled Account Removal Due to Inactivity',
+          subject: 'Doorway Scheduled Account Removal Due to Inactivity',
           courtesyText:
-            'This is a courtesy email to let you know that because your Bloom Housing Portal account has been inactive for 3 years, your account will be deleted in 30 days per our Terms of Use and Privacy Policy. If you’d like to keep your account, please log in sometime in the next month and we’ll consider your account active again.',
+            'Este es un correo electrónico de cortesía para informarle que, dado que su cuenta en el Portal de Vivienda Doorway ha permanecido inactiva durante 3 años, su cuenta será eliminada en un plazo de 30 días, de conformidad con nuestros Términos de uso y Política de privacidad. Si desea conservar su cuenta, por favor inicie sesión en algún momento durante el próximo mes; de este modo, consideraremos que su cuenta vuelve a estar activa.',
           signIn: 'Sign in to Bloom Housing',
         },
         advocateApproved: {

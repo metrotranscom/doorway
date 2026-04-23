@@ -10,8 +10,9 @@ afterEach(cleanup)
 
 describe("photos helper", () => {
   it("should return correct cloudinary url", () => {
-    expect(cloudinaryUrlFromId("1234", "test")).toBe(
-      `https://res.cloudinary.com/test/image/upload/w_400,c_limit,q_65/1234.jpg`
+    process.env.CLOUDINARY_CLOUD_NAME = "exygy"
+    expect(cloudinaryUrlFromId("1234")).toBe(
+      `https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/1234.jpg`
     )
   })
 

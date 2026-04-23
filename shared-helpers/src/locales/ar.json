@@ -98,6 +98,7 @@
   "advocateAccount.accountType.header": "اختر نوع الحساب",
   "advocateAccount.accountType.legend": "أيٌّ من هذه الصفات يصفك؟",
   "advocateAccount.agencyLabel": "وكالة",
+  "advocateAccount.agencyNotListed": "<a href='mailto:%{contactEmail}'>اتصل بالدعم</a> إذا لم تكن وكالتك مدرجة.",
   "advocateAccount.completeAccountSubtitle": "يرجى ملء الحقول المطلوبة لإكمال إعداد حسابك.",
   "advocateAccount.completeAccountTitle": "إنشاء حساب داعم",
   "advocateAccount.emailNote": "سجل باستخدام عنوان بريدك الإلكتروني الخاص بالعمل",

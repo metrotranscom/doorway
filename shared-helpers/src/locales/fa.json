@@ -98,6 +98,7 @@
   "advocateAccount.accountType.header": "نوع حساب را انتخاب کنید",
   "advocateAccount.accountType.legend": "کدام یک شما را توصیف می‌کند؟",
   "advocateAccount.agencyLabel": "آژانس",
+  "advocateAccount.agencyNotListed": "اگر آژانس شما در لیست نیست، <a href='mailto:%{contactEmail}'>با پشتیبانی تماس بگیرید</a>",
   "advocateAccount.completeAccountSubtitle": "لطفا فیلدهای مورد نیاز را برای تکمیل تنظیمات حساب کاربری خود پر کنید.",
   "advocateAccount.completeAccountTitle": "ایجاد حساب کاربری مدافع",
   "advocateAccount.emailNote": "با آدرس ایمیل کاری خود ثبت نام کنید",

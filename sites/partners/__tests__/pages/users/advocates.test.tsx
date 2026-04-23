@@ -66,12 +66,23 @@ describe("advocate users", () => {
             meta: { totalItems: 2, totalPages: 1 },
           })
         )
+      }),
+      rest.get("http://localhost/api/adapter/user/list", (req, res, ctx) => {
+        return res(
+          ctx.json({
+            items: [
+              mockAdvocateUser(1, "First Agency", new Date(2025, 6, 12), false),
+              mockAdvocateUser(2, "Second Agency", new Date(2025, 6, 12), true),
+            ],
+            meta: { totalItems: 2, totalPages: 1 },
+          })
+        )
       })
     )
 
     renderAdvocateUsersPage()
 
-    const header = await screen.findByText("Partners Portal")
+    const header = await screen.findByText("Users")
     expect(header).toBeInTheDocument()
 
     const tableHeaders = await screen.findAllByRole("columnheader")
@@ -122,6 +133,24 @@ describe("advocate users", () => {
           })
         )
       }),
+      rest.get("http://localhost/api/adapter/user/list", (req, res, ctx) => {
+        return res(
+          ctx.json({
+            items: [
+              mockAdvocateUser(
+                1,
+                "First Agency",
+                new Date(2025, 6, 12),
+                false,
+                "James",
+                null,
+                "Sunderland"
+              ),
+            ],
+            meta: { totalItems: 1, totalPages: 1 },
+          })
+        )
+      }),
       rest.post("http://localhost/api/adapter/user/advocate/approve", (req, res, ctx) => {
         return res(ctx.json({ success: true }))
       })
@@ -129,7 +158,7 @@ describe("advocate users", () => {
 
     renderAdvocateUsersPage()
 
-    const header = await screen.findByText("Partners Portal")
+    const header = await screen.findByText("Users")
     expect(header).toBeInTheDocument()
 
     const tableHeaders = await screen.findAllByRole("columnheader")
@@ -174,6 +203,24 @@ describe("advocate users", () => {
           })
         )
       }),
+      rest.get("http://localhost/api/adapter/user/list", (req, res, ctx) => {
+        return res(
+          ctx.json({
+            items: [
+              mockAdvocateUser(
+                1,
+                "First Agency",
+                new Date(2025, 6, 12),
+                false,
+                "James",
+                null,
+                "Sunderland"
+              ),
+            ],
+            meta: { totalItems: 1, totalPages: 1 },
+          })
+        )
+      }),
       rest.post("http://localhost/api/adapter/user/advocate/approve", (req, res, ctx) => {
         return res(ctx.json({ success: true }))
       })
@@ -181,7 +228,7 @@ describe("advocate users", () => {
 
     renderAdvocateUsersPage()
 
-    const header = await screen.findByText("Partners Portal")
+    const header = await screen.findByText("Users")
     expect(header).toBeInTheDocument()
 
     const tableHeaders = await screen.findAllByRole("columnheader")

@@ -90,8 +90,8 @@ const ApplicationTypes = ({
   // enableReferralQuestionUnits,
   jurisdiction,
   listing,
+  // defaultReferralText,
   requiredFields,
-  defaultReferralText,
 }: ApplicationTypesProps) => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register, setValue, watch, errors, getValues } = useFormContext()

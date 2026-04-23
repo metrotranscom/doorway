@@ -2,13 +2,13 @@ import {
   LanguagesEnum,
   NeighborhoodAmenitiesEnum,
   Prisma,
+  SpokenLanguageEnum,
   UserRoleEnum,
 } from '@prisma/client';
 import { randomName } from './word-generator';
 import { ListingFeaturesConfiguration } from '../../src/dtos/jurisdictions/listing-features-config.dto';
 import { UnitAccessibilityPriorityTypeEnum } from '../../src/enums/units/accessibility-priority-type-enum';
 import { RaceEthnicityConfiguration } from '../../src/dtos/jurisdictions/race-ethnicity-configuration.dto';
-import { SpokenLanguageEnum } from '../../src/enums/applications/spoken-language-enum';
 
 export const jurisdictionFactory = (
   jurisdictionName = `${randomName()} ${Math.random()

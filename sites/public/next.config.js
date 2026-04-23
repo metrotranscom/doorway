@@ -109,6 +109,19 @@ module.exports = withBundleAnalyzer({
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   async headers() {
+    if (process.env.ALLOW_SEO_INDEXING === "TRUE") {
+      return [
+        {
+          source: "/(.*)",
+          headers: [
+            {
+              key: "Content-Security-Policy",
+              value: `frame-ancestors 'none';`,
+            },
+          ],
+        },
+      ]
+    }
     return [
       {
         source: "/(.*)",
@@ -119,22 +132,19 @@ module.exports = withBundleAnalyzer({
           },
         ],
       },
+      {
+        source: "/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
     ]
   },
   redirects() {
-    if (process.env.ALLOW_SEO_INDEXING === "TRUE") {
-      return []
-    }
     return [
       // get-assistance page doesn't exist in Doorway so re-route to the get started page
       {
         source: "/get-assistance",
         destination: "/help/get-started",
         permanent: true,
-      },
-      {
-        source: "/:path*",
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ]
   },

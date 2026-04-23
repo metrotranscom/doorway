@@ -98,6 +98,7 @@
   "advocateAccount.accountType.header": "Ընտրեք հաշվի տեսակը",
   "advocateAccount.accountType.legend": "Ո՞րն է նկարագրում ձեզ։",
   "advocateAccount.agencyLabel": "Գործակալություն",
+  "advocateAccount.agencyNotListed": "<a href='mailto:%{contactEmail}'>Կապվեք աջակցության ծառայության հետ</a>, եթե ձեր գործակալությունը ցուցակում չէ",
   "advocateAccount.completeAccountSubtitle": "Խնդրում ենք լրացնել պարտադիր դաշտերը՝ ձեր հաշվի կարգավորումն ավարտելու համար։",
   "advocateAccount.completeAccountTitle": "Ստեղծեք փաստաբանի հաշիվ",
   "advocateAccount.emailNote": "Գրանցվեք ձեր աշխատանքային էլեկտրոնային փոստի հասցեով",

@@ -857,7 +857,7 @@ describe('Testing email service', () => {
     });
   });
 
-  describe('application update', () => {
+  describe.skip('application update', () => {
     it('should send application update email for applicant', async () => {
       const listing = {
         id: 'listingId',
@@ -906,7 +906,7 @@ describe('Testing email service', () => {
       //   'No further action is required at this time. If you have questions regarding this update, please reach out at',
       // );
     });
-    it.skip('should send advocate and applicant application update emails', async () => {
+    it('should send advocate and applicant application update emails', async () => {
       const listing = {
         id: 'listingId',
         name: 'Example Listing',

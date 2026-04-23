@@ -875,7 +875,7 @@ describe('Snapshot Create Controller Tests', () => {
                 paperApplications: {
                   create: [
                     {
-                      language: LanguagesEnum.ko,
+                      language: LanguagesEnum.es,
                       assets: {
                         create: {
                           fileId: 'example fileId',
@@ -884,7 +884,7 @@ describe('Snapshot Create Controller Tests', () => {
                       },
                     },
                     {
-                      language: LanguagesEnum.ko,
+                      language: LanguagesEnum.es,
                       assets: {
                         create: {
                           fileId: 'example fileId',
@@ -904,7 +904,7 @@ describe('Snapshot Create Controller Tests', () => {
                 paperApplications: {
                   create: [
                     {
-                      language: LanguagesEnum.ko,
+                      language: LanguagesEnum.es,
                       assets: {
                         create: {
                           fileId: 'example fileId',
@@ -913,7 +913,7 @@ describe('Snapshot Create Controller Tests', () => {
                       },
                     },
                     {
-                      language: LanguagesEnum.ko,
+                      language: LanguagesEnum.es,
                       assets: {
                         create: {
                           fileId: 'example fileId',
@@ -1646,9 +1646,9 @@ describe('Snapshot Create Controller Tests', () => {
           housingStatus: 'example housingStatus',
           income: 'example income',
           incomePeriod: IncomePeriodEnum.perMonth,
-          incomeVouchers: true,
+          incomeVouchers: [],
           isNewest: true,
-          language: LanguagesEnum.bn,
+          language: LanguagesEnum.es,
           manualLotteryPositionNumber: 34,
           markedAsDuplicate: true,
           preferences: '[]',
@@ -1707,14 +1707,16 @@ describe('Snapshot Create Controller Tests', () => {
         housingStatus: 'example housingStatus',
         income: 'example income',
         incomePeriod: IncomePeriodEnum.perMonth,
-        incomeVouchers: true,
+        incomeVouchers: [],
         isNewest: true,
-        language: LanguagesEnum.bn,
+        language: LanguagesEnum.es,
         manualLotteryPositionNumber: 34,
         markedAsDuplicate: true,
         preferences: '[]',
         programs: '[]',
         reasonableAccommodations: null,
+        receivedAt: null,
+        receivedBy: null,
         reviewStatus: ApplicationReviewStatusEnum.valid,
         sendMailToMailingAddress: true,
         status: ApplicationStatusEnum.submitted,
@@ -1900,9 +1902,9 @@ describe('Snapshot Create Controller Tests', () => {
           housingStatus: 'example housingStatus',
           income: 'example income',
           incomePeriod: IncomePeriodEnum.perMonth,
-          incomeVouchers: true,
+          incomeVouchers: [],
           isNewest: true,
-          language: LanguagesEnum.bn,
+          language: LanguagesEnum.es,
           manualLotteryPositionNumber: 34,
           markedAsDuplicate: true,
           preferences: '[]',
@@ -2253,14 +2255,16 @@ describe('Snapshot Create Controller Tests', () => {
         housingStatus: 'example housingStatus',
         income: 'example income',
         incomePeriod: IncomePeriodEnum.perMonth,
-        incomeVouchers: true,
+        incomeVouchers: [],
         isNewest: true,
-        language: LanguagesEnum.bn,
+        language: LanguagesEnum.es,
         manualLotteryPositionNumber: 34,
         markedAsDuplicate: true,
         preferences: '[]',
         programs: '[]',
         reasonableAccommodations: null,
+        receivedAt: null,
+        receivedBy: null,
         reviewStatus: ApplicationReviewStatusEnum.valid,
         sendMailToMailingAddress: true,
         status: ApplicationStatusEnum.submitted,

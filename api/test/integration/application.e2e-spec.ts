@@ -168,7 +168,6 @@ describe('Application Controller Tests', () => {
         ethnicity: 'example ethnicity',
         gender: 'example gender',
         sexualOrientation: 'example sexual orientation',
-        spokenLanguage: 'example language',
         howDidYouHear: ['example how did you hear'],
         race: ['example race'],
         spokenLanguage: 'example spoken language',
@@ -671,7 +670,6 @@ describe('Application Controller Tests', () => {
           ethnicity: 'example ethnicity',
           gender: 'example gender',
           sexualOrientation: 'example sexual orientation',
-          spokenLanguage: 'example language',
           howDidYouHear: ['example how did you hear'],
           race: ['example race'],
           spokenLanguage: 'example spoken language',
@@ -1848,7 +1846,7 @@ describe('Application Controller Tests', () => {
         householdSize: 2,
         householdStudent: false,
         housingStatus: 'example status',
-        incomeVouchers: false,
+        incomeVouchers: [],
         income: '36000',
         incomePeriod: IncomePeriodEnum.perYear,
         language: LanguagesEnum.en,
@@ -2022,7 +2020,7 @@ describe('Application Controller Tests', () => {
         householdSize: 2,
         householdStudent: false,
         housingStatus: 'example status',
-        incomeVouchers: false,
+        incomeVouchers: [],
         income: '36000',
         incomePeriod: IncomePeriodEnum.perYear,
         language: LanguagesEnum.en,
@@ -2096,7 +2094,7 @@ describe('Application Controller Tests', () => {
         },
       });
 
-      const applicationSelection = await prisma.applicationSelections.create({
+      await prisma.applicationSelections.create({
         data: await applicationSelectionFactory(
           applicationA.id,
           multiselectQuestionPreference.id,
@@ -2183,7 +2181,7 @@ describe('Application Controller Tests', () => {
         householdSize: 2,
         householdStudent: false,
         housingStatus: 'example status',
-        incomeVouchers: false,
+        incomeVouchers: [],
         income: '36000',
         incomePeriod: IncomePeriodEnum.perYear,
         language: LanguagesEnum.en,

@@ -583,7 +583,7 @@ describe("<ListingViewSeeds>", () => {
       expect(hmiSectionTitle).toBeInTheDocument()
       expect(
         within(hmiSectionTitle.parentElement).getByText(
-          "For income calculations, household size includes everyone (all ages) living in the unit."
+          "For income calculations, household size includes everyone (all ages) living in the unit. This information is to help you understand whether you may be eligible for a unit at this property. The “maximum income” listed here does not include possible deductions or exclusions, so you may be eligible even if your household income is somewhat higher than the maximum. If you are selected, you will have to provide specific information about your income at that time."
         )
       ).toBeInTheDocument()
       expect(

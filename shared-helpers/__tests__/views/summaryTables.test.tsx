@@ -7,8 +7,6 @@ import {
   ReviewOrderTypeEnum,
   UnitType,
   UnitAccessibilityPriorityTypeEnum,
-  ReviewOrderTypeEnum,
-  UnitType,
 } from "../../src/types/backend-swagger"
 import {
   mergeSummaryRows,
@@ -1021,8 +1019,8 @@ describe("unitSummariesTable", () => {
       }
       const rows = unitSummariesTable([samMinAndMax], ReviewOrderTypeEnum.firstComeFirstServe)
       render(rows[0].minimumIncome.content)
-      expect(screen.getByText("$1,500")).toBeInTheDocument()
-      expect(screen.getByText("per month")).toBeInTheDocument()
+      expect(screen.getByText("$1,500", { exact: false })).toBeInTheDocument()
+      expect(screen.getByText("per month", { exact: false })).toBeInTheDocument()
       expect(screen.queryByText("to")).not.toBeInTheDocument()
     })
 

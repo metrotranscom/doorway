@@ -4,7 +4,6 @@ import { t, Select, FieldGroup, Field } from "@bloom-housing/ui-components"
 import { Grid } from "@bloom-housing/ui-seeds"
 import {
   ethnicityKeys,
-  spokenLanguageKeys,
   genderKeys,
   sexualOrientationKeys,
   isKeyIncluded,

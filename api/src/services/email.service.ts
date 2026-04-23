@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import fs from 'fs';
@@ -450,10 +450,10 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(user.jurisdictions);
     void (await this.loadTranslations(jurisdiction, user.language));
 
-    const emailFromAddress = await this.getEmailToSendFrom(
-      user.jurisdictions,
-      jurisdiction,
-    );
+    // const emailFromAddress = await this.getEmailToSendFrom(
+    //   user.jurisdictions,
+    //   jurisdiction,
+    // );
 
     await this.sendSingleSES(
       {
@@ -501,7 +501,7 @@ export class EmailService {
     listing: Listing,
     application: Application,
     appUrl: string,
-    isAdvocate = false,
+    // isAdvocate = false,
   ) {
     const jurisdiction = await this.getJurisdiction([listing.jurisdictions]);
     void (await this.loadTranslations(jurisdiction, application.language));
@@ -659,19 +659,19 @@ export class EmailService {
         listingName: listing.name,
       });
     const actionUrl = appUrl ? `${appUrl}/account/applications` : '';
-    const housingApplicantName = [
-      application?.applicant?.firstName,
-      application?.applicant?.lastName,
-    ]
-      .filter(Boolean)
-      .join(' ');
+    // const housingApplicantName = [
+    //   application?.applicant?.firstName,
+    //   application?.applicant?.lastName,
+    // ]
+    //   .filter(Boolean)
+    //   .join(' ');
     const advocateEmail = application?.alternateContact?.emailAddress;
-    const advocateName = [
-      application?.alternateContact?.firstName,
-      application?.alternateContact?.lastName,
-    ]
-      .filter(Boolean)
-      .join(' ');
+    // const advocateName = [
+    //   application?.alternateContact?.firstName,
+    //   application?.alternateContact?.lastName,
+    // ]
+    //   .filter(Boolean)
+    //   .join(' ');
 
     if (isAdvocate && advocateEmail) {
       void (await this.loadTranslations(jurisdiction, application.language));

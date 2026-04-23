@@ -12,7 +12,6 @@ import {
 import { UserStatus } from "../../../lib/constants"
 import Layout from "../../../layouts/application"
 import { ListingView, ListingViewListing } from "../../../components/listing/ListingView"
-import { MetaTags } from "../../../components/shared/MetaTags"
 import { ErrorPage } from "../../_error"
 import dayjs from "dayjs"
 import { runtimeConfig } from "../../../lib/runtime-config"
@@ -61,18 +60,11 @@ export default function ListingPage(props: ListingProps) {
     return <ErrorPage />
   }
 
-  const metaDescription = t("pageDescription.listing", {
-    listingName: listing.name,
-  })
-  const metaImages = imageUrlFromListing(listing, parseInt(process.env.listingPhotoSize))
-  const metaImage = metaImages[0]
-
   return (
     <Layout>
       <Head>
         <title>{pageTitle}</title>
       </Head>
-      <MetaTags title={listing.name} image={metaImage} description={metaDescription} />
       <ListingView
         listing={listing as ListingViewListing}
         jurisdiction={props.jurisdiction}

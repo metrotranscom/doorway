@@ -11,6 +11,6 @@ describe("Language selection", function () {
     }
 
     cy.url().should("include", "/es/")
-    cy.contains("Listados").should("be.visible")
+    cy.contains("Ver listados").should("be.visible")
   })
 })

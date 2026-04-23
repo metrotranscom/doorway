@@ -24,6 +24,8 @@ import {
   createPasswordSubmitHandler,
   AlertMessage,
 } from "./AccountFieldHelpers"
+import { Card } from "@bloom-housing/ui-seeds"
+import styles from "../../pages/account/account.module.scss"
 
 export const EditPublicAccount = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -200,6 +202,11 @@ export const EditPublicAccount = () => {
               >
                 {passwordFields(pwdErrors, pwdRegister, password, MIN_PASSWORD_LENGTH)}
               </AccountSection>
+              <Card.Section divider="inset" className={styles["account-card-settings-section"]}>
+                <p className={styles["account-settings-disclaimer"]}>
+                  {t("account.settings.dataRemovalDisclaimer")}
+                </p>
+              </Card.Section>
             </LoadingState>
           </div>
         </BloomCard>

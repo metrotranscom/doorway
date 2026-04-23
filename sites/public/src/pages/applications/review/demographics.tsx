@@ -181,39 +181,6 @@ const ApplicationDemographics = () => {
             )}
             <div className={"pt-8"}>
               <Select
-                id="spokenLanguage"
-                name="spokenLanguage"
-                defaultValue={
-                  application.demographics.spokenLanguage?.includes("notListed")
-                    ? "notListed"
-                    : application.demographics.spokenLanguage
-                }
-                label={t("application.review.demographics.spokenLanguageLabel")}
-                placeholder={t("t.selectOne")}
-                register={register}
-                labelClassName="text__caps-spaced mb-0"
-                controlClassName="control"
-                options={spokenLanguageKeys}
-                keyPrefix="application.review.demographics.spokenLanguageOptions"
-                dataTestId={"app-demographics-spoken-language"}
-              />
-              {spokenLanguageValue?.includes("notListed") && (
-                <Field
-                  id="spokenLanguageNotListed"
-                  name="spokenLanguageNotListed"
-                  defaultValue={
-                    application.demographics.spokenLanguage?.includes("notListed")
-                      ? application.demographics.spokenLanguage.split(":")[1]
-                      : undefined
-                  }
-                  label={t("application.review.demographics.spokenLanguageSpecify")}
-                  validation={{ required: true }}
-                  register={register}
-                />
-              )}
-            </div>
-            <div className={"pt-8"}>
-              <Select
                 id="gender"
                 name="gender"
                 label={t("application.review.demographics.genderLabel")}
@@ -224,7 +191,7 @@ const ApplicationDemographics = () => {
                 controlClassName="control"
                 options={genderKeys}
                 keyPrefix="application.review.demographics.genderOptions"
-                dataTestId={"app-demographics-spoken-language"}
+                dataTestId={"app-demographics-gender"}
               />
             </div>
             <div className={"pt-8"}>

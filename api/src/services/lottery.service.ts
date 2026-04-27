@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { LotteryAuditResponseDto } from '../dtos/listings/lottery-audit-response.dto';
 import {
   LanguagesEnum,
   ListingEventsTypeEnum,
@@ -167,6 +168,20 @@ export class LotteryService {
         },
         user,
       );
+
+      // Trigger automated audit if the lottery audit endpoint is configured
+      const auditEndpoint = this.configService.get<string>(
+        'LOTTERY_AUDIT_ENDPOINT',
+      );
+      if (auditEndpoint) {
+        try {
+          await this.triggerLotteryAudit(listingId, auditEndpoint);
+        } catch (auditError) {
+          this.logger.error(
+            `Automated lottery audit failed to trigger for listing ${listingId}: ${auditError.message}`,
+          );
+        }
+      }
     } catch (e) {
       console.error(e);
       await this.lotteryStatus(
@@ -864,5 +879,49 @@ export class LotteryService {
     });
 
     return results;
+  }
+
+  async triggerLotteryAudit(
+    listingId: string,
+    endpoint: string,
+  ): Promise<LotteryAuditResponseDto> {
+    this.logger.warn(`Triggering lottery audit for listing ${listingId}`);
+    try {
+      // Use native fetch available in Node.js >= 18
+      const nativeFetch = (globalThis as any).fetch;
+      const response = await nativeFetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ListingId: listingId }),
+      });
+
+      if (!response.ok) {
+        let errorData = 'Failed to start lottery audit';
+        try {
+          errorData = await response.text();
+        } catch (e) {
+          // ignore
+        }
+        throw new HttpException(errorData, response.status || 500);
+      }
+
+      const data = await response.json();
+      return mapTo(LotteryAuditResponseDto, {
+        workQueueItemID: data.WorkQueueItemID,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to trigger lottery audit for listing ${listingId}: ${error.message}`,
+      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        error.message || 'Failed to start lottery audit',
+        500,
+      );
+    }
   }
 }

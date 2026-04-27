@@ -12,6 +12,7 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
   ReviewOrderTypeEnum,
 } from '@prisma/client';
+import { HttpService } from '@nestjs/axios';
 import { mockApplicationSet } from './application.service.spec';
 import { mockMultiselectQuestion } from './multiselect-question.service.spec';
 import { randomNoun } from '../../../prisma/seed-helpers/word-generator';
@@ -78,14 +79,25 @@ describe('Testing lottery service', () => {
             lotteryPublishedApplicant: lotteryPublishedApplicantMock,
           },
         },
-        ConfigService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
+        {
+          provide: HttpService,
+          useValue: {
+            post: jest.fn(),
+            get: jest.fn(),
+          },
+        },
         Logger,
         SchedulerRegistry,
         GoogleTranslateService,
         CronJobService,
         SnapshotCreateService,
       ],
-      imports: [HttpModule],
     }).compile();
 
     service = module.get<LotteryService>(LotteryService);
@@ -1622,6 +1634,68 @@ describe('Testing lottery service', () => {
       await expect(
         async () => await service.lotteryTotals(listingId, null),
       ).rejects.toThrowError();
+    });
+  });
+
+  describe('Testing triggerLotteryAudit()', () => {
+    it('should trigger a lottery audit and return the response', async () => {
+      const mockListingId = randomUUID();
+      const mockEndpoint = 'https://example.com/audit';
+      const mockWorkQueueItemId = randomUUID();
+
+      (globalThis as any).fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest
+          .fn()
+          .mockResolvedValue({ WorkQueueItemID: mockWorkQueueItemId }),
+      });
+
+      const result = await service.triggerLotteryAudit(
+        mockListingId,
+        mockEndpoint,
+      );
+      expect((globalThis as any).fetch).toHaveBeenCalledWith(mockEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ListingId: mockListingId }),
+      });
+      expect(result.workQueueItemID).toEqual(mockWorkQueueItemId);
+    });
+
+    it('should throw HttpException with 500 when fetch response is not ok', async () => {
+      const mockListingId = randomUUID();
+      const mockEndpoint = 'https://example.com/audit';
+
+      (globalThis as any).fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        text: jest
+          .fn()
+          .mockResolvedValue('Internal error from lottery audit endpoint'),
+      });
+
+      await expect(
+        async () =>
+          await service.triggerLotteryAudit(mockListingId, mockEndpoint),
+      ).rejects.toThrowError('Internal error from lottery audit endpoint');
+    });
+
+    it('should throw HttpException with 409 when fetch response returns 409', async () => {
+      const mockListingId = randomUUID();
+      const mockEndpoint = 'https://example.com/audit';
+
+      (globalThis as any).fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 409,
+        text: jest
+          .fn()
+          .mockResolvedValue('Conflict error from lottery audit endpoint'),
+      });
+
+      await expect(
+        async () =>
+          await service.triggerLotteryAudit(mockListingId, mockEndpoint),
+      ).rejects.toThrowError('Conflict error from lottery audit endpoint');
     });
   });
 });

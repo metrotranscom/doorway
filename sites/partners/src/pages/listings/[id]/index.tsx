@@ -9,7 +9,6 @@ import {
   ListingsStatusEnum,
   ReviewOrderTypeEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
-import { ListingStatusBar } from "../../../components/listings/ListingStatusBar"
 import ListingGuard from "../../../components/shared/ListingGuard"
 import { NavigationHeader } from "../../../components/shared/NavigationHeader"
 import Layout from "../../../layouts/index"
@@ -44,6 +43,8 @@ import DetailListingVerification from "../../../components/listings/PaperListing
 import { logger } from "../../../logger"
 import DetailAccessibilityFeatures from "../../../components/listings/PaperListingDetails/sections/DetailAccessibilityFeatures"
 import { useJurisdiction } from "../../../lib/hooks"
+import { getListingStatusTag } from "../../../components/listings/helpers"
+import { StatusBar } from "../../../components/shared/StatusBar"
 
 interface ListingProps {
   listing: Listing
@@ -106,9 +107,9 @@ export default function ListingDetail(props: ListingProps) {
               }
             />
 
-            <ListingStatusBar status={listing.status} />
+            <StatusBar>{getListingStatusTag(listing?.status)}</StatusBar>
 
-            <section className="bg-primary-lighter">
+            <section className="form-container">
               <div className="mx-auto px-5 mt-5 max-w-screen-xl">
                 {errorAlert && (
                   <AlertBox

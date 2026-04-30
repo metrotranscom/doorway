@@ -65,7 +65,7 @@ describe("settings", () => {
       const { getByText, findByText } = render(<SettingsPreferences />)
 
       expect(getByText("Settings")).toBeInTheDocument()
-      expect(getByText("Preferences")).toBeInTheDocument()
+      expect(await findByText("Preferences")).toBeInTheDocument()
 
       await findByText("None")
       expect(getByText("None")).toBeInTheDocument()
@@ -121,7 +121,7 @@ describe("settings", () => {
 
       render(<SettingsPreferences />)
       expect(screen.getByText("Settings")).toBeInTheDocument()
-      expect(await screen.findByRole("tablist")).toBeInTheDocument()
+      expect(await screen.findByLabelText("Settings pages")).toBeInTheDocument()
       expect(screen.getByRole("heading", { level: 2, name: "Preferences" })).toBeInTheDocument()
       expect(screen.getByText("Properties")).toBeInTheDocument()
     })
@@ -227,7 +227,7 @@ describe("settings", () => {
       const { getByText, findByText, findByRole } = render(<SettingsPreferences />)
 
       expect(getByText("Settings")).toBeInTheDocument()
-      expect(getByText("Preferences")).toBeInTheDocument()
+      expect(await findByText("Preferences")).toBeInTheDocument()
 
       await findByText("Name")
       const table = await findByRole("table")

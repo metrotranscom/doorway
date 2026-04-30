@@ -1,6 +1,6 @@
 import React from "react"
 import { useFormContext } from "react-hook-form"
-import { t, Field, FieldGroup } from "@bloom-housing/ui-components"
+import { t, Field, FieldGroup, Textarea } from "@bloom-housing/ui-components"
 import { FieldValue, Grid } from "@bloom-housing/ui-seeds"
 import {
   getUniqueUnitTypes,
@@ -10,6 +10,7 @@ import {
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 import {
   Accessibility,
+  EnumListingListingType,
   Unit,
   UnitGroup,
   UnitType,
@@ -24,6 +25,8 @@ type FormHouseholdDetailsProps = {
   enableOtherAdaOption?: boolean
   enableUnitGroups?: boolean
   enableFullTimeStudentQuestion?: boolean
+  enableReasonableAccommodations?: boolean
+  listingType?: EnumListingListingType
 }
 
 const FormHouseholdDetails = ({
@@ -34,13 +37,15 @@ const FormHouseholdDetails = ({
   enableOtherAdaOption,
   enableUnitGroups,
   enableFullTimeStudentQuestion,
+  enableReasonableAccommodations,
+  listingType,
 }: FormHouseholdDetailsProps) => {
   const formMethods = useFormContext()
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { register } = formMethods
 
   const unitTypes = getUniqueUnitTypes(listingUnits)
-  const unitGroupUnitTypes = getUniqueUnitGroupUnitTypes(listingUnitGroups)
+  const unitGroupUnitTypes = getUniqueUnitGroupUnitTypes(listingUnitGroups, listingType)
 
   const preferredUnitOptions = unitTypes?.map((item) => {
     const isChecked = !!applicationUnitTypes?.find((unit) => unit.id === item.id)
@@ -183,6 +188,21 @@ const FormHouseholdDetails = ({
             </FieldValue>
           </Grid.Cell>
         </Grid.Row>
+        {enableReasonableAccommodations && (
+          <Grid.Row columns="3">
+            <Grid.Cell className={"seeds-grid-span-2"}>
+              <Textarea
+                id="application.reasonableAccommodations"
+                name="application.reasonableAccommodations"
+                label={t("application.details.reasonableAccommodations")}
+                register={register}
+                fullWidth={true}
+                maxLength={1000}
+                placeholder={""}
+              />
+            </Grid.Cell>
+          </Grid.Row>
+        )}
       </SectionWithGrid>
     </>
   )

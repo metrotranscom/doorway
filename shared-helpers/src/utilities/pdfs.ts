@@ -1,7 +1,15 @@
 import { AssetCreate, ListingEvent, ListingEventsTypeEnum } from "../types/backend-swagger"
 
-export const cloudinaryPdfFromId = (publicId: string, cloudName: string) => {
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.pdf`
+const configuredCloudName = (cloudName?: string) => {
+  return cloudName || process.env.cloudinaryCloudName || process.env.CLOUDINARY_CLOUD_NAME
+}
+
+export const cloudinaryPdfFromId = (publicId: string, cloudName?: string) => {
+  const resolvedCloudName = configuredCloudName(cloudName)
+  if (!resolvedCloudName) {
+    return publicId
+  }
+  return `https://res.cloudinary.com/${resolvedCloudName}/image/upload/${publicId}.pdf`
 }
 
 /**
@@ -56,7 +64,8 @@ export const getPdfUrlFromAsset = (
 
 export const pdfUrlFromListingEvents = (
   events: ListingEvent[],
-  listingEventType: ListingEventsTypeEnum
+  listingEventType: ListingEventsTypeEnum,
+  cloudName?: string
 ) => {
   const event = events.find((event) => event?.type === listingEventType)
 

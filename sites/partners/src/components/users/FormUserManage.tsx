@@ -1,11 +1,18 @@
 import React, { useMemo, useContext, useState, useCallback } from "react"
 import { FormProvider, useForm } from "react-hook-form"
-import { t, Form, Field, Select, useMutate } from "@bloom-housing/ui-components"
+import { t, Form, Field, Select } from "@bloom-housing/ui-components"
 import { Button, Card, Dialog, Drawer, Grid, Tag } from "@bloom-housing/ui-seeds"
-import { RoleOption, AuthContext, MessageContext, emailRegex } from "@bloom-housing/shared-helpers"
+import {
+  RoleOption,
+  AuthContext,
+  MessageContext,
+  emailRegex,
+  useMutate,
+} from "@bloom-housing/shared-helpers"
 import {
   FeatureFlagEnum,
   Listing,
+  PartnerUserCreate,
   User,
   UserRole,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
@@ -217,7 +224,7 @@ const FormUserManage = ({
       selectedJurisdictions = jurisdictionOptions.map((elem) => ({ id: elem.id }))
     }
 
-    const body = {
+    const body: PartnerUserCreate = {
       firstName,
       lastName,
       email,
@@ -225,6 +232,8 @@ const FormUserManage = ({
       listings: leasingAgentInListings,
       jurisdictions: selectedJurisdictions,
       agreedToTermsOfService: user?.agreedToTermsOfService ?? false,
+      isAdvocate: false,
+      isApproved: false,
     }
 
     return body
@@ -236,7 +245,7 @@ const FormUserManage = ({
 
     void sendInvite(() =>
       userService
-        .invite({
+        .createPartner({
           body: body,
         })
         .then(() => {
@@ -286,7 +295,7 @@ const FormUserManage = ({
 
     void updateUser(() =>
       userService
-        .update({
+        .updatePartner({
           body: body,
         })
         .then(() => {

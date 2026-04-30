@@ -7,12 +7,13 @@ import { blankApplication } from "@bloom-housing/shared-helpers"
 import { ApplicationFormConfig, StepRoute } from "./configInterfaces"
 import StepDefinition from "./StepDefinition"
 import AlternateContactStep from "./AlternateContactStep"
-import LiveAloneStep from "./LiveAloneStep"
+import AlternateContactTypeStep from "./AlternateContactTypeStep"
 import HouseholdMemberStep from "./HouseholdMemberStep"
 import SelectedPreferencesStep from "./SelectedPreferencesStep"
 import PreferencesAllStep from "./PreferencesAllStep"
 import PreferredUnitSizeStep from "./PreferredUnitSizeStep"
 import ProgramsStep from "./ProgramsStep"
+import ReasonableAccommodationsStep from "./ReasonableAccommodationsStep"
 import CommunityTypesStep from "./CommunityTypesStep"
 import { Listing } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
@@ -62,6 +63,7 @@ export default class ApplicationConductor {
     },
     alternateContactType: {
       url: "/applications/contact/alternate-contact-type",
+      definition: AlternateContactTypeStep,
     },
     alternateContactName: {
       url: "/applications/contact/alternate-contact-name",
@@ -73,7 +75,6 @@ export default class ApplicationConductor {
     },
     liveAlone: {
       url: "/applications/household/live-alone",
-      definition: LiveAloneStep,
     },
     householdMemberInfo: {
       url: "/applications/household/members-info",
@@ -95,6 +96,10 @@ export default class ApplicationConductor {
     },
     householdStudent: {
       url: "/applications/household/student",
+    },
+    reasonableAccommodations: {
+      url: "/applications/household/reasonable-accommodations",
+      definition: ReasonableAccommodationsStep,
     },
     programs: {
       url: "/applications/programs/programs",
@@ -141,6 +146,9 @@ export default class ApplicationConductor {
     languages: [],
     steps: [],
     featureFlags: [],
+    isAdvocate: false,
+    raceEthnicityConfiguration: null,
+    visibleSpokenLanguages: [],
   }
   private _listing: Listing
 

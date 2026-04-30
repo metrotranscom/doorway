@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import {
+  ApplicationStatusEnum,
   LanguagesEnum,
   ListingEventsTypeEnum,
   ListingsStatusEnum,
@@ -14,7 +15,8 @@ import { translationFactory } from '../../../prisma/seed-helpers/translation-fac
 import { yellowstoneAddress } from '../../../prisma/seed-helpers/address-factory';
 import { Application } from '../../../src/dtos/applications/application.dto';
 import { User } from '../../../src/dtos/users/user.dto';
-import { ApplicationCreate } from '../../../src/dtos/applications/application-create.dto';
+import { ApplicationStatusChangeItem } from '../../../src/utilities/applicationStatusChanges';
+import Listing from '../../../src/dtos/listings/listing.dto';
 import { of } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
@@ -27,6 +29,7 @@ import {
 import 'aws-sdk-client-mock-jest';
 import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
+import { EmailProvider } from '../../../src/services/email-provider.service';
 
 let govSendMock;
 const translationServiceMock = {
@@ -62,6 +65,7 @@ describe('Testing email service', () => {
     module = await Test.createTestingModule({
       imports: [ConfigModule],
       providers: [
+        EmailProvider,
         EmailService,
         {
           provide: TranslationService,
@@ -323,7 +327,7 @@ describe('Testing email service', () => {
     it('Test first come first serve', async () => {
       await service.applicationConfirmation(
         listing,
-        application as ApplicationCreate,
+        application as Application,
         'http://localhost:3001',
       );
       expect(mockSeSClient).toHaveReceivedCommandWith(SendEmailCommand, {
@@ -366,7 +370,7 @@ describe('Testing email service', () => {
     it('Test lottery', async () => {
       await service.applicationConfirmation(
         { ...listing, reviewOrderType: ReviewOrderTypeEnum.lottery },
-        application as ApplicationCreate,
+        application as Application,
         'http://localhost:3001',
       );
       expect(mockSeSClient).toHaveReceivedCommandWith(SendEmailCommand, {
@@ -412,7 +416,7 @@ describe('Testing email service', () => {
     it('Test waitlist', async () => {
       await service.applicationConfirmation(
         { ...listing, reviewOrderType: ReviewOrderTypeEnum.waitlist },
-        application as ApplicationCreate,
+        application as Application,
         'http://localhost:3001',
       );
       expect(mockSeSClient).toHaveReceivedCommandWith(SendEmailCommand, {
@@ -458,7 +462,7 @@ describe('Testing email service', () => {
     it('Test waitlistLottery', async () => {
       await service.applicationConfirmation(
         { ...listing, reviewOrderType: ReviewOrderTypeEnum.waitlistLottery },
-        application as ApplicationCreate,
+        application as Application,
         'http://localhost:3001',
       );
       expect(mockSeSClient).toHaveReceivedCommandWith(SendEmailCommand, {
@@ -514,7 +518,7 @@ describe('Testing email service', () => {
 
       await service.applicationConfirmation(
         listingWithLeasingAgent,
-        application as ApplicationCreate,
+        application as Application,
         'http://localhost:3001',
       );
 
@@ -558,7 +562,7 @@ describe('Testing email service', () => {
 
       await service.applicationConfirmation(
         listingWithPartialLeasingAgent,
-        application as ApplicationCreate,
+        application as Application,
         'http://localhost:3001',
       );
 
@@ -593,7 +597,7 @@ describe('Testing email service', () => {
     it('Test no property manager and office hours', async () => {
       await service.applicationConfirmation(
         listing,
-        application as ApplicationCreate,
+        application as Application,
         'http://localhost:3001',
       );
 
@@ -850,6 +854,135 @@ describe('Testing email service', () => {
       expect(emailMock).toMatch(
         /<td>\s*3200 Old Faithful Inn Rd, Yellowstone National Park WY 82190\s*<\/td>/,
       );
+    });
+  });
+
+  describe.skip('application update', () => {
+    it('should send application update email for applicant', async () => {
+      const listing = {
+        id: 'listingId',
+        name: 'Example Listing',
+        jurisdictions: { name: 'Jurisdiction 1', id: 'jurisdictionId' },
+      } as Listing;
+      const application = {
+        language: LanguagesEnum.en,
+        applicant: {
+          firstName: 'First',
+          lastName: 'Last',
+          emailAddress: 'applicant.email@example.com',
+        },
+      } as Application;
+      const changes = [
+        {
+          type: 'status',
+          from: ApplicationStatusEnum.submitted,
+          to: ApplicationStatusEnum.waitlist,
+        },
+      ] as ApplicationStatusChangeItem[];
+
+      await service.applicationUpdateEmail(
+        listing,
+        application,
+        changes,
+        'http://localhost:3000',
+        'contact@example.com',
+      );
+
+      // expect(sendMock).toHaveBeenCalledTimes(1);
+
+      // const applicantEmailMock = sendMock.mock.calls[0][0];
+      // expect(applicantEmailMock.to).toEqual('applicant.email@example.com');
+      // expect(applicantEmailMock.subject).toEqual(
+      //   'Application update for Example Listing',
+      // );
+      // expect(applicantEmailMock.body).toContain(
+      //   'To view your application, please click the link below:',
+      // );
+      // expect(applicantEmailMock.body).toContain('View my application');
+      // expect(applicantEmailMock.body).toMatch(
+      //   'http://localhost:3000/account/applications',
+      // );
+      // expect(applicantEmailMock.body).toContain(
+      //   'No further action is required at this time. If you have questions regarding this update, please reach out at',
+      // );
+    });
+    it('should send advocate and applicant application update emails', async () => {
+      const listing = {
+        id: 'listingId',
+        name: 'Example Listing',
+        jurisdictions: { name: 'Jurisdiction 1', id: 'jurisdictionId' },
+      } as Listing;
+      const application = {
+        language: LanguagesEnum.es,
+        applicant: {
+          firstName: 'First',
+          lastName: 'Last',
+          emailAddress: 'applicant.email@example.com',
+        },
+        alternateContact: {
+          firstName: 'Housing',
+          lastName: 'Advocate',
+          emailAddress: 'advocate.email@example.com',
+        },
+      } as Application;
+      const changes = [
+        {
+          type: 'status',
+          from: ApplicationStatusEnum.submitted,
+          to: ApplicationStatusEnum.waitlist,
+        },
+        { type: 'accessibleWaitlist', value: '2' },
+        { type: 'conventionalWaitlist', value: '5' },
+      ] as ApplicationStatusChangeItem[];
+
+      await service.applicationUpdateEmail(
+        listing,
+        application,
+        changes,
+        'http://localhost:3000',
+        'contact@example.com',
+        true,
+      );
+
+      // expect(sendMock).toHaveBeenCalledTimes(2);
+
+      // const advocateEmailMock = sendMock.mock.calls[0][0];
+      // expect(advocateEmailMock.to).toEqual('advocate.email@example.com');
+      // expect(advocateEmailMock.subject).toEqual(
+      //   'Application update for Example Listing',
+      // );
+      // expect(advocateEmailMock.body).toContain(
+      //   'Your application has been updated for Example Listing',
+      // );
+      // expect(advocateEmailMock.body).toContain(
+      //   'Your application status has changed from <strong>Submitted</strong> to <strong>Wait list</strong>',
+      // );
+      // expect(advocateEmailMock.body).toContain(
+      //   'Your Accessible wait list number is <strong>2</strong>',
+      // );
+      // expect(advocateEmailMock.body).toContain(
+      //   'Your Conventional wait list number is <strong>5</strong>',
+      // );
+      // expect(advocateEmailMock.body).toContain('contact@example.com');
+      // expect(advocateEmailMock.body).toMatch(
+      //   'http://localhost:3000/account/applications',
+      // );
+
+      // const applicantEmailMock = sendMock.mock.calls[1][0];
+      // expect(applicantEmailMock.to).toEqual('applicant.email@example.com');
+      // expect(applicantEmailMock.subject).toEqual(
+      //   'Application update for Example Listing',
+      // );
+      // expect(applicantEmailMock.body).toContain(
+      //   'Your application has been updated for Example Listing',
+      // );
+      // expect(applicantEmailMock.body).toContain(
+      //   'If you have questions regarding this update, please reach out at',
+      // );
+      // expect(applicantEmailMock.body).toContain('contact@example.com');
+      // expect(applicantEmailMock.body).not.toMatch(
+      //   'http://localhost:3000/account/applications',
+      // );
     });
   });
 

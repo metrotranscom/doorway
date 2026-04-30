@@ -5,15 +5,15 @@ import {
   PrismaClient,
 } from '@prisma/client';
 import { randomInt } from 'node:crypto';
+import { applicationFactoryMany } from './seed-helpers/application-factory';
+import { translationFactory } from './seed-helpers/translation-factory';
+import { reservedCommunityTypeFactoryAll } from './seed-helpers/reserved-community-type-factory';
+import { householdMemberFactoryMany } from './seed-helpers/household-member-factory';
 import { APPLICATIONS_PER_LISTINGS, LISTINGS_TO_SEED } from './constants';
 import { amiChartFactory } from './seed-helpers/ami-chart-factory';
-import { applicationFactory } from './seed-helpers/application-factory';
-import { householdMemberFactoryMany } from './seed-helpers/household-member-factory';
 import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import { listingFactory } from './seed-helpers/listing-factory';
 import { multiselectQuestionFactory } from './seed-helpers/multiselect-question-factory';
-import { reservedCommunityTypeFactoryAll } from './seed-helpers/reserved-community-type-factory';
-import { translationFactory } from './seed-helpers/translation-factory';
 import { unitTypeFactoryAll } from './seed-helpers/unit-type-factory';
 import { userFactory } from './seed-helpers/user-factory';
 import { randomName } from './seed-helpers/word-generator';
@@ -261,18 +261,21 @@ export const devSeeding = async (
 
   for (let index = 0; index < LISTINGS_TO_SEED; index++) {
     const applications = [];
-    for (let j = 0; j < APPLICATIONS_PER_LISTINGS; j++) {
-      const householdSize = randomInt(1, 6);
-      const householdMembers = await householdMemberFactoryMany(
-        householdSize - 1,
-      );
-      const app = await applicationFactory({
-        unitTypeId: unitTypes[randomInt(0, 5)].id,
-        householdMember: householdMembers,
-        multiselectQuestions,
-      });
-      applications.push(app);
-    }
+
+    applications.push(
+      ...(await applicationFactoryMany(APPLICATIONS_PER_LISTINGS, async () => {
+        const householdSize = randomInt(1, 6);
+        const householdMembers = await householdMemberFactoryMany(
+          householdSize - 1,
+        );
+        return {
+          unitTypeId: unitTypes[randomInt(0, 5)].id,
+          householdMember: householdMembers,
+          multiselectQuestions,
+        };
+      })),
+    );
+
     const listing = await listingFactory(jurisdiction.id, prismaClient, {
       amiChart: amiChart,
       numberOfUnits: index + 1,

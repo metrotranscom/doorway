@@ -3,8 +3,8 @@ import { useRouter } from "next/router"
 import dayjs from "dayjs"
 import { CharacterCount as CharacterCountExtension } from "@tiptap/extension-character-count"
 import { useEditor } from "@tiptap/react"
-import { t, Form, AlertBox, LoadingOverlay } from "@bloom-housing/ui-components"
-import { Button, Icon, Tabs } from "@bloom-housing/ui-seeds"
+import { t, Form, AlertBox } from "@bloom-housing/ui-components"
+import { Button, Icon, LoadingState, Tabs } from "@bloom-housing/ui-seeds"
 import ChevronLeftIcon from "@heroicons/react/20/solid/ChevronLeftIcon"
 import ChevronRightIcon from "@heroicons/react/20/solid/ChevronRightIcon"
 import {
@@ -14,12 +14,12 @@ import {
   listingSectionQuestions,
 } from "@bloom-housing/shared-helpers"
 import {
+  EnumListingListingType,
   FeatureFlagEnum,
   Jurisdiction,
   Listing,
   ListingCreate,
   ListingEventsTypeEnum,
-  ListingTypeEnum,
   ListingUpdate,
   ListingsStatusEnum,
   MarketingTypeEnum,
@@ -38,6 +38,7 @@ import {
 } from "../../../lib/listings/formTypes"
 import ListingDataPipeline from "../../../lib/listings/ListingDataPipeline"
 import { StatusBar } from "../../../components/shared/StatusBar"
+import { usePropertiesList } from "../../../lib/hooks"
 import { EditorExtensions } from "../../shared/TextEditor"
 import ListingFormActions, { ListingFormActionsType } from "../ListingFormActions"
 import { cleanRichText, getReadableErrorMessage } from "../PaperListingDetails/sections/helpers"
@@ -205,6 +206,12 @@ const ListingForm = ({
     immediatelyRender: true,
   })
 
+  const { data: properties, loading: propertiesLoading } = usePropertiesList({
+    page: null,
+    limit: "all",
+    jurisdictions: jurisdictionId,
+  })
+
   useEffect(() => {
     if (profile) {
       const jurisdiction = profile?.jurisdictions?.find((juris) => jurisdictionId === juris.id)
@@ -266,14 +273,16 @@ const ListingForm = ({
     jurisdictionId
   )
 
+  const enableV2MSQ = doJurisdictionsHaveFeatureFlagOn(FeatureFlagEnum.enableV2MSQ, jurisdictionId)
+
   useEffect(() => {
-    if (enableNonRegulatedListings) {
+    if (enableNonRegulatedListings && !listing?.listingType) {
       setValue(
         "listingType",
-        isNonRegulated ? ListingTypeEnum.nonRegulated : ListingTypeEnum.regulated
+        isNonRegulated ? EnumListingListingType.nonRegulated : EnumListingListingType.regulated
       )
     }
-  }, [enableNonRegulatedListings, isNonRegulated, setValue])
+  }, [enableNonRegulatedListings, isNonRegulated, listing?.listingType, setValue])
 
   useEffect(() => {
     if (listing && listing.listingFeatures && accessibilityFeatures === null) {
@@ -524,14 +533,14 @@ const ListingForm = ({
       whatToExpectEditor,
     ]
   )
-  return loading === true ? null : (
-    <>
-      <LoadingOverlay isLoading={loading}>
+  return (
+    <div className={"loading-state-wrapper"}>
+      <LoadingState loading={loading || propertiesLoading}>
         <>
           <StatusBar>{getListingStatusTag(listing?.status)}</StatusBar>
 
           <FormProvider {...formMethods}>
-            <section className={`bg-primary-lighter py-5 ${styles["form-overrides"]}`}>
+            <section className={`py-5 ${styles["form-overrides"]}`}>
               <div className="max-w-screen-xl px-5 mx-auto">
                 {alert && (
                   <AlertBox className="mb-5" onClose={() => setAlert(null)} closeable type="alert">
@@ -574,13 +583,29 @@ const ListingForm = ({
                               FeatureFlagEnum.enableListingFileNumber,
                               jurisdictionId
                             )}
+                            enableProperties={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableProperties,
+                              jurisdictionId
+                            )}
                             jurisdictionName={
                               profile?.jurisdictions?.length > 1
                                 ? selectedJurisdictionData?.name
                                 : null
                             }
+                            jurisdictionId={
+                              profile?.jurisdictions?.length > 1
+                                ? selectedJurisdictionData?.id
+                                : null
+                            }
                             listingId={listing?.id}
+                            listingType={
+                              listing?.listingType ||
+                              (isNonRegulated &&
+                                enableNonRegulatedListings &&
+                                EnumListingListingType.nonRegulated)
+                            }
                             requiredFields={requiredFields}
+                            properties={properties?.items}
                           />
                           <ListingPhotos
                             enableListingImageAltText={enableListingImageAltText}
@@ -631,6 +656,7 @@ const ListingForm = ({
                             setPreferences={setPreferences}
                             setPrograms={setPrograms}
                             swapCommunityTypeWithPrograms={swapCommunityTypeWithPrograms}
+                            enableV2MSQ={enableV2MSQ}
                           />
                           <AdditionalFees
                             enableCreditScreeningFee={doJurisdictionsHaveFeatureFlagOn(
@@ -669,6 +695,11 @@ const ListingForm = ({
                               FeatureFlagEnum.enablePetPolicyCheckbox,
                               jurisdictionId
                             )}
+                            enableParkingType={doJurisdictionsHaveFeatureFlagOn(
+                              FeatureFlagEnum.enableParkingType,
+                              jurisdictionId
+                            )}
+                            existingParkingTypes={listing?.parkType}
                             requiredFields={requiredFields}
                           />
                           <NeighborhoodAmenities
@@ -767,6 +798,7 @@ const ListingForm = ({
                             jurisdiction={jurisdictionId}
                             listing={listing}
                             requiredFields={requiredFields}
+                            defaultReferralText={selectedJurisdictionData?.referralSummaryDefault}
                           />
                           <ApplicationAddress requiredFields={requiredFields} listing={listing} />
                           <ApplicationDates
@@ -836,7 +868,7 @@ const ListingForm = ({
             </section>
           </FormProvider>
         </>
-      </LoadingOverlay>
+      </LoadingState>
 
       <SaveBeforeExitDialog
         isOpen={closeSaveDialog}
@@ -876,7 +908,7 @@ const ListingForm = ({
         setModalIsOpen={setRequestChangesDialog}
         submitFormWithStatus={triggerSubmitWithStatus}
       />
-    </>
+    </div>
   )
 }
 

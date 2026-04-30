@@ -18,6 +18,11 @@ import {
   ReviewOrderTypeEnum,
 } from '@prisma/client';
 import { JurisdictionService } from './jurisdiction.service';
+import {
+  EmailProvider,
+  SendEmailInput,
+  EmailAttachmentData,
+} from './email-provider.service';
 import { TranslationService } from './translation.service';
 import { Application } from '../dtos/applications/application.dto';
 import { Jurisdiction } from '../dtos/jurisdictions/jurisdiction.dto';
@@ -28,6 +33,7 @@ import Unit from '../dtos/units/unit.dto';
 import { FeatureFlagEnum } from '../enums/feature-flags/feature-flags-enum';
 import { doJurisdictionHaveFeatureFlagSet } from '../utilities/feature-flag-utilities';
 import { getPublicEmailURL } from '../utilities/get-public-email-url';
+import type { ApplicationStatusChangeItem } from '../utilities/applicationStatusChanges';
 dayjs.extend(utc);
 dayjs.extend(tz);
 dayjs.extend(advanced);
@@ -47,6 +53,7 @@ export class EmailService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly emailProvider: EmailProvider,
     private readonly translationService: TranslationService,
     private readonly jurisdictionService: JurisdictionService,
     private readonly httpService: HttpService,
@@ -157,6 +164,31 @@ export class EmailService {
         },
       }),
     );
+  }
+
+  private async send(
+    to: string | string[],
+    from: string,
+    subject: string,
+    body: string,
+    attachment?: EmailAttachmentData,
+  ) {
+    const isMultipleRecipients = Array.isArray(to);
+    if (isMultipleRecipients && to.length === 0) {
+      console.warn(
+        'Got email send request with empty array for the "to" field. Doing nothing.',
+      );
+      return;
+    }
+
+    const emailParams: SendEmailInput = {
+      to,
+      from,
+      subject,
+      body,
+      attachment,
+    };
+    await this.emailProvider.send(emailParams);
   }
 
   public async sendSingleSES(
@@ -295,6 +327,24 @@ export class EmailService {
     return null;
   }
 
+  private async getEmailToSendFrom(
+    jurisdictionIds: IdDTO[],
+    jurisdiction: Jurisdiction,
+  ): Promise<string> {
+    if (jurisdiction) {
+      return jurisdiction.emailFromAddress;
+    }
+    // An admin will be attached to more than one jurisdiction so we want generic translations
+    // but still need an email to send from
+    if (jurisdictionIds.length > 1) {
+      const firstJurisdiction = await this.jurisdictionService.findOne({
+        jurisdictionId: jurisdictionIds[0].id,
+      });
+      return firstJurisdiction?.emailFromAddress || '';
+    }
+    return '';
+  }
+
   /* Send welcome email to new public users */
   public async welcome(
     jurisdictionName: string,
@@ -400,6 +450,11 @@ export class EmailService {
     const jurisdiction = await this.getJurisdiction(user.jurisdictions);
     void (await this.loadTranslations(jurisdiction, user.language));
 
+    // const emailFromAddress = await this.getEmailToSendFrom(
+    //   user.jurisdictions,
+    //   jurisdiction,
+    // );
+
     await this.sendSingleSES(
       {
         to: user.email,
@@ -446,6 +501,7 @@ export class EmailService {
     listing: Listing,
     application: Application,
     appUrl: string,
+    // isAdvocate = false,
   ) {
     const jurisdiction = await this.getJurisdiction([listing.jurisdictions]);
     void (await this.loadTranslations(jurisdiction, application.language));
@@ -557,6 +613,145 @@ export class EmailService {
       },
       'applicationConfirmation',
     );
+  }
+
+  public async applicationUpdateEmail(
+    listing: Listing,
+    application: Application,
+    changes: ApplicationStatusChangeItem[],
+    appUrl: string,
+    contactEmail?: string,
+    isAdvocate = false,
+  ) {
+    const jurisdiction = await this.getJurisdiction([listing.jurisdictions]);
+    const buildSummaryItems = () =>
+      changes.map((change) => {
+        if (change.type === 'status') {
+          const fromLabel = this.polyglot.t(
+            `applicationUpdate.applicationStatus.${change.from}`,
+          );
+          const toLabel = this.polyglot.t(
+            `applicationUpdate.applicationStatus.${change.to}`,
+          );
+          return new Handlebars.SafeString(
+            this.polyglot.t('applicationUpdate.statusChange', {
+              from: `<strong>${fromLabel}</strong>`,
+              to: `<strong>${toLabel}</strong>`,
+            }),
+          );
+        }
+        if (change.type === 'accessibleWaitlist') {
+          return new Handlebars.SafeString(
+            this.polyglot.t('applicationUpdate.accessibleWaitListChange', {
+              value: `<strong>${change.value}</strong>`,
+            }),
+          );
+        }
+        return new Handlebars.SafeString(
+          this.polyglot.t('applicationUpdate.conventionalWaitListChange', {
+            value: `<strong>${change.value}</strong>`,
+          }),
+        );
+      });
+
+    const subjectForCurrentLanguage = () =>
+      this.polyglot.t('applicationUpdate.subject', {
+        listingName: listing.name,
+      });
+    const actionUrl = appUrl ? `${appUrl}/account/applications` : '';
+    // const housingApplicantName = [
+    //   application?.applicant?.firstName,
+    //   application?.applicant?.lastName,
+    // ]
+    //   .filter(Boolean)
+    //   .join(' ');
+    const advocateEmail = application?.alternateContact?.emailAddress;
+    // const advocateName = [
+    //   application?.alternateContact?.firstName,
+    //   application?.alternateContact?.lastName,
+    // ]
+    //   .filter(Boolean)
+    //   .join(' ');
+
+    if (isAdvocate && advocateEmail) {
+      void (await this.loadTranslations(jurisdiction, application.language));
+      // await this.send(
+      //   advocateEmail,
+      //   jurisdiction.emailFromAddress,
+      //   subjectForCurrentLanguage(),
+      //   this.template('application-update')({
+      //     appOptions: { listingName: listing.name },
+      //     recipientName: advocateName,
+      //     summaryItems: buildSummaryItems(),
+      //     actionUrl,
+      //     contactEmail,
+      //     updateNoticeText: this.polyglot.t(
+      //       'applicationUpdate.advocateUpdateNotice',
+      //       {
+      //         applicantName: housingApplicantName,
+      //         listingName: listing.name,
+      //       },
+      //     ),
+      //     contactNoticeText: this.polyglot.t('applicationUpdate.contactNotice'),
+      //     viewPromptText: this.polyglot.t(
+      //       'applicationUpdate.advocateViewPrompt',
+      //     ),
+      //     viewLinkText: this.polyglot.t('applicationUpdate.advocateViewLink'),
+      //     showViewSection: true,
+      //   }),
+      // );
+    }
+
+    if (application?.applicant?.emailAddress) {
+      void (await this.loadTranslations(
+        jurisdiction,
+        isAdvocate ? LanguagesEnum.en : application.language,
+      ));
+      const applicantName = [
+        application.applicant.firstName,
+        application.applicant.lastName,
+      ]
+        .filter(Boolean)
+        .join(' ');
+
+      await this.sendSingleSES(
+        {
+          to: application.applicant.emailAddress,
+          subject: subjectForCurrentLanguage(),
+          html: this.template('application-update')({
+            appOptions: {
+              listingName: listing.name,
+            },
+            applicantName,
+            summaryItems: buildSummaryItems(),
+            actionUrl,
+            contactEmail: contactEmail,
+          }),
+        },
+        'applicationUpdateEmail',
+      );
+      // await this.send(
+      //   application.applicant.emailAddress,
+      //   jurisdiction.emailFromAddress,
+      //   subjectForCurrentLanguage(),
+      //   this.template('application-update')({
+      //     appOptions: { listingName: listing.name },
+      //     recipientName: applicantName,
+      //     summaryItems: buildSummaryItems(),
+      //     contactEmail,
+      //     updateNoticeText: this.polyglot.t('applicationUpdate.updateNotice', {
+      //       listingName: listing.name,
+      //     }),
+      //     contactNoticeText: isAdvocate
+      //       ? this.polyglot.t('applicationUpdate.applicantContactNotice')
+      //       : this.polyglot.t('applicationUpdate.contactNotice'),
+      //     actionUrl,
+      //     viewPromptText: this.polyglot.t('applicationUpdate.viewPrompt'),
+      //     viewLinkText: this.polyglot.t('applicationUpdate.viewLink'),
+      //     showViewSection: !isAdvocate,
+      //   }),
+      // );
+    }
   }
 
   public async requestApproval(
@@ -925,7 +1120,7 @@ export class EmailService {
           signInUrl: signInUrl,
         }),
       },
-      'sendSingleUseCode',
+      'warnOfAccountRemoval',
     );
   }
 
@@ -933,6 +1128,44 @@ export class EmailService {
   // ensure we don't let real HTML through which is an XSS risk
   stripAngleBrackets(markup: string): string {
     return markup.replace(/[<>]/g, '');
+  }
+
+  public async advocateAccepted(user: User, appUrl: string, formUrl: string) {
+    const jurisdiction = await this.getJurisdiction(user.jurisdictions);
+    void (await this.loadTranslations(jurisdiction, user.language));
+    const emailFromAddress = await this.getEmailToSendFrom(
+      user.jurisdictions,
+      jurisdiction,
+    );
+    await this.send(
+      user.email,
+      emailFromAddress,
+      this.polyglot.t('advocateApproved.subject'),
+      this.template('advocate-approved')({
+        user: user,
+        formUrl,
+        appOptions: { appUrl },
+      }),
+    );
+  }
+
+  public async advocateRejected(user: User, appUrl: string) {
+    const jurisdiction = await this.getJurisdiction(user.jurisdictions);
+    void (await this.loadTranslations(jurisdiction, user.language));
+    const emailFromAddress = await this.getEmailToSendFrom(
+      user.jurisdictions,
+      jurisdiction,
+    );
+    await this.send(
+      user.email,
+      emailFromAddress,
+      this.polyglot.t('advocateRejected.subject'),
+      this.template('advocate-rejected')({
+        user: user,
+        contactEmail: process.env.CONTACT_EMAIL,
+        appOptions: { appUrl },
+      }),
+    );
   }
 
   formatLocalDate(rawDate: string | Date, format: string): string {

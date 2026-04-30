@@ -2,7 +2,10 @@ import { DateFieldValues, TimeFieldPeriod, TimeFieldValues } from "@bloom-housin
 import {
   fieldGroupObjectToArray,
   adaFeatureKeys,
+  mapApiToMultiselectFormV1,
+  mapCheckboxesToApiV1,
   mapApiToMultiselectForm,
+  getSelectionsForApplicationSection,
   mapCheckboxesToApi,
 } from "@bloom-housing/shared-helpers"
 import { FormTypes, ApplicationTypes, Address } from "../../lib/applications/FormTypes"
@@ -25,6 +28,8 @@ import {
   Listing,
   MultiselectQuestionsApplicationSectionEnum,
   Application,
+  ApplicationSelectionUpdate,
+  ApplicationMultiselectQuestion,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 dayjs.extend(customParseFormat)
 
@@ -68,6 +73,7 @@ type mapFormToApiProps = {
   editMode: boolean
   programs: MultiselectQuestion[]
   preferences: MultiselectQuestion[]
+  enableV2MSQ: boolean
 }
 
 /*
@@ -80,6 +86,7 @@ export const mapFormToApi = ({
   editMode,
   programs,
   preferences,
+  enableV2MSQ,
 }: mapFormToApiProps) => {
   const language: LanguagesEnum | null = data.application?.language
     ? data.application?.language
@@ -137,13 +144,45 @@ export const mapFormToApi = ({
     }
   })()
 
-  const preferencesData = preferences.map((pref: MultiselectQuestion) => {
-    return mapCheckboxesToApi(data, pref, MultiselectQuestionsApplicationSectionEnum.preferences)
-  })
+  // TODO: We can sunset this after full V2MSQ rollout
+  let preferencesData: ApplicationMultiselectQuestion[] = []
+  if (!enableV2MSQ) {
+    preferencesData = preferences.map((pref: MultiselectQuestion) => {
+      return mapCheckboxesToApiV1(
+        data,
+        pref,
+        MultiselectQuestionsApplicationSectionEnum.preferences
+      )
+    })
+  }
 
-  const programsData = programs.map((program: MultiselectQuestion) => {
-    return mapCheckboxesToApi(data, program, MultiselectQuestionsApplicationSectionEnum.programs)
-  })
+  // TODO: We can sunset this after full V2MSQ rollout
+  let programsData: ApplicationMultiselectQuestion[] = []
+  if (!enableV2MSQ) {
+    programsData = programs.map((program: MultiselectQuestion) => {
+      return mapCheckboxesToApiV1(
+        data,
+        program,
+        MultiselectQuestionsApplicationSectionEnum.programs
+      )
+    })
+  }
+
+  let selections: ApplicationSelectionUpdate[] = []
+  if (enableV2MSQ) {
+    programs.forEach((program: MultiselectQuestion) => {
+      selections = [
+        ...selections,
+        mapCheckboxesToApi(data, program, MultiselectQuestionsApplicationSectionEnum.programs),
+      ]
+    })
+    preferences.forEach((pref: MultiselectQuestion) => {
+      selections = [
+        ...selections,
+        mapCheckboxesToApi(data, pref, MultiselectQuestionsApplicationSectionEnum.preferences),
+      ]
+    })
+  }
 
   // additional phone
   const {
@@ -165,13 +204,11 @@ export const mapFormToApi = ({
   }
 
   if (demographics.spokenLanguage === "notListed") {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     demographics.spokenLanguage = `${demographics.spokenLanguage}:${demographics.spokenLanguageNotListed}`
   }
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+
   delete demographics.spokenLanguageNotListed
+
   const sendMailToMailingAddress = data.application.sendMailToMailingAddress
 
   const applicationsMailingAddress = getAddress(sendMailToMailingAddress, mailingAddressData)
@@ -199,6 +236,7 @@ export const mapFormToApi = ({
   const acceptedTerms = getBooleanValue(data.application.acceptedTerms)
   const householdExpectingChanges = getBooleanValue(data.application.householdExpectingChanges)
   const householdStudent = getBooleanValue(data.application.householdStudent)
+  const reasonableAccommodations = data.application.reasonableAccommodations || null
 
   const submissionType = editMode ? data.submissionType : ApplicationSubmissionTypeEnum.paper
   const status = data.application.status || ApplicationStatusEnum.submitted
@@ -246,8 +284,10 @@ export const mapFormToApi = ({
     accessibility,
     householdExpectingChanges,
     householdStudent,
+    reasonableAccommodations,
     preferences: preferencesData,
     programs: programsData,
+    applicationSelections: selections,
     income,
     incomePeriod,
     incomeVouchers,
@@ -278,7 +318,11 @@ export const mapFormToApi = ({
   Format data which comes from the API into correct react-hook-form format.
 */
 
-export const mapApiToForm = (applicationData: Application, listing: Listing) => {
+export const mapApiToForm = (
+  applicationData: Application,
+  listing: Listing,
+  enableV2MSQ: boolean
+) => {
   const submissionDate = applicationData.submissionDate
     ? dayjs(new Date(applicationData.submissionDate))
     : null
@@ -364,18 +408,38 @@ export const mapApiToForm = (applicationData: Application, listing: Listing) => 
   const phoneNumber = applicationData.applicant.phoneNumber
 
   const preferences =
-    mapApiToMultiselectForm(
-      applicationData.preferences,
-      listing?.listingMultiselectQuestions,
-      MultiselectQuestionsApplicationSectionEnum.preferences
-    ).application.preferences ?? []
+    (enableV2MSQ
+      ? mapApiToMultiselectForm(
+          getSelectionsForApplicationSection(
+            listing?.listingMultiselectQuestions || [],
+            MultiselectQuestionsApplicationSectionEnum.preferences,
+            applicationData.applicationSelections
+          ) || [],
+          listing?.listingMultiselectQuestions || [],
+          MultiselectQuestionsApplicationSectionEnum.preferences
+        ).application.preferences
+      : mapApiToMultiselectFormV1(
+          Array.isArray(applicationData.preferences) ? applicationData.preferences : [],
+          listing?.listingMultiselectQuestions,
+          MultiselectQuestionsApplicationSectionEnum.preferences
+        ).application.preferences) ?? []
 
   const programs =
-    mapApiToMultiselectForm(
-      applicationData.programs,
-      listing?.listingMultiselectQuestions,
-      MultiselectQuestionsApplicationSectionEnum.programs
-    ).application.programs ?? []
+    (enableV2MSQ
+      ? mapApiToMultiselectForm(
+          getSelectionsForApplicationSection(
+            listing?.listingMultiselectQuestions || [],
+            MultiselectQuestionsApplicationSectionEnum.programs,
+            applicationData.applicationSelections
+          ) || [],
+          listing?.listingMultiselectQuestions || [],
+          MultiselectQuestionsApplicationSectionEnum.programs
+        ).application.programs
+      : mapApiToMultiselectFormV1(
+          Array.isArray(applicationData.programs) ? applicationData.programs : [],
+          listing?.listingMultiselectQuestions,
+          MultiselectQuestionsApplicationSectionEnum.programs
+        ).application.programs) ?? []
 
   const application: ApplicationTypes = (() => {
     const {
@@ -397,6 +461,7 @@ export const mapApiToForm = (applicationData: Application, listing: Listing) => 
     const acceptedTerms = getYesNoValue(applicationData.acceptedTerms)
     const householdExpectingChanges = getYesNoValue(applicationData.householdExpectingChanges)
     const householdStudent = getYesNoValue(applicationData.householdStudent)
+    const reasonableAccommodations = applicationData.reasonableAccommodations
 
     const applicant = applicationData.applicant
 
@@ -431,6 +496,7 @@ export const mapApiToForm = (applicationData: Application, listing: Listing) => 
       accessibility,
       householdExpectingChanges,
       householdStudent,
+      reasonableAccommodations,
       incomePeriod,
       incomeVouchers,
       demographics,

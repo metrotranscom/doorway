@@ -26,6 +26,7 @@ import {
   User,
   MultiselectQuestionsStatusEnum,
   ListingFeaturesConfiguration,
+  RaceEthnicityConfiguration,
 } from "../src/types/backend-swagger"
 
 export const multiselectQuestionPreference: MultiselectQuestion = {
@@ -64,6 +65,53 @@ export const multiselectQuestionPreference: MultiselectQuestion = {
       text: "Work in County",
       ordinal: 1,
       collectAddress: false,
+      id: "id",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ],
+  applicationSection: MultiselectQuestionsApplicationSectionEnum.preferences,
+}
+
+export const multiselectQuestionPreferenceV2: MultiselectQuestion = {
+  id: "id1",
+  status: MultiselectQuestionsStatusEnum.visible,
+  name: "Live/Work in County",
+  subText: "Live/Work in County subtitle",
+  jurisdictions: [{ id: "1", name: "Bloomington" }],
+  createdAt: new Date("2022-09-14T22:53:09.982Z"),
+  updatedAt: new Date("2022-09-15T22:53:09.982Z"),
+  description: "At least one household member lives or works in County",
+  text: "Example text",
+  links: [
+    {
+      title: "Live/Work in County Link Title",
+      url: "https://www.example.com",
+    },
+  ],
+  optOutText: "I don't want this preference",
+  multiselectOptions: [
+    {
+      name: "Live in County",
+      ordinal: 1,
+      description: "A description of the option.",
+      links: [
+        {
+          title: "Live in County Link Title",
+          url: "https://www.example.com",
+        },
+      ],
+      collectAddress: false,
+      text: "Example text",
+      id: "id",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      name: "Work in County",
+      ordinal: 2,
+      collectAddress: false,
+      text: "Example text",
       id: "id",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -146,6 +194,7 @@ export const application: Application = {
   sendMailToMailingAddress: true,
   householdExpectingChanges: true,
   householdStudent: false,
+  reasonableAccommodations: "Wheelchair-accessible unit entrance",
   incomeVouchers: ["issuedVouchers"],
   income: "40000.00",
   incomePeriod: IncomePeriodEnum.perYear,
@@ -159,8 +208,6 @@ export const application: Application = {
   reviewStatus: ApplicationReviewStatusEnum.pending,
   applicationsMailingAddress: {
     id: "applications_mail_address_id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     placeName: "Rocky Mountain National Park",
     city: "Estes Park",
     state: "CO",
@@ -170,8 +217,6 @@ export const application: Application = {
     longitude: -105.5709864,
   },
   applicationsAlternateAddress: {
-    createdAt: new Date(),
-    updatedAt: new Date(),
     id: "c9b065d6-6683-44da-a270-f30ca9346b19",
     city: "",
     state: "",
@@ -180,8 +225,6 @@ export const application: Application = {
     zipCode: "",
   },
   accessibility: {
-    createdAt: new Date(),
-    updatedAt: new Date(),
     id: "accessibility_id",
     mobility: false,
     vision: true,
@@ -189,13 +232,12 @@ export const application: Application = {
   },
   demographics: {
     id: "demographics_id_1",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     ethnicity: "notHispanicLatino",
     gender: "",
     sexualOrientation: "",
     howDidYouHear: ["flyer", "emailAlert", "friend"],
     race: ["white"],
+    spokenLanguage: "English",
   },
   preferredUnitTypes: [
     {
@@ -215,8 +257,6 @@ export const application: Application = {
   ],
   applicant: {
     id: "applicant_id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     firstName: "Applicant First",
     middleName: "Applicant Middle",
     lastName: "Applicant Last",
@@ -231,8 +271,6 @@ export const application: Application = {
     fullTimeStudent: YesNoEnum.no,
     applicantAddress: {
       id: "applicant_address_id",
-      createdAt: new Date(),
-      updatedAt: new Date(),
       placeName: "Yellowstone National Park",
       city: "Yellowstone National Park",
       state: "WY",
@@ -244,8 +282,6 @@ export const application: Application = {
     },
     applicantWorkAddress: {
       id: "applicant_work_address_id",
-      createdAt: new Date(),
-      updatedAt: new Date(),
       placeName: "Yosemite National Park",
       city: "Yosemite Valley",
       state: "CA",
@@ -258,8 +294,6 @@ export const application: Application = {
   applicationLotteryPositions: [],
   alternateContact: {
     id: "application_1",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     type: AlternateContactRelationship.familyMember,
     firstName: "Alternate First",
     lastName: "Alternate Last",
@@ -268,8 +302,6 @@ export const application: Application = {
     emailAddress: "alternate@email.com",
     address: {
       id: "alternate_work_address_id",
-      createdAt: new Date(),
-      updatedAt: new Date(),
       placeName: "Acadia National Park",
       city: "Bay Harbor",
       state: "ME",
@@ -387,7 +419,7 @@ export const unit: Unit = {
   numBathrooms: undefined,
   numBedrooms: undefined,
   number: undefined,
-  unitAccessibilityPriorityTypes: undefined,
+  accessibilityPriorityType: undefined,
   sqFeet: "285",
 
   unitTypes: {
@@ -670,6 +702,8 @@ export const jurisdiction: Jurisdiction = {
   emailFromAddress: "Bloomington <bloom-no-reply@exygy.dev>",
   rentalAssistanceDefault:
     "Housing Choice Vouchers, Section 8 and other valid rental assistance programs will be considered for this property. In the case of a valid rental subsidy, the required minimum income will be based on the portion of the rent that the tenant pays after use of the subsidy.",
+  referralSummaryDefault:
+    "Some additional units in this property are only available through a referral from a local nonprofit or agency. To learn if you qualify, please call the number listed above or reach out to the property manager.",
   whatToExpect:
     "Applicants will be contacted by the property agent in rank order until vacancies are filled. All of the information that you have provided will be verified and your eligibility confirmed. Your application will be removed from the waitlist if you have made any fraudulent statements. If we cannot verify a housing preference that you have claimed, you will not receive the preference but will not be otherwise penalized. Should your application be chosen, be prepared to fill out a more detailed application and provide required supporting documents.",
   whatToExpectAdditionalText:
@@ -714,7 +748,9 @@ export const jurisdiction: Jurisdiction = {
   allowSingleUseCodeLogin: false,
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
+  visibleSpokenLanguages: [],
 }
 
 export const listing: Listing = {
@@ -862,8 +898,6 @@ export const listing: Listing = {
     "A criminal background investigation will be obtained on each applicant.  As criminal background checks are done county by county and will be ran for all counties in which the applicant lived,  Applicants will be disqualified for tenancy if they have been convicted of a felony or misdemeanor.  Refer to Tenant Selection Criteria or Qualification Criteria for details related to the qualification process. ",
   listingsLeasingAgentAddress: {
     id: "id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     city: "San Jose",
     street: "98 Archer Street",
     zipCode: "95112",
@@ -878,8 +912,6 @@ export const listing: Listing = {
   leasingAgentTitle: "",
   listingFeatures: {
     id: "id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     elevator: true,
     wheelchairRamp: true,
     serviceAnimalsAllowed: true,
@@ -892,8 +924,6 @@ export const listing: Listing = {
   servicesOffered: "Services offered description",
   listingUtilities: {
     id: "id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     water: true,
     gas: true,
     electricity: true,
@@ -1016,10 +1046,68 @@ export const listing: Listing = {
     ],
     unitTypes: [],
     priorityTypes: [],
-    amiPercentages: [],
-    byUnitType: [],
+    amiPercentages: ["30"],
+    byUnitType: [
+      {
+        areaRange: {
+          min: 750,
+          max: 750,
+        },
+        minIncomeRange: {
+          min: "$2,000",
+          max: "$2,000",
+        },
+        occupancyRange: {
+          min: 1,
+          max: 3,
+        },
+        rentRange: {
+          min: "$1,200",
+          max: "$1,200",
+        },
+        rentAsPercentIncomeRange: {
+          min: 0,
+          max: 20,
+        },
+        floorRange: {
+          min: 1,
+          max: 1,
+        },
+        unitTypes: {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          id: "dbfd0d09-5e49-42dc-a660-709a2406d025",
+          name: UnitTypeEnum.oneBdrm,
+          numBedrooms: 1,
+        },
+        totalAvailable: 0,
+      },
+    ],
     byAMI: [],
-    hmi: { columns: {}, rows: [] },
+    hmi: {
+      columns: {
+        sizeColumn: "listings.householdSize",
+        maxIncomeMonth: "listings.maxIncomeMonth",
+        maxIncomeYear: "listings.maxIncomeYear",
+      },
+      rows: [
+        {
+          sizeColumn: 1,
+          maxIncomeMonth: "listings.monthlyIncome*income:$3,000",
+          maxIncomeYear: "listings.annualIncome*income:$36,000",
+        },
+        {
+          sizeColumn: 2,
+          maxIncomeMonth: "listings.monthlyIncome*income:$4,000",
+          maxIncomeYear: "listings.annualIncome*income:$48,000",
+        },
+        {
+          sizeColumn: 3,
+          maxIncomeMonth: "listings.monthlyIncome*income:$5,000",
+          maxIncomeYear: "listings.annualIncome*income:$60,000",
+        },
+      ],
+    },
   },
   unitAmenities: "Dishwasher",
   developer: "Charities Housing",
@@ -1031,8 +1119,6 @@ export const listing: Listing = {
   buildingTotalUnits: 35,
   listingsBuildingAddress: {
     id: "buildingId",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     county: "Solano",
     city: "San Jose",
     street: "98 Archer Street",
@@ -1059,7 +1145,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1086,7 +1172,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1113,7 +1199,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1140,7 +1226,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1168,7 +1254,7 @@ export const listing: Listing = {
       numBathrooms: undefined,
       numBedrooms: undefined,
       number: undefined,
-      unitAccessibilityPriorityTypes: undefined,
+      accessibilityPriorityType: undefined,
       sqFeet: "285",
 
       unitTypes: {
@@ -1199,6 +1285,8 @@ export const mockBaseJurisdiction: Jurisdiction = {
   emailFromAddress: "Alameda: Housing Bay Area <bloom-no-reply@exygy.dev>",
   rentalAssistanceDefault:
     "Housing Choice Vouchers, Section 8 and other valid rental assistance programs will be considered for this property. In the case of a valid rental subsidy, the required minimum income will be based on the portion of the rent that the tenant pays after use of the subsidy.",
+  referralSummaryDefault:
+    "Some additional units in this property are only available through a referral from a local nonprofit or agency. To learn if you qualify, please call the number listed above or reach out to the property manager.",
   whatToExpect:
     "<p>If you are interested in applying for this property, please get in touch in one of these ways:</p><ul><li><p>Phone</p></li><li><p>Email</p></li><li><p>In-person</p></li><li><p>In some instances, the property has a link directly to an application</p></li></ul><p>Once you contact a property, ask if they have any available units if you are looking to move in immediately.</p><p><strong>Waitlists</strong>:</p><p>If none are available, but you are still interested in eventually living at the property, ask how you can be placed on their waitlist.</p>",
   whatToExpectAdditionalText:
@@ -1212,7 +1300,9 @@ export const mockBaseJurisdiction: Jurisdiction = {
   requiredListingFields: [],
   whatToExpectUnderConstruction: "",
   visibleNeighborhoodAmenities: [],
+  visibleAccessibilityPriorityTypes: [],
   regions: [],
+  visibleSpokenLanguages: [],
 }
 
 export const mockUser: User = {
@@ -1321,6 +1411,88 @@ export const expandedListingFeaturesConfiguration: ListingFeaturesConfiguration 
         { id: "smokeDetectorWithStrobe" },
         { id: "ttyAmplifiedPhone" },
       ],
+    },
+  ],
+}
+
+export const defaultRaceEthnicityConfiguration: RaceEthnicityConfiguration = {
+  options: [
+    {
+      id: "asian",
+      subOptions: [
+        { id: "chinese", allowOtherText: false },
+        { id: "filipino", allowOtherText: false },
+        { id: "japanese", allowOtherText: false },
+        { id: "korean", allowOtherText: false },
+        { id: "mongolian", allowOtherText: false },
+        { id: "vietnamese", allowOtherText: false },
+        { id: "centralAsian", allowOtherText: false },
+        { id: "southAsian", allowOtherText: false },
+        { id: "southeastAsian", allowOtherText: false },
+        { id: "otherAsian", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "black",
+      subOptions: [
+        { id: "african", allowOtherText: false },
+        { id: "africanAmerican", allowOtherText: false },
+        { id: "caribbeanCentralSouthAmericanMexican", allowOtherText: false },
+        { id: "otherBlack", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "indigenous",
+      subOptions: [
+        { id: "alaskanNative", allowOtherText: false },
+        { id: "nativeAmerican", allowOtherText: false },
+        {
+          id: "indigenousFromMexicoCaribbeanCentralSouthAmerica",
+          allowOtherText: false,
+        },
+        { id: "otherIndigenous", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "latino",
+      subOptions: [
+        { id: "caribbean", allowOtherText: false },
+        { id: "centralAmerican", allowOtherText: false },
+        { id: "mexican", allowOtherText: false },
+        { id: "southAmerican", allowOtherText: false },
+        { id: "otherLatino", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "middleEasternOrAfrican",
+      subOptions: [
+        { id: "northAfrican", allowOtherText: false },
+        { id: "westAsian", allowOtherText: false },
+        { id: "otherMiddleEasternNorthAfrican", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "pacificIslander",
+      subOptions: [
+        { id: "chamorro", allowOtherText: false },
+        { id: "nativeHawaiian", allowOtherText: false },
+        { id: "samoan", allowOtherText: false },
+        { id: "otherPacificIslander", allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: "white",
+      subOptions: [
+        { id: "european", allowOtherText: false },
+        { id: "otherWhite", allowOtherText: true },
+      ],
+      allowOtherText: false,
     },
   ],
 }

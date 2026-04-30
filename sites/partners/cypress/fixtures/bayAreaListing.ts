@@ -7,6 +7,7 @@ import {
   ApplicationMethod,
   ListingsStatusEnum,
   ReviewOrderTypeEnum,
+  Jurisdiction,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { CypressAddress, CypressListing } from "./cypressListingHelpers"
 
@@ -19,7 +20,10 @@ export const bayAreaListing: CypressListing = {
   assets: [],
   applicationLotteryTotals: [],
   jurisdictions: { id: "Bay Area" },
-  "jurisdiction.id": "Bay Area",
+  jurisdiction: {
+    id: "Bay Area",
+    featureFlags: [],
+  } as unknown as Jurisdiction,
   name: "Basic Test Listing",
   developer: "Basic Test Developer",
   listingsBuildingAddress: {

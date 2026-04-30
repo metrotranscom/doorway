@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useRef, useState, useCallback } from "react"
 import { isAxiosError } from "axios"
-import { useRouter } from "next/router"
-import { GoogleReCaptcha } from "react-google-recaptcha-v3"
 import { useForm } from "react-hook-form"
+import { GoogleReCaptcha } from "react-google-recaptcha-v3"
+import { t } from "@bloom-housing/ui-components"
+import { useRouter } from "next/router"
 import {
   PageView,
   pushGtmEvent,
@@ -16,8 +17,9 @@ import {
   FormSignInDefault,
   FormSignInPwdless,
   NetworkErrorMessage,
+  useMutate,
+  getListingRedirectUrl,
 } from "@bloom-housing/shared-helpers"
-import { t, useMutate } from "@bloom-housing/ui-components"
 import { PasswordExpiredModal } from "../components/account/PasswordExpiredModal"
 import {
   FeatureFlagEnum,
@@ -31,7 +33,8 @@ import SignUpBenefitsHeadingGroup from "../components/account/SignUpBenefitsHead
 import { FormSignInValues, TermsModal } from "../components/shared/TermsModal"
 import FormsLayout from "../layouts/forms"
 import signUpBenefitsStyles from "../../styles/sign-up-benefits.module.scss"
-import { setFeatureFlagLocalStorage } from "../lib/helpers"
+import { isFeatureFlagOn, setFeatureFlagLocalStorage } from "../lib/helpers"
+import { AccountTypeDialog } from "../components/account/AccountTypeDialog"
 
 interface SignInProps {
   jurisdiction: Jurisdiction
@@ -44,6 +47,11 @@ const SignIn = (props: SignInProps) => {
   const { login, requestSingleUseCode, userService } = useContext(AuthContext)
   const signUpCopy = process.env.showMandatedAccounts
   const reCaptchaEnabled = !!process.env.reCaptchaKey
+
+  const enableHousingAdvocate = isFeatureFlagOn(
+    props.jurisdiction,
+    FeatureFlagEnum.enableHousingAdvocate
+  )
 
   /* Form Handler */
   // This is causing a linting issue with unbound-method, see open issue as of 10/21/2020:
@@ -61,6 +69,7 @@ const SignIn = (props: SignInProps) => {
     message: NetworkStatusContent
     type: NetworkStatusType
   }>()
+  const [accountTypeDialog, setAccountTypeDialog] = useState<boolean>(false)
 
   type LoginType = "pwd" | "code"
   const loginType = router.query?.loginType as LoginType
@@ -298,6 +307,7 @@ const SignIn = (props: SignInProps) => {
       <FormsLayout
         className={signUpCopy ? "sm:max-w-lg md:max-w-full" : undefined}
         pageTitle={t("nav.signIn")}
+        metaDescription={t("pageDescription.signIn")}
       >
         <div className={signUpCopy ? signUpBenefitsStyles["benefits-container"] : undefined}>
           {signUpCopy && (
@@ -318,6 +328,18 @@ const SignIn = (props: SignInProps) => {
               }}
               showRegisterBtn={true}
               control={{ errors }}
+              createAccountAction={() => {
+                if (enableHousingAdvocate) {
+                  setAccountTypeDialog(true)
+                } else {
+                  const listingIdRedirect = router.query?.listingId as string
+                  const createAccountUrl = getListingRedirectUrl(
+                    listingIdRedirect,
+                    "/create-account"
+                  )
+                  void router.push(createAccountUrl)
+                }
+              }}
             >
               {process.env.showPwdless ? (
                 <FormSignInPwdless
@@ -371,6 +393,7 @@ const SignIn = (props: SignInProps) => {
         onSubmit={(email) => onResendConfirmationSubmit(email)}
         loadingMessage={isResendConfirmationLoading && t("t.formSubmitted")}
       />
+      <AccountTypeDialog isOpen={accountTypeDialog} onClose={() => setAccountTypeDialog(false)} />
       {reCaptchaEnabled && (
         <GoogleReCaptcha onVerify={onVerify} refreshReCaptcha={refreshReCaptcha} action={"login"} />
       )}

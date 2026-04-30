@@ -1,5 +1,6 @@
 import {
   ApplicationMultiselectQuestion,
+  ApplicationSelection,
   ApplicationStatusEnum,
   ApplicationSubmissionTypeEnum,
   LanguagesEnum,
@@ -84,6 +85,7 @@ export const blankApplication = {
   },
   householdExpectingChanges: null,
   householdStudent: null,
+  reasonableAccommodations: "",
   incomeVouchers: [],
   income: null,
   incomePeriod: null,
@@ -94,11 +96,12 @@ export const blankApplication = {
     race: [],
     gender: "",
     sexualOrientation: "",
-    spokenLanguage: "",
     howDidYouHear: [],
+    spokenLanguage: "",
   },
   preferences: [] as ApplicationMultiselectQuestion[],
   programs: [] as ApplicationMultiselectQuestion[],
+  applicationSelections: [] as ApplicationSelection[],
   confirmationCode: "",
   id: "",
 }

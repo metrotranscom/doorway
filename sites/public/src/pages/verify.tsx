@@ -95,8 +95,16 @@ const Verify = () => {
   }
 
   return (
-    <FormsLayout pageTitle={t("pageTitle.verifyCode")}>
-      <BloomCard title={t("account.pwdless.verifyTitle")} customIcon={"profile"}>
+    <FormsLayout
+      pageTitle={t("pageTitle.verifyCode")}
+      metaDescription={t("pageDescription.verifyCode")}
+    >
+      <BloomCard
+        title={t("account.pwdless.verifyTitle")}
+        iconSymbol={"userCircle"}
+        iconClass={"card-icon"}
+        headingClass={"seeds-large-heading"}
+      >
         <>
           <FormSignInErrorBox
             errors={errors}

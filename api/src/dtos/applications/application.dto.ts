@@ -106,6 +106,13 @@ export class Application extends AbstractDTO {
   householdStudent?: boolean;
 
   @Expose()
+  @IsOptional({ groups: [ValidationsGroupsEnum.default] })
+  @IsString({ groups: [ValidationsGroupsEnum.default] })
+  @MaxLength(1000, { groups: [ValidationsGroupsEnum.default] })
+  @ApiPropertyOptional()
+  reasonableAccommodations?: string;
+
+  @Expose()
   @IsDefined({ groups: [ValidationsGroupsEnum.applicants] })
   @IsString({ groups: [ValidationsGroupsEnum.default], each: true })
   @ApiPropertyOptional()

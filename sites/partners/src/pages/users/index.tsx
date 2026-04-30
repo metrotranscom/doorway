@@ -1,9 +1,14 @@
-import React, { useContext, useEffect, useMemo, useState } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import Head from "next/head"
 import dayjs from "dayjs"
 import { useSWRConfig } from "swr"
-import { AgTable, useAgTable, t, AlertBox } from "@bloom-housing/ui-components"
-import { ListingViews, User } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { t, AlertBox } from "@bloom-housing/ui-components"
+import { AgTable, useAgTable } from "@bloom-housing/ui-components/ag-table"
+import {
+  FeatureFlagEnum,
+  ListingViews,
+  User,
+} from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { Button, Icon } from "@bloom-housing/ui-seeds"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import Layout from "../../layouts"
@@ -11,6 +16,8 @@ import { useUserList, useListingsData, useUsersExport } from "../../lib/hooks"
 import { FormUserManage } from "../../components/users/FormUserManage"
 import { NavigationHeader } from "../../components/shared/NavigationHeader"
 import DocumentArrowDownIcon from "@heroicons/react/24/solid/DocumentArrowDownIcon"
+import { getUsersTabs, UsersIndexEnum } from "../../components/users/UsersViewHelpers"
+import TabView from "../../layouts/TabView"
 
 type UserDrawerValue = {
   type: "add" | "edit" | "view"
@@ -18,21 +25,10 @@ type UserDrawerValue = {
 }
 
 const Users = () => {
-  const { profile } = useContext(AuthContext)
+  const { profile, doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
   const { mutate } = useSWRConfig()
   const [userDrawer, setUserDrawer] = useState<UserDrawerValue | null>(null)
-  const [userDrawerTitle, setUserDrawerTitle] = useState(t("users.addUser"))
   const [errorAlert, setErrorAlert] = useState(false)
-
-  useEffect(() => {
-    if (userDrawer?.type === "add") {
-      setUserDrawerTitle(t("users.addUser"))
-    } else if (userDrawer?.type === "edit") {
-      setUserDrawerTitle(t("users.editUser"))
-    } else if (userDrawer?.type === "view") {
-      setUserDrawerTitle(t("users.viewUser"))
-    }
-  }, [userDrawer])
 
   const tableOptions = useAgTable()
 
@@ -53,13 +49,14 @@ const Users = () => {
           const user = params.data
           return (
             <button
-              id={`user-link-${user.email}`}
               className="text-blue-700 underline"
               onClick={() =>
+                // Doorway only allows admins to edit users
                 profile?.userRoles?.isAdmin || profile.id == user.id
                   ? setUserDrawer({ type: "edit", user })
                   : setUserDrawer({ type: "view", user })
               }
+              id={`user-link-${user.email}`}
             >
               {params.value}
             </button>
@@ -145,6 +142,10 @@ const Users = () => {
     view: ListingViews.name,
   })
 
+  const enableHousingAdvocate = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableHousingAdvocate
+  )
+
   if (error) return <div>{t("t.errorOccurred")}</div>
 
   return (
@@ -153,43 +154,43 @@ const Users = () => {
         <title>{`Users - ${t("nav.siteTitlePartners")}`}</title>
       </Head>
       <NavigationHeader className="relative" title={t("nav.users")} />
-      <section>
-        <article className="flex-row flex-wrap relative max-w-screen-xl mx-auto py-8 px-4">
-          {errorAlert && (
-            <AlertBox
-              className="mb-8"
-              onClose={() => setErrorAlert(false)}
-              closeable
-              type="alert"
-              inverted
-            >
-              {t("account.settings.alerts.genericError")}
-            </AlertBox>
-          )}
-          <AgTable
-            id="users-table"
-            pagination={{
-              perPage: tableOptions.pagination.itemsPerPage,
-              setPerPage: tableOptions.pagination.setItemsPerPage,
-              currentPage: tableOptions.pagination.currentPage,
-              setCurrentPage: tableOptions.pagination.setCurrentPage,
-            }}
-            config={{
-              columns,
-              totalItemsLabel: t("users.totalUsers"),
-            }}
-            data={{
-              items: userList?.items,
-              loading: loading,
-              totalItems: userList?.meta.totalItems,
-              totalPages: userList?.meta.totalPages,
-            }}
-            search={{
-              setSearch: tableOptions.filter.setFilterValue,
-            }}
-            headerContent={
-              <div className="flex gap-2 items-center">
-                {profile?.userRoles?.isAdmin && (
+      <TabView hideTabs={!enableHousingAdvocate} tabs={getUsersTabs(UsersIndexEnum.partners)}>
+        <section>
+          <article className="flex-row flex-wrap relative max-w-screen-xl mx-auto py-8 px-4">
+            {errorAlert && (
+              <AlertBox
+                className="mb-8"
+                onClose={() => setErrorAlert(false)}
+                closeable
+                type="alert"
+                inverted
+              >
+                {t("account.settings.alerts.genericError")}
+              </AlertBox>
+            )}
+            <AgTable
+              id="users-table"
+              pagination={{
+                perPage: tableOptions.pagination.itemsPerPage,
+                setPerPage: tableOptions.pagination.setItemsPerPage,
+                currentPage: tableOptions.pagination.currentPage,
+                setCurrentPage: tableOptions.pagination.setCurrentPage,
+              }}
+              config={{
+                columns,
+                totalItemsLabel: t("users.totalUsers"),
+              }}
+              data={{
+                items: userList?.items,
+                loading: loading,
+                totalItems: userList?.meta.totalItems,
+                totalPages: userList?.meta.totalPages,
+              }}
+              search={{
+                setSearch: tableOptions.filter.setFilterValue,
+              }}
+              headerContent={
+                <div className="flex gap-2 items-center">
                   <Button
                     variant="primary"
                     size="sm"
@@ -199,35 +200,42 @@ const Users = () => {
                   >
                     {t("users.addUser")}
                   </Button>
-                )}
-                {(profile?.userRoles?.isAdmin || profile?.userRoles?.isJurisdictionalAdmin) && (
-                  <Button
-                    variant="primary-outlined"
-                    size="sm"
-                    leadIcon={
-                      !csvExportLoading ? (
-                        <Icon>
-                          <DocumentArrowDownIcon />
-                        </Icon>
-                      ) : null
-                    }
-                    onClick={() => onExport()}
-                    loadingMessage={csvExportLoading && t("t.formSubmitted")}
-                    id={"export-users"}
-                  >
-                    {t("t.exportToCSV")}
-                  </Button>
-                )}
-              </div>
-            }
-          />
-        </article>
-      </section>
+                  {(profile?.userRoles?.isAdmin || profile?.userRoles?.isJurisdictionalAdmin) && (
+                    <Button
+                      variant="primary-outlined"
+                      size="sm"
+                      leadIcon={
+                        !csvExportLoading ? (
+                          <Icon>
+                            <DocumentArrowDownIcon />
+                          </Icon>
+                        ) : null
+                      }
+                      onClick={() => onExport()}
+                      loadingMessage={csvExportLoading && t("t.formSubmitted")}
+                      id={"export-users"}
+                    >
+                      {t("t.exportToCSV")}
+                    </Button>
+                  )}
+                </div>
+              }
+            />
+          </article>
+        </section>
+      </TabView>
 
       {userDrawer && (
         <FormUserManage
           isOpen={!!userDrawer}
-          title={userDrawerTitle}
+          // title={userDrawer?.type === "add" ? t("users.addUser") : t("users.editUser")}
+          title={
+            userDrawer?.type === "add"
+              ? t("users.addUser")
+              : userDrawer.type === "edit"
+              ? t("users.editUser")
+              : t("users.viewUser")
+          }
           mode={userDrawer?.type}
           user={userDrawer?.user}
           listings={listingDtos?.items}

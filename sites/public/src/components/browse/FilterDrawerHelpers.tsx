@@ -6,7 +6,9 @@ import {
   ListingFeaturesConfiguration,
   ListingFilterKeys,
   ListingFilterParams,
+  ParkingTypeEnum,
   RegionEnum,
+  UnitAccessibilityPriorityTypeEnum,
   UnitTypeEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { UseFormMethods } from "react-hook-form"
@@ -40,6 +42,8 @@ export interface FilterData {
   reservedCommunityTypes?: { [K in ReservedCommunityTypes]?: BooleanOrBooleanString }
   multiselectQuestions?: Record<string, BooleanOrBooleanString>
   name?: string
+  parkingType?: { [K in ParkingTypeEnum]?: BooleanOrBooleanString }
+  accessibilityPriorityTypes?: { [K in UnitAccessibilityPriorityTypeEnum]?: BooleanOrBooleanString }
 }
 
 export interface FilterField {
@@ -63,11 +67,18 @@ export interface RentSectionProps {
   setError: UseFormMethods["setError"]
   clearErrors: UseFormMethods["clearErrors"]
   errors: UseFormMethods["formState"]["errors"]
+  enableSection8?: boolean
 }
 
 export interface SearchSectionProps {
   register: UseFormMethods["register"]
   nameState: string
+}
+
+export interface AccessibilitySectionProps {
+  register: UseFormMethods["register"]
+  filterState: FilterData
+  listingFeaturesConfiguration: ListingFeaturesConfiguration
 }
 
 const arrayFilters: ListingFilterKeys[] = [
@@ -80,6 +91,8 @@ const arrayFilters: ListingFilterKeys[] = [
   ListingFilterKeys.reservedCommunityTypes,
   ListingFilterKeys.availabilities,
   ListingFilterKeys.multiselectQuestions,
+  ListingFilterKeys.parkingType,
+  ListingFilterKeys.accessibilityPriorityTypes,
 ]
 
 const booleanFilters: ListingFilterKeys[] = [
@@ -241,7 +254,9 @@ export const validateRentValues = (
 export const RentSection = (props: RentSectionProps) => {
   return (
     <fieldset className={styles["filter-section"]}>
-      <legend className={styles["filter-section-label"]}>{t("t.rent")}</legend>
+      <legend className={`${styles["filter-section-label"]} ${styles["parent-label"]}`}>
+        {t("t.rent")}
+      </legend>
       <Grid spacing="sm">
         <Grid.Row>
           <Grid.Cell>
@@ -283,23 +298,81 @@ export const RentSection = (props: RentSectionProps) => {
             />
           </Grid.Cell>
         </Grid.Row>
-        <Grid.Row>
-          <Grid.Cell>
-            <Field
-              id={ListingFilterKeys.section8Acceptance}
-              name={ListingFilterKeys.section8Acceptance}
-              label={t("listings.section8Acceptance")}
-              labelClassName={styles["filter-checkbox-label"]}
-              type="checkbox"
-              register={props.register}
-              inputProps={{
-                defaultChecked: isTrue(props.filterState?.[ListingFilterKeys.section8Acceptance]),
-              }}
-            />
-          </Grid.Cell>
-        </Grid.Row>
+        {props.enableSection8 && (
+          <Grid.Row>
+            <Grid.Cell>
+              <Field
+                id={ListingFilterKeys.section8Acceptance}
+                name={ListingFilterKeys.section8Acceptance}
+                label={t("listings.section8Acceptance")}
+                labelClassName={styles["filter-checkbox-label"]}
+                type="checkbox"
+                register={props.register}
+                inputProps={{
+                  defaultChecked: isTrue(props.filterState?.[ListingFilterKeys.section8Acceptance]),
+                }}
+              />
+            </Grid.Cell>
+          </Grid.Row>
+        )}
       </Grid>
     </fieldset>
+  )
+}
+
+export const AccessibilitySection = (props: AccessibilitySectionProps) => {
+  const accessibilityCategories = props.listingFeaturesConfiguration?.categories
+
+  if (accessibilityCategories?.length > 0) {
+    return (
+      <fieldset className={styles["filter-section"]}>
+        <legend className={`${styles["filter-section-label"]} ${styles["parent-label"]}`}>
+          {t("listings.sections.accessibilityFeatures")}
+        </legend>
+        <div className={styles["accessibility-category-groups"]}>
+          {accessibilityCategories.map((category) => {
+            const categoryFeatureKeys = category.fields
+              .map((field) => field.id)
+              .sort((a, b) =>
+                t(`eligibility.accessibility.${a}`).localeCompare(
+                  t(`eligibility.accessibility.${b}`)
+                )
+              )
+
+            if (!categoryFeatureKeys.length) {
+              return null
+            }
+
+            return (
+              <CheckboxGroup
+                key={category.id}
+                groupLabel={t(`eligibility.accessibility.categoryTitle.${category.id}`)}
+                fields={buildDefaultFilterFields(
+                  ListingFilterKeys.listingFeatures,
+                  "eligibility.accessibility",
+                  categoryFeatureKeys,
+                  props.filterState
+                )}
+                register={props.register}
+              />
+            )
+          })}
+        </div>
+      </fieldset>
+    )
+  }
+
+  return (
+    <CheckboxGroup
+      groupLabel={t("eligibility.accessibility.title")}
+      fields={buildDefaultFilterFields(
+        ListingFilterKeys.listingFeatures,
+        "eligibility.accessibility",
+        getAccessibilityFeatureKeys(props.listingFeaturesConfiguration),
+        props.filterState
+      )}
+      register={props.register}
+    />
   )
 }
 

@@ -62,7 +62,7 @@ function Dashboard(props: DashboardProps) {
 
   return (
     <RequireLogin signInPath="/sign-in" signInMessage={t("t.loginIsRequired")}>
-      <Layout pageTitle={t("nav.myDashboard")}>
+      <Layout pageTitle={t("nav.myDashboard")} metaDescription={t("pageDescription.dashboard")}>
         {alertMessage && (
           <AlertBox className="" onClose={() => closeAlert()} type="success">
             {t(alertMessage)}
@@ -78,9 +78,11 @@ function Dashboard(props: DashboardProps) {
                 ) : (
                   <Grid.Cell>
                     <BloomCard
-                      customIcon="application"
+                      iconSymbol="listBullet"
+                      iconClass={"card-icon"}
                       title={t("account.myApplications")}
                       subtitle={t("account.myApplicationsSubtitle")}
+                      headingClass={"seeds-large-heading"}
                       variant={"block"}
                       headingPriority={2}
                     >
@@ -99,9 +101,11 @@ function Dashboard(props: DashboardProps) {
                 )}
                 <Grid.Cell>
                   <BloomCard
-                    customIcon="profile"
+                    iconSymbol="userCircle"
+                    iconClass={"card-icon"}
                     title={t("account.accountSettings")}
                     subtitle={t("account.accountSettingsSubtitle")}
+                    headingClass={"seeds-large-heading"}
                     id="account-dashboard-settings"
                     variant={"block"}
                     headingPriority={2}
@@ -123,9 +127,11 @@ function Dashboard(props: DashboardProps) {
                     <BloomCard
                       iconSymbol="heartIcon"
                       iconOutlined={true}
+                      iconClass={"card-icon"}
                       title={t("account.myFavorites")}
                       subtitle={t("account.myFavoritesSubtitle")}
                       id="account-dashboard-favorites"
+                      headingClass={"seeds-large-heading"}
                       variant={"block"}
                       headingPriority={2}
                     >

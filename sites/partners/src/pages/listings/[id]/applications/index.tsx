@@ -4,8 +4,9 @@ import dayjs from "dayjs"
 import Head from "next/head"
 import Markdown from "markdown-to-jsx"
 import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
-import { AgTable, t, useAgTable, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
-import { Button, Card, Dialog, Heading, Icon, Message } from "@bloom-housing/ui-seeds"
+import { t, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
+import { AgTable, useAgTable } from "@bloom-housing/ui-components/ag-table"
+import { Button, Card, Dialog, Heading, Icon, LoadingState, Message } from "@bloom-housing/ui-seeds"
 import { CardSection } from "@bloom-housing/ui-seeds/src/blocks/Card"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import {
@@ -22,7 +23,6 @@ import {
   useApplicationsData,
   useZipExport,
 } from "../../../../lib/hooks"
-import { ListingStatusBar } from "../../../../components/listings/ListingStatusBar"
 import Layout from "../../../../layouts"
 import { getColDefs } from "../../../../components/applications/ApplicationsColDefs"
 import { ApplicationsSideNav } from "../../../../components/applications/ApplicationsSideNav"
@@ -31,6 +31,8 @@ import { ExportTermsDialog } from "../../../../components/shared/ExportTermsDial
 import styles from "../../../../components/shared/ExportTermsDialog.module.scss"
 import pageStyles from "../../../../../styles/applications.module.scss"
 import ListingGuard from "../../../../components/shared/ListingGuard"
+import { StatusBar } from "../../../../components/shared/StatusBar"
+import { getListingStatusTag } from "../../../../components/listings/helpers"
 
 const ApplicationsList = () => {
   const { profile, doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
@@ -45,7 +47,7 @@ const ApplicationsList = () => {
   const tableOptions = useAgTable()
 
   /* Data Fetching */
-  const { listingDto } = useSingleListingData(listingId)
+  const { listingDto, listingLoading } = useSingleListingData(listingId)
 
   const listingJurisdiction = profile?.jurisdictions?.find(
     (jurisdiction) => jurisdiction.id === listingDto?.jurisdictions.id
@@ -60,6 +62,10 @@ const ApplicationsList = () => {
   )
   const enableApplicationStatus = doJurisdictionsHaveFeatureFlagOn(
     FeatureFlagEnum.enableApplicationStatus,
+    listingDto?.jurisdictions.id
+  )
+  const enableHousingAdvocate = doJurisdictionsHaveFeatureFlagOn(
+    FeatureFlagEnum.enableHousingAdvocate,
     listingDto?.jurisdictions.id
   )
   const includeDemographicsPartner =
@@ -138,7 +144,8 @@ const ApplicationsList = () => {
       enableFullTimeStudentQuestion,
       disableWorkInRegion,
       enableApplicationStatus,
-      listingDto?.reviewOrderType
+      listingDto?.reviewOrderType,
+      enableHousingAdvocate
     )
   }, [
     maxHouseholdSize,
@@ -146,6 +153,7 @@ const ApplicationsList = () => {
     disableWorkInRegion,
     enableApplicationStatus,
     listingDto?.reviewOrderType,
+    enableHousingAdvocate,
   ])
 
   const gridComponents = {
@@ -175,172 +183,178 @@ const ApplicationsList = () => {
         <Head>
           <title>{`Applications - ${t("nav.siteTitlePartners")}`}</title>
         </Head>
-        <NavigationHeader
-          title={listingName}
-          listingId={listingId}
-          tabs={{
-            show: true,
-            flagsQty: flaggedApps?.meta?.totalFlagged,
-            listingLabel: t("t.listingSingle"),
-            applicationsLabel: t("nav.applications"),
-            lotteryLabel:
-              listingDto?.status === ListingsStatusEnum.closed &&
-              listingDto?.lotteryOptIn &&
-              (listingDto?.reviewOrderType === ReviewOrderTypeEnum.lottery ||
-                listingDto?.reviewOrderType === ReviewOrderTypeEnum.waitlistLottery)
-                ? t("listings.lotteryTitle")
-                : undefined,
-          }}
-          breadcrumbs={
-            <Breadcrumbs>
-              <BreadcrumbLink href="/">{t("t.listing")}</BreadcrumbLink>
-              <BreadcrumbLink href={`/listings/${listingId}`}>{listingName}</BreadcrumbLink>
-              <BreadcrumbLink href={`/listings/${listingId}/applications`} current>
-                {t("nav.applications")}
-              </BreadcrumbLink>
-            </Breadcrumbs>
-          }
-        />
+        <div className={"loading-state-wrapper"}>
+          <LoadingState loading={applications === undefined || listingLoading} className="w-full">
+            <NavigationHeader
+              title={listingName}
+              listingId={listingId}
+              tabs={{
+                show: true,
+                flagsQty: flaggedApps?.meta?.totalFlagged,
+                listingLabel: t("t.listingSingle"),
+                applicationsLabel: t("nav.applications"),
+                lotteryLabel:
+                  listingDto?.status === ListingsStatusEnum.closed &&
+                  listingDto?.lotteryOptIn &&
+                  (listingDto?.reviewOrderType === ReviewOrderTypeEnum.lottery ||
+                    listingDto?.reviewOrderType === ReviewOrderTypeEnum.waitlistLottery)
+                    ? t("listings.lotteryTitle")
+                    : undefined,
+              }}
+              breadcrumbs={
+                <Breadcrumbs>
+                  <BreadcrumbLink href="/">{t("t.listing")}</BreadcrumbLink>
+                  <BreadcrumbLink href={`/listings/${listingId}`}>{listingName}</BreadcrumbLink>
+                  <BreadcrumbLink href={`/listings/${listingId}/applications`} current>
+                    {t("nav.applications")}
+                  </BreadcrumbLink>
+                </Breadcrumbs>
+              }
+            />
 
-        <ListingStatusBar status={listingDto?.status} />
+            <StatusBar>{getListingStatusTag(listingDto?.status)}</StatusBar>
 
-        {listingDto?.status === ListingsStatusEnum.closed &&
-        shouldExpireData &&
-        expiryDate <= dayjs() ? (
-          <section className={pageStyles["expired"]}>
-            <div className={pageStyles["parent"]}>
-              <div className={pageStyles["container"]}>
-                <div className={pageStyles["main"]}>
-                  <Card spacing={"lg"}>
-                    <CardSection>
-                      <Icon icon={faExclamationCircle} size="xl" />
-                      <Heading priority={2} size={"2xl"}>
-                        {t("applications.export.dataExpiryHeader")}
-                      </Heading>
-                      <div className={pageStyles["card-description"]}>
-                        {t("applications.export.dataExpiryDescription")}
-                      </div>
-                    </CardSection>
-                  </Card>
-                </div>
-                <aside className={pageStyles["side"]} />
-              </div>
-            </div>
-          </section>
-        ) : (
-          <section className={pageStyles["section"]}>
-            <article className={pageStyles["article"]}>
-              {listingDto && (
-                <>
-                  <ApplicationsSideNav
-                    className={pageStyles["navigation-container"]}
-                    listingId={listingId}
-                    listingOpen={isListingOpen}
-                  />
-                  <div className={pageStyles["content-container"]}>
-                    {shouldExpireData && listingDto?.status === ListingsStatusEnum.closed && (
-                      <Message
-                        variant={"warn"}
-                        fullwidth={true}
-                        className={pageStyles["applications-expiration-message"]}
-                      >
-                        {t("applications.export.dataExpiryMessage", {
-                          date: formattedExpiryDate,
-                        })}
-                      </Message>
-                    )}
-                    <AgTable
-                      className="w-full"
-                      id="applications-table"
-                      pagination={{
-                        perPage: tableOptions.pagination.itemsPerPage,
-                        setPerPage: tableOptions.pagination.setItemsPerPage,
-                        currentPage: tableOptions.pagination.currentPage,
-                        setCurrentPage: tableOptions.pagination.setCurrentPage,
-                      }}
-                      config={{
-                        gridComponents,
-                        columns: columnDefs,
-                        totalItemsLabel: t("applications.totalApplications"),
-                      }}
-                      data={{
-                        items: applications,
-                        loading: appsLoading,
-                        totalItems: appsMeta?.totalItems,
-                        totalPages: appsMeta?.totalPages,
-                      }}
-                      search={{
-                        setSearch: tableOptions.filter.setFilterValue,
-                      }}
-                      sort={{
-                        setSort: tableOptions.sort.setSortOptions,
-                      }}
-                      headerContent={
-                        <div className={pageStyles["table-action-container"]}>
-                          {allowNewApps && (
-                            <Button
-                              onClick={() => {
-                                if (
-                                  process.env.showLottery &&
-                                  (listingDto.lotteryStatus === LotteryStatusEnum.ran ||
-                                    listingDto.lotteryStatus ===
-                                      LotteryStatusEnum.releasedToPartners ||
-                                    listingDto.lotteryStatus ===
-                                      LotteryStatusEnum.publishedToPublic)
-                                ) {
-                                  setApplicationConfirmAddPostLotteryModal(true)
-                                } else if (listingDto.status === ListingsStatusEnum.closed) {
-                                  setApplicationConfirmAddModal(true)
-                                } else {
-                                  void router.push(`/listings/${listingId}/applications/add`)
-                                }
-                              }}
-                              variant="primary-outlined"
-                              size="sm"
-                              className={pageStyles["table-action"]}
-                              id={"addApplicationButton"}
-                            >
-                              {t("applications.addApplication")}
-                            </Button>
-                          )}
-
-                          <Button
-                            variant="primary-outlined"
-                            size="sm"
-                            className={pageStyles["table-action"]}
-                            onClick={() => setIsTermsOpen(true)}
-                            loadingMessage={exportLoading && t("t.formSubmitted")}
-                          >
-                            {t("t.export")}
-                          </Button>
-                        </div>
-                      }
-                    />
+            {listingDto?.status === ListingsStatusEnum.closed &&
+            shouldExpireData &&
+            expiryDate <= dayjs() ? (
+              <section className={pageStyles["expired"]}>
+                <div className={pageStyles["parent"]}>
+                  <div className={pageStyles["container"]}>
+                    <div className={pageStyles["main"]}>
+                      <Card spacing={"lg"}>
+                        <CardSection>
+                          <Icon icon={faExclamationCircle} size="xl" />
+                          <Heading priority={2} size={"2xl"}>
+                            {t("applications.export.dataExpiryHeader")}
+                          </Heading>
+                          <div className={pageStyles["card-description"]}>
+                            {t("applications.export.dataExpiryDescription")}
+                          </div>
+                        </CardSection>
+                      </Card>
+                    </div>
+                    <aside className={pageStyles["side"]} />
                   </div>
+                </div>
+              </section>
+            ) : (
+              <section className={pageStyles["section"]}>
+                <article className={pageStyles["article"]}>
+                  {listingDto && (
+                    <>
+                      <ApplicationsSideNav
+                        className={pageStyles["navigation-container"]}
+                        listingId={listingId}
+                        listingOpen={isListingOpen}
+                      />
+                      <div className={pageStyles["content-container"]}>
+                        {shouldExpireData && listingDto?.status === ListingsStatusEnum.closed && (
+                          <Message
+                            variant={"warn"}
+                            fullwidth={true}
+                            className={pageStyles["applications-expiration-message"]}
+                          >
+                            {t("applications.export.dataExpiryMessage", {
+                              date: formattedExpiryDate,
+                            })}
+                          </Message>
+                        )}
+                        <AgTable
+                          className="w-full"
+                          id="applications-table"
+                          pagination={{
+                            perPage: tableOptions.pagination.itemsPerPage,
+                            setPerPage: tableOptions.pagination.setItemsPerPage,
+                            currentPage: tableOptions.pagination.currentPage,
+                            setCurrentPage: tableOptions.pagination.setCurrentPage,
+                          }}
+                          config={{
+                            gridComponents,
+                            columns: columnDefs,
+                            totalItemsLabel: t("applications.totalApplications"),
+                          }}
+                          data={{
+                            items: applications,
+                            loading: appsLoading,
+                            totalItems: appsMeta?.totalItems,
+                            totalPages: appsMeta?.totalPages,
+                          }}
+                          search={{
+                            setSearch: tableOptions.filter.setFilterValue,
+                          }}
+                          sort={{
+                            setSort: tableOptions.sort.setSortOptions,
+                          }}
+                          headerContent={
+                            <div className={pageStyles["table-action-container"]}>
+                              {allowNewApps && (
+                                <Button
+                                  onClick={() => {
+                                    if (
+                                      process.env.showLottery &&
+                                      (listingDto.lotteryStatus === LotteryStatusEnum.ran ||
+                                        listingDto.lotteryStatus ===
+                                          LotteryStatusEnum.releasedToPartners ||
+                                        listingDto.lotteryStatus ===
+                                          LotteryStatusEnum.publishedToPublic)
+                                    ) {
+                                      setApplicationConfirmAddPostLotteryModal(true)
+                                    } else if (listingDto.status === ListingsStatusEnum.closed) {
+                                      setApplicationConfirmAddModal(true)
+                                    } else {
+                                      void router.push(`/listings/${listingId}/applications/add`)
+                                    }
+                                  }}
+                                  variant="primary-outlined"
+                                  size="sm"
+                                  className={pageStyles["table-action"]}
+                                  id={"addApplicationButton"}
+                                >
+                                  {t("applications.addApplication")}
+                                </Button>
+                              )}
 
-                  <ExportTermsDialog
-                    dialogHeader={t("applications.export.dialogHeader")}
-                    id="applications"
-                    isOpen={isTermsOpen}
-                    onClose={() => setIsTermsOpen(false)}
-                    onSubmit={onSubmit}
-                  >
-                    {listingDto?.closedAt && (
-                      <p>{t("applications.export.dialogAlert", { date: formattedExpiryDate })}</p>
-                    )}
-                    <p>{t("applications.export.dialogSubheader")}</p>
-                    <h2 className={styles["terms-of-use-text"]}>
-                      {t("applications.export.termsOfUse")}
-                    </h2>
-                    <Markdown>
-                      {t("applications.export.termsBody", { bold: styles["terms-bold-text"] })}
-                    </Markdown>
-                  </ExportTermsDialog>
-                </>
-              )}
-            </article>
-          </section>
-        )}
+                              <Button
+                                variant="primary-outlined"
+                                size="sm"
+                                className={pageStyles["table-action"]}
+                                onClick={() => setIsTermsOpen(true)}
+                                loadingMessage={exportLoading && t("t.formSubmitted")}
+                              >
+                                {t("t.export")}
+                              </Button>
+                            </div>
+                          }
+                        />
+                      </div>
+
+                      <ExportTermsDialog
+                        dialogHeader={t("applications.export.dialogHeader")}
+                        id="applications"
+                        isOpen={isTermsOpen}
+                        onClose={() => setIsTermsOpen(false)}
+                        onSubmit={onSubmit}
+                      >
+                        {listingDto?.closedAt && (
+                          <p>
+                            {t("applications.export.dialogAlert", { date: formattedExpiryDate })}
+                          </p>
+                        )}
+                        <p>{t("applications.export.dialogSubheader")}</p>
+                        <h2 className={styles["terms-of-use-text"]}>
+                          {t("applications.export.termsOfUse")}
+                        </h2>
+                        <Markdown>
+                          {t("applications.export.termsBody", { bold: styles["terms-bold-text"] })}
+                        </Markdown>
+                      </ExportTermsDialog>
+                    </>
+                  )}
+                </article>
+              </section>
+            )}
+          </LoadingState>
+        </div>
         <Dialog
           isOpen={applicationConfirmAddModal}
           onClose={() => setApplicationConfirmAddModal(false)}

@@ -20,6 +20,8 @@ import { ValidationsGroupsEnum } from '../../enums/shared/validation-groups-enum
 import { FilterAvailabilityEnum } from '../../enums/listings/filter-availability-enum';
 import { ListingFilterKeys } from '../../enums/listings/filter-key-enum';
 import { FixLargeObjectArray } from '../../decorators/fix-large-object-array';
+import { ParkingTypeEnum } from '../../enums/listings/filter-parking-type-enum';
+import { UnitAccessibilityPriorityTypeEnum } from '../../enums/units/accessibility-priority-type-enum';
 
 export class ListingFilterParams extends BaseFilter {
   @Expose()
@@ -230,4 +232,26 @@ export class ListingFilterParams extends BaseFilter {
     example: 'regulated',
   })
   [ListingFilterKeys.listingType]?: ListingTypeEnum;
+
+  @Expose()
+  @ApiPropertyOptional({
+    enum: ParkingTypeEnum,
+    enumName: 'ParkingTypeEnum',
+    example: 'carport',
+  })
+  [ListingFilterKeys.parkingType]?: ParkingTypeEnum;
+
+  @Expose()
+  @ApiPropertyOptional({
+    enum: UnitAccessibilityPriorityTypeEnum,
+    enumName: 'UnitAccessibilityPriorityTypeEnum',
+    isArray: true,
+    example: ['mobility'],
+  })
+  @IsArray({ groups: [ValidationsGroupsEnum.default] })
+  @IsEnum(UnitAccessibilityPriorityTypeEnum, {
+    groups: [ValidationsGroupsEnum.default],
+    each: true,
+  })
+  [ListingFilterKeys.accessibilityPriorityTypes]?: UnitAccessibilityPriorityTypeEnum[];
 }

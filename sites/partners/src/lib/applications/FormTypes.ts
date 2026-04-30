@@ -27,14 +27,16 @@ export type ApplicationTypes = {
   preferredUnit?: string[]
   householdExpectingChanges?: YesNoEnum
   householdStudent?: YesNoEnum
+  reasonableAccommodations?: string
   accessibility: string[]
   demographics: {
     ethnicity?: string
     race?: string[]
     gender?: string
     sexualOrientation?: string
+    howDidYouHear: string[]
     spokenLanguage?: string
-    howDidYouHear?: string[]
+    spokenLanguageNotListed?: string
   }
   alternateContact: {
     firstName?: string

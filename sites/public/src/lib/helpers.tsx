@@ -425,7 +425,7 @@ export const getListingCard = (listing: Listing, index: number) => {
           priority: 3,
         },
         contentSubheader: { content: getListingCardSubtitle(listing.listingsBuildingAddress) },
-        tableHeader: generateTableSubHeader(listing),
+        // tableHeader: generateTableSubHeader(listing),
       }}
     />
   )

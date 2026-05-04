@@ -51,12 +51,15 @@ const translations = (
           whatHappensHeader: '¿Qué pasa después?',
           whatHappensContent:
             'El administrador de la propiedad comenzará a comunicarse con los solicitantes en el orden de clasificación de la lotería, dentro de cada preferencia de la lotería. Cuando todas las unidades estén ocupadas, el administrador de la propiedad dejará de comunicarse con los solicitantes. Es posible que todas las unidades estén ocupadas antes de que el administrador de la propiedad alcance su clasificación. Si esto sucede, no se comunicarán con usted.',
+          duplicatesDetails:
+            'Doorway generalmente no acepta solicitudes duplicadas. Una solicitud duplicada es aquella en la que aparece una persona que también aparece en otra solicitud para la misma oportunidad de vivienda. Para obtener información más detallada sobre cómo manejamos las solicitudes duplicadas, consulte nuestro',
           otherOpportunities1:
             'Para ver otras oportunidades de vivienda, visite %{appUrl}. Puede registrarse para recibir notificaciones de nuevas oportunidades de solicitud',
           otherOpportunities2: 'aquí',
           otherOpportunities3:
             'Si desea obtener información sobre cómo funcionan las loterías, consulte la sección de lotería del',
-          otherOpportunities4: 'Housing Portal Centro de ayuda',
+          otherOpportunities4: 'Doorway Housing Portal Centro de ayuda',
+          termsOfUse: 'Términos de uso',
         },
         accountRemoval: {
           subject:
@@ -511,7 +514,7 @@ const translations = (
         singleUseCodeEmail: {
           greeting: 'Hi',
           message:
-            'Use the following code to sign in to your %{jurisdictionName} account. This code will be valid for 10 minutes. Never share this code.',
+            'Use the following code to sign in to your Doorway account. This code will be valid for 10 minutes. Never share this code.',
           singleUseCode: '%{singleUseCode}',
         },
         rentalOpportunity: {
@@ -571,17 +574,20 @@ const translations = (
         lotteryAvailable: {
           header: 'New Housing Lottery Results Available',
           resultsAvailable:
-            'Results are available for a housing lottery for %{listingName}. See your housing portal account for more information.',
+            'Results are available for a housing lottery for %{listingName}. See your Doorway Housing Portal account for more information.',
           signIn: 'Sign In to View Your Results',
           whatHappensHeader: 'What happens next?',
           whatHappensContent:
             'The property manager will begin to contact applicants in the order of lottery rank, within each lottery preference. When the units are all filled, the property manager will stop contacting applicants. All the units could be filled before the property manager reaches your rank. If this happens, you will not be contacted.',
+          duplicatesDetails:
+            'Doorway generally does not accept duplicate applications. A duplicate application is one that has someone who also appears on another application for the same housing opportunity. For more detailed information on how we handle duplicates, see our',
           otherOpportunities1:
             'To view other housing opportunities, please visit %{appUrl}. You can sign up to receive notifications of new application opportunities',
           otherOpportunities2: 'here',
           otherOpportunities3:
             'If you want to learn about how lotteries work, please see the lottery section of the',
-          otherOpportunities4: 'Housing Portal Help Center',
+          otherOpportunities4: 'Doorway Housing Portal Help Center',
+          termsOfUse: 'Terms of Use',
         },
         accountRemoval: {
           subject: 'Doorway Scheduled Account Removal Due to Inactivity',

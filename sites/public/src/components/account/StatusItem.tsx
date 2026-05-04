@@ -128,7 +128,7 @@ const StatusItem = (props: StatusItemProps) => {
             </div>
           )}
           <div>
-            <Button href={props.listingURL} variant="secondary-outlined" size="sm">
+            <Button href={props.listingURL} variant="primary-outlined" size="sm">
               {props.strings?.seeListing ?? t("t.seeListing")}
             </Button>
           </div>

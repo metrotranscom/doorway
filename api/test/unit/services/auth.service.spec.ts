@@ -6,7 +6,9 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 // import { MailService } from '@sendgrid/mail';
 import { randomUUID } from 'crypto';
 import { Response } from 'express';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
+import { Jurisdiction } from '../../../src/dtos/jurisdictions/jurisdiction.dto';
+import { MfaType } from '../../../src/enums/mfa/mfa-type-enum';
 import { ApplicationService } from '../../../src/services/application.service';
 import {
   ACCESS_TOKEN_AVAILABLE_NAME,
@@ -28,13 +30,12 @@ import {
   hashPassword,
   passwordToHash,
 } from '../../../src/utilities/password-helpers';
-import { MfaType } from '../../../src/enums/mfa/mfa-type-enum';
 import { EmailService } from '../../../src/services/email.service';
 import { TranslationService } from '../../../src/services/translation.service';
 import { JurisdictionService } from '../../../src/services/jurisdiction.service';
 import { GoogleTranslateService } from '../../../src/services/google-translate.service';
 import { PermissionService } from '../../../src/services/permission.service';
-import { Jurisdiction } from '../../../src/dtos/jurisdictions/jurisdiction.dto';
+import { SnapshotCreateService } from '../../../src/services/snapshot-create.service';
 
 jest.mock('@google-cloud/recaptcha-enterprise');
 const mockedRecaptcha =
@@ -77,6 +78,7 @@ describe('Testing auth service', () => {
         SmsService,
         GoogleTranslateService,
         PermissionService,
+        SnapshotCreateService,
       ],
     }).compile();
 
@@ -111,15 +113,15 @@ describe('Testing auth service', () => {
       },
       false,
     );
-    expect(token).toEqual(
-      sign(
-        {
-          sub: id,
-          expiresIn: 86400000 / 8,
-        },
-        'SOME-LONG-SECRET-KEY',
-      ),
-    );
+    const decoded = verify(token, 'SOME-LONG-SECRET-KEY') as {
+      sub: string;
+      expiresIn: number;
+      iat?: number;
+    };
+    expect(decoded.sub).toBe(id);
+    expect(decoded.expiresIn).toBe(86400000 / 8);
+    expect(decoded).toHaveProperty('iat');
+    expect(typeof decoded.iat).toBe('number');
   });
 
   it('should return a signed string when generating a new refreshToken', () => {
@@ -143,15 +145,15 @@ describe('Testing auth service', () => {
       },
       true,
     );
-    expect(token).toEqual(
-      sign(
-        {
-          sub: id,
-          expiresIn: 86400000,
-        },
-        'SOME-LONG-SECRET-KEY',
-      ),
-    );
+    const decoded = verify(token, 'SOME-LONG-SECRET-KEY') as {
+      sub: string;
+      expiresIn: number;
+      iat?: number;
+    };
+    expect(decoded.sub).toBe(id);
+    expect(decoded.expiresIn).toBe(86400000);
+    expect(decoded).toHaveProperty('iat');
+    expect(typeof decoded.iat).toBe('number');
   });
 
   it('should set credentials when no incoming refresh token', async () => {
@@ -1076,6 +1078,10 @@ describe('Testing auth service', () => {
     prisma.userAccounts.findFirst = jest
       .fn()
       .mockResolvedValue({ id, agreedToTermsOfService: true });
+    prisma.userAccounts.findUnique = jest
+      .fn()
+      .mockResolvedValue({ id, agreedToTermsOfService: true });
+    prisma.userAccountSnapshot.create = jest.fn().mockResolvedValue({ id });
 
     await authService.updatePassword(
       {
@@ -1125,6 +1131,13 @@ describe('Testing auth service', () => {
       'True',
       ACCESS_TOKEN_AVAILABLE_OPTIONS,
     );
+
+    expect(prisma.userAccountSnapshot.create).toHaveBeenCalledWith({
+      data: {
+        agreedToTermsOfService: true,
+        originalId: id,
+      },
+    });
   });
 
   it('should error when trying to update password, but there is an id mismatch', async () => {
@@ -1244,6 +1257,8 @@ describe('Testing auth service', () => {
       .mockResolvedValue({ id, confirmationToken: token });
 
     prisma.userAccounts.update = jest.fn().mockResolvedValue({ id });
+
+    prisma.userAccountSnapshot.create = jest.fn().mockResolvedValue({ id });
 
     const response = {
       cookie: jest.fn(),

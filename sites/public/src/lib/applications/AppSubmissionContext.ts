@@ -75,6 +75,9 @@ export const retrieveApplicationConfig = (
     },
     {
       name: "householdStudent",
+    },
+    {
+      name: "reasonableAccommodations",
     }
   )
   // conditionally add programs

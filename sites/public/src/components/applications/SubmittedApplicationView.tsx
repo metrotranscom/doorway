@@ -9,23 +9,34 @@ import {
   Application,
   ApplicationStatusEnum,
   FeatureFlagEnum,
+  Jurisdiction,
   Listing,
   MultiselectQuestionsApplicationSectionEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { ApplicationListingCard } from "../account/ApplicationCards"
+import { isFeatureFlagOn } from "../../lib/helpers"
 
 interface SubmittedApplicationViewProps {
   application: Application
   listing: Listing
   backHref: string
+  jurisdiction?: Jurisdiction
 }
 
 const SubmittedApplicationView = ({
   application,
   listing,
   backHref,
+  jurisdiction,
 }: SubmittedApplicationViewProps) => {
   const { doJurisdictionsHaveFeatureFlagOn } = useContext(AuthContext)
+  const checkFeatureFlag = (flag: FeatureFlagEnum) => {
+    return (
+      isFeatureFlagOn(jurisdiction, flag) ||
+      doJurisdictionsHaveFeatureFlagOn(flag, listing?.jurisdictions.id)
+    )
+  }
+
   const confirmationDate = useMemo(() => {
     return dayjs(application.submissionDate).format(DATE_FORMAT)
   }, [application.submissionDate])
@@ -58,7 +69,10 @@ const SubmittedApplicationView = ({
 
   return (
     <>
-      <ApplicationListingCard listingName={listing?.name} listingId={listing?.id} />
+      <ApplicationListingCard
+        listingName={application.listings?.name || listing?.name}
+        listingId={application.listings?.id || listing?.id}
+      />
       <Card spacing={"lg"} className={"mb-6"}>
         <Card.Section divider={"inset"}>
           <Button
@@ -69,7 +83,7 @@ const SubmittedApplicationView = ({
           >
             {t("t.back")}
           </Button>
-          <Heading priority={2} size={"2xl"} className="mt-6">
+          <Heading priority={2} size={"2xl"} className="mt-6 seeds-large-heading">
             {t("application.confirmation.informationSubmittedTitle")}
           </Heading>
           <p className="field-note mt-4">
@@ -100,22 +114,18 @@ const SubmittedApplicationView = ({
               ?.length === 0
           }
           editMode={false}
-          enableUnitGroups={doJurisdictionsHaveFeatureFlagOn(
-            FeatureFlagEnum.enableUnitGroups,
-            listing?.jurisdictions.id
+          enableUnitGroups={checkFeatureFlag(FeatureFlagEnum.enableUnitGroups)}
+          enableFullTimeStudentQuestion={checkFeatureFlag(
+            FeatureFlagEnum.enableFullTimeStudentQuestion
           )}
-          enableFullTimeStudentQuestion={doJurisdictionsHaveFeatureFlagOn(
-            FeatureFlagEnum.enableFullTimeStudentQuestion,
-            listing?.jurisdictions.id
+          enableReasonableAccommodations={checkFeatureFlag(
+            FeatureFlagEnum.enableReasonableAccommodations
           )}
-          enableAdaOtherOption={doJurisdictionsHaveFeatureFlagOn(
-            FeatureFlagEnum.enableAdaOtherOption,
-            listing?.jurisdictions.id
+          enableAdaOtherOption={checkFeatureFlag(FeatureFlagEnum.enableAdaOtherOption)}
+          swapCommunityTypeWithPrograms={checkFeatureFlag(
+            FeatureFlagEnum.swapCommunityTypeWithPrograms
           )}
-          swapCommunityTypeWithPrograms={doJurisdictionsHaveFeatureFlagOn(
-            FeatureFlagEnum.swapCommunityTypeWithPrograms,
-            listing?.jurisdictions.id
-          )}
+          enableV2MSQ={checkFeatureFlag(FeatureFlagEnum.enableV2MSQ)}
         />
         <Card.Section>
           <div className="hide-for-print">

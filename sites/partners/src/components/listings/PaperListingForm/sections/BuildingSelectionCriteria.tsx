@@ -199,7 +199,11 @@ const BuildingSelectionCriteria = () => {
     Pass the file for the dropzone callback along to the uploader
   */
   const pdfUploader = async (file: File) => {
-    await uploadAssetAndSetData(file, "selection-criteria", setProgressValue, setCloudinaryData)
+    if (process.env.cloudinaryCloudName) {
+      // void (await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue }))
+    } else {
+      await uploadAssetAndSetData(file, "selection-criteria", setProgressValue, setCloudinaryData)
+    }
   }
 
   return (

@@ -82,6 +82,7 @@ type ApplicationTypesProps = {
   jurisdiction: string
   listing: FormListing
   requiredFields: string[]
+  defaultReferralText?: string
 }
 
 const ApplicationTypes = ({
@@ -89,6 +90,7 @@ const ApplicationTypes = ({
   // enableReferralQuestionUnits,
   jurisdiction,
   listing,
+  // defaultReferralText,
   requiredFields,
 }: ApplicationTypesProps) => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -523,6 +525,8 @@ const ApplicationTypes = ({
                         referral: {
                           ...methods.referral,
                           type: ApplicationMethodsTypeEnum.Referral,
+                          externalReference:
+                            methods.referral?.externalReference || defaultReferralText,
                         },
                       })
                     },
@@ -578,8 +582,15 @@ const ApplicationTypes = ({
                 name="referralSummary"
                 id="referralSummary"
                 maxLength={500}
+                defaultValue={
+                  methods?.referral?.externalReference
+                    ? methods.referral.externalReference
+                    : defaultReferralText
+                }
                 inputProps={{
-                  value: methods.referral ? methods.referral.externalReference : "",
+                  value: methods?.referral
+                    ? methods?.referral?.externalReference
+                    : defaultReferralText,
                   onChange: (e) => {
                     setMethods({
                       ...methods,

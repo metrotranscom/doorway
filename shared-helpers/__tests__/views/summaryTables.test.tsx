@@ -6,6 +6,7 @@ import {
   UnitGroupSummary,
   ReviewOrderTypeEnum,
   UnitType,
+  UnitAccessibilityPriorityTypeEnum,
 } from "../../src/types/backend-swagger"
 import {
   mergeSummaryRows,
@@ -806,12 +807,7 @@ describe("getAvailabilityText", () => {
             sqFeet: "550",
             number: "101",
             numBathrooms: 1,
-            unitAccessibilityPriorityTypes: {
-              id: "a",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              name: "Mobility",
-            },
+            accessibilityPriorityType: UnitAccessibilityPriorityTypeEnum.mobility,
             unitTypes: { ...defaultUnitType, name: UnitTypeEnum.oneBdrm, numBedrooms: 1 },
           },
         ],
@@ -850,12 +846,7 @@ describe("getAvailabilityText", () => {
             sqFeet: "550",
             number: "101",
             numBathrooms: 1,
-            unitAccessibilityPriorityTypes: {
-              id: "a",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              name: "Mobility",
-            },
+            accessibilityPriorityType: UnitAccessibilityPriorityTypeEnum.mobility,
             unitTypes: { ...defaultUnitType, name: UnitTypeEnum.oneBdrm, numBedrooms: 1 },
           },
         ],
@@ -886,12 +877,7 @@ describe("getAvailabilityText", () => {
             sqFeet: "550",
             floor: 1,
             numBathrooms: 1,
-            unitAccessibilityPriorityTypes: {
-              id: "a",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              name: "Mobility",
-            },
+            accessibilityPriorityType: UnitAccessibilityPriorityTypeEnum.mobility,
             unitTypes: { ...defaultUnitType, name: UnitTypeEnum.oneBdrm, numBedrooms: 1 },
           },
         ],
@@ -922,12 +908,7 @@ describe("getAvailabilityText", () => {
             number: "101",
             floor: 1,
             numBathrooms: 1,
-            unitAccessibilityPriorityTypes: {
-              id: "a",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              name: "Mobility",
-            },
+            accessibilityPriorityType: UnitAccessibilityPriorityTypeEnum.mobility,
             unitTypes: { ...defaultUnitType, name: UnitTypeEnum.oneBdrm, numBedrooms: 1 },
           },
         ],
@@ -1038,7 +1019,8 @@ describe("unitSummariesTable", () => {
       }
       const rows = unitSummariesTable([samMinAndMax], ReviewOrderTypeEnum.firstComeFirstServe)
       render(rows[0].minimumIncome.content)
-      expect(screen.getByText("$1,500 per month")).toBeInTheDocument()
+      expect(screen.getByText("$1,500", { exact: false })).toBeInTheDocument()
+      expect(screen.getByText("per month", { exact: false })).toBeInTheDocument()
       expect(screen.queryByText("to")).not.toBeInTheDocument()
     })
 

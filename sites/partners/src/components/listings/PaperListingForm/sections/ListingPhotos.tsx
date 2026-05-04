@@ -9,9 +9,8 @@ import {
   StandardTableCell,
   Textarea,
 } from "@bloom-housing/ui-components"
-import { CLOUDINARY_BUILDING_LABEL, getImageUrlFromAsset } from "@bloom-housing/shared-helpers"
-import { uploadAssetAndSetData } from "../../../../lib/assets"
 import { Button, Card, Drawer, Grid, Heading } from "@bloom-housing/ui-seeds"
+import { CLOUDINARY_BUILDING_LABEL, getImageUrlFromAsset } from "@bloom-housing/shared-helpers"
 import {
   Asset,
   ListingImage,
@@ -20,6 +19,7 @@ import {
 import { fieldHasError, fieldIsRequired, getLabel } from "../../../../lib/helpers"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 import styles from "../ListingForm.module.scss"
+import { uploadAssetAndSetData } from "../../../../lib/assets"
 
 interface ListingPhotosProps {
   enableListingImageAltText: boolean
@@ -223,13 +223,12 @@ const ListingPhotos = (props: ListingPhotosProps) => {
 
   const listingPhotoTableRows: StandardTableData = []
   listingFormPhotos.forEach((image, index) => {
-    const listingPhotoUrl = getImageUrlFromAsset(image.assets)
     listingPhotoTableRows.push({
       preview: {
         content: (
           <TableThumbnail>
             <img
-              src={listingPhotoUrl}
+              src={getImageUrlFromAsset(image.assets)}
               alt={image.description || ""}
               id={`listing-detail-image-${index}`}
             />
@@ -280,7 +279,6 @@ const ListingPhotos = (props: ListingPhotosProps) => {
   const drawerTableRows: StandardTableData = useMemo(() => {
     return drawerImages.map((item, index) => {
       const image = item.assets
-      const imageUrl = getImageUrlFromAsset(image)
       const ordinalContent = (
         <span>
           {item.ordinal + 1}
@@ -297,7 +295,7 @@ const ListingPhotos = (props: ListingPhotosProps) => {
           content: (
             <TableThumbnail>
               <img
-                src={imageUrl}
+                src={getImageUrlFromAsset(image)}
                 alt={item.description || ""}
                 id={`listing-drawer-image-${index}`}
               />
@@ -353,7 +351,7 @@ const ListingPhotos = (props: ListingPhotosProps) => {
    Pass the file for the dropzone callback along to the uploader
    */
   const photoUploader = async (file: File) => {
-    await uploadAssetAndSetData(file, "building", setProgressValue, setLatestUpload)
+    void (await uploadAssetAndSetData(file, "building", setProgressValue, setLatestUpload))
   }
 
   const saveEditedPhoto = (newDescription: string) => {

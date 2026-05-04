@@ -8,7 +8,6 @@ import {
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { Heading } from "@bloom-housing/ui-seeds"
 import { t } from "@bloom-housing/ui-components"
-import { MetaTags } from "../components/shared/MetaTags"
 import ListingsSearchCombined, {
   locations,
 } from "../components/listings/search/ListingsSearchCombined"
@@ -41,8 +40,6 @@ export interface DoorwayListingsProps {
 
 export default function ListingsPage(props: DoorwayListingsProps) {
   const pageTitle = `${t("pageTitle.rent")} - ${t("nav.siteTitle")}`
-  const metaDescription = t("pageDescription.welcome")
-  const metaImage = "" // TODO: replace with hero image
   let searchString =
     "counties:Alameda,Contra Costa,Marin,Napa,San Francisco,San Mateo,Santa Clara,Solano,Sonoma"
   const url = new URL(document?.location.toString())
@@ -57,8 +54,6 @@ export default function ListingsPage(props: DoorwayListingsProps) {
       <Head>
         <title>{pageTitle}</title>
       </Head>
-
-      <MetaTags title={t("nav.siteTitle")} image={metaImage} description={metaDescription} />
       <Heading className={"sr-only"} priority={1}>
         {t("nav.listings")}
       </Heading>

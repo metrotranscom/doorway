@@ -49,6 +49,7 @@ import { UnitSummaries } from "./listing_sections/UnitSummaries"
 import styles from "./ListingViewSeeds.module.scss"
 import { ReadMore } from "../../patterns/ReadMore"
 import { OtherFeatures } from "./listing_sections/OtherFeatures"
+import { PropertyDetailsCard } from "./listing_sections/PropertyDetailsCard"
 
 interface ListingProps {
   listing: Listing
@@ -276,6 +277,7 @@ export const ListingViewSeeds = ({ listing, jurisdiction, profile, preview }: Li
           <MainDetails
             listing={listing}
             jurisdiction={jurisdiction}
+            property={listing.property}
             showFavoriteButton={
               profile && isFeatureFlagOn(jurisdiction, FeatureFlagEnum.enableListingFavoriting)
             }
@@ -283,13 +285,15 @@ export const ListingViewSeeds = ({ listing, jurisdiction, profile, preview }: Li
             setListingFavorited={saveFavorite}
             showHomeType={isFeatureFlagOn(jurisdiction, FeatureFlagEnum.enableHomeType)}
           />
-          <RentSummary
-            amiValues={getAmiValues(listing)}
-            reviewOrderType={listing.reviewOrderType}
-            unitsSummarized={listing.unitsSummarized}
-            section8Acceptance={listing.section8Acceptance}
-            listing={listing}
-          />
+          {listing.status !== ListingsStatusEnum.closed && (
+            <RentSummary
+              amiValues={getAmiValues(listing)}
+              reviewOrderType={listing.reviewOrderType}
+              unitsSummarized={listing.unitsSummarized}
+              section8Acceptance={listing.section8Acceptance}
+              listing={listing}
+            />
+          )}
           <div className={styles["main-content"]}>
             <div className={styles["hide-desktop"]}>{ApplyBar}</div>
             <Eligibility eligibilitySections={getEligibilitySections(jurisdiction, listing)} />
@@ -320,6 +324,14 @@ export const ListingViewSeeds = ({ listing, jurisdiction, profile, preview }: Li
           </div>
         </div>
         <div className={`${styles["right-bar"]} ${styles["hide-mobile"]}`}>
+          {isFeatureFlagOn(jurisdiction, FeatureFlagEnum.enableProperties) && (
+            <PropertyDetailsCard
+              heading={t("listings.propertyCardTitle")}
+              linkText={listing.property?.urlTitle}
+              linkUrl={listing.property?.url}
+              propertyDescription={listing.property?.description}
+            />
+          )}
           <Availability listing={listing} jurisdiction={jurisdiction} />
           {ApplyBar}
         </div>

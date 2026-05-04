@@ -1,10 +1,30 @@
 import React from "react"
 import { t } from "@bloom-housing/ui-components"
 import MaxWidthLayout from "../../layouts/max-width"
+import {
+  FooterContent,
+  FooterLinks,
+  getGenericFooterLinksContent,
+  getGenericFooterTextContent,
+} from "../../static_content/generic_footer_content"
+import {
+  getJurisdictionFooterLinksContent,
+  getJurisdictionFooterTextContent,
+} from "../../static_content/jurisdiction_footer_content"
 import styles from "./CustomSiteFooter.module.scss"
 import dayjs from "dayjs"
 
 const CustomSiteFooter = () => {
+  const textContent: FooterContent | null =
+    getJurisdictionFooterTextContent() || getGenericFooterTextContent()
+  const footerLinksContent: FooterLinks | null =
+    getJurisdictionFooterLinksContent() || getGenericFooterLinksContent()
+
+  const showContentFooter = textContent.logo || textContent.textSections?.length > 0
+  const showLinksFooter = footerLinksContent.links?.length > 0 || footerLinksContent.cityString
+
+  if (!showContentFooter && !showLinksFooter) return <></>
+
   return (
     <footer>
       <MaxWidthLayout className={styles["footer-container"]}>

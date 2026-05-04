@@ -253,8 +253,10 @@ export class ScriptRunnerService {
     if (listings?.length) {
       const priorityTypes: { id: string; name: string }[] =
         await client.$queryRaw`SELECT * FROM unit_accessibility_priority_types`;
-      const doorwayPriorityTypes =
-        await this.prisma.unitAccessibilityPriorityTypes.findMany();
+      // TODO: if we run this script again we will need to update this to meet the new model.
+      const doorwayPriorityTypes = [];
+      // const doorwayPriorityTypes =
+      //   await this.prisma.unitAccessibilityPriorityTypes.findMany();
       const rentTypes: { id: string; name: string }[] =
         await client.$queryRaw`SELECT * FROM unit_types`;
       const doorwayRentTypes = await this.prisma.unitRentTypes.findMany();
@@ -547,9 +549,10 @@ export class ScriptRunnerService {
                     },
                   }
                 : undefined,
-              unitAccessibilityPriorityTypes: priorityType
-                ? { connect: { id: priorityType.id } }
-                : undefined,
+              // TODO: If this script is run again the accessibility priority type will be needed to updated with the new model
+              // unitAccessibilityPriorityType: priorityType
+              //   ? { connect: { id: priorityType.id } }
+              //   : undefined,
               unitRentTypes: rentType
                 ? { connect: { id: rentType.id } }
                 : undefined,

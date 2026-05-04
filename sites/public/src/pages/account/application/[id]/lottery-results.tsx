@@ -112,6 +112,7 @@ const LotteryResults = () => {
         <FormsLayout
           className={styles["lottery-results"]}
           pageTitle={`${t("listings.lotteryResults.header")} - ${listing?.name}`}
+          metaDescription={t("pageDescription.lotteryResults")}
         >
           {noApplication && (
             <ApplicationError error={t("account.application.noApplicationError")} />
@@ -131,7 +132,7 @@ const LotteryResults = () => {
                     >
                       {t("t.back")}
                     </Button>
-                    <Heading priority={2} size={"2xl"} className="mt-6">
+                    <Heading priority={2} size={"2xl"} className="mt-6 seeds-heading-large">
                       {lotteryResultHeaderText}
                     </Heading>
                     <p className="mt-4">

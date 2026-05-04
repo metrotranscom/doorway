@@ -111,6 +111,26 @@
   --field-value-content-spacer: var(--seeds-s3);
 }
 
+.application-form-image-card-section {
+  figure,
+  .image-container {
+    height: 340px;
+    background-color: var(--seeds-bg-color-canvas);
+  }
+  img {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+  }
+
+  @media (max-width: theme("screens.md")) {
+    figure,
+    .image-container {
+      height: 240px;
+    }
+  }
+}
+
 /* overrides for Seeds Message & Alert */
 .message-inside-card {
   --seeds-color-primary-light: var(--dwy-color-blue-300);
@@ -122,4 +142,9 @@
 .underlined-text-heading {
   border-bottom: var(--seeds-s1) solid var(--seeds-color-primary-dark);
   padding-bottom: var(--seeds-s2);
+}
+
+.lock-icon {
+  margin-inline-end: var(--seeds-s2);
+  color: var(--seeds-color-primary);
 }

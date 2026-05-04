@@ -21,9 +21,11 @@ class AutofillCleaner {
   }
 
   addDefaults() {
-    ;["id", "createdAt", "updatedAt", "deletedAt", "listing", "submissionDate"].forEach((key) => {
-      delete this.application[key]
-    })
+    ;["id", "createdAt", "updatedAt", "deletedAt", "listing", "submissionDate", "user"].forEach(
+      (key) => {
+        delete this.application[key]
+      }
+    )
 
     this.application["confirmationCode"] = "" // only used on frontend
     this.application["completedSections"] = 0 // only used on frontend
@@ -33,12 +35,16 @@ class AutofillCleaner {
     this.application.status = ApplicationStatusEnum.submitted
     this.application.preferences = []
     this.application.programs = []
+    this.application.applicationSelections = []
+    this.application.accessibleUnitWaitlistNumber = null
+    this.application.conventionalUnitWaitlistNumber = null
+    this.application.manualLotteryPositionNumber = null
 
     return this
   }
 
   removeAdditionalKeys() {
-    const unsetIdentifiers = (obj: { id: string; createdAt: Date; updatedAt: Date }) => {
+    const unsetIdentifiers = (obj: { id: string; createdAt?: Date; updatedAt?: Date }) => {
       if (!obj) return
       delete obj.id
       delete obj.createdAt
@@ -51,9 +57,18 @@ class AutofillCleaner {
     //handles case of autofilling with applications submitted before app.service sets workAddress to undefined
     this.application.applicant.applicantWorkAddress = undefined
     unsetIdentifiers(this.application.applicationsMailingAddress)
+    unsetIdentifiers(this.application.applicationsAlternateAddress)
 
-    if (this.application.applicationsAlternateAddress)
-      unsetIdentifiers(this.application.applicationsAlternateAddress)
+    if (this.application.householdMember) {
+      this.application.householdMember
+        .sort((a, b) => a.orderId - b.orderId)
+        .forEach((member, index) => {
+          unsetIdentifiers(member)
+          member.orderId = index
+          unsetIdentifiers(member.householdMemberAddress)
+          unsetIdentifiers(member.householdMemberWorkAddress)
+        })
+    }
 
     this.application.householdMember
       .sort((a, b) => a.orderId - b.orderId)

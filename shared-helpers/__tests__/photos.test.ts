@@ -10,8 +10,18 @@ afterEach(cleanup)
 
 describe("photos helper", () => {
   it("should return correct cloudinary url", () => {
-    expect(cloudinaryUrlFromId("1234", "test")).toBe(
-      `https://res.cloudinary.com/test/image/upload/w_400,c_limit,q_65/1234.jpg`
+    process.env.CLOUDINARY_CLOUD_NAME = "exygy"
+    expect(cloudinaryUrlFromId("1234")).toBe(
+      `https://res.cloudinary.com/exygy/image/upload/w_400,c_limit,q_65/1234.jpg`
+    )
+  })
+
+  it("should return original id when cloudinary env is not set", () => {
+    delete process.env.CLOUDINARY_CLOUD_NAME
+    delete process.env.cloudinaryCloudName
+
+    expect(cloudinaryUrlFromId("https://aws.example.com/image.jpg")).toBe(
+      "https://aws.example.com/image.jpg"
     )
   })
 
@@ -86,9 +96,7 @@ describe("photos helper", () => {
     ]
 
     tests.forEach((test) => {
-      expect(getImageUrlFromAsset(test.asset, test.size, test.cloudinaryCloudName)).toBe(
-        test.expect
-      )
+      expect(getImageUrlFromAsset(test.asset, test.size)).toBe(test.expect)
     })
   })
 })

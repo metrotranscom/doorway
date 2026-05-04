@@ -42,7 +42,135 @@ resource "aws_ssoadmin_permission_set_inline_policy" "deployer" {
   permission_set_arn = var.permission_set_arn
   inline_policy      = data.aws_iam_policy_document.deployer.json
 }
+# TODO: I kept running into errors about this policy size: 'ValidationException: Current size of the
+# non-whitespace characters present in the InlinePolicy Document is 10245 bytes which has exceeded
+# the maximum limit of 10240 bytes'
+#
+# So far I have resolved by:
+# - removing sid names and adding as comments.
+# - wild-carding get and describe permissions.
+#
+# We need to figure out a better long-term plan for addressing this restriction.
 data "aws_iam_policy_document" "deployer" {
+  # TODO: we could have a separate permission set for humans debugging / looking at stuff through
+  # the AWS web console. For now, just collect the added permissions for using the web console that
+  # are not required when running tofu apply.
+  statement {
+    sid = "WebConsoleUser"
+    actions = [
+      "application-autoscaling:Describe*",
+      "aps:Describe*",
+      "aps:List*",
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*",
+      "dms:ListDataProviders",
+      "ec2:Describe*",
+      "ec2:Get*",
+      "ecs:List*",
+      "elasticloadbalancing:Describe*",
+      "events:Describe*",
+      "events:Get*",
+      "events:List*",
+      "grafana:Describe*",
+      "grafana:List*",
+      "logs:Describe*",
+      "logs:FilterLogEvents",
+      "logs:Get*",
+      "logs:List*",
+      "logs:StartQuery",
+      "logs:StopQuery",
+      "logs:TestMetricFilter",
+      "rds:Describe*",
+      "rds:Get*",
+      "rds:List*",
+      "servicediscovery:DiscoverInstances",
+      "servicediscovery:Get*",
+      "servicediscovery:List*",
+      "sso:Get*",
+      "sso:List*",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    sid = "CS"
+    actions = [
+      "cloudshell:*"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    sid = "CSNetworkInterface"
+    actions = [
+      "ec2:CreateNetworkInterface",
+    ]
+    resources = [
+      "arn:aws:ec2:${local.region_account}:network-interface/*",
+    ]
+    condition {
+      test     = "ForAnyValue:StringEquals"
+      variable = "aws:TagKeys"
+      values   = ["ManagedByCloudShell"]
+    }
+  }
+  statement {
+    sid = "CSNetworkInterfaceSubnet"
+    actions = [
+      "ec2:CreateNetworkInterface",
+    ]
+    resources = [
+      "arn:aws:ec2:${local.region_account}:subnet/*",
+    ]
+    condition {
+      test     = "StringLike"
+      variable = "aws:ResourceTag/Name"
+      values   = ["bloom-private-*"]
+    }
+  }
+  statement {
+    sid = "CSCreateNetworkInterfaceSG"
+    actions = [
+      "ec2:CreateNetworkInterface",
+    ]
+    resources = [
+      "arn:aws:ec2:${local.region_account}:security-group/*",
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/Name"
+      values   = ["bloom-cloudshell"]
+    }
+  }
+  statement {
+    sid = "CSTagNetworkInterface"
+    actions = [
+      "ec2:CreateTags",
+    ]
+    resources = ["arn:aws:ec2:${local.region_account}:network-interface/*"]
+    condition {
+      test     = "ForAnyValue:StringEquals"
+      variable = "aws:TagKeys"
+      values   = ["ManagedByCloudShell"]
+    }
+  }
+  statement {
+    sid = "CSConfigNetworkInterface"
+    actions = [
+      "ec2:CreateNetworkInterfacePermission",
+      "ec2:DeleteNetworkInterface",
+    ]
+    resources = ["arn:aws:ec2:${local.region_account}:network-interface/*"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/ManagedByCloudShell"
+      values   = [""]
+    }
+  }
+  statement {
+    sid       = "CSDBAuthToken"
+    actions   = ["rds-db:connect"]
+    resources = ["arn:aws:rds-db:${local.region_account}:dbuser:*/bloom_readonly"]
+  }
   statement {
     sid = "TofuStateBucket"
     actions = [
@@ -66,7 +194,52 @@ data "aws_iam_policy_document" "deployer" {
     ]
   }
   statement {
-    sid = "CloudTrail"
+    # Allow creating Prometheus workspace.
+    actions = [
+      "aps:CreateWorkspace",
+      "aps:DeleteWorkspace",
+      "aps:DescribeLoggingConfiguration",
+      "aps:DescribeWorkspace",
+      "aps:ListTagsForResource",
+    ]
+    resources = [
+      "arn:aws:aps:${local.region_account}:/workspaces", # For aps:CreateWorkspace
+      "arn:aws:aps:${local.region_account}:workspace/*",
+    ]
+  }
+  statement {
+    # Allow creating Grafana workspace.
+    actions = [
+      "grafana:CreateWorkspace",
+      "grafana:CreateWorkspaceServiceAccount",
+      "grafana:CreateWorkspaceServiceAccountToken",
+      "grafana:DeleteWorkspace",
+      "grafana:DeleteWorkspaceServiceAccount",
+      "grafana:DeleteWorkspaceServiceAccountToken",
+      "grafana:DescribeWorkspace",
+      "grafana:DescribeWorkspaceConfiguration",
+      "grafana:UpdatePermissions",
+      "grafana:UpdateWorkspace",
+    ]
+    resources = [
+      "arn:aws:grafana:${local.region_account}:/workspaces*",
+    ]
+  }
+  statement {
+    # Allow registering Grafana workspace in SSO.
+    actions = [
+      "sso:AssociateProfile",
+      "sso:CreateManagedApplicationInstance",
+      "sso:DeleteManagedApplicationInstance",
+      "sso:DescribeRegisteredRegions",
+      "sso:DisassociateProfile",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+  statement {
+    # Allow creating cloudtrail logs.
     actions = [
       "cloudtrail:CreateEventDataStore",
       "cloudtrail:DeleteEventDataStore",
@@ -95,29 +268,8 @@ data "aws_iam_policy_document" "deployer" {
     sid = "DescribeVPC"
     actions = [
       "acm:ListCertificates",
-      "ec2:DescribeAccountAttributes",
-      "ec2:DescribeAddresses",
-      "ec2:DescribeAddressesAttribute",
-      "ec2:DescribeAvailabilityZones",
-      "ec2:DescribeInternetGateways",
-      "ec2:DescribeNatGateways",
-      "ec2:DescribeNetworkAcls",
-      "ec2:DescribeNetworkInterfaces",
-      "ec2:DescribePrefixLists",
-      "ec2:DescribeRouteTables",
-      "ec2:DescribeSecurityGroupRules",
-      "ec2:DescribeSecurityGroups",
-      "ec2:DescribeSubnets",
-      "ec2:DescribeVpcEndpoints",
-      "ec2:DescribeVpcs",
-      "elasticloadbalancing:DescribeListenerAttributes",
-      "elasticloadbalancing:DescribeListeners",
-      "elasticloadbalancing:DescribeLoadBalancerAttributes",
-      "elasticloadbalancing:DescribeLoadBalancers",
-      "elasticloadbalancing:DescribeRules",
-      "elasticloadbalancing:DescribeTags",
-      "elasticloadbalancing:DescribeTargetGroupAttributes",
-      "elasticloadbalancing:DescribeTargetGroups",
+      "ec2:Describe*",
+      "elasticloadbalancing:Describe*",
     ]
     resources = ["*"]
   }
@@ -146,17 +298,21 @@ data "aws_iam_policy_document" "deployer" {
       "ec2:CreateTags",
       "ec2:CreateVpc",
       "ec2:CreateVpcEndpoint",
+      "ec2:CreateVpcPeeringConnection",
       "ec2:DeleteInternetGateway",
       "ec2:DeleteNatGateway",
+      "ec2:DeleteRoute",
       "ec2:DeleteRouteTable",
       "ec2:DeleteSecurityGroup",
       "ec2:DeleteSubnet",
       "ec2:DeleteVPC",
       "ec2:DeleteVpcEndpoints",
+      "ec2:DeleteVpcPeeringConnection",
       "ec2:DescribeVpcAttribute",
       "ec2:DetachInternetGateway",
       "ec2:DisassociateRouteTable",
       "ec2:DisassociateVpcCidrBlock",
+      "ec2:ModifySecurityGroupRules",
       "ec2:ModifySubnetAttribute",
       "ec2:ModifyVpcAttribute",
       "ec2:ModifyVpcEndpoint",
@@ -187,6 +343,7 @@ data "aws_iam_policy_document" "deployer" {
       "arn:aws:ec2:${local.region_account}:security-group/*",
       "arn:aws:ec2:${local.region_account}:subnet/*",
       "arn:aws:ec2:${local.region_account}:vpc-endpoint/*",
+      "arn:aws:ec2:${local.region_account}:vpc-peering-connection/*",
       "arn:aws:ec2:${local.region_account}:vpc/*",
       "arn:aws:elasticloadbalancing:${local.region_account}:listener-rule/app/bloom/*",
       "arn:aws:elasticloadbalancing:${local.region_account}:listener/app/bloom/*",
@@ -272,6 +429,7 @@ data "aws_iam_policy_document" "deployer" {
       "ecs:DescribeClusters",
       "ecs:DescribeServiceDeployments",
       "ecs:DescribeServices",
+      "ecs:DescribeTasks",
       "ecs:ListServiceDeployments",
       "ecs:ListTagsForResource",
       "ecs:RegisterTaskDefinition",
@@ -298,22 +456,28 @@ data "aws_iam_policy_document" "deployer" {
       "servicediscovery:GetOperation",
       "servicediscovery:ListTagsForResource",
     ]
-    resources = concat(
-      [
-        "arn:aws:ecs:${local.region_account}:cluster/bloom",
-        "arn:aws:logs:${local.region_account}:log-group::log-stream:",
-        "arn:aws:servicediscovery:${local.region_account}:*/*"
-      ],
-      flatten(
-        [for name in ["api", "site-partners", "site-public"] : [
-          "arn:aws:ecs:${local.region_account}:service-deployment/bloom/bloom-${name}/*",
-          "arn:aws:ecs:${local.region_account}:service/bloom/bloom-${name}",
-          "arn:aws:ecs:${local.region_account}:task-definition/bloom-${name}:*",
-          "arn:aws:iam::${var.bloom_deployment_aws_account_number}:role/bloom-${name}-container",
-          "arn:aws:iam::${var.bloom_deployment_aws_account_number}:role/bloom-${name}-ecs",
-          "arn:aws:logs:${local.region_account}:log-group:bloom-${name}*",
-        ]]
-    ))
+    resources = [
+      "arn:aws:ecs:${local.region_account}:cluster/bloom",
+      "arn:aws:ecs:${local.region_account}:service-deployment/bloom/bloom-*",
+      "arn:aws:ecs:${local.region_account}:service/bloom/bloom-*",
+      "arn:aws:ecs:${local.region_account}:task-definition/bloom-*",
+      "arn:aws:ecs:${local.region_account}:task/bloom/*",
+      "arn:aws:iam::${var.bloom_deployment_aws_account_number}:role/bloom-*",
+      "arn:aws:iam::${var.bloom_deployment_aws_account_number}:role/bloom-*",
+      "arn:aws:logs:${local.region_account}:log-group::log-stream:",
+      "arn:aws:logs:${local.region_account}:log-group:bloom-*",
+      "arn:aws:servicediscovery:${local.region_account}:*/*",
+    ]
+  }
+  statement {
+    sid = "RunECSTask"
+    actions = [
+      "ecs:RunTask",
+    ]
+    resources = [
+      "arn:aws:ecs:${local.region_account}:task-definition/bloom-dbinit:*",
+      "arn:aws:ecs:${local.region_account}:task-definition/bloom-dbseed:*",
+    ]
   }
   statement {
     sid = "APIJWTKeySecret"
@@ -327,5 +491,15 @@ data "aws_iam_policy_document" "deployer" {
       "secretsmanager:TagResource",
     ]
     resources = ["arn:aws:secretsmanager:${local.region_account}:secret:bloom-api-jwt-signing-key*"]
+  }
+  statement {
+    sid = "SES"
+    actions = [
+      "ses:CreateEmailIdentity",
+      "ses:DeleteEmailIdentity",
+      "ses:GetEmailIdentity",
+      "ses:ListTagsForResource",
+    ]
+    resources = ["arn:aws:ses:${local.region_account}:identity/*"]
   }
 }

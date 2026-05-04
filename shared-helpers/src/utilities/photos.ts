@@ -3,8 +3,13 @@ import { Asset, AssetCreate, Listing } from "../types/backend-swagger"
 export const CLOUDINARY_BUILDING_LABEL = "cloudinaryBuilding"
 export const IMAGE_FALLBACK_URL = "/images/listing-fallback.png"
 
-export const cloudinaryUrlFromId = (publicId: string, cloudName: string, size = 400) => {
-  return `https://res.cloudinary.com/${cloudName}/image/upload/w_${size},c_limit,q_65/${publicId}.jpg`
+export const cloudinaryUrlFromId = (publicId: string, size = 400) => {
+  const cloudinaryCloudName: string | undefined =
+    process.env.cloudinaryCloudName || process.env.CLOUDINARY_CLOUD_NAME
+  if (!cloudinaryCloudName) {
+    return publicId
+  }
+  return `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/w_${size},c_limit,q_65/${publicId}.jpg`
 }
 
 /**
@@ -33,11 +38,7 @@ export const cloudinaryUrlFromId = (publicId: string, cloudName: string, size = 
  * @param cloudinaryCloudName The "cloud name" for assets in Cloudinary
  * @returns                   The URL to use to access the asset or null
  */
-export const getImageUrlFromAsset = (
-  asset: AssetCreate,
-  size = 400,
-  cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME || "exygy"
-): string => {
+export const getImageUrlFromAsset = (asset: AssetCreate, size = 400): string => {
   // ): string | null => {
   const fileId = asset.fileId
 
@@ -53,7 +54,7 @@ export const getImageUrlFromAsset = (
   }
 
   //// TODO: fix external listings' asset label; remember to unskip tests.
-  return cloudinaryUrlFromId(asset.fileId, cloudinaryCloudName, size)
+  return cloudinaryUrlFromId(asset.fileId, size)
   // // handle the specific case where it's an image stored in cloudinary
   // if (asset.label == "cloudinaryBuilding") {
   //   return cloudinaryUrlFromId(asset.fileId, cloudinaryCloudName, size)

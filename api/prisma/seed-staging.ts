@@ -6,31 +6,39 @@ import {
   MultiselectQuestionsApplicationSectionEnum,
   PrismaClient,
   UserRoleEnum,
+  MultiselectQuestionsStatusEnum,
+  SpokenLanguageEnum,
 } from '@prisma/client';
 import dayjs from 'dayjs';
 import { randomInt } from 'node:crypto';
-import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
 import {
   realBayAreaPlaces,
   stagingRealisticAddresses,
 } from './seed-helpers/address-factory';
 import { amiChartFactory } from './seed-helpers/ami-chart-factory';
-import { applicationFactory } from './seed-helpers/application-factory';
+import {
+  applicationFactory,
+  applicationFactoryMany,
+} from './seed-helpers/application-factory';
 import { randomBoolean } from './seed-helpers/boolean-generator';
-import { householdMemberFactorySingle } from './seed-helpers/household-member-factory';
 import { jurisdictionFactory } from './seed-helpers/jurisdiction-factory';
 import { listingFactory } from './seed-helpers/listing-factory';
 import { userFactory } from './seed-helpers/user-factory';
 import { unitTypeFactoryAll } from './seed-helpers/unit-type-factory';
-import { unitAccessibilityPriorityTypeFactoryAll } from './seed-helpers/unit-accessibility-priority-type-factory';
 import { multiselectQuestionFactory } from './seed-helpers/multiselect-question-factory';
 import { translationFactory } from './seed-helpers/translation-factory';
+import { propertyFactory } from './seed-helpers/property-factory';
 import { reservedCommunityTypeFactoryAll } from './seed-helpers/reserved-community-type-factory';
 import {
   mapLayerFactory,
   redlinedMap,
   simplifiedDCMap,
 } from './seed-helpers/map-layer-factory';
+import { ValidationMethod } from '../src/enums/multiselect-questions/validation-method-enum';
+import { UnitAccessibilityPriorityTypeEnum } from '../src/enums/units/accessibility-priority-type-enum';
+import { ListingFeaturesConfiguration } from '../src/dtos/jurisdictions/listing-features-config.dto';
+import { RaceEthnicityConfiguration } from '../src/dtos/jurisdictions/race-ethnicity-configuration.dto';
+import { householdMemberFactorySingle } from './seed-helpers/household-member-factory';
 import { createAllFeatureFlags } from './seed-helpers/feature-flag-factory';
 import { FeatureFlagEnum } from '../src/enums/feature-flags/feature-flags-enum';
 // import { hollywoodHillsHeights } from './seed-helpers/listing-data/hollywood-hills-heights';
@@ -39,16 +47,102 @@ import { blueSkyApartments } from './seed-helpers/listing-data/blue-sky-apartmen
 import { valleyHeightsSeniorCommunity } from './seed-helpers/listing-data/valley-heights-senior-community';
 import { littleVillageApartments } from './seed-helpers/listing-data/little-village-apartments';
 import { elmVillage } from './seed-helpers/listing-data/elm-village';
-import { ListingFeaturesConfiguration } from '../src/dtos/jurisdictions/listing-features-config.dto';
+// import { lakeviewVilla } from './seed-helpers/listing-data/lakeview-villa';
+// import { sunshineFlats } from './seed-helpers/listing-data/sunshine-flats';
+import { agencyFactory } from './seed-helpers/agency-factory';
+
+export const defaultRaceEthnicityConfiguration: RaceEthnicityConfiguration = {
+  options: [
+    {
+      id: 'asian',
+      subOptions: [
+        { id: 'chinese', allowOtherText: false },
+        { id: 'filipino', allowOtherText: false },
+        { id: 'japanese', allowOtherText: false },
+        { id: 'korean', allowOtherText: false },
+        { id: 'mongolian', allowOtherText: false },
+        { id: 'vietnamese', allowOtherText: false },
+        { id: 'centralAsian', allowOtherText: false },
+        { id: 'southAsian', allowOtherText: false },
+        { id: 'southeastAsian', allowOtherText: false },
+        { id: 'otherAsian', allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: 'black',
+      subOptions: [
+        { id: 'african', allowOtherText: false },
+        { id: 'africanAmerican', allowOtherText: false },
+        { id: 'caribbeanCentralSouthAmericanMexican', allowOtherText: false },
+        { id: 'otherBlack', allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: 'indigenous',
+      subOptions: [
+        { id: 'alaskanNative', allowOtherText: false },
+        { id: 'nativeAmerican', allowOtherText: false },
+        {
+          id: 'indigenousFromMexicoCaribbeanCentralSouthAmerica',
+          allowOtherText: false,
+        },
+        { id: 'otherIndigenous', allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: 'latino',
+      subOptions: [
+        { id: 'caribbean', allowOtherText: false },
+        { id: 'centralAmerican', allowOtherText: false },
+        { id: 'mexican', allowOtherText: false },
+        { id: 'southAmerican', allowOtherText: false },
+        { id: 'otherLatino', allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: 'middleEasternOrAfrican',
+      subOptions: [
+        { id: 'northAfrican', allowOtherText: false },
+        { id: 'westAsian', allowOtherText: false },
+        { id: 'otherMiddleEasternNorthAfrican', allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: 'pacificIslander',
+      subOptions: [
+        { id: 'chamorro', allowOtherText: false },
+        { id: 'nativeHawaiian', allowOtherText: false },
+        { id: 'samoan', allowOtherText: false },
+        { id: 'otherPacificIslander', allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+    {
+      id: 'white',
+      subOptions: [
+        { id: 'european', allowOtherText: false },
+        { id: 'otherWhite', allowOtherText: true },
+      ],
+      allowOtherText: false,
+    },
+  ],
+};
 
 export const stagingSeed = async (
   prismaClient: PrismaClient,
   jurisdictionName: string,
   publicSiteBaseURL: string,
+  msqV2: boolean,
   largeSeed?: boolean,
 ) => {
   // Seed feature flags
   await createAllFeatureFlags(prismaClient);
+  const optionalV2MSQ = msqV2 ? [FeatureFlagEnum.enableV2MSQ] : [];
   //doorway-specific settings
   const listingApprovalPermissions = [UserRoleEnum.admin];
   const duplicateListingPermissions = [
@@ -58,15 +152,24 @@ export const stagingSeed = async (
     UserRoleEnum.partner,
   ];
   const featureFlags = [
+    ...optionalV2MSQ,
     FeatureFlagEnum.disableWorkInRegion,
+    FeatureFlagEnum.disableEthnicityQuestion,
     FeatureFlagEnum.enableGeocodingPreferences,
     FeatureFlagEnum.enableListingOpportunity,
     FeatureFlagEnum.enablePartnerDemographics,
     FeatureFlagEnum.enablePartnerSettings,
+    FeatureFlagEnum.enableSpokenLanguage,
     FeatureFlagEnum.enableSupportAdmin,
     FeatureFlagEnum.enableWaitlistLottery,
   ];
-  const languages = Object.values(LanguagesEnum);
+  const languages = [
+    LanguagesEnum.en,
+    LanguagesEnum.es,
+    LanguagesEnum.zh,
+    LanguagesEnum.tl,
+    LanguagesEnum.vi,
+  ];
   const requiredListingFields = [
     'listingsBuildingAddress',
     'name',
@@ -81,12 +184,25 @@ export const stagingSeed = async (
     'paperApplication',
     'applicationDueDate',
   ];
+  const visibleSpokenLanguages = [
+    SpokenLanguageEnum.chineseCantonese,
+    SpokenLanguageEnum.chineseMandarin,
+    SpokenLanguageEnum.english,
+    SpokenLanguageEnum.filipino,
+    SpokenLanguageEnum.korean,
+    SpokenLanguageEnum.russian,
+    SpokenLanguageEnum.spanish,
+    SpokenLanguageEnum.vietnamese,
+    SpokenLanguageEnum.notListed,
+  ];
   const doorwaySpecificSettings = {
     listingApprovalPermissions,
     duplicateListingPermissions,
     featureFlags,
     languages,
     requiredListingFields,
+    raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
+    visibleSpokenLanguages,
   };
 
   const defaultListingFeatureConfiguration: ListingFeaturesConfiguration = {
@@ -114,7 +230,7 @@ export const stagingSeed = async (
     ],
   };
   // create main jurisdiction
-  const jurisdiction = await prismaClient.jurisdictions.create({
+  const mainJurisdiction = await prismaClient.jurisdictions.create({
     data: {
       ...jurisdictionFactory(jurisdictionName || 'Bay Area', {
         ...doorwaySpecificSettings,
@@ -179,58 +295,110 @@ export const stagingSeed = async (
     Solano: solanaCounty.id,
     Sonoma: sonomaCounty.id,
   };
+
+  const angelopolisRaceEthnicityConfiguration: RaceEthnicityConfiguration = {
+    options: [
+      {
+        id: 'americanIndianAlaskanNative',
+        subOptions: [],
+        allowOtherText: false,
+      },
+      {
+        id: 'asian',
+        subOptions: [],
+        allowOtherText: true,
+      },
+      {
+        id: 'blackAfricanAmerican',
+        subOptions: [],
+        allowOtherText: false,
+      },
+      {
+        id: 'hispanicLatino',
+        subOptions: [],
+        allowOtherText: false,
+      },
+      {
+        id: 'middleEasternNorthAfrican',
+        subOptions: [],
+        allowOtherText: false,
+      },
+      {
+        id: 'nativeHawaiianOtherPacificIslander',
+        subOptions: [],
+        allowOtherText: false,
+      },
+      {
+        id: 'white',
+        subOptions: [],
+        allowOtherText: false,
+      },
+      {
+        id: 'otherMultiracial',
+        subOptions: [],
+        allowOtherText: true,
+      },
+    ],
+  };
   // create main jurisdiction with as many feature flags turned on as possible
-  console.log('jurisdictionName', jurisdictionName);
-  const mainJurisdiction = await prismaClient.jurisdictions.create({
-    data: jurisdictionFactory(jurisdictionName, {
-      publicSiteBaseURL: publicSiteBaseURL,
-      listingApprovalPermissions: [UserRoleEnum.admin],
-      featureFlags: [
-        FeatureFlagEnum.enableAccessibilityFeatures,
-        FeatureFlagEnum.enableCompanyWebsite,
-        FeatureFlagEnum.enableGeocodingPreferences,
-        FeatureFlagEnum.enableGeocodingRadiusMethod,
-        FeatureFlagEnum.enableHomeType,
-        FeatureFlagEnum.enableIsVerified,
-        FeatureFlagEnum.enableLeasingAgentAltText,
-        FeatureFlagEnum.enableListingFavoriting,
-        FeatureFlagEnum.enableListingFiltering,
-        FeatureFlagEnum.enableListingOpportunity,
-        FeatureFlagEnum.enableListingPagination,
-        FeatureFlagEnum.enableMarketingStatus,
-        FeatureFlagEnum.enableNeighborhoodAmenities,
-        FeatureFlagEnum.enablePartnerDemographics,
-        FeatureFlagEnum.enablePartnerSettings,
-        FeatureFlagEnum.enableSection8Question,
-        FeatureFlagEnum.enableSingleUseCode,
-        FeatureFlagEnum.enableSupportAdmin,
-        FeatureFlagEnum.enableUtilitiesIncluded,
-        FeatureFlagEnum.enableWaitlistLottery,
-        FeatureFlagEnum.enableWhatToExpectAdditionalField,
-      ],
-      languages: Object.values(LanguagesEnum),
-      requiredListingFields: [
-        'developer',
-        'digitalApplication',
-        'jurisdictions',
-        'leasingAgentEmail',
-        'leasingAgentName',
-        'leasingAgentPhone',
-        'listingImages',
-        'listingsBuildingAddress',
-        'name',
-        'paperApplication',
-        'referralOpportunity',
-        'rentalAssistance',
-        'units',
-      ],
-    }),
-  });
+  // const mainJurisdiction = await prismaClient.jurisdictions.create({
+  //   data: jurisdictionFactory(jurisdictionName, {
+  //     publicSiteBaseURL: publicSiteBaseURL,
+  //     listingApprovalPermissions: [UserRoleEnum.admin],
+  //     featureFlags: [
+  //       ...optionalV2MSQ,
+  //       FeatureFlagEnum.enableAccessibilityFeatures,
+  //       FeatureFlagEnum.enableCompanyWebsite,
+  //       FeatureFlagEnum.enableFaq,
+  //       FeatureFlagEnum.enableGeocodingPreferences,
+  //       FeatureFlagEnum.enableGeocodingRadiusMethod,
+  //       FeatureFlagEnum.enableHomeType,
+  //       FeatureFlagEnum.enableHousingBasics,
+  //       FeatureFlagEnum.enableIsVerified,
+  //       FeatureFlagEnum.enableLeasingAgentAltText,
+  //       FeatureFlagEnum.enableListingFavoriting,
+  //       FeatureFlagEnum.enableListingFiltering,
+  //       FeatureFlagEnum.enableListingOpportunity,
+  //       FeatureFlagEnum.enableListingPagination,
+  //       FeatureFlagEnum.enableMarketingStatus,
+  //       FeatureFlagEnum.enableNeighborhoodAmenities,
+  //       FeatureFlagEnum.enablePartnerDemographics,
+  //       FeatureFlagEnum.enablePartnerSettings,
+  //       FeatureFlagEnum.enableResources,
+  //       FeatureFlagEnum.enableSection8Question,
+  //       FeatureFlagEnum.enableSingleUseCode,
+  //       FeatureFlagEnum.enableSupportAdmin,
+  //       FeatureFlagEnum.enableUtilitiesIncluded,
+  //       FeatureFlagEnum.enableWaitlistLottery,
+  //       FeatureFlagEnum.enableWhatToExpectAdditionalField,
+  //     ],
+  //     languages: Object.values(LanguagesEnum),
+  //     requiredListingFields: [
+  //       'developer',
+  //       'digitalApplication',
+  //       'jurisdictions',
+  //       'leasingAgentEmail',
+  //       'leasingAgentName',
+  //       'leasingAgentPhone',
+  //       'listingImages',
+  //       'listingsBuildingAddress',
+  //       'name',
+  //       'paperApplication',
+  //       'referralOpportunity',
+  //       'rentalAssistance',
+  //       'units',
+  //     ],
+  //     listingFeaturesConfiguration: defaultListingFeatureConfiguration,
+  //     raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
+  //   }),
+  // });
+
   // jurisdiction with unit groups enabled
   const lakeviewJurisdiction = await prismaClient.jurisdictions.create({
     data: jurisdictionFactory('Lakeview', {
       publicSiteBaseURL: publicSiteBaseURL,
       featureFlags: [
+        ...optionalV2MSQ,
         FeatureFlagEnum.disableJurisdictionalAdmin,
         FeatureFlagEnum.disableListingPreferences,
         FeatureFlagEnum.disableWorkInRegion,
@@ -240,6 +408,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableCompanyWebsite,
         FeatureFlagEnum.enableGeocodingRadiusMethod,
         FeatureFlagEnum.enableHomeType,
+        FeatureFlagEnum.enableHousingBasics,
         FeatureFlagEnum.enableIsVerified,
         FeatureFlagEnum.enableLimitedHowDidYouHear,
         FeatureFlagEnum.enableLeasingAgentAltText,
@@ -254,6 +423,7 @@ export const stagingSeed = async (
         FeatureFlagEnum.enablePartnerDemographics,
         FeatureFlagEnum.enablePartnerSettings,
         FeatureFlagEnum.enableRegions,
+        FeatureFlagEnum.enableResources,
         FeatureFlagEnum.enableSection8Question,
         FeatureFlagEnum.enableSingleUseCode,
         FeatureFlagEnum.enableUnderConstructionHome,
@@ -273,6 +443,7 @@ export const stagingSeed = async (
         // LanguagesEnum.bn,
       ],
       listingFeaturesConfiguration: defaultListingFeatureConfiguration,
+      raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
     }),
   });
   // Basic configuration jurisdiction
@@ -280,6 +451,7 @@ export const stagingSeed = async (
     data: jurisdictionFactory('Bridge Bay', {
       publicSiteBaseURL: publicSiteBaseURL,
       featureFlags: [
+        ...optionalV2MSQ,
         FeatureFlagEnum.enableGeocodingPreferences,
         FeatureFlagEnum.enableGeocodingRadiusMethod,
         FeatureFlagEnum.enableLeasingAgentAltText,
@@ -290,13 +462,15 @@ export const stagingSeed = async (
         FeatureFlagEnum.enablePartnerSettings,
       ],
       languages: [LanguagesEnum.en, LanguagesEnum.es, LanguagesEnum.vi],
+      listingFeaturesConfiguration: defaultListingFeatureConfiguration,
+      raceEthnicityConfiguration: defaultRaceEthnicityConfiguration,
     }),
   });
   // Jurisdiction with no feature flags enabled
   const nadaHill = await prismaClient.jurisdictions.create({
     data: jurisdictionFactory('Nada Hill', {
       publicSiteBaseURL: publicSiteBaseURL,
-      featureFlags: [],
+      featureFlags: [...optionalV2MSQ],
       requiredListingFields: ['name'],
     }),
   });
@@ -304,12 +478,17 @@ export const stagingSeed = async (
     data: jurisdictionFactory('Angelopolis', {
       publicSiteBaseURL: publicSiteBaseURL,
       featureFlags: [
+        ...optionalV2MSQ,
+        FeatureFlagEnum.disableAccessibilityFeaturesTag,
         FeatureFlagEnum.disableBuildingSelectionCriteria,
+        FeatureFlagEnum.disableEthnicityQuestion,
         FeatureFlagEnum.disableListingPreferences,
         FeatureFlagEnum.enableAccessibilityFeatures,
         FeatureFlagEnum.enableApplicationStatus,
         FeatureFlagEnum.enableConfigurableRegions,
         FeatureFlagEnum.enableCreditScreeningFee,
+        FeatureFlagEnum.enableFaq,
+        FeatureFlagEnum.enableHousingAdvocate,
         FeatureFlagEnum.enableHousingDeveloperOwner,
         FeatureFlagEnum.enableLeasingAgentAltText,
         FeatureFlagEnum.enableListingFileNumber,
@@ -321,10 +500,15 @@ export const stagingSeed = async (
         FeatureFlagEnum.enableNeighborhoodAmenities,
         FeatureFlagEnum.enableNeighborhoodAmenitiesDropdown,
         FeatureFlagEnum.enableParkingFee,
+        FeatureFlagEnum.enableParkingType,
         FeatureFlagEnum.enablePetPolicyCheckbox,
         FeatureFlagEnum.enableProperties,
+        FeatureFlagEnum.enableReasonableAccommodations,
         FeatureFlagEnum.enableReferralQuestionUnits,
+        FeatureFlagEnum.enableResources,
         FeatureFlagEnum.enableSmokingPolicyRadio,
+        FeatureFlagEnum.enableSpokenLanguage,
+        FeatureFlagEnum.enableUnitAccessibilityTypeTags,
       ],
       visibleNeighborhoodAmenities: [
         NeighborhoodAmenitiesEnum.groceryStores,
@@ -335,6 +519,21 @@ export const stagingSeed = async (
         NeighborhoodAmenitiesEnum.recreationalFacilities,
         NeighborhoodAmenitiesEnum.playgrounds,
         NeighborhoodAmenitiesEnum.busStops,
+      ],
+      languages: [
+        LanguagesEnum.en,
+        LanguagesEnum.es,
+        // LanguagesEnum.ko,
+        // LanguagesEnum.hy,
+        LanguagesEnum.zh,
+        LanguagesEnum.tl,
+        // LanguagesEnum.fa,
+        LanguagesEnum.vi,
+      ],
+      visibleAccessibilityPriorityTypes: [
+        UnitAccessibilityPriorityTypeEnum.mobility,
+        UnitAccessibilityPriorityTypeEnum.hearingAndVision,
+        UnitAccessibilityPriorityTypeEnum.mobilityHearingAndVision,
       ],
       regions: [
         'Metro Area',
@@ -362,6 +561,7 @@ export const stagingSeed = async (
         'referralOpportunity',
         'rentalAssistance',
         'units',
+        'property',
       ],
       listingFeaturesConfiguration: {
         categories: [
@@ -431,8 +631,16 @@ export const stagingSeed = async (
           },
         ],
       },
+      raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
     }),
   });
+  await agencyFactory(
+    angelopolisJurisdiction.id,
+    prismaClient,
+    5,
+    'Angelopolis',
+  );
+  await agencyFactory(mainJurisdiction.id, prismaClient, 5, 'Bloomington');
   // create super admin user
   await prismaClient.userAccounts.create({
     data: await userFactory({
@@ -445,7 +653,6 @@ export const stagingSeed = async (
         bridgeBayJurisdiction.id,
         nadaHill.id,
         angelopolisJurisdiction.id,
-        jurisdiction.id,
         ...Object.values(jurisdictionNameMap),
       ],
       acceptedTerms: true,
@@ -459,7 +666,7 @@ export const stagingSeed = async (
       email: 'admin@example.com',
       confirmedAt: new Date(),
       jurisdictionIds: [
-        jurisdiction.id,
+        mainJurisdiction.id,
         alamedaCounty.id,
         contraCostaCounty.id,
         marinCounty.id,
@@ -482,7 +689,7 @@ export const stagingSeed = async (
       confirmedAt: new Date(),
       acceptedTerms: true,
       jurisdictionIds: [
-        jurisdiction.id,
+        mainJurisdiction.id,
         alamedaCounty.id,
         contraCostaCounty.id,
         marinCounty.id,
@@ -501,7 +708,7 @@ export const stagingSeed = async (
       roles: { isJurisdictionalAdmin: true },
       email: 'jurisdiction-admin@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
     }),
   });
@@ -511,7 +718,7 @@ export const stagingSeed = async (
       roles: { isLimitedJurisdictionalAdmin: true },
       email: 'limited-jurisdiction-admin@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
     }),
   });
@@ -521,7 +728,7 @@ export const stagingSeed = async (
       roles: { isPartner: true },
       email: 'partner@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
     }),
   });
@@ -530,7 +737,7 @@ export const stagingSeed = async (
       roles: { isAdmin: true },
       email: 'unverified@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: false,
     }),
   });
@@ -539,7 +746,7 @@ export const stagingSeed = async (
       roles: { isAdmin: true },
       email: 'mfauser@bloom.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
       mfaEnabled: true,
       singleUseCode: '12345',
@@ -549,7 +756,7 @@ export const stagingSeed = async (
     data: await userFactory({
       email: 'public-user@example.com',
       confirmedAt: new Date(),
-      jurisdictionIds: [jurisdiction.id],
+      jurisdictionIds: [mainJurisdiction.id],
       acceptedTerms: true,
       password: 'abcdef',
     }),
@@ -573,10 +780,25 @@ export const stagingSeed = async (
       acceptedTerms: true,
     }),
   });
+  const agency = await prismaClient.agency.findFirst({
+    where: {
+      jurisdictionsId: angelopolisJurisdiction.id,
+    },
+  });
+  await prismaClient.userAccounts.create({
+    data: await userFactory({
+      email: 'advocate@example.com',
+      confirmedAt: new Date(),
+      jurisdictionIds: [angelopolisJurisdiction.id],
+      isAdvocate: true,
+      agencyId: agency.id,
+    }),
+  });
+
   // add jurisdiction specific translations and default ones
   await prismaClient.translations.create({
     data: translationFactory({
-      jurisdiction: { id: jurisdiction.id, name: jurisdiction.name },
+      jurisdiction: { id: mainJurisdiction.id, name: mainJurisdiction.name },
     }),
   });
   await prismaClient.translations.create({
@@ -587,10 +809,10 @@ export const stagingSeed = async (
   });
   // build ami charts
   const amiChart = await prismaClient.amiChart.create({
-    data: amiChartFactory(10, jurisdiction.id, null, jurisdiction.name),
+    data: amiChartFactory(10, mainJurisdiction.id, null, mainJurisdiction.name),
   });
   await prismaClient.amiChart.create({
-    data: amiChartFactory(10, jurisdiction.id, null, jurisdiction.name),
+    data: amiChartFactory(10, mainJurisdiction.id, null, mainJurisdiction.name),
   });
   const NUM_AMI_CHARTS = 5;
   for (let index = 0; index < NUM_AMI_CHARTS; index++) {
@@ -633,20 +855,56 @@ export const stagingSeed = async (
       angelopolisJurisdiction.name,
     ),
   });
+  // const angelopolisProperty1 = await prismaClient.properties.create({
+  //   data: propertyFactory(
+  //     angelopolisJurisdiction.name,
+  //     angelopolisJurisdiction.id,
+  //   ),
+  // });
+  await prismaClient.properties.create({
+    data: propertyFactory(
+      angelopolisJurisdiction.name,
+      angelopolisJurisdiction.id,
+    ),
+  });
   // Create map layers
   await prismaClient.mapLayers.create({
-    data: mapLayerFactory(jurisdiction.id, 'Redlined Districts', redlinedMap),
+    data: mapLayerFactory(
+      mainJurisdiction.id,
+      'Redlined Districts',
+      redlinedMap,
+    ),
   });
   const mapLayer = await prismaClient.mapLayers.create({
-    data: mapLayerFactory(jurisdiction.id, 'Washington DC', simplifiedDCMap),
+    data: mapLayerFactory(
+      mainJurisdiction.id,
+      'Washington DC',
+      simplifiedDCMap,
+    ),
   });
-  const cityEmployeeQuestion = await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(jurisdiction.id, {
-      multiselectQuestion: {
-        text: 'City Employees',
-        description: 'Employees of the local city.',
+  const cityEmployeeMsqData = msqV2
+    ? {
         applicationSection:
           MultiselectQuestionsApplicationSectionEnum.preferences,
+        description: 'Employees of the local city.',
+        multiselectOptions: {
+          createMany: {
+            data: [
+              {
+                name: 'At least one member of my household is a city employee',
+                shouldCollectAddress: false,
+                ordinal: 1,
+              },
+            ],
+          },
+        },
+        name: 'City Employees',
+        status: MultiselectQuestionsStatusEnum.active,
+      }
+    : {
+        applicationSection:
+          MultiselectQuestionsApplicationSectionEnum.preferences,
+        description: 'Employees of the local city.',
         options: [
           {
             text: 'At least one member of my household is a city employee',
@@ -654,17 +912,47 @@ export const stagingSeed = async (
             ordinal: 0,
           },
         ],
-      },
-    }),
+        text: 'City Employees',
+      };
+  const cityEmployeeQuestion = await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(
+      mainJurisdiction.id,
+      { multiselectQuestion: cityEmployeeMsqData },
+      msqV2,
+    ),
   });
-  const workInCityQuestion = await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(jurisdiction.id, {
-      optOut: true,
-      multiselectQuestion: {
-        text: 'Work in the city',
-        description: 'At least one member of my household works in the city',
+  const workInCityMsqData = msqV2
+    ? {
         applicationSection:
           MultiselectQuestionsApplicationSectionEnum.preferences,
+        description: 'Workers in the local city.',
+        multiselectOptions: {
+          createMany: {
+            data: [
+              {
+                name: 'At least one member of my household works in the city',
+                ordinal: 1,
+                shouldCollectAddress: true,
+                shouldCollectName: true,
+                shouldCollectRelationship: true,
+                mapLayerId: mapLayer.id,
+                validationMethod: ValidationMethod.map,
+              },
+              {
+                name: 'All members of the household work in the city',
+                ordinal: 2,
+                shouldCollectAddress: true,
+              },
+            ],
+          },
+        },
+        name: 'Work in the city',
+        status: MultiselectQuestionsStatusEnum.active,
+      }
+    : {
+        applicationSection:
+          MultiselectQuestionsApplicationSectionEnum.preferences,
+        description: 'Workers in the local city.',
         options: [
           {
             text: 'At least one member of my household works in the city',
@@ -684,35 +972,190 @@ export const stagingSeed = async (
             collectRelationship: false,
           },
         ],
+        text: 'Work in the city',
+      };
+  const workInCityQuestion = await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(
+      mainJurisdiction.id,
+      {
+        optOut: true,
+        multiselectQuestion: workInCityMsqData,
       },
-    }),
+      msqV2,
+    ),
   });
-  const veteranProgramQuestion = await prismaClient.multiselectQuestions.create(
-    {
-      data: multiselectQuestionFactory(jurisdiction.id, {
-        multiselectQuestion: {
-          text: 'Veteran',
-          description:
-            'Have you or anyone in your household served in the US military?',
-          applicationSection:
-            MultiselectQuestionsApplicationSectionEnum.programs,
-          isExclusive: true,
-          optOutText: 'Prefer not to say',
-          options: [
-            { text: 'Yes', exclusive: true, ordinal: 1 },
-            { text: 'No', exclusive: true, ordinal: 2 },
-          ],
+  const veteranProgramMsqData = msqV2
+    ? {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Have you or anyone in your household served in the US military?',
+        isExclusive: true,
+        multiselectOptions: {
+          createMany: {
+            data: [
+              { name: 'Yes', ordinal: 1 },
+              { name: 'No', ordinal: 2 },
+              { isOptOut: true, name: 'Prefer not to say', ordinal: 3 },
+            ],
+          },
         },
-      }),
-    },
-  );
+        name: 'Veterans',
+        status: MultiselectQuestionsStatusEnum.active,
+      }
+    : {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Have you or anyone in your household served in the US military?',
+        optOutText: 'Prefer not to say',
+        options: [
+          { text: 'Yes', exclusive: true, ordinal: 0 },
+          { text: 'No', exclusive: true, ordinal: 1 },
+        ],
+        text: 'Veterans',
+      };
+  const veteransProgramQuestion =
+    await prismaClient.multiselectQuestions.create({
+      data: multiselectQuestionFactory(
+        mainJurisdiction.id,
+        {
+          multiselectQuestion: veteranProgramMsqData,
+        },
+        msqV2,
+      ),
+    });
+  const mobilityAccessibilityNeedsProgramMsqData = msqV2
+    ? {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Some units require at least one resident to have a mobility accessibility need',
+        isExclusive: false,
+        multiselectOptions: {
+          createMany: {
+            data: [
+              { name: 'Wheelchair', ordinal: 1 },
+              { name: 'Walker', ordinal: 2 },
+              { name: 'Power chair', ordinal: 3 },
+              { name: 'Other mobility device', ordinal: 4 },
+              { isOptOut: true, name: 'None of the above', ordinal: 5 },
+            ],
+          },
+        },
+        name: 'Mobility accessibility needs',
+        status: MultiselectQuestionsStatusEnum.active,
+      }
+    : {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Some units require at least one resident to have a mobility accessibility need',
+        optOutText: 'None of the above',
+        options: [
+          { text: 'Wheelchair', ordinal: 0 },
+          { text: 'Walker', ordinal: 1 },
+          { text: 'Power chair', ordinal: 2 },
+          { text: 'Other mobility device', ordinal: 3 },
+        ],
+        text: 'Mobility accessibility needs',
+      };
+
   await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(jurisdiction.id, {
-      multiselectQuestion: {
-        text: 'Housing Situation',
+    data: multiselectQuestionFactory(
+      angelopolisJurisdiction.id,
+      {
+        multiselectQuestion: mobilityAccessibilityNeedsProgramMsqData,
+      },
+      msqV2,
+    ),
+  });
+  const hearingVisionAccessibilityNeedsProgramMsqData = msqV2
+    ? {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Some units require at least one resident to have a hearing / vision accessibility need',
+        isExclusive: false,
+        multiselectOptions: {
+          createMany: {
+            data: [
+              { name: 'Audible and visual doorbells', ordinal: 1 },
+              {
+                name: 'Fire and smoke alarms with hard wired strobes',
+                ordinal: 2,
+              },
+              {
+                name: 'Documents in screen-reader accessible format',
+                ordinal: 3,
+              },
+              { name: 'Documents in large text or braille', ordinal: 4 },
+              { isOptOut: true, name: 'None of the above', ordinal: 5 },
+            ],
+          },
+        },
+        name: 'Hearing/vision accessibility needs',
+        status: MultiselectQuestionsStatusEnum.active,
+      }
+    : {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Some units require at least one resident to have a hearing / vision accessibility need',
+        optOutText: 'None of the above',
+        options: [
+          { text: 'Audible and visual doorbells', ordinal: 0 },
+          {
+            text: 'Fire and smoke alarms with hard wired strobes',
+            ordinal: 1,
+          },
+          {
+            text: 'Documents in screen-reader accessible format',
+            ordinal: 2,
+          },
+          { text: 'Documents in large text or braille', ordinal: 3 },
+        ],
+        text: 'Hearing/vision accessibility needs',
+      };
+
+  await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(
+      angelopolisJurisdiction.id,
+      {
+        multiselectQuestion: hearingVisionAccessibilityNeedsProgramMsqData,
+      },
+      msqV2,
+    ),
+  });
+  const housingSituationProgramMsqData = msqV2
+    ? {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
         description:
           'Thinking about the past 30 days, do either of these describe your housing situation?',
+        isExclusive: false,
+        multiselectOptions: {
+          createMany: {
+            data: [
+              {
+                name: 'Not Permanent',
+                ordinal: 1,
+              },
+              {
+                name: 'Homeless',
+                ordinal: 2,
+              },
+              {
+                name: 'Do Not Consider',
+                ordinal: 3,
+              },
+              {
+                name: 'Prefer not to say',
+                ordinal: 4,
+              },
+            ],
+          },
+        },
+        name: 'Housing Situation',
+        status: MultiselectQuestionsStatusEnum.active,
+      }
+    : {
         applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Thinking about the past 30 days, do either of these describe your housing situation?',
         options: [
           {
             text: 'Not Permanent',
@@ -731,22 +1174,47 @@ export const stagingSeed = async (
             ordinal: 3,
           },
         ],
-      },
-    }),
-  });
+        text: 'Housing Situation',
+      };
   await prismaClient.multiselectQuestions.create({
-    data: multiselectQuestionFactory(lakeviewJurisdiction.id, {
-      multiselectQuestion: {
-        text: 'Seniors 62+',
+    data: multiselectQuestionFactory(
+      angelopolisJurisdiction.id,
+      {
+        multiselectQuestion: housingSituationProgramMsqData,
+      },
+      msqV2,
+    ),
+  });
+  const senior62PlusProgramMsqData = msqV2
+    ? {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
         description:
           'Are you or anyone in your household 62 years of age or older?',
-        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
         isExclusive: true,
+        multiselectOptions: {
+          createMany: {
+            data: [
+              { name: 'Yes', ordinal: 1 },
+              { name: 'No', ordinal: 2 },
+            ],
+          },
+        },
+        name: 'Seniors 62+',
+        status: MultiselectQuestionsStatusEnum.active,
+      }
+    : {
+        applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+        description:
+          'Are you or anyone in your household 62 years of age or older?',
         options: [
-          { text: 'Yes', exclusive: true, ordinal: 1 },
-          { text: 'No', exclusive: true, ordinal: 2 },
+          { text: 'Yes', exclusive: true, ordinal: 0 },
+          { text: 'No', exclusive: true, ordinal: 1 },
         ],
-      },
+        text: 'Seniors 62+',
+      };
+  await prismaClient.multiselectQuestions.create({
+    data: multiselectQuestionFactory(lakeviewJurisdiction.id, {
+      multiselectQuestion: senior62PlusProgramMsqData,
     }),
   });
 
@@ -756,16 +1224,31 @@ export const stagingSeed = async (
       async (text) =>
         await prismaClient.multiselectQuestions.create({
           data: multiselectQuestionFactory(lakeviewJurisdiction.id, {
-            multiselectQuestion: {
-              applicationSection:
-                MultiselectQuestionsApplicationSectionEnum.programs,
-              text,
-              isExclusive: true,
-              options: [
-                { text: 'Yes', exclusive: true, ordinal: 1 },
-                { text: 'No', exclusive: true, ordinal: 2 },
-              ],
-            },
+            multiselectQuestion: msqV2
+              ? {
+                  applicationSection:
+                    MultiselectQuestionsApplicationSectionEnum.programs,
+                  isExclusive: true,
+                  multiselectOptions: {
+                    createMany: {
+                      data: [
+                        { name: 'Yes', ordinal: 1 },
+                        { name: 'No', ordinal: 2 },
+                      ],
+                    },
+                  },
+                  name: text,
+                  status: MultiselectQuestionsStatusEnum.active,
+                }
+              : {
+                  applicationSection:
+                    MultiselectQuestionsApplicationSectionEnum.programs,
+                  options: [
+                    { text: 'Yes', exclusive: true, ordinal: 0 },
+                    { text: 'No', exclusive: true, ordinal: 1 },
+                  ],
+                  text,
+                },
           }),
         }),
     ),
@@ -773,9 +1256,12 @@ export const stagingSeed = async (
 
   // create pre-determined values
   const unitTypes = await unitTypeFactoryAll(prismaClient);
-  await unitAccessibilityPriorityTypeFactoryAll(prismaClient);
-  await reservedCommunityTypeFactoryAll(jurisdiction.id, prismaClient);
+  await reservedCommunityTypeFactoryAll(mainJurisdiction.id, prismaClient);
+  const expiredApplicationDate = process.env.APPLICATION_DAYS_TILL_EXPIRY
+    ? dayjs(new Date()).subtract(10, 'days').toDate()
+    : undefined;
   // list of predefined listings WARNING: images only work if image setup is cloudinary on exygy account
+
   const listingsToCreate: Parameters<typeof listingFactory>[] = [
     // angelopolis listings shouldn't be in Doorway, but keeping here for keeping the same as Core
     // [
@@ -822,12 +1308,48 @@ export const stagingSeed = async (
     //       },
     //     ],
     //     multiselectQuestions: [
-    //       cityEmployeeQuestion,
-    //       workInCityQuestion,
-    //       multiselectQuestionPrograms,
-    //       mobilityAccessibilityNeedsProgramQuestion,
     //       hearingVisionAccessibilityNeedsProgramQuestion,
+    //       housingSituationProgramQuestion,
+    //       mobilityAccessibilityNeedsProgramQuestion,
     //     ],
+    //     applications: [
+    //       ...(await applicationFactoryMany(2, {
+    //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
+    //       })),
+    //       ...(await applicationFactoryMany(20, {
+    //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
+    //         userId: advocate.id,
+    //       })),
+    //     ],
+    //     userAccounts: [{ id: partnerUser.id }],
+    //     optionalFeatures: { carpetInUnit: true },
+    //     enableListingFeaturesAndUtilities: true,
+    //   },
+    // ],
+    // [
+    //   angelopolisJurisdiction.id,
+    //   prismaClient,
+    //   {
+    //     listing: { ...hollywoodHillsHeights, name: '200 Acre Woods' },
+    //     propertyId: angelopolisProperty1.id,
+    //     units: Array.from({ length: 200 }, (_, i) => ({
+    //       amiPercentage: '30',
+    //       monthlyIncomeMin: '2000',
+    //       floor: 1,
+    //       maxOccupancy: 3,
+    //       minOccupancy: 1,
+    //       numBathrooms: 1,
+    //       numBedrooms: 1,
+    //       number: `${i}`,
+    //       sqFeet: `${i}`,
+    //       amiChart: { connect: { id: angelopolisAmiChart.id } },
+    //       unitTypes: {
+    //         connect: {
+    //           id: unitTypes[1].id,
+    //         },
+    //       },
+    //     })),
+    //     multiselectQuestions: [housingSituationProgramQuestion],
     //     applications: [
     //       await applicationFactory({
     //         raceEthnicityConfiguration: angelopolisRaceEthnicityConfiguration,
@@ -904,8 +1426,7 @@ export const stagingSeed = async (
         multiselectQuestions: [cityEmployeeQuestion],
         // has applications that are the same email and also same name/dob
         applications: [
-          await applicationFactory(),
-          await applicationFactory(),
+          ...(await applicationFactoryMany(2)),
           await applicationFactory({
             submissionType: ApplicationSubmissionTypeEnum.paper,
           }),
@@ -949,13 +1470,10 @@ export const stagingSeed = async (
               birthYear: 1970,
             },
           }),
-          await applicationFactory({
+          ...(await applicationFactoryMany(2, {
             applicant: { emailAddress: 'user2@example.com' },
-          }),
-          await applicationFactory({
-            applicant: { emailAddress: 'user2@example.com' },
-          }),
-          await applicationFactory({
+          })),
+          ...(await applicationFactoryMany(2, {
             applicant: {
               emailAddress: 'user3@example.com',
               firstName: 'first3',
@@ -980,33 +1498,7 @@ export const stagingSeed = async (
                 birthYear: 1980,
               }),
             ],
-          }),
-          await applicationFactory({
-            applicant: {
-              emailAddress: 'user3@example.com',
-              firstName: 'first3',
-              lastName: 'last3',
-              birthDay: 1,
-              birthMonth: 1,
-              birthYear: 1970,
-            },
-            householdMember: [
-              householdMemberFactorySingle(1, {
-                firstName: 'householdFirst1',
-                lastName: 'householdLast1',
-                birthDay: 5,
-                birthMonth: 5,
-                birthYear: 1950,
-              }),
-              householdMemberFactorySingle(2, {
-                firstName: 'householdFirst2',
-                lastName: 'householdLast2',
-                birthDay: 8,
-                birthMonth: 8,
-                birthYear: 1980,
-              }),
-            ],
-          }),
+          })),
           await applicationFactory({
             applicant: {
               emailAddress: 'user4@example.com',
@@ -1034,7 +1526,7 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: blueSkyApartments,
@@ -1063,35 +1555,23 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: valleyHeightsSeniorCommunity,
         applications: [
           await applicationFactory({
             isNewest: true,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
+            expireAfter: expiredApplicationDate,
           }),
           // applications below should have their PII removed via the cron job
+          ...(await applicationFactoryMany(2, {
+            isNewest: false,
+            expireAfter: expiredApplicationDate,
+          })),
           await applicationFactory({
             isNewest: false,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
-          }),
-          await applicationFactory({
-            isNewest: false,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
-          }),
-          await applicationFactory({
-            isNewest: false,
-            expireAfter: process.env.APPLICATION_DAYS_TILL_EXPIRY
-              ? dayjs(new Date()).subtract(10, 'days').toDate()
-              : undefined,
+            expireAfter: expiredApplicationDate,
             householdMember: [
               householdMemberFactorySingle(1, {}),
               householdMemberFactorySingle(2, {}),
@@ -1104,7 +1584,7 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: littleVillageApartments,
@@ -1114,36 +1594,38 @@ export const stagingSeed = async (
       },
     ],
     [
-      jurisdiction.id,
+      mainJurisdiction.id,
       prismaClient,
       {
         listing: elmVillage,
         applications: [
+          // TODO: Needs to handle V2MSQ
           await applicationFactory({
+            enableV2MSQ: msqV2,
             multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
           }),
           await applicationFactory({
+            enableV2MSQ: msqV2,
             multiselectQuestions: [
               cityEmployeeQuestion,
               workInCityQuestion,
-              veteranProgramQuestion,
+              veteransProgramQuestion,
             ],
           }),
           await applicationFactory({
+            enableV2MSQ: msqV2,
             multiselectQuestions: [workInCityQuestion, cityEmployeeQuestion],
           }),
-          await applicationFactory({
+          ...(await applicationFactoryMany(2, {
+            enableV2MSQ: msqV2,
             multiselectQuestions: [workInCityQuestion],
-          }),
-          await applicationFactory({
-            multiselectQuestions: [workInCityQuestion],
-          }),
+          })),
           await applicationFactory(),
         ],
         multiselectQuestions: [
           workInCityQuestion,
           cityEmployeeQuestion,
-          veteranProgramQuestion,
+          veteransProgramQuestion,
         ],
         units: [
           {
@@ -1374,6 +1856,9 @@ export const stagingSeed = async (
       afsLastRunSetInPast: true,
       userAccounts: listingParams.userAccounts,
       optionalFeatures: listingParams.optionalFeatures,
+      enableListingFeaturesAndUtilities:
+        listingParams.enableListingFeaturesAndUtilities,
+      propertyId: listingParams.propertyId,
     });
     const savedListing = await prismaClient.listings.create({
       data: listing,
@@ -1406,7 +1891,7 @@ export const stagingSeed = async (
         roles: { isAdmin: true },
         email: `admin${i}@example.com`,
         confirmedAt: new Date(),
-        jurisdictionIds: [jurisdiction.id],
+        jurisdictionIds: [mainJurisdiction.id],
         acceptedTerms: true,
         password: 'abcdef',
       }),

@@ -17,6 +17,7 @@ export interface AppWithListing extends Application {
 interface StatusItemWrapperProps {
   application: AppWithListing
   enableApplicationStatus?: boolean
+  showApplicantName?: boolean
 }
 
 const StatusItemWrapper = (props: StatusItemWrapperProps) => {
@@ -64,13 +65,18 @@ const StatusItemWrapper = (props: StatusItemWrapperProps) => {
 
   return (
     <StatusItem
+      applicantName={
+        props.showApplicantName
+          ? `${props.application?.applicant?.firstName} ${props.application?.applicant?.lastName}`
+          : undefined
+      }
       applicationDueDate={applicationDueDate && dayjs(applicationDueDate).format("MMM D, YYYY")}
       applicationURL={!isListingClosed && `/account/application/${props.application?.id}`}
       confirmationNumber={displayNumber || props.application?.id}
       strings={confirmationNumberLabel ? { yourNumber: confirmationNumberLabel } : undefined}
       listingName={props.application?.listings?.name}
       listingURL={`/listing/${props.application?.listings?.id}`}
-      listingStatus={props.application.listings.status}
+      listingStatus={props.application?.listings?.status}
       key={props.application?.id}
       lotteryStartDate={lotteryStartDate && dayjs(lotteryStartDate).format("MMM D, YYYY")}
       lotteryPublishedDate={

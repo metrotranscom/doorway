@@ -3,7 +3,6 @@ import { t } from "@bloom-housing/ui-components"
 import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
-import { MetaTags } from "../../components/shared/MetaTags"
 import { professionalsPartnersJurisdictionsCards } from "../../tsx_content/professional-partners-jurisdictions-cards"
 import { DoorwayLinkableCardGroup } from "../../components/shared/DoorwayLinkableCardGroup"
 import { PageHeaderLayout } from "../../patterns/PageHeaderLayout"
@@ -19,12 +18,9 @@ const JurisdictionsSeeds = () => {
     })
   }, [profile])
 
-  const metaDescription = t("pageDescription.jurisdictions")
-
   return (
     <Layout>
       <PageHeaderLayout heading={t("pageTitle.jurisdictions")}>
-        <MetaTags title={t("pageTitle.jurisdictions")} description={metaDescription} />
         <DoorwayLinkableCardGroup
           cards={professionalsPartnersJurisdictionsCards()}
           className="m-auto"

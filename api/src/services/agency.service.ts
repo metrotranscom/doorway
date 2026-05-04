@@ -3,8 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import { AgencyQueryParams } from '../dtos/agency/agency-query-params.dto';
+import { AgencyFilterKeys } from '../enums/agency/filter-key-enum';
 import AgencyCreate from '../dtos/agency/agency-create.dto';
 import { AgencyUpdate } from '../dtos/agency/agency-update.dto';
 import {
@@ -16,6 +18,8 @@ import { mapTo } from '../utilities/mapTo';
 import Agency from '../dtos/agency/agency.dto';
 import { SuccessDTO } from '../dtos/shared/success.dto';
 import { IdDTO } from '../dtos/shared/id.dto';
+import { buildOrderBy } from '../utilities/build-order-by';
+import { OrderByEnum } from '../enums/shared/order-by-enum';
 
 @Injectable()
 export class AgencyService {
@@ -44,6 +48,8 @@ export class AgencyService {
       include: {
         jurisdictions: true,
       },
+      orderBy: buildOrderBy(['name'], [OrderByEnum.ASC]),
+      where: this.buildWhereClause(params),
     });
 
     const agencies = mapTo(Agency, agenciesRaw);
@@ -51,6 +57,28 @@ export class AgencyService {
     return {
       items: agencies,
       meta: buildPaginationMetaInfo(params, count, agencies.length),
+    };
+  }
+
+  buildWhereClause(params: AgencyQueryParams): Prisma.AgencyWhereInput {
+    const filters: Prisma.AgencyWhereInput[] = [];
+
+    const jurisdictionId = params?.filter?.find(
+      (filter) => filter[AgencyFilterKeys.jurisdiction],
+    )?.[AgencyFilterKeys.jurisdiction];
+
+    if (jurisdictionId) {
+      filters.push({
+        jurisdictions: {
+          is: {
+            id: jurisdictionId,
+          },
+        },
+      });
+    }
+
+    return {
+      AND: filters,
     };
   }
 

@@ -500,4 +500,36 @@
       }
     }
   }
+
+  .card-icon {
+    color: var(--seeds-color-primary);
+    background-color: var(--bloom-color-blue-100);
+    border-radius: var(--seeds-rounded-full);
+    padding: var(--seeds-s2);
+    svg {
+      fill: none;
+      stroke-width: 1px;
+    }
+  }
+
+  --heading-override-font-family: var(--seeds-font-serif); // doorway has different font than core
+  --heading-override-font-weight: var(--seeds-font-weight-regular); // doorway has different font
+
+  .seeds-large-heading {
+    font-family: var(--heading-override-font-family);
+    font-weight: var(--heading-override-font-weight);
+    font-size: var(--seeds-font-size-2xl);
+    @media (--sm-only) {
+      font-size: var(--seeds-font-size-xl);
+    }
+  }
+
+  .seeds-medium-heading {
+    font-family: var(--heading-override-font-family);
+    font-weight: var(--heading-override-font-weight);
+    font-size: var(--seeds-font-size-xl);
+    @media (--sm-only) {
+      font-size: var(--seeds-font-size-lg);
+    }
+  }
 }

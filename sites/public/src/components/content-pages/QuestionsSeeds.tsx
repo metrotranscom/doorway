@@ -4,7 +4,6 @@ import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpe
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
 import { questionsLinkableCards } from "../../tsx_content/questions-cards"
-import { MetaTags } from "../../components/shared/MetaTags"
 import { DoorwayLinkableCardGroup } from "../../components/shared/DoorwayLinkableCardGroup"
 import { PageHeaderLayout } from "../../patterns/PageHeaderLayout"
 
@@ -19,12 +18,9 @@ const FrequentlyAskedQuestionsSeeds = () => {
     })
   }, [profile])
 
-  const metaDescription = t("pageDescription.questions")
-
   return (
     <Layout>
       <PageHeaderLayout heading={t("pageTitle.questions")}>
-        <MetaTags title={t("pageTitle.questions")} description={metaDescription} />
         <DoorwayLinkableCardGroup
           cards={questionsLinkableCards()}
           className="m-auto"

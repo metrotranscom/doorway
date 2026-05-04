@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { t, MinimalTable, Field, StandardTableData } from "@bloom-housing/ui-components"
 import {
+  MultiselectOption,
   MultiselectQuestion,
   MultiselectQuestionsApplicationSectionEnum,
-  PaginatedMultiselectQuestion,
+  MultiselectQuestionsStatusEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import { Button, Card, Drawer, Grid, Tag, Icon } from "@bloom-housing/ui-seeds"
 import { useFormContext } from "react-hook-form"
@@ -11,19 +12,13 @@ import InformationCircleIcon from "@heroicons/react/24/solid/InformationCircleIc
 import LinkComponent from "../../../../components/core/LinkComponent"
 import SectionWithGrid from "../../../shared/SectionWithGrid"
 import styles from "../ListingForm.module.scss"
+import { useJurisdictionalMultiselectQuestionList } from "../../../../lib/hooks"
 
 type SelectAndOrderProps = {
+  enableV2MSQ: boolean
   formKey: string
   addText: string
   applicationSection: MultiselectQuestionsApplicationSectionEnum
-  dataFetcher: (
-    jurisdiction?: string,
-    applicationSection?: MultiselectQuestionsApplicationSectionEnum
-  ) => {
-    data: PaginatedMultiselectQuestion
-    loading: boolean
-    error: any
-  }
   drawerButtonText: string
   drawerButtonId: string
   drawerSubtitle?: string
@@ -38,9 +33,9 @@ type SelectAndOrderProps = {
 }
 
 const SelectAndOrder = ({
+  enableV2MSQ,
   addText,
   applicationSection,
-  dataFetcher,
   drawerButtonText,
   drawerButtonId,
   drawerSubtitle,
@@ -85,6 +80,9 @@ const SelectAndOrder = ({
     [draftListingData]
   )
 
+  const determineOptionsForQuestion = (question: MultiselectQuestion) =>
+    question?.multiselectOptions?.length > 0 ? question.multiselectOptions : question.options || []
+
   const additionalFieldsTag = () => (
     <Tag variant="primary">
       <Icon>
@@ -93,15 +91,21 @@ const SelectAndOrder = ({
       {t("listings.providesAdditionalFields")}
     </Tag>
   )
-
+  // TODO: clean-up after enableV2MSQ is turned on
   const draggableTableData: StandardTableData = useMemo(
     () =>
       draftListingData.map((item) => ({
         id: { content: item.id },
-        name: { content: item.text },
+        name: { content: item.name || item.text },
         additionalFields: {
           content: (
-            <>{item?.options?.some((item) => item.collectAddress) && additionalFieldsTag()}</>
+            <>
+              {(determineOptionsForQuestion(item).some(
+                (option) => option.shouldCollectAddress || option.collectAddress
+              ) &&
+                additionalFieldsTag()) ||
+                t("t.n/a")}
+            </>
           ),
         },
         action: {
@@ -129,10 +133,16 @@ const SelectAndOrder = ({
     () =>
       listingData.map((item, index) => ({
         order: { content: index + 1 },
-        name: { content: item.text },
+        name: { content: item.name || item.text },
         additionalFields: {
           content: (
-            <>{item?.options?.some((item) => item.collectAddress) && additionalFieldsTag()}</>
+            <>
+              {(determineOptionsForQuestion(item).some(
+                (option) => option.shouldCollectAddress || option.collectAddress
+              ) &&
+                additionalFieldsTag()) ||
+                t("t.n/a")}
+            </>
           ),
         },
         action: {
@@ -162,7 +172,9 @@ const SelectAndOrder = ({
       const newDragOrder = []
       dragOrder.forEach((item) => {
         newDragOrder.push(
-          draftListingData.filter((draftItem) => draftItem.text === item.name.content)[0]
+          draftListingData.filter(
+            (draftItem) => (draftItem.name || draftItem.text) === item.name.content
+          )[0]
         )
       })
       setDraftListingData(newDragOrder)
@@ -170,9 +182,20 @@ const SelectAndOrder = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dragOrder])
 
-  const { data } = dataFetcher(
+  const { data } = useJurisdictionalMultiselectQuestionList(
     jurisdiction,
-    applicationSection as unknown as MultiselectQuestionsApplicationSectionEnum
+    applicationSection as unknown as MultiselectQuestionsApplicationSectionEnum,
+    enableV2MSQ
+      ? [
+          MultiselectQuestionsStatusEnum.visible,
+          MultiselectQuestionsStatusEnum.active,
+          MultiselectQuestionsStatusEnum.toRetire,
+          MultiselectQuestionsStatusEnum.retired,
+        ]
+      : undefined,
+    {
+      sort: [{ orderBy: "name", orderDir: "ASC" }],
+    }
   )
   const fetchedData = data?.items ?? []
 
@@ -198,12 +221,12 @@ const SelectAndOrder = ({
     optionIndex: number,
     item: MultiselectQuestion
   ) => {
-    const getInfoSection = (option, index) => {
-      const isNotLastItem = index < item.options?.length - 1
+    const getInfoSection = (option: MultiselectQuestion | MultiselectOption, index: number) => {
+      const isNotLastItem = index < determineOptionsForQuestion(item).length - 1
       return (
         <div key={index} className={isNotLastItem ? "mb-5" : "mb-1"}>
           <div className={"font-semibold mb-1 text-gray-800"}>
-            <span>{option.text}</span>
+            <span>{option.name || option.text}</span>
           </div>
           {option.description && (
             <div
@@ -228,7 +251,7 @@ const SelectAndOrder = ({
               })}
             </div>
           )}
-          {option.collectAddress && (
+          {(option["shouldCollectAddress"] || option["collectAddress"]) && (
             <div
               className={`${
                 isNotLastItem && (option.description || option.links?.length > 0) ? "-mt-4" : "mt-0"
@@ -240,10 +263,27 @@ const SelectAndOrder = ({
         </div>
       )
     }
+    let statusVariant
+    switch (item.status) {
+      case MultiselectQuestionsStatusEnum.active:
+        statusVariant = "success"
+        break
+      case MultiselectQuestionsStatusEnum.toRetire:
+      case MultiselectQuestionsStatusEnum.retired:
+        statusVariant = "highlight-warm"
+        break
+    }
+    const statusText = t(`msq.status.${item.status}`)
+    const showAdditionalTag = determineOptionsForQuestion(item).some(
+      (option) => option.shouldCollectAddress || option.collectAddress
+    )
     return (
       <div className="ml-8 -mt-6 mb-4 text-sm">
-        {item.options?.some((option) => option.collectAddress) && (
-          <div className="mt-6 mb-2">{additionalFieldsTag()}</div>
+        {(enableV2MSQ || showAdditionalTag) && (
+          <div className="mt-6 mb-2 flex gap-2">
+            {enableV2MSQ && <Tag variant={statusVariant}>{statusText}</Tag>}
+            {showAdditionalTag && additionalFieldsTag()}
+          </div>
         )}
         <div>
           <button
@@ -261,7 +301,7 @@ const SelectAndOrder = ({
           {previewShown && (
             <div className={"bg-blue-100 mt-2 p-4"}>
               {getInfoSection(item, -1)}
-              {item.options?.map((option, index) => {
+              {determineOptionsForQuestion(item).map((option, index) => {
                 return getInfoSection(option, index)
               })}
             </div>
@@ -365,8 +405,22 @@ const SelectAndOrder = ({
             <Card.Section>
               {fetchedData.map((item, index) => {
                 const previewShown = openPreviews.some((preview) => preview === index)
+                const alreadySelected = draftListingData.some(
+                  (existingItem) => existingItem.id === item.id
+                )
+
                 return (
-                  <Grid key={index}>
+                  <Grid
+                    key={index}
+                    className={`${
+                      enableV2MSQ &&
+                      !alreadySelected &&
+                      (item.status === MultiselectQuestionsStatusEnum.toRetire ||
+                        item.status === MultiselectQuestionsStatusEnum.retired)
+                        ? "hidden"
+                        : ""
+                    }`}
+                  >
                     <Grid.Row>
                       <Grid.Cell>
                         <Field
@@ -374,12 +428,10 @@ const SelectAndOrder = ({
                           id={`${formKey}.${item.id}`}
                           name={`${formKey}.${item.id}`}
                           type="checkbox"
-                          label={item.text}
+                          label={item.name || item.text}
                           register={register}
                           inputProps={{
-                            defaultChecked: draftListingData.some(
-                              (existingItem) => existingItem.id === item.id
-                            ),
+                            defaultChecked: alreadySelected,
                           }}
                         />
                         {getPreviewSection(previewShown, index, item)}

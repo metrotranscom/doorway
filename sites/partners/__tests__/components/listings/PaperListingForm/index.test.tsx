@@ -102,13 +102,18 @@ afterAll(() => server.close())
 
 describe("PaperListingForm", () => {
   describe("add listing", () => {
-    it("should render the add listing form", () => {
+    it("should render the add listing form", async () => {
       window.URL.createObjectURL = jest.fn()
       document.cookie = "access-token-available=True"
       server.use(
         rest.get("http://localhost/api/adapter/user", (_req, res, ctx) => {
           return res(
-            ctx.json({ id: "user1", userRoles: { id: "user1", isAdmin: true, isPartner: false } })
+            ctx.json({
+              id: "user1",
+              userRoles: { id: "user1", isAdmin: true, isPartner: false },
+              roles: { id: "user1", isAdmin: true, isPartner: false },
+              jurisdictions,
+            })
           )
         }),
         rest.get("http://localhost:3100/reservedCommunityTypes", (_req, res, ctx) => {
@@ -124,7 +129,7 @@ describe("PaperListingForm", () => {
       render(<ListingForm jurisdictionId={"Bloomington"} />)
 
       // Listing Details Tab
-      expect(screen.getByRole("tab", { name: "Listing details" })).toBeInTheDocument()
+      expect(await screen.findByRole("tab", { name: "Listing details" })).toBeInTheDocument()
       const listingDetailsContent = screen.getByRole("tabpanel", { name: "Listing details" })
       expect(
         within(listingDetailsContent).getByRole("heading", { level: 2, name: "Listing intro" })
@@ -204,7 +209,7 @@ describe("PaperListingForm", () => {
   })
 
   describe("edit listing", () => {
-    it("should render the edit listing form with data populated", () => {
+    it("should render the edit listing form with data populated", async () => {
       window.URL.createObjectURL = jest.fn()
       document.cookie = "access-token-available=True"
       server.use(
@@ -213,6 +218,8 @@ describe("PaperListingForm", () => {
             ctx.json({
               id: "user1",
               userRoles: { id: "user1", isAdmin: true, isPartner: false },
+              roles: { id: "user1", isAdmin: true, isPartner: false },
+              jurisdictions,
             })
           )
         }),
@@ -230,20 +237,20 @@ describe("PaperListingForm", () => {
 
       // Preferences
       expect(
-        screen.getByRole("row", { name: "Order Name Additional fields Actions" })
+        await screen.findByRole("row", { name: "Order Name Additional fields Actions" })
       ).toBeInTheDocument()
-      expect(screen.getByRole("row", { name: "1 Preference 1 Delete" })).toBeInTheDocument()
-      expect(screen.getByRole("row", { name: "2 Preference 2 Delete" })).toBeInTheDocument()
+      expect(screen.getByRole("row", { name: "1 Preference 1 n/a Delete" })).toBeInTheDocument()
+      expect(screen.getByRole("row", { name: "2 Preference 2 n/a Delete" })).toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Edit preferences" })).toBeInTheDocument()
 
       // units
       expect(
         screen.getByRole("row", {
-          name: "Unit # Unit type AMI Rent SQ FT ADA Actions",
+          name: "Unit # Unit type AMI Rent SQ FT Accessibility priority type Actions",
         })
       ).toBeInTheDocument()
       expect(
-        screen.getAllByRole("row", { name: "Studio 45.0 1104.0 285 Edit Delete" }).length
+        screen.getAllByRole("row", { name: "Studio 45.0 1104.0 285 n/a Edit Delete" }).length
       ).toBeGreaterThan(0)
       expect(screen.getByRole("button", { name: "Add unit" })).toBeInTheDocument()
     })
@@ -417,6 +424,7 @@ describe("PaperListingForm", () => {
   it.todo("should open the live confirmation dialog when listing is already active")
   it.todo("should open the listing approval dialog when submitting for approval")
   it.todo("should open the request changes dialog when requesting changes")
+  it.todo("should properly set listingType")
 
   it("without selected jurisdiction, show asterisks only on always-required fields", () => {
     window.URL.createObjectURL = jest.fn()

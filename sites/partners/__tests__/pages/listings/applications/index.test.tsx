@@ -1,5 +1,5 @@
 import React from "react"
-import { fireEvent } from "@testing-library/react"
+import { fireEvent, screen } from "@testing-library/react"
 import { rest } from "msw"
 import { setupServer } from "msw/node"
 import { application, listing, user } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
@@ -75,6 +75,9 @@ describe("applications", () => {
       rest.get("http://localhost:3100/listings/Uvbk5qurpB2WI9V6WnNdH", (_req, res, ctx) => {
         return res(ctx.json(listing))
       }),
+      rest.get("http://localhost/api/adapter/applications", (_req, res, ctx) => {
+        return res(ctx.json({ items: [application], meta: { totalItems: 1, totalPages: 1 } }))
+      }),
       rest.get("http://localhost:3100/applications", (_req, res, ctx) => {
         return res(ctx.json({ items: [application], meta: { totalItems: 1, totalPages: 1 } }))
       }),
@@ -104,6 +107,8 @@ describe("applications", () => {
 
     const header = await findAllByText("Applications")
     expect(header.length).toBeGreaterThan(0)
+
+    await screen.findByText("Electronic")
 
     expect(getAllByText("Archer Studios").length).toBeGreaterThan(0)
     expect(getByText("Add application")).toBeInTheDocument()
@@ -199,6 +204,9 @@ describe("applications", () => {
     server.use(
       rest.get("http://localhost:3100/listings/Uvbk5qurpB2WI9V6WnNdH", (_req, res, ctx) => {
         return res(ctx.json(listing))
+      }),
+      rest.get("http://localhost/api/adapter/applications", (_req, res, ctx) => {
+        return res(ctx.json({ items: [application], meta: { totalItems: 1, totalPages: 1 } }))
       }),
       rest.get("http://localhost:3100/applications", (_req, res, ctx) => {
         return res(ctx.json({ items: [application], meta: { totalItems: 1, totalPages: 1 } }))

@@ -29,10 +29,20 @@ const bloomTheme = require("./tailwind.config.js")
 const tailwindVars = require("@bloom-housing/ui-components/tailwind.tosass.js")(bloomTheme)
 
 module.exports = withBundleAnalyzer({
+  typescript: {
+    ignoreBuildErrors: process.env.DISABLE_NEXT_TYPECHECK === "TRUE",
+  },
+  experimental: {
+    webpackBuildWorker: true,
+    // Uncomment line below before building when using symlink for UI-C
+    // esmExternals: "loose"
+  },
   env: {
-    backendApiBase: BACKEND_API_BASE, // this has to be set for tests
+    // Set ALLOW_SEO_INDEXING=true only in production so dev/staging get noindex
+    allowSeoIndexing: process.env.ALLOW_SEO_INDEXING === "TRUE" ? "TRUE" : "",
+    backendApiBase: BACKEND_API_BASE,
     backendProxyBase: process.env.BACKEND_PROXY_BASE,
-    listingsQuery: LISTINGS_QUERY,
+    listingServiceUrl: BACKEND_API_BASE + LISTINGS_QUERY,
     listingPhotoSize: process.env.LISTING_PHOTO_SIZE || "1302",
     mapBoxToken: MAPBOX_TOKEN,
     housingCounselorServiceUrl: HOUSING_COUNSELOR_SERVICE_URL,
@@ -58,7 +68,7 @@ module.exports = withBundleAnalyzer({
     fileService: process.env.FILE_SERVICE,
     reCaptchaKey: process.env.RECAPTCHA_KEY,
     maxBrowseListings: process.env.MAX_BROWSE_LISTINGS,
-    rtlLanguages: process.env.RTL_LANGUAGES || "ar",
+    rtlLanguages: "ar,fa",
   },
   i18n: {
     locales: process.env.LANGUAGES ? process.env.LANGUAGES.split(",") : ["en"],
@@ -99,6 +109,19 @@ module.exports = withBundleAnalyzer({
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   async headers() {
+    if (process.env.ALLOW_SEO_INDEXING === "TRUE") {
+      return [
+        {
+          source: "/(.*)",
+          headers: [
+            {
+              key: "Content-Security-Policy",
+              value: `frame-ancestors 'none';`,
+            },
+          ],
+        },
+      ]
+    }
     return [
       {
         source: "/(.*)",
@@ -108,6 +131,10 @@ module.exports = withBundleAnalyzer({
             value: `frame-ancestors 'none';`,
           },
         ],
+      },
+      {
+        source: "/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ]
   },
@@ -121,8 +148,6 @@ module.exports = withBundleAnalyzer({
       },
     ]
   },
-  // Uncomment line below before building when using symlink for UI-C
-  // experimental: { esmExternals: "loose" },
 })
 
 if (process.env.SENTRY_ORG) {

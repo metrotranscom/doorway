@@ -1,13 +1,22 @@
 import React from "react"
 import { screen } from "@testing-library/dom"
+import userEvent from "@testing-library/user-event"
+import { useForm } from "react-hook-form"
 import {
   FilterAvailabilityEnum,
   HomeTypeEnum,
   ListingFilterKeys,
   RegionEnum,
+  UnitAccessibilityPriorityTypeEnum,
   UnitTypeEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 import {
+  defaultListingFeaturesConfiguration,
+  expandedListingFeaturesConfiguration,
+} from "@bloom-housing/shared-helpers/__tests__/testHelpers"
+import { t } from "@bloom-housing/ui-components"
+import {
+  AccessibilitySection,
   buildDefaultFilterFields,
   CheckboxGroup,
   decodeQueryToFilterData,
@@ -22,9 +31,6 @@ import {
   SearchSection,
 } from "../../../src/components/browse/FilterDrawerHelpers"
 import { mockNextRouter, render } from "../../testUtils"
-import { useForm } from "react-hook-form"
-import { t } from "@bloom-housing/ui-components"
-import userEvent from "@testing-library/user-event"
 
 describe("filter drawer helpers", () => {
   const emptyFormData: FilterData = {
@@ -357,6 +363,31 @@ describe("filter drawer helpers", () => {
         { $comparison: "LIKE", name: "Listing Name" },
       ])
     })
+    it("should return correct backend filters for accessibilityPriorityTypes with single type", () => {
+      const filterData: FilterData = {
+        [ListingFilterKeys.accessibilityPriorityTypes]: {
+          [UnitAccessibilityPriorityTypeEnum.mobility]: true,
+        },
+      }
+
+      const backendFilters = encodeFilterDataToBackendFilters(filterData)
+      expect(backendFilters).toStrictEqual([
+        { $comparison: "IN", accessibilityPriorityTypes: ["mobility"] },
+      ])
+    })
+    it("should return correct backend filters for accessibilityPriorityTypes with multiple types", () => {
+      const filterData: FilterData = {
+        [ListingFilterKeys.accessibilityPriorityTypes]: {
+          [UnitAccessibilityPriorityTypeEnum.mobility]: true,
+          [UnitAccessibilityPriorityTypeEnum.hearing]: true,
+        },
+      }
+
+      const backendFilters = encodeFilterDataToBackendFilters(filterData)
+      expect(backendFilters).toStrictEqual([
+        { $comparison: "IN", accessibilityPriorityTypes: ["mobility", "hearing"] },
+      ])
+    })
   })
 
   describe("isFiltered", () => {
@@ -478,6 +509,17 @@ describe("filter drawer helpers", () => {
         "isVerified=true&homeTypes=apartment&monthlyRent=500.00-900.00&name=Listing Name"
       )
     })
+    it("should return correct filter query with accessibilityPriorityTypes filter", () => {
+      const partialFormObject: FilterData = {
+        [ListingFilterKeys.accessibilityPriorityTypes]: {
+          [UnitAccessibilityPriorityTypeEnum.mobility]: true,
+          [UnitAccessibilityPriorityTypeEnum.hearing]: true,
+        },
+      }
+      expect(encodeFilterDataToQuery(partialFormObject)).toStrictEqual(
+        "accessibilityPriorityTypes=mobility,hearing"
+      )
+    })
   })
 
   describe("decodeQueryToFilterData", () => {
@@ -547,6 +589,23 @@ describe("filter drawer helpers", () => {
     it("should return correct filter data with query with all filtering types", () => {
       expect(decodeQueryToFilterData({ name: "Listing Name" })).toStrictEqual({
         [ListingFilterKeys.name]: "Listing Name",
+      })
+    })
+    it("should return correct filter data with accessibilityPriorityTypes single type query", () => {
+      expect(decodeQueryToFilterData({ accessibilityPriorityTypes: "mobility" })).toStrictEqual({
+        [ListingFilterKeys.accessibilityPriorityTypes]: {
+          [UnitAccessibilityPriorityTypeEnum.mobility]: true,
+        },
+      })
+    })
+    it("should return correct filter data with accessibilityPriorityTypes multiple types query", () => {
+      expect(
+        decodeQueryToFilterData({ accessibilityPriorityTypes: "mobility,hearing" })
+      ).toStrictEqual({
+        [ListingFilterKeys.accessibilityPriorityTypes]: {
+          [UnitAccessibilityPriorityTypeEnum.mobility]: true,
+          [UnitAccessibilityPriorityTypeEnum.hearing]: true,
+        },
       })
     })
   })
@@ -791,6 +850,7 @@ describe("filter drawer helpers", () => {
           setError={setError}
           clearErrors={clearErrors}
           errors={errors}
+          enableSection8={true}
         />
       )
     }
@@ -817,6 +877,7 @@ describe("filter drawer helpers", () => {
           setError={setError}
           clearErrors={clearErrors}
           errors={errors}
+          enableSection8={true}
         />
       )
     }
@@ -904,6 +965,57 @@ describe("filter drawer helpers", () => {
       expect(screen.getByLabelText("Listing name")).toBeInTheDocument()
       expect(screen.getByRole("textbox", { name: "Listing name" })).toHaveValue("example listing")
       expect(screen.getByText("Enter full or partial listing name")).toBeInTheDocument()
+    })
+  })
+
+  describe("AccessibilitySection", () => {
+    beforeEach(() => {
+      mockNextRouter()
+    })
+
+    const CategorizedAccessibilitySection = () => {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const { register } = useForm()
+
+      return (
+        <AccessibilitySection
+          register={register}
+          filterState={{}}
+          listingFeaturesConfiguration={expandedListingFeaturesConfiguration}
+        />
+      )
+    }
+
+    const FlatAccessibilitySection = () => {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const { register } = useForm()
+
+      return (
+        <AccessibilitySection
+          register={register}
+          filterState={{ [ListingFilterKeys.listingFeatures]: { wheelchairRamp: true } }}
+          listingFeaturesConfiguration={defaultListingFeaturesConfiguration}
+        />
+      )
+    }
+
+    it("should render parent section and category groups when categories exist", () => {
+      render(<CategorizedAccessibilitySection />)
+
+      expect(screen.getByRole("group", { name: "Accessibility features" })).toBeInTheDocument()
+      expect(screen.getByRole("group", { name: "Mobility" })).toBeInTheDocument()
+      expect(screen.getByRole("group", { name: "Bathroom" })).toBeInTheDocument()
+      expect(screen.getByLabelText("Wheelchair ramp")).toBeInTheDocument()
+      expect(screen.getByLabelText("Roll-in showers")).toBeInTheDocument()
+      expect(screen.queryAllByRole("group", { name: "Accessibility features" })).toHaveLength(1)
+    })
+
+    it("should render fallback accessibility checkbox group when categories are absent", () => {
+      render(<FlatAccessibilitySection />)
+
+      expect(screen.getAllByRole("group", { name: "Accessibility features" })).toHaveLength(1)
+      expect(screen.queryByRole("group", { name: "Mobility" })).not.toBeInTheDocument()
+      expect(screen.getByRole("checkbox", { name: "Wheelchair ramp" })).toBeChecked()
     })
   })
 })

@@ -4,7 +4,6 @@ import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpe
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
 import { getStartedLinkableCards } from "../../tsx_content/get-started-cards"
-import { MetaTags } from "../../components/shared/MetaTags"
 import { DoorwayLinkableCardGroup } from "../../components/shared/DoorwayLinkableCardGroup"
 
 const GetStartedDeprecated = () => {
@@ -18,12 +17,9 @@ const GetStartedDeprecated = () => {
     })
   }, [profile])
 
-  const metaDescription = t("pageDescription.getStarted")
-
   return (
     <Layout>
       <PageHeader title={t("pageTitle.getStarted")} />
-      <MetaTags title={t("pageTitle.getStarted")} description={metaDescription} />
       <div className="lg:my-14">
         <DoorwayLinkableCardGroup
           cards={getStartedLinkableCards()}

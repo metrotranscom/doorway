@@ -61,12 +61,14 @@ import {
 import {
   summarizeUnitsByTypeAndRent,
   summarizeUnits,
+  summarizeByPriorityType,
 } from '../utilities/unit-utilities';
 import { ListingOrderByKeys } from '../enums/listings/order-by-enum';
 import { fillModelStringFields } from '../utilities/model-fields';
 import { doJurisdictionHaveFeatureFlagSet } from '../utilities/feature-flag-utilities';
 import { addUnitGroupsSummarized } from '../utilities/unit-groups-transformations';
 import { ListingMultiselectQuestion } from '../dtos/listings/listing-multiselect-question.dto';
+import { SnapshotCreateService } from './snapshot-create.service';
 
 export type getListingsArgs = {
   skip: number;
@@ -80,6 +82,7 @@ export const selectViews: Partial<Record<ListingViews, Prisma.ListingsSelect>> =
     name: {
       name: true,
       id: true,
+      property: true,
       jurisdictions: {
         select: {
           id: true,
@@ -181,14 +184,31 @@ includeViews.full = {
   listingsApplicationPickUpAddress: true,
   listingsApplicationDropOffAddress: true,
   listingsApplicationMailingAddress: true,
+  listingMultiselectQuestions: {
+    orderBy: {
+      ordinal: 'asc',
+    },
+    include: {
+      multiselectQuestions: {
+        include: {
+          multiselectOptions: {
+            orderBy: {
+              ordinal: 'asc',
+            },
+          },
+        },
+      },
+    },
+  },
   requestedChangesUser: true,
+  property: true,
   requiredDocumentsList: true,
+  parkType: true,
   units: {
     include: {
       unitAmiChartOverrides: true,
       unitTypes: true,
       unitRentTypes: true,
-      unitAccessibilityPriorityTypes: true,
       amiChart: {
         include: {
           jurisdictions: true,
@@ -220,6 +240,7 @@ export class ListingService implements OnModuleInit {
     private permissionService: PermissionService,
     private prisma: PrismaService,
     private translationService: TranslationService,
+    private snapshotCreateService: SnapshotCreateService,
   ) {}
 
   onModuleInit() {
@@ -245,41 +266,54 @@ export class ListingService implements OnModuleInit {
       totalPages: number;
     };
   }> {
-    const whereClause = this.buildWhereClause(params.filter, params.search);
+    const queryParams: ListingsQueryBody | ListingsQueryParams = {
+      page: params?.page ?? 1,
+      limit: params?.limit ?? 10,
+      ...params,
+    };
+    const whereClause = this.buildWhereClause(
+      queryParams.filter,
+      queryParams.search,
+    );
+
     const count = await this.prisma.listings.count({
       where: whereClause,
     });
 
     // if passed in page and limit would result in no results because there aren't that many listings
     // revert back to the first page
-
-    let page = params.page;
-    if (count && params.limit && params.limit !== 'all' && params.page > 1) {
-      if (Math.ceil(count / params.limit) < params.page) {
+    let page = queryParams.page;
+    if (
+      count &&
+      queryParams.limit &&
+      queryParams.limit !== 'all' &&
+      queryParams.page > 1
+    ) {
+      if (Math.ceil(count / queryParams.limit) < queryParams.page) {
         page = 1;
       }
     }
 
     const query = {
-      skip: calculateSkip(params.limit, page),
-      take: calculateTake(params.limit),
+      skip: calculateSkip(queryParams.limit, page),
+      take: calculateTake(queryParams.limit),
       orderBy: buildOrderByForListings(
-        params.orderBy,
-        params.orderDir,
+        queryParams.orderBy,
+        queryParams.orderDir,
       ) as Prisma.ListingsOrderByWithRelationInput[],
       where: whereClause,
     };
-    const hasSelectView = selectViews[params.view];
+    const hasSelectView = selectViews[queryParams.view];
 
     // Prisma only allows either select or include so two separate
     const listingsRaw = hasSelectView
       ? await this.prisma.listings.findMany({
           ...query,
-          select: selectViews[params.view],
+          select: selectViews[queryParams.view],
         })
       : await this.prisma.listings.findMany({
           ...query,
-          include: includeViews[params.view ?? 'full'],
+          include: includeViews[queryParams.view ?? 'full'],
         });
 
     const listings = mapTo(Listing, listingsRaw);
@@ -291,6 +325,7 @@ export class ListingService implements OnModuleInit {
             listing.units,
             listing,
           ),
+          priorityTypes: summarizeByPriorityType(listing),
         };
       }
     });
@@ -298,7 +333,7 @@ export class ListingService implements OnModuleInit {
     addUnitGroupsSummarized(listings);
 
     const paginationInfo = buildPaginationMetaInfo(
-      params,
+      queryParams,
       count,
       listings.length,
     );
@@ -1052,6 +1087,18 @@ export class ListingService implements OnModuleInit {
             })),
           });
         }
+        if (filter[ListingFilterKeys.parkingType]) {
+          if (Array.isArray(filter[ListingFilterKeys.parkingType])) {
+            const parkingTypes = filter[ListingFilterKeys.parkingType];
+            filters.push({
+              OR: parkingTypes.map((type) => ({
+                parkType: {
+                  [type]: true,
+                },
+              })),
+            });
+          }
+        }
         if (filter[ListingFilterKeys.ids]) {
           const builtFilter = buildFilter({
             $comparison: filter.$comparison,
@@ -1119,6 +1166,15 @@ export class ListingService implements OnModuleInit {
                 [feature]: true,
               },
             })),
+          });
+        }
+        if (filter[ListingFilterKeys.accessibilityPriorityTypes]) {
+          const types = filter[ListingFilterKeys.accessibilityPriorityTypes];
+          filters.push({
+            OR: types.flatMap((type) => [
+              { units: { some: { accessibilityPriorityType: type } } },
+              { unitGroups: { some: { accessibilityPriorityType: type } } },
+            ]),
           });
         }
         if (filter[ListingFilterKeys.monthlyRent]) {
@@ -1302,10 +1358,20 @@ export class ListingService implements OnModuleInit {
 
     if (search) {
       filters.push({
-        name: {
-          contains: search,
-          mode: Prisma.QueryMode.insensitive,
-        },
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            listingFileNumber: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ],
       });
     }
 
@@ -1406,6 +1472,9 @@ export class ListingService implements OnModuleInit {
     if (listing.listingUtilities) {
       listing.utilities = listing.listingUtilities;
     }
+    if (listing.parkingType) {
+      listing.parkingType = listing.parkingType;
+    }
     if (listing.listingFeatures) {
       listing.features = listing.listingFeatures;
     }
@@ -1449,9 +1518,6 @@ export class ListingService implements OnModuleInit {
         }
         if (unit.unitRentTypes) {
           unit.unitRentType = unit.unitRentTypes;
-        }
-        if (unit.unitAccessibilityPriorityTypes) {
-          unit.priorityType = unit.unitAccessibilityPriorityTypes;
         }
         if (unit.unitAmiChartOverrides) {
           unit.amiChartOverride = unit.unitAmiChartOverrides;
@@ -1695,6 +1761,13 @@ export class ListingService implements OnModuleInit {
               },
             }
           : undefined,
+        parkType: dto.parkType
+          ? {
+              create: {
+                ...dto.parkType,
+              },
+            }
+          : undefined,
         listingsApplicationMailingAddress: dto.listingsApplicationMailingAddress
           ? {
               create: {
@@ -1754,6 +1827,7 @@ export class ListingService implements OnModuleInit {
                 sqFeet: unit.sqFeet,
                 monthlyRentAsPercentOfIncome: unit.monthlyRentAsPercentOfIncome,
                 bmrProgramChart: unit.bmrProgramChart,
+                accessibilityPriorityType: unit.accessibilityPriorityType,
                 unitTypes: unit.unitTypes
                   ? {
                       connect: {
@@ -1775,14 +1849,6 @@ export class ListingService implements OnModuleInit {
                       },
                     }
                   : undefined,
-                unitAccessibilityPriorityTypes:
-                  unit.unitAccessibilityPriorityTypes
-                    ? {
-                        connect: {
-                          id: unit.unitAccessibilityPriorityTypes.id,
-                        },
-                      }
-                    : undefined,
                 unitRentTypes: unit.unitRentTypes
                   ? {
                       connect: {
@@ -1811,6 +1877,7 @@ export class ListingService implements OnModuleInit {
                 monthlyRent: group.monthlyRent,
                 totalAvailable: group.totalAvailable,
                 totalCount: group.totalCount,
+                accessibilityPriorityType: group.accessibilityPriorityType,
                 unitGroupAmiLevels: {
                   create: group.unitGroupAmiLevels?.map((level) => ({
                     amiPercentage: level.amiPercentage,
@@ -1825,14 +1892,6 @@ export class ListingService implements OnModuleInit {
                       : undefined,
                   })),
                 },
-                unitAccessibilityPriorityTypes:
-                  group.unitAccessibilityPriorityTypes
-                    ? {
-                        connect: {
-                          id: group.unitAccessibilityPriorityTypes.id,
-                        },
-                      }
-                    : undefined,
                 unitTypes: {
                   connect: group.unitTypes.map((type) => ({
                     id: type.id,
@@ -1845,6 +1904,8 @@ export class ListingService implements OnModuleInit {
           ? {
               create: dto.unitsSummary.map((unitSummary) => ({
                 ...unitSummary,
+                accessibilityPriorityType:
+                  unitSummary.accessibilityPriorityType,
                 unitTypes: unitSummary.unitTypes
                   ? {
                       connect: {
@@ -1852,14 +1913,6 @@ export class ListingService implements OnModuleInit {
                       },
                     }
                   : undefined,
-                unitAccessibilityPriorityTypes:
-                  unitSummary.unitAccessibilityPriorityTypes
-                    ? {
-                        connect: {
-                          id: unitSummary.unitAccessibilityPriorityTypes.id,
-                        },
-                      }
-                    : undefined,
               })),
             }
           : undefined,
@@ -2056,6 +2109,16 @@ export class ListingService implements OnModuleInit {
       }),
     );
 
+    const listingsMarketingFlyerFile = {
+      fileId: mappedListing.listingsMarketingFlyerFile?.fileId,
+      label: mappedListing.listingsMarketingFlyerFile?.label,
+    };
+
+    const listingsAccessibleMarketingFlyerFile = {
+      fileId: mappedListing.listingsAccessibleMarketingFlyerFile?.fileId,
+      label: mappedListing.listingsAccessibleMarketingFlyerFile?.label,
+    };
+
     if (!dto.includeUnits) {
       delete mappedListing['units'];
       delete mappedListing['unitGroups'];
@@ -2096,6 +2159,13 @@ export class ListingService implements OnModuleInit {
         id: question.multiselectQuestionId,
         ordinal: question.ordinal,
       })),
+      listingsMarketingFlyerFile: mappedListing.listingsMarketingFlyerFile
+        ? listingsMarketingFlyerFile
+        : undefined,
+      listingsAccessibleMarketingFlyerFile:
+        mappedListing.listingsAccessibleMarketingFlyerFile
+          ? listingsAccessibleMarketingFlyerFile
+          : undefined,
       lotteryLastRunAt: undefined,
       lotteryLastPublishedAt: undefined,
       lotteryStatus: undefined,
@@ -2116,6 +2186,7 @@ export class ListingService implements OnModuleInit {
       requestingUser?.userRoles?.isPartner &&
       duplicateListingPermissions?.includes(UserRoleEnum.partner)
     ) {
+      await this.snapshotCreateService.createUserSnapshot(requestingUser.id);
       await this.prisma.userAccounts.update({
         data: {
           listings: {
@@ -2399,7 +2470,7 @@ export class ListingService implements OnModuleInit {
         status: 400,
       });
     }
-
+    await this.snapshotCreateService.createListingSnapshot(incomingDto.id);
     if (enableV2MSQ) {
       const multiselectQuestionIds = dto.listingMultiselectQuestions.map(
         (multiselectQuestion) => multiselectQuestion.id,
@@ -2481,6 +2552,7 @@ export class ListingService implements OnModuleInit {
 
     const previousFeaturesId = storedListing.listingFeatures?.id;
     const previousUtilitiesId = storedListing.listingUtilities?.id;
+    const previousParkingTypeId = storedListing.parkType?.id;
     const previousNeighborhoodAmenitiesId =
       storedListing.listingNeighborhoodAmenities?.id;
 
@@ -2731,6 +2803,21 @@ export class ListingService implements OnModuleInit {
                 },
               }
             : undefined,
+          parkType: incomingDto.parkType
+            ? {
+                upsert: {
+                  where: {
+                    id: previousParkingTypeId,
+                  },
+                  create: {
+                    ...incomingDto.parkType,
+                  },
+                  update: {
+                    ...incomingDto.parkType,
+                  },
+                },
+              }
+            : undefined,
           listingsApplicationMailingAddress: mailAddress
             ? {
                 connect: {
@@ -2820,14 +2907,7 @@ export class ListingService implements OnModuleInit {
                         },
                       }
                     : undefined,
-                  unitAccessibilityPriorityTypes:
-                    unit.unitAccessibilityPriorityTypes
-                      ? {
-                          connect: {
-                            id: unit.unitAccessibilityPriorityTypes.id,
-                          },
-                        }
-                      : undefined,
+                  accessibilityPriorityType: unit.accessibilityPriorityType,
                   unitRentTypes: unit.unitRentTypes
                     ? {
                         connect: {
@@ -2856,6 +2936,7 @@ export class ListingService implements OnModuleInit {
                   sqFeetMax: group.sqFeetMax,
                   totalCount: group.totalCount,
                   totalAvailable: group.totalAvailable,
+                  accessibilityPriorityType: group.accessibilityPriorityType,
                   unitTypes: group.unitTypes
                     ? {
                         connect: group.unitTypes.map((type) => ({
@@ -2880,14 +2961,6 @@ export class ListingService implements OnModuleInit {
                         })),
                       }
                     : undefined,
-                  unitAccessibilityPriorityTypes:
-                    group.unitAccessibilityPriorityTypes
-                      ? {
-                          connect: {
-                            id: group.unitAccessibilityPriorityTypes.id,
-                          },
-                        }
-                      : undefined,
                 })),
               }
             : undefined,
@@ -2895,6 +2968,8 @@ export class ListingService implements OnModuleInit {
             ? {
                 create: incomingDto.unitsSummary.map((unitSummary) => ({
                   ...unitSummary,
+                  accessibilityPriorityType:
+                    unitSummary.accessibilityPriorityType,
                   unitTypes: unitSummary.unitTypes
                     ? {
                         connect: {
@@ -2902,14 +2977,6 @@ export class ListingService implements OnModuleInit {
                         },
                       }
                     : undefined,
-                  unitAccessibilityPriorityTypes:
-                    unitSummary.unitAccessibilityPriorityTypes
-                      ? {
-                          connect: {
-                            id: unitSummary.unitAccessibilityPriorityTypes.id,
-                          },
-                        }
-                      : undefined,
                 })),
               }
             : undefined,
@@ -2962,10 +3029,16 @@ export class ListingService implements OnModuleInit {
               },
             },
           },
-          property: incomingDto?.property
+          property: incomingDto.property
             ? {
                 connect: {
                   id: incomingDto.property.id,
+                },
+              }
+            : storedListing.property
+            ? {
+                disconnect: {
+                  id: storedListing.property.id,
                 },
               }
             : undefined,
@@ -3033,22 +3106,14 @@ export class ListingService implements OnModuleInit {
       mappedListing.status === ListingsStatusEnum.closed
     ) {
       // if listing is closed for the first time the application flag set job needs to run
-      if (
-        process.env.DUPLICATES_CLOSE_DATE &&
-        dayjs(process.env.DUPLICATES_CLOSE_DATE, 'YYYY-MM-DD HH:mm Z') <
-          dayjs(new Date())
-      ) {
-        await this.afsService.processDuplicates(mappedListing.id);
-      } else {
-        await this.afsService.process(mappedListing.id);
-      }
+      await this.afsService.processDuplicates(mappedListing.id);
 
       // if the listing is closed for the first time the expire_after value should be set on all applications
       void this.setExpireAfterValueOnApplications(mappedListing.id);
+    }
 
-      if (enableV2MSQ) {
-        void this.multiselectQuestionService.retireMultiselectQuestions();
-      }
+    if (enableV2MSQ) {
+      void this.multiselectQuestionService.retireMultiselectQuestions();
     }
 
     await this.cachePurge(
@@ -3248,7 +3313,8 @@ export class ListingService implements OnModuleInit {
     const invalid = [];
     for (const msq of multiselectQuestions) {
       if (
-        msq.status === MultiselectQuestionsStatusEnum.toRetire &&
+        (msq.status === MultiselectQuestionsStatusEnum.toRetire ||
+          msq.status === MultiselectQuestionsStatusEnum.retired) &&
         previousMultiselectQuestionIds.length
       ) {
         if (!previousMultiselectQuestionIds.includes(msq.id)) {
@@ -3296,6 +3362,10 @@ export class ListingService implements OnModuleInit {
       },
     });
     const listingIds = listings.map((listing) => listing.id);
+
+    for (const listingSave of listingIds) {
+      await this.snapshotCreateService.createListingSnapshot(listingSave);
+    }
 
     const res = await this.prisma.listings.updateMany({
       data: {

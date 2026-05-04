@@ -3,7 +3,6 @@ import { t, PageHeader } from "@bloom-housing/ui-components"
 import { PageView, pushGtmEvent, AuthContext } from "@bloom-housing/shared-helpers"
 import { UserStatus } from "../../lib/constants"
 import Layout from "../../layouts/application"
-import { MetaTags } from "../../components/shared/MetaTags"
 import {
   housingHelpCardIntro,
   housingHelpLinkableCards,
@@ -21,12 +20,9 @@ const HousingHelpDeprecated = () => {
     })
   }, [profile])
 
-  const metaDescription = t("pageDescription.housingHelp")
-
   return (
     <Layout>
       <PageHeader title={t("pageTitle.housingHelp")} />
-      <MetaTags title={t("pageTitle.housingHelp")} description={metaDescription} />
       <div className="lg:my-14">
         <DoorwayLinkableCardGroup cards={housingHelpLinkableCards()} className="m-auto">
           {housingHelpCardIntro()}

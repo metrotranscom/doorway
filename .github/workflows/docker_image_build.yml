@@ -32,6 +32,10 @@ jobs:
             docker_context: "{{defaultContext}}:api"
             dockerfile: Dockerfile.dbseed
             platforms: linux/amd64
+          - container: dbinit
+            docker_context: "{{defaultContext}}:api/dbinit"
+            dockerfile: Dockerfile
+            platforms: linux/amd64
           - container: partners
             docker_context: "{{defaultContext}}"
             dockerfile: Dockerfile.sites.partners
@@ -40,9 +44,17 @@ jobs:
             docker_context: "{{defaultContext}}"
             dockerfile: Dockerfile.sites.public
             platforms: linux/amd64
+          - container: infra
+            docker_context: "{{defaultContext}}:infra"
+            dockerfile: Dockerfile
+            platforms: linux/amd64,linux/arm64
           - container: infra-dev
             docker_context: "{{defaultContext}}:infra"
             dockerfile: Dockerfile.dev
+            platforms: linux/amd64,linux/arm64
+          - container: aws-otel-collector
+            docker_context: "{{defaultContext}}:infra/aws-otel-collector"
+            dockerfile: Dockerfile
             platforms: linux/amd64,linux/arm64
     runs-on: ubuntu-latest
     steps:
@@ -73,6 +85,7 @@ jobs:
           # the 'tags' and 'labels' fields are 'newline-delimited string': https://github.com/docker/build-push-action#inputs.
           tags: |
             ${{ env.image_base }}/${{ matrix.container }}:gitsha-${{ github.sha }}
+            ${{ env.image_base }}/${{ matrix.container }}:latest
           # The org.opencontainers.image.source label Connects the image to the repository:
           # https://docs.github.com/en/packages/learn-github-packages/connecting-a-repository-to-a-package.
           labels: |

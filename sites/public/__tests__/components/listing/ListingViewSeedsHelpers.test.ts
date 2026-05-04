@@ -1,4 +1,3 @@
-import { cleanup } from "@testing-library/react"
 import {
   FeatureFlagEnum,
   Listing,
@@ -41,6 +40,14 @@ import {
   getAdditionalInformation,
   getMarketingFlyers,
 } from "../../../src/components/listing/ListingViewSeedsHelpers"
+
+jest.mock("@bloom-housing/shared-helpers", () => {
+  const actual = jest.requireActual("@bloom-housing/shared-helpers")
+  return {
+    ...actual,
+    tIfExists: jest.fn(actual.tIfExists),
+  }
+})
 
 describe("ListingViewSeedsHelpers", () => {
   describe("getFilteredMultiselectQuestions", () => {
@@ -417,6 +424,21 @@ describe("ListingViewSeedsHelpers", () => {
   })
 
   describe("getFeatures", () => {
+    it("should return null for petPolicyDescription if translation is missing", () => {
+      const { tIfExists } = require("@bloom-housing/shared-helpers")
+      tIfExists.mockReturnValueOnce(null)
+
+      const mockListing: Listing = {
+        ...listing,
+        allowsDogs: true,
+        allowsCats: true,
+      }
+
+      const result = getFeatures(mockListing, jurisdiction)
+      const petPolicyFeature = result.find((f) => f.heading === "Pets policy")
+      expect(petPolicyFeature).toBeDefined()
+      expect(petPolicyFeature?.content).toBeNull()
+    })
     it("should include year built when available", () => {
       const mockListing: Listing = {
         ...listing,
@@ -457,6 +479,26 @@ describe("ListingViewSeedsHelpers", () => {
       const petPolicyFeature = result.find((f) => f.heading === "Pet policy")
       expect(petPolicyFeature).toBeUndefined()
     })
+
+    it("should include petPolicyDescription translation in content if present", () => {
+      const { tIfExists } = require("@bloom-housing/shared-helpers")
+      tIfExists.mockReturnValueOnce(
+        "Service dogs and emotional support animals are not pets and are permitted as required by law. Pets may also be required to be allowed in certain types of housing, such as publicly financed housing developments."
+      )
+
+      const mockListing = {
+        ...listing,
+        allowsDogs: true,
+        allowsCats: true,
+      }
+      const result = getFeatures(mockListing, jurisdiction)
+      const petPolicyFeature = result.find((f) => f.heading === "Pets policy")
+      expect(petPolicyFeature).toBeDefined()
+      expect(petPolicyFeature?.content).toBe(
+        "Service dogs and emotional support animals are not pets and are permitted as required by law. Pets may also be required to be allowed in certain types of housing, such as publicly financed housing developments."
+      )
+    })
+
     it("should show the correct bullets when enablePetPolicyCheckbox is true", () => {
       const mockJurisdiction = {
         ...jurisdiction,
@@ -480,11 +522,14 @@ describe("ListingViewSeedsHelpers", () => {
       expect(petPolicyFeature?.content).toBeDefined()
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const elementList = petPolicyFeature.content as any
-      const petList = elementList.props.children
-      expect(petList.length).toBe(2)
-      expect(petList[0].props.children).toBe("Allows dogs")
-      expect(petList[1].props.children).toBe("Allows cats")
+      const contentElement = petPolicyFeature?.content as any
+      const contentChildren = contentElement.props.children
+      const petList = Array.isArray(contentChildren) ? contentChildren[0] : contentChildren
+      const petItems = petList.props.children
+
+      expect(petItems.length).toBe(2)
+      expect(petItems[0].props.children).toBe("Allows dogs")
+      expect(petItems[1].props.children).toBe("Allows cats")
     })
     it("should include parking fee when available", () => {
       const mockListing: Listing = {
@@ -556,6 +601,15 @@ describe("ListingViewSeedsHelpers", () => {
   })
 
   describe("getMarketingFlyers", () => {
+    const oldEnv = process.env
+
+    beforeEach(() => {
+      process.env = { ...oldEnv }
+    })
+
+    afterAll(() => {
+      process.env = oldEnv
+    })
     it("should return empty array when feature flag is disabled", () => {
       const mockJurisdiction = {
         ...jurisdiction,
@@ -623,6 +677,7 @@ describe("ListingViewSeedsHelpers", () => {
     })
 
     it("should use cloudinary URL when file asset exists", () => {
+      process.env.CLOUDINARY_CLOUD_NAME = "exygy"
       const mockJurisdiction = {
         ...jurisdiction,
         featureFlags: [
@@ -643,9 +698,7 @@ describe("ListingViewSeedsHelpers", () => {
 
       const result = getMarketingFlyers(mockListing, mockJurisdiction)
       expect(result).toHaveLength(1)
-      expect(result[0].url).toBe(
-        "https://res.cloudinary.com/undefined/image/upload/test-file-id.pdf"
-      )
+      expect(result[0].url).toBe("https://res.cloudinary.com/exygy/image/upload/test-file-id.pdf")
     })
 
     it("should return empty array when no flyers exist", () => {
@@ -780,7 +833,17 @@ describe("ListingViewSeedsHelpers", () => {
   })
 
   describe("getBuildingSelectionCriteria", () => {
+    const oldEnv = process.env
+
+    beforeEach(() => {
+      process.env = { ...oldEnv }
+    })
+
+    afterAll(() => {
+      process.env = oldEnv
+    })
     it("should return link when listingsBuildingSelectionCriteriaFile exists", () => {
+      process.env.CLOUDINARY_CLOUD_NAME = "exygy"
       const mockListing: Listing = {
         ...listing,
         listingsBuildingSelectionCriteriaFile: {
@@ -792,7 +855,7 @@ describe("ListingViewSeedsHelpers", () => {
       const result = getBuildingSelectionCriteria(mockListing)
 
       expect(result.props.children.props.href).toEqual(
-        "https://res.cloudinary.com/undefined/image/upload/test-file-id.pdf"
+        "https://res.cloudinary.com/exygy/image/upload/test-file-id.pdf"
       )
     })
 
@@ -818,6 +881,7 @@ describe("ListingViewSeedsHelpers", () => {
       expect(result).toBeUndefined()
     })
   })
+
   describe("getEligibilitySections", () => {
     let minimalEligibilitySectionsListing: Listing
 
@@ -940,6 +1004,97 @@ describe("ListingViewSeedsHelpers", () => {
       })
     })
 
+    it("should return preferences and programs correctly when enableV2MSQ is true", () => {
+      const eligibilitySections = getEligibilitySections(
+        {
+          ...jurisdiction,
+          featureFlags: [
+            {
+              name: FeatureFlagEnum.enableV2MSQ,
+              id: "id",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              active: true,
+              description: "",
+              jurisdictions: [],
+            },
+          ],
+        },
+        {
+          ...minimalEligibilitySectionsListing,
+          listingMultiselectQuestions: [
+            {
+              ordinal: 1,
+              multiselectQuestions: {
+                id: "id",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                description: "Preference 1 description",
+                name: "Preference 1",
+                jurisdictions: [],
+                applicationSection: MultiselectQuestionsApplicationSectionEnum.preferences,
+                status: MultiselectQuestionsStatusEnum.active,
+                text: "",
+              },
+            },
+            {
+              ordinal: 2,
+              multiselectQuestions: {
+                id: "id",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                name: "Veterans",
+                description: "Veteran program",
+                jurisdictions: [],
+                applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+                status: MultiselectQuestionsStatusEnum.active,
+                text: "",
+              },
+            },
+            {
+              ordinal: 1,
+              multiselectQuestions: {
+                id: "id",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                name: "Families",
+                description: "Families program",
+                jurisdictions: [],
+                applicationSection: MultiselectQuestionsApplicationSectionEnum.programs,
+                status: MultiselectQuestionsStatusEnum.active,
+                text: "",
+              },
+            },
+          ],
+        }
+      )
+
+      expect(eligibilitySections).toContainEqual({
+        header: "Housing preferences",
+        note: "After all preference holders have been considered, any remaining units will be available to other qualified applicants.",
+        subheader: "Preference holders will be given highest ranking.",
+        content: expect.objectContaining({
+          props: expect.objectContaining({
+            cardContent: [{ description: "Preference 1 description", heading: "Preference 1" }],
+          }),
+        }),
+      })
+      expect(eligibilitySections).toContainEqual({
+        header: "Housing programs",
+        note: "One or more questions in the application will help to determine whether or not you are eligible for the housing programs listed above. After you have submitted your application, the property manager will ask you to verify your housing program eligibility by providing documentation or another form of verification.",
+        subheader:
+          "Some or all of the units for this property are reserved for persons who qualify for the particular housing program(s) listed below. You may need to qualify for one of these programs in order to be eligible for a unit at this property.",
+        content: expect.objectContaining({
+          props: expect.objectContaining({
+            cardContent: [
+              { description: "Families program", heading: "Families" },
+              { description: "Veteran program", heading: "Veterans" },
+            ],
+          }),
+        }),
+      })
+    })
+
     it("should return programs with program copy when swapCommunityTypeWithPrograms is false", () => {
       const eligibilitySections = getEligibilitySections(
         {
@@ -1059,10 +1214,17 @@ describe("ListingViewSeedsHelpers", () => {
         buildingSelectionCriteria: null,
         rentalAssistance: null,
         criminalBackground: null,
+        unitsSummarized: {
+          ...listing.unitsSummarized,
+          hmi: { columns: {}, rows: [] },
+          amiPercentages: [],
+          byUnitType: [],
+        },
       })
       expect(eligibilitySections).toEqual([])
     })
   })
+
   describe("getCurrencyFromArgumentString", () => {
     it("should return range at end of formatted string", () => {
       expect(getCurrencyFromArgumentString("listings.annualIncome*income:$36,000")).toEqual(
@@ -1076,6 +1238,7 @@ describe("ListingViewSeedsHelpers", () => {
       )
     })
   })
+
   describe("getStackedHmiData", () => {
     it("should return correctly for multiple ami percentages and some ranges", () => {
       expect(
@@ -1277,6 +1440,7 @@ describe("ListingViewSeedsHelpers", () => {
       ])
     })
   })
+
   describe("getAdditionalInformation", () => {
     it("should return card content with required documents", () => {
       const mockListing: Listing = {

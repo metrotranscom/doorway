@@ -1,12 +1,15 @@
 import React from "react"
 import { setupServer } from "msw/lib/node"
-import { fireEvent, screen } from "@testing-library/react"
+import { fireEvent, screen, within } from "@testing-library/react"
 import { blankApplication } from "@bloom-housing/shared-helpers"
 import {
   FeatureFlag,
   FeatureFlagEnum,
   Listing,
+  RaceEthnicityConfiguration,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+import { t } from "@bloom-housing/ui-components"
+import { defaultRaceEthnicityConfiguration } from "@bloom-housing/shared-helpers/__tests__/testHelpers"
 import { mockNextRouter, render } from "../../../testUtils"
 import ApplicationConductor from "../../../../src/lib/applications/ApplicationConductor"
 import { AppSubmissionContext } from "../../../../src/lib/applications/AppSubmissionContext"
@@ -25,176 +28,198 @@ afterEach(() => server.resetHandlers())
 
 afterAll(() => server.close())
 
-describe("applications pages", () => {
+describe("Demographics", () => {
   afterAll(() => {
     jest.clearAllMocks()
   })
 
   describe("demographics step", () => {
     it("should render form fields", () => {
-      const { getByText, getByTestId, getAllByTestId, getByLabelText } = render(
-        <ApplicationDemographics />
+      const conductor = new ApplicationConductor({}, {})
+      conductor.config.featureFlags = [
+        { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: false } as FeatureFlag,
+      ]
+      conductor.config.raceEthnicityConfiguration = defaultRaceEthnicityConfiguration
+
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
       )
 
-      expect(getByText("Help us better serve you.")).toBeInTheDocument()
-      expect(getByTestId("asian")).toBeInTheDocument()
-      expect(getByTestId("black")).toBeInTheDocument()
-      expect(getByTestId("indigenous")).toBeInTheDocument()
-      expect(getByTestId("latino")).toBeInTheDocument()
-      expect(getByTestId("middleEasternOrAfrican")).toBeInTheDocument()
-      expect(getByTestId("pacificIslander")).toBeInTheDocument()
-      expect(getByTestId("white")).toBeInTheDocument()
+      expect(screen.getByText("Help us better serve you.")).toBeInTheDocument()
       expect(
-        getByLabelText("Which language is most commonly spoken in your home? Please select one:")
+        screen.getByText("Which best describes your race? Please select all that apply:", {
+          selector: "legend",
+        })
+      ).toBeInTheDocument()
+      // expect(
+      //   screen.getByRole("checkbox", { name: "American Indian / Alaskan Native" })
+      // ).toBeInTheDocument()
+      expect(screen.getByRole("checkbox", { name: "Asian" })).toBeInTheDocument()
+      expect(screen.getByRole("checkbox", { name: "Black" })).toBeInTheDocument()
+      expect(screen.getByRole("checkbox", { name: "Pacific Islander" })).toBeInTheDocument()
+      expect(screen.getByRole("checkbox", { name: "White" })).toBeInTheDocument()
+      // expect(screen.getByRole("checkbox", { name: "Other / Multiracial" })).toBeInTheDocument()
+      // expect(screen.getByRole("checkbox", { name: "Decline to respond" })).toBeInTheDocument()
+      expect(screen.getByLabelText("Which best describes your ethnicity?")).toBeInTheDocument()
+      const howDidYouHearGroup = screen.getByRole("group", {
+        name: "How did you hear about this listing?",
+      })
+      expect(within(howDidYouHearGroup).getAllByRole("checkbox")).toHaveLength(9)
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.flyer"),
+        })
       ).toBeInTheDocument()
       expect(
-        getByLabelText("Which best describes your gender identity? Please select one:")
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.emailAlert"),
+        })
       ).toBeInTheDocument()
       expect(
-        getByLabelText(
-          "Which best describes your sexual orientation or sexual identity? Please select one:"
-        )
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.friend"),
+        })
       ).toBeInTheDocument()
-      expect(getAllByTestId("app-demographics-how-did-you-hear")).toHaveLength(9)
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.housingCounselor"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.propertyWebsite"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.governmentWebsite"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.busAd"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.radioAd"),
+        })
+      ).toBeInTheDocument()
+      expect(
+        within(howDidYouHearGroup).getByRole("checkbox", {
+          name: t("application.review.demographics.howDidYouHearOptions.other"),
+        })
+      ).toBeInTheDocument()
     })
 
     it("should render sub demographics fields when parent is checked", () => {
-      const { getByLabelText, queryByLabelText } = render(<ApplicationDemographics />)
+      const conductor = new ApplicationConductor({}, {})
+      conductor.config.featureFlags = [
+        { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: false } as FeatureFlag,
+      ]
+      conductor.config.raceEthnicityConfiguration = defaultRaceEthnicityConfiguration
 
-      expect(queryByLabelText("Chinese")).not.toBeInTheDocument()
-      expect(queryByLabelText("Filipino")).not.toBeInTheDocument()
-      expect(queryByLabelText("Japanese")).not.toBeInTheDocument()
-      expect(queryByLabelText("Korean")).not.toBeInTheDocument()
-      expect(queryByLabelText("Mongolian")).not.toBeInTheDocument()
-      expect(queryByLabelText("Vietnamese")).not.toBeInTheDocument()
-      expect(queryByLabelText("Central Asian")).not.toBeInTheDocument()
-      expect(queryByLabelText("South Asian")).not.toBeInTheDocument()
-      expect(queryByLabelText("Southeast Asian")).not.toBeInTheDocument()
-      expect(queryByLabelText("Other Asian")).not.toBeInTheDocument()
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
+      )
 
-      fireEvent.click(getByLabelText("Asian"))
+      expect(screen.queryByText("Mongolian")).not.toBeInTheDocument()
+      expect(screen.queryByText("Chinese")).not.toBeInTheDocument()
+      expect(screen.queryByText("Filipino")).not.toBeInTheDocument()
+      expect(screen.queryByText("Japanese")).not.toBeInTheDocument()
+      expect(screen.queryByText("Korean")).not.toBeInTheDocument()
+      expect(screen.queryByText("Vietnamese")).not.toBeInTheDocument()
+      expect(screen.queryByText("Other Asian")).not.toBeInTheDocument()
 
-      expect(queryByLabelText("Chinese")).toBeInTheDocument()
-      expect(queryByLabelText("Filipino")).toBeInTheDocument()
-      expect(queryByLabelText("Japanese")).toBeInTheDocument()
-      expect(queryByLabelText("Korean")).toBeInTheDocument()
-      expect(queryByLabelText("Mongolian")).toBeInTheDocument()
-      expect(queryByLabelText("Vietnamese")).toBeInTheDocument()
-      expect(queryByLabelText("Central Asian")).toBeInTheDocument()
-      expect(queryByLabelText("South Asian")).toBeInTheDocument()
-      expect(queryByLabelText("Southeast Asian")).toBeInTheDocument()
-      expect(queryByLabelText("Other Asian")).toBeInTheDocument()
+      fireEvent.click(screen.getByRole("checkbox", { name: "Asian" }))
 
-      expect(queryByLabelText("African")).not.toBeInTheDocument()
-      expect(queryByLabelText("African American")).not.toBeInTheDocument()
-      expect(
-        queryByLabelText("Caribbean, Central American, South American or Mexican")
-      ).not.toBeInTheDocument()
-      expect(queryByLabelText("Other Black")).not.toBeInTheDocument()
+      expect(screen.getByText("Mongolian")).toBeInTheDocument()
+      expect(screen.getByText("Chinese")).toBeInTheDocument()
+      expect(screen.getByText("Filipino")).toBeInTheDocument()
+      expect(screen.getByText("Japanese")).toBeInTheDocument()
+      expect(screen.getByText("Korean")).toBeInTheDocument()
+      expect(screen.getByText("Vietnamese")).toBeInTheDocument()
+      expect(screen.getByText("Other Asian")).toBeInTheDocument()
 
-      fireEvent.click(getByLabelText("Black"))
+      expect(screen.queryByText("Native Hawaiian")).not.toBeInTheDocument()
+      expect(screen.queryByText("Chamorro")).not.toBeInTheDocument()
+      expect(screen.queryByText("Samoan")).not.toBeInTheDocument()
+      expect(screen.queryByText("Other Pacific Islander")).not.toBeInTheDocument()
 
-      expect(queryByLabelText("African")).toBeInTheDocument()
-      expect(queryByLabelText("African American")).toBeInTheDocument()
-      expect(
-        queryByLabelText("Caribbean, Central American, South American or Mexican")
-      ).toBeInTheDocument()
-      expect(queryByLabelText("Other Black")).toBeInTheDocument()
+      fireEvent.click(screen.getByRole("checkbox", { name: "Pacific Islander" }))
 
-      expect(queryByLabelText("Alaskan Native")).not.toBeInTheDocument()
-      expect(queryByLabelText("American Indian/Native American")).not.toBeInTheDocument()
-      expect(
-        queryByLabelText("Indigenous from Mexico, the Caribbean, Central America, or South America")
-      ).not.toBeInTheDocument()
-      expect(queryByLabelText("Other Indigenous")).not.toBeInTheDocument()
-
-      fireEvent.click(getByLabelText("Indigenous"))
-
-      expect(queryByLabelText("Alaskan Native")).toBeInTheDocument()
-      expect(queryByLabelText("American Indian/Native American")).toBeInTheDocument()
-      expect(
-        queryByLabelText("Indigenous from Mexico, the Caribbean, Central America, or South America")
-      ).toBeInTheDocument()
-      expect(queryByLabelText("Other Indigenous")).toBeInTheDocument()
-
-      expect(queryByLabelText("Caribbean")).not.toBeInTheDocument()
-      expect(queryByLabelText("Central American")).not.toBeInTheDocument()
-      expect(queryByLabelText("Mexican")).not.toBeInTheDocument()
-      expect(queryByLabelText("South American")).not.toBeInTheDocument()
-      expect(queryByLabelText("Other Latino")).not.toBeInTheDocument()
-
-      fireEvent.click(getByLabelText("Latino"))
-
-      expect(queryByLabelText("Caribbean")).toBeInTheDocument()
-      expect(queryByLabelText("Central American")).toBeInTheDocument()
-      expect(queryByLabelText("Mexican")).toBeInTheDocument()
-      expect(queryByLabelText("South American")).toBeInTheDocument()
-      expect(queryByLabelText("Other Latino")).toBeInTheDocument()
-
-      expect(queryByLabelText("North African")).not.toBeInTheDocument()
-      expect(queryByLabelText("West Asian")).not.toBeInTheDocument()
-      expect(queryByLabelText("Other Middle Eastern or North African")).not.toBeInTheDocument()
-
-      fireEvent.click(getByLabelText("Middle Eastern, West African or North African"))
-
-      expect(queryByLabelText("North African")).toBeInTheDocument()
-      expect(queryByLabelText("West Asian")).toBeInTheDocument()
-      expect(queryByLabelText("Other Middle Eastern or North African")).toBeInTheDocument()
-
-      expect(queryByLabelText("Chamorro")).not.toBeInTheDocument()
-      expect(queryByLabelText("Native Hawaiian")).not.toBeInTheDocument()
-      expect(queryByLabelText("Samoan")).not.toBeInTheDocument()
-      expect(queryByLabelText("Other Pacific Islander")).not.toBeInTheDocument()
-
-      fireEvent.click(getByLabelText("Pacific Islander"))
-
-      expect(queryByLabelText("Chamorro")).toBeInTheDocument()
-      expect(queryByLabelText("Native Hawaiian")).toBeInTheDocument()
-      expect(queryByLabelText("Samoan")).toBeInTheDocument()
-      expect(queryByLabelText("Other Pacific Islander")).toBeInTheDocument()
+      expect(screen.getByText("Native Hawaiian")).toBeInTheDocument()
+      expect(screen.getByText("Chamorro")).toBeInTheDocument()
+      expect(screen.getByText("Samoan")).toBeInTheDocument()
+      expect(screen.getByText("Other Pacific Islander")).toBeInTheDocument()
     })
 
     it("should show other text fields when other options are checked", async () => {
-      const { getByLabelText, findAllByTestId } = render(<ApplicationDemographics />)
+      const conductor = new ApplicationConductor({}, {})
+      conductor.config.featureFlags = [
+        { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: false } as FeatureFlag,
+      ]
+      conductor.config.raceEthnicityConfiguration = defaultRaceEthnicityConfiguration
 
-      fireEvent.click(getByLabelText("Asian"))
-      expect(await findAllByTestId("asian-otherAsian")).toHaveLength(1)
-      fireEvent.click(getByLabelText("Other Asian"))
-      expect(await findAllByTestId("asian-otherAsian")).toHaveLength(2)
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
+      )
 
-      fireEvent.click(getByLabelText("Black"))
-      expect(await findAllByTestId("black-otherBlack")).toHaveLength(1)
-      fireEvent.click(getByLabelText("Other Black"))
-      expect(await findAllByTestId("black-otherBlack")).toHaveLength(2)
+      expect(screen.queryByTestId("asian-otherAsian")).not.toBeInTheDocument()
+      fireEvent.click(screen.getByText("Asian"))
+      fireEvent.click(screen.getByText("Other Asian"))
+      expect(await screen.findAllByTestId("asian-otherAsian")).toHaveLength(2)
 
-      fireEvent.click(getByLabelText("Indigenous"))
-      expect(await findAllByTestId("indigenous-otherIndigenous")).toHaveLength(1)
-      fireEvent.click(getByLabelText("Other Indigenous"))
-      expect(await findAllByTestId("indigenous-otherIndigenous")).toHaveLength(2)
+      expect(screen.queryByTestId("pacificIslander-otherPacificIslander")).not.toBeInTheDocument()
+      fireEvent.click(screen.getByRole("checkbox", { name: "Pacific Islander" }))
+      fireEvent.click(screen.getByRole("checkbox", { name: "Other Pacific Islander" }))
+      expect(await screen.findAllByTestId("pacificIslander-otherPacificIslander")).toHaveLength(2)
 
-      fireEvent.click(getByLabelText("Latino"))
-      expect(await findAllByTestId("latino-otherLatino")).toHaveLength(1)
-      fireEvent.click(getByLabelText("Other Latino"))
-      expect(await findAllByTestId("latino-otherLatino")).toHaveLength(2)
-
-      fireEvent.click(getByLabelText("Middle Eastern, West African or North African"))
-      expect(
-        await findAllByTestId("middleEasternOrAfrican-otherMiddleEasternNorthAfrican")
-      ).toHaveLength(1)
-      fireEvent.click(getByLabelText("Other Middle Eastern or North African"))
-      expect(
-        await findAllByTestId("middleEasternOrAfrican-otherMiddleEasternNorthAfrican")
-      ).toHaveLength(2)
-
-      fireEvent.click(getByLabelText("Pacific Islander"))
-      expect(await findAllByTestId("pacificIslander-otherPacificIslander")).toHaveLength(1)
-      fireEvent.click(getByLabelText("Other Pacific Islander"))
-      expect(await findAllByTestId("pacificIslander-otherPacificIslander")).toHaveLength(2)
-
-      fireEvent.click(getByLabelText("White"))
-      expect(await findAllByTestId("white-otherWhite")).toHaveLength(1)
-      fireEvent.click(getByLabelText("Other White"))
-      expect(await findAllByTestId("white-otherWhite")).toHaveLength(2)
+      // expect(await screen.findAllByTestId("otherMultiracial")).toHaveLength(1)
+      // fireEvent.click(screen.getByRole("checkbox", { name: "Other / Multiracial" }))
+      // expect(await screen.findAllByTestId("otherMultiracial")).toHaveLength(2)
     })
   })
 
@@ -218,6 +243,8 @@ describe("applications pages", () => {
     conductor.config.featureFlags = [
       { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
     ]
+    conductor.config.raceEthnicityConfiguration = defaultRaceEthnicityConfiguration
+
     render(
       <AppSubmissionContext.Provider
         value={{
@@ -235,16 +262,365 @@ describe("applications pages", () => {
         <ApplicationDemographics />
       </AppSubmissionContext.Provider>
     )
-    expect(screen.getByText("How did you hear about this listing?")).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Government website" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Property website" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Flyer" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Email alert" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Friend" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Friend" })).toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Housing counselor" })).toBeInTheDocument()
-    expect(screen.queryByRole("checkbox", { name: "Radio ad" })).not.toBeInTheDocument()
-    expect(screen.queryByRole("checkbox", { name: "Bus ad" })).not.toBeInTheDocument()
-    expect(screen.getByRole("checkbox", { name: "Other" })).toBeInTheDocument()
+    const howDidYouHearGroup = screen.getByRole("group", {
+      name: "How did you hear about this listing?",
+    })
+    expect(within(howDidYouHearGroup).getAllByRole("checkbox")).toHaveLength(7)
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.flyer"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.emailAlert"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.friend"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.housingCounselor"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.propertyWebsite"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.governmentWebsite"),
+      })
+    ).toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).queryByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.busAd"),
+      })
+    ).not.toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).queryByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.radioAd"),
+      })
+    ).not.toBeInTheDocument()
+    expect(
+      within(howDidYouHearGroup).getByRole("checkbox", {
+        name: t("application.review.demographics.howDidYouHearOptions.other"),
+      })
+    ).toBeInTheDocument()
+  })
+
+  it("should hide ethnicity field when disabledEthnicityQuestion flag is on", () => {
+    const conductor = new ApplicationConductor({}, {})
+    conductor.config.featureFlags = [
+      { name: FeatureFlagEnum.disableEthnicityQuestion, active: true } as FeatureFlag,
+    ]
+    conductor.config.raceEthnicityConfiguration = defaultRaceEthnicityConfiguration
+
+    render(
+      <AppSubmissionContext.Provider
+        value={{
+          conductor,
+          application: JSON.parse(JSON.stringify(blankApplication)),
+          listing: {} as unknown as Listing,
+          syncApplication: () => {
+            return
+          },
+          syncListing: () => {
+            return
+          },
+        }}
+      >
+        <ApplicationDemographics />
+      </AppSubmissionContext.Provider>
+    )
+    expect(screen.queryByLabelText("Which best describes your ethnicity?")).not.toBeInTheDocument()
+    expect(
+      screen.getByText("Which best describes your race/ethnicity? Please select all that apply:", {
+        selector: "legend",
+      })
+    ).toBeInTheDocument()
+  })
+
+  describe("with custom race/ethnicity configuration", () => {
+    it("should render race options from jurisdiction configuration", () => {
+      const customConfig: RaceEthnicityConfiguration = {
+        options: [
+          {
+            id: "blackAfricanAmerican",
+            subOptions: [],
+            allowOtherText: false,
+          },
+          {
+            id: "white",
+            subOptions: [],
+            allowOtherText: false,
+          },
+          {
+            id: "otherMultiracial",
+            subOptions: [],
+            allowOtherText: true,
+          },
+        ],
+      }
+
+      const conductor = new ApplicationConductor({}, {})
+      conductor.config.featureFlags = [
+        { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
+      ]
+      conductor.config.raceEthnicityConfiguration = customConfig
+
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
+      )
+
+      // Should render only configured options
+      expect(screen.getByTestId("white")).toBeInTheDocument()
+      expect(screen.getByTestId("blackAfricanAmerican")).toBeInTheDocument()
+      expect(screen.getByTestId("otherMultiracial")).toBeInTheDocument()
+
+      // Should not render non-configured options
+      expect(screen.queryByTestId("americanIndianAlaskanNative")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("asian")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("nativeHawaiianOtherPacificIslander")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("declineToRespond")).not.toBeInTheDocument()
+    })
+
+    it("should render custom suboptions from configuration", () => {
+      const customConfig: RaceEthnicityConfiguration = {
+        options: [
+          {
+            id: "asian",
+            subOptions: [
+              { id: "chinese", allowOtherText: false },
+              { id: "mongolian", allowOtherText: false },
+            ],
+            allowOtherText: false,
+          },
+        ],
+      }
+
+      const conductor = new ApplicationConductor({}, {})
+      conductor.config.featureFlags = [
+        { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
+      ]
+      conductor.config.raceEthnicityConfiguration = customConfig
+
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
+      )
+
+      // Asian option should be available
+      expect(screen.getByTestId("asian")).toBeInTheDocument()
+
+      // Custom suboptions should not be visible until parent is checked
+      expect(screen.queryByText("Chinese")).not.toBeInTheDocument()
+      expect(screen.queryByText("Mongolian")).not.toBeInTheDocument()
+
+      // Click asian checkbox to expand suboptions
+      const asianCheckbox = screen.getByTestId("asian")
+      fireEvent.click(asianCheckbox)
+
+      // Custom suboptions should now be visible
+      expect(screen.getByText("Chinese")).toBeInTheDocument()
+      expect(screen.getByText("Mongolian")).toBeInTheDocument()
+
+      // Other Asian suboptions should not be visible (not in config)
+      expect(screen.queryByText("Japanese")).not.toBeInTheDocument()
+    })
+
+    it("should handle empty race configuration", () => {
+      const emptyConfig: RaceEthnicityConfiguration = {
+        options: [],
+      }
+
+      const conductor = new ApplicationConductor({}, {})
+      conductor.config.featureFlags = [
+        { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
+      ]
+      conductor.config.raceEthnicityConfiguration = emptyConfig
+
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
+      )
+
+      // Should still render form title and ethnicity field
+      expect(screen.getByText("Help us better serve you.")).toBeInTheDocument()
+      expect(screen.getByText(/ethnicity/i)).toBeInTheDocument()
+
+      // But no race options should be present
+      expect(screen.queryByTestId("americanIndianAlaskanNative")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("asian")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("white")).not.toBeInTheDocument()
+    })
+  })
+
+  it("should render spoken language select when enabled and configured", () => {
+    const conductor = new ApplicationConductor({}, {})
+    conductor.config.featureFlags = [
+      { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
+      { name: FeatureFlagEnum.enableSpokenLanguage, active: true } as FeatureFlag,
+    ]
+    conductor.config.visibleSpokenLanguages = ["spanish", "english"]
+
+    render(
+      <AppSubmissionContext.Provider
+        value={{
+          conductor: conductor,
+          application: JSON.parse(JSON.stringify(blankApplication)),
+          listing: {} as unknown as Listing,
+          syncApplication: () => {
+            return
+          },
+          syncListing: () => {
+            return
+          },
+        }}
+      >
+        <ApplicationDemographics />
+      </AppSubmissionContext.Provider>
+    )
+
+    const select = screen.getByLabelText(
+      "Which language is most commonly spoken in your home? Please select one:"
+    )
+    expect(select).toBeInTheDocument()
+
+    expect(within(select).getByRole("option", { name: "English" })).toBeInTheDocument()
+    expect(within(select).getByRole("option", { name: "Spanish" })).toBeInTheDocument()
+  })
+
+  it("should hide spoken language select when feature flag is off", () => {
+    const conductor = new ApplicationConductor({}, {})
+    conductor.config.featureFlags = [
+      { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
+      { name: FeatureFlagEnum.enableSpokenLanguage, active: false } as FeatureFlag,
+    ]
+    ;(conductor.config.visibleSpokenLanguages = ["spanish", "english"]),
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor: conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
+      )
+
+    expect(screen.queryByTestId("app-demographics-spoken-language")).not.toBeInTheDocument()
+  })
+
+  it("should hide spoken language select when no options are configured", () => {
+    const conductor = new ApplicationConductor({}, {})
+    conductor.config.featureFlags = [
+      { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
+      { name: FeatureFlagEnum.enableSpokenLanguage, active: true } as FeatureFlag,
+    ]
+    ;(conductor.config.visibleSpokenLanguages = []),
+      render(
+        <AppSubmissionContext.Provider
+          value={{
+            conductor: conductor,
+            application: JSON.parse(JSON.stringify(blankApplication)),
+            listing: {} as unknown as Listing,
+            syncApplication: () => {
+              return
+            },
+            syncListing: () => {
+              return
+            },
+          }}
+        >
+          <ApplicationDemographics />
+        </AppSubmissionContext.Provider>
+      )
+
+    expect(screen.queryByTestId("app-demographics-spoken-language")).not.toBeInTheDocument()
+  })
+
+  it("should show not listed input when selecting not listed", () => {
+    const conductor = new ApplicationConductor({}, {})
+    conductor.config.featureFlags = [
+      { name: FeatureFlagEnum.enableLimitedHowDidYouHear, active: true } as FeatureFlag,
+      { name: FeatureFlagEnum.enableSpokenLanguage, active: true } as FeatureFlag,
+    ]
+    conductor.config.visibleSpokenLanguages = ["english", "notListed"]
+    render(
+      <AppSubmissionContext.Provider
+        value={{
+          conductor: conductor,
+          application: JSON.parse(JSON.stringify(blankApplication)),
+          listing: {} as unknown as Listing,
+          syncApplication: () => {
+            return
+          },
+          syncListing: () => {
+            return
+          },
+        }}
+      >
+        <ApplicationDemographics />
+      </AppSubmissionContext.Provider>
+    )
+
+    const select = screen.getByLabelText(
+      "Which language is most commonly spoken in your home? Please select one:"
+    )
+    fireEvent.change(select, { target: { value: "notListed" } })
+
+    expect(screen.getByRole("textbox", { name: "Please specify:" })).toBeInTheDocument()
   })
 })

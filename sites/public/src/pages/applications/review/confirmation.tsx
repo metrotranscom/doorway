@@ -139,7 +139,7 @@ const ApplicationConfirmation = () => {
               <div className="markdown markdown-informational">
                 <ApplicationTimeline />
 
-                <Markdown options={{ disableParsingRawHTML: true }}>{contentText}</Markdown>
+                <Markdown>{contentText}</Markdown>
               </div>
             </CardSection>
 

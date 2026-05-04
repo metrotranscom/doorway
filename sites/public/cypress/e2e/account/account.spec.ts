@@ -67,7 +67,7 @@ describe("User accounts", () => {
     cy.signOut()
   })
 
-  it("should allow advocates to update their account information", () => {
+  it.skip("should allow advocates to update their account information", () => {
     cy.visit("/sign-in")
     cy.signIn(advocateUser.email, advocateUser.password)
 

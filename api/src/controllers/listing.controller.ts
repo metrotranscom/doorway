@@ -143,7 +143,7 @@ export class ListingController {
     return await this.listingCsvExportService.exporterSecure(req, queryParams);
   }
 
-  @Get('mapMarkers')
+  @Post('mapMarkers')
   @ApiOperation({
     summary: 'Get listing map markers',
     operationId: 'mapMarkers',

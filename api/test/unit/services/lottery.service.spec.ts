@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { of, throwError } from 'rxjs';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   ListingEventsTypeEnum,
@@ -1380,36 +1381,34 @@ describe('Testing lottery service', () => {
       const mockEndpoint = 'https://example.com/audit';
       const mockWorkQueueItemId = randomUUID();
 
-      (globalThis as any).fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        json: jest
-          .fn()
-          .mockResolvedValue({ WorkQueueItemID: mockWorkQueueItemId }),
-      });
-
-      const result = await service.triggerLotteryAudit(
-        mockListingId,
-        mockEndpoint,
+      const httpService = (service as any).httpService;
+      jest.spyOn(httpService, 'post').mockReturnValue(
+        of({
+          data: { WorkQueueItemID: mockWorkQueueItemId },
+        }),
       );
-      expect((globalThis as any).fetch).toHaveBeenCalledWith(mockEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ListingId: mockListingId }),
-      });
-      expect(result.workQueueItemID).toEqual(mockWorkQueueItemId);
+
+      await service.triggerLotteryAudit(mockListingId, mockEndpoint);
+      expect(httpService.post).toHaveBeenCalledWith(
+        mockEndpoint,
+        { ListingId: mockListingId },
+        { headers: { 'Content-Type': 'application/json' } },
+      );
     });
 
-    it('should throw HttpException with 500 when fetch response is not ok', async () => {
+    it('should throw HttpException with 500 when HttpService returns error response', async () => {
       const mockListingId = randomUUID();
       const mockEndpoint = 'https://example.com/audit';
 
-      (globalThis as any).fetch = jest.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        text: jest
-          .fn()
-          .mockResolvedValue('Internal error from lottery audit endpoint'),
-      });
+      const httpService = (service as any).httpService;
+      jest.spyOn(httpService, 'post').mockReturnValue(
+        throwError(() => ({
+          response: {
+            status: 500,
+            data: 'Internal error from lottery audit endpoint',
+          },
+        })),
+      );
 
       await expect(
         async () =>
@@ -1417,17 +1416,19 @@ describe('Testing lottery service', () => {
       ).rejects.toThrowError('Internal error from lottery audit endpoint');
     });
 
-    it('should throw HttpException with 409 when fetch response returns 409', async () => {
+    it('should throw HttpException with 409 when HttpService returns 409', async () => {
       const mockListingId = randomUUID();
       const mockEndpoint = 'https://example.com/audit';
 
-      (globalThis as any).fetch = jest.fn().mockResolvedValue({
-        ok: false,
-        status: 409,
-        text: jest
-          .fn()
-          .mockResolvedValue('Conflict error from lottery audit endpoint'),
-      });
+      const httpService = (service as any).httpService;
+      jest.spyOn(httpService, 'post').mockReturnValue(
+        throwError(() => ({
+          response: {
+            status: 409,
+            data: 'Conflict error from lottery audit endpoint',
+          },
+        })),
+      );
 
       await expect(
         async () =>

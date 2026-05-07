@@ -1,4 +1,5 @@
 import { Logger, Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { ApplicationExporterModule } from './application-exporter.module';
 import { ConfigService } from '@nestjs/config';
 import { EmailModule } from './email.module';
@@ -13,6 +14,7 @@ import { CronJobModule } from './cron-job.module';
 @Module({
   imports: [
     ApplicationExporterModule,
+    HttpModule,
     PrismaModule,
     ListingModule,
     EmailModule,

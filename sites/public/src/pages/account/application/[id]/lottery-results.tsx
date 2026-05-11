@@ -220,7 +220,9 @@ const LotteryResults = () => {
                       return result
                         ? preferenceRank(
                             result.ordinal,
-                            question.multiselectQuestions.text,
+                            question.multiselectQuestions.name
+                              ? question.multiselectQuestions.name
+                              : question.multiselectQuestions.text,
                             totals?.find(
                               (total) =>
                                 total.multiselectQuestionId === question.multiselectQuestions.id

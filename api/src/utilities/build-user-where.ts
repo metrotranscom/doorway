@@ -70,7 +70,7 @@ export const buildWhereClause = (
   }
 
   params.filter.forEach((filter) => {
-    if (filter['isPortalUser']) {
+    if (String(filter['isPortalUser']) === 'true') {
       if (user?.userRoles?.isAdmin) {
         filters.push({
           OR: [
@@ -131,78 +131,21 @@ export const buildWhereClause = (
           },
         });
       }
-    } else if ('isPortalUser' in filter) {
+    } else if ('isPortalUser' in filter && String(filter['isPortalUser']) === 'false') {
       filters.push({
-        AND: [
+        OR: [
           {
-            OR: [
-              {
-                userRoles: {
-                  isPartner: null,
-                },
-              },
-              {
-                userRoles: {
-                  isPartner: false,
-                },
-              },
-            ],
+            userRoles: null,
           },
           {
-            OR: [
-              {
-                userRoles: {
-                  isLimitedJurisdictionalAdmin: null,
-                },
-              },
-              {
-                userRoles: {
-                  isLimitedJurisdictionalAdmin: false,
-                },
-              },
-            ],
-          },
-          {
-            OR: [
-              {
-                userRoles: {
-                  isJurisdictionalAdmin: null,
-                },
-              },
-              {
-                userRoles: {
-                  isJurisdictionalAdmin: false,
-                },
-              },
-            ],
-          },
-          {
-            OR: [
-              {
-                userRoles: {
-                  isSupportAdmin: null,
-                },
-              },
-              {
-                userRoles: {
-                  isSupportAdmin: false,
-                },
-              },
-            ],
-          },
-          {
-            OR: [
-              {
-                userRoles: {
-                  isAdmin: null,
-                },
-              },
-              {
-                userRoles: {
-                  isAdmin: false,
-                },
-              },
-            ],
+            userRoles: {
+              isAdmin: false,
+              isJurisdictionalAdmin: false,
+              isLimitedJurisdictionalAdmin: false,
+              isPartner: false,
+              isSupportAdmin: false,
+              isSuperAdmin: false,
+            },
           },
         ],
       });

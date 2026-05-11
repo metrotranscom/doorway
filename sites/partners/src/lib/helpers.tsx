@@ -15,6 +15,18 @@ import {
   Application,
   IncomePeriodEnum,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
+export type NavigationHeaderTabsElement = {
+  label: string
+  path: string
+  activePaths: string[]
+  content?: React.ReactNode
+}
+export enum ActivityLogAction {
+  login = "login",
+  login_failed = "login_failed",
+  password_update = "password_update",
+}
+
 import * as styles from "../components/listings/PaperListingForm/ListingForm.module.scss"
 
 export enum YesNoAnswer {
@@ -321,3 +333,26 @@ export const mergeApplicationNames = (applications: Application[]) => {
 
   return `${names.join(", ")}`
 }
+
+export const getSupportTabs = (userId: string, t: any): NavigationHeaderTabsElement[] => [
+  {
+    label: t("users.userDetails") || "User Details",
+    path: `/support/${userId}`,
+    activePaths: [`/support/${userId}`],
+  },
+  {
+    label: t("support.appSubmissions") || "Applications",
+    path: `/support/${userId}/applications`,
+    activePaths: [`/support/${userId}/applications`],
+  },
+  {
+    label: t("support.loginAttempts") || "Login Attempts",
+    path: `/support/${userId}/login-attempts`,
+    activePaths: [`/support/${userId}/login-attempts`],
+  },
+  {
+    label: t("support.passwordHistory") || "Password History",
+    path: `/support/${userId}/password-history`,
+    activePaths: [`/support/${userId}/password-history`],
+  },
+]

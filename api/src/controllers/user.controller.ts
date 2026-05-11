@@ -53,6 +53,7 @@ import { ExportLogInterceptor } from '../interceptors/export-log.interceptor';
 import { RequestSingleUseCode } from '../dtos/single-use-code/request-single-use-code.dto';
 import { ApiKeyGuard } from '../guards/api-key.guard';
 import { UserDeleteDTO } from '../dtos/users/user-delete.dto';
+import { UserAuditDto } from '../dtos/users/user-audit.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -283,6 +284,19 @@ export class UserController {
       mapTo(User, req['user']),
       jurisdictionName as string,
     );
+  }
+
+  @Get(':id/audit')
+  @ApiOperation({
+    summary: 'Get user audit log',
+    operationId: 'getAuditLog',
+  })
+  @ApiOkResponse({ type: UserAuditDto })
+  @UseGuards(JwtAuthGuard, AdminOrJurisdictionalAdminGuard)
+  async getAuditLog(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) userId: string,
+  ): Promise<UserAuditDto> {
+    return await this.userService.getAuditLog(userId);
   }
 
   @Get(`:id`)

@@ -15,6 +15,7 @@ import { RequestMfaCode } from '../dtos/mfa/request-mfa-code.dto';
 import { IdDTO } from '../dtos/shared/id.dto';
 import { SuccessDTO } from '../dtos/shared/success.dto';
 import { User } from '../dtos/users/user.dto';
+import { ActivityLogAction } from '../enums/shared/activity-log-action-enum';
 import { MfaType } from '../enums/mfa/mfa-type-enum';
 import { UserViews } from '../enums/user/view-enum';
 import { getSingleUseCode } from '../utilities/get-single-use-code';
@@ -124,7 +125,7 @@ export class AuthService {
           message: `The ReCaptcha CreateAssessment call failed because the token was: ${response.tokenProperties.invalidReason}`,
         });
       }
-      if (response.tokenProperties.action === 'login') {
+      if (response.tokenProperties.action === ActivityLogAction.login) {
         response.riskAnalysis.reasons.forEach((reason) => {
           console.log(reason);
         });
@@ -352,6 +353,13 @@ export class AuthService {
         id: user.id,
       },
     });
+    await this.prisma.activityLog.create({
+      data: {
+        module: 'auth',
+        action: ActivityLogAction.password_update,
+        userId: user.id,
+      },
+    });
     return await this.setCredentials(
       res,
       mapTo(User, user),
@@ -396,6 +404,15 @@ export class AuthService {
         id: foundUser.id,
       },
     });
+    if (dto.password) {
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.password_update,
+          userId: foundUser.id,
+        },
+      });
+    }
     return await this.setCredentials(
       res,
       mapTo(User, updatedUser),

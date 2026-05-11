@@ -52,6 +52,8 @@ import { UserFavoriteListing } from '../dtos/users/user-favorite-listing.dto';
 import { ModificationEnum } from '../enums/shared/modification-enum';
 import { CronJobService } from './cron-job.service';
 import { ApplicationService } from './application.service';
+import { UserAuditDto } from '../dtos/users/user-audit.dto';
+import { ActivityLogAction } from '../enums/shared/activity-log-action-enum';
 
 /*
   this is the service for users
@@ -1189,5 +1191,70 @@ export class UserService {
     return {
       success: true,
     };
+  }
+
+  /*
+    this will return an audit log for a specific user
+  */
+  async getAuditLog(userId: string): Promise<UserAuditDto> {
+    const user = await this.findUserOrError({ userId });
+
+    const loginAttempts = await this.prisma.activityLog.findMany({
+      where: {
+        userId: user.id,
+        module: 'auth',
+        action: {
+          in: [ActivityLogAction.login, ActivityLogAction.login_failed],
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const appSubmissions = await this.prisma.applications.findMany({
+      where: {
+        OR: [{ userId: user.id }, { applicant: { emailAddress: user.email } }],
+        deletedAt: null,
+      },
+      include: {
+        listings: {
+          select: {
+            name: true,
+          },
+        },
+        applicationLotteryPositions: {
+          select: {
+            ordinal: true,
+          },
+        },
+      },
+      orderBy: { submissionDate: 'desc' },
+    });
+
+    const passwordChanges = await this.prisma.activityLog.findMany({
+      where: {
+        userId: user.id,
+        module: 'auth',
+        action: ActivityLogAction.password_update,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return mapTo(UserAuditDto, {
+      loginAttempts: loginAttempts.map((la) => ({
+        createdAt: la.createdAt,
+        action: la.action,
+        metadata: la.metadata,
+      })),
+      appSubmissions: appSubmissions.map((as) => ({
+        submissionDate: as.submissionDate,
+        listingName: as.listings?.name,
+        confirmationCode: as.confirmationCode,
+        ranking: as.applicationLotteryPositions?.[0]?.ordinal,
+      })),
+      passwordChanges: passwordChanges.map((pc) => ({
+        createdAt: pc.createdAt,
+        action: pc.action,
+      })),
+    });
   }
 }

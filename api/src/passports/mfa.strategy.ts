@@ -9,6 +9,7 @@ import {
 import { User } from '../dtos/users/user.dto';
 import { PrismaService } from '../services/prisma.service';
 import { mapTo } from '../utilities/mapTo';
+import { ActivityLogAction } from '../enums/shared/activity-log-action-enum';
 import {
   isPasswordOutdated,
   isPasswordValid,
@@ -53,6 +54,16 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
       },
     });
     if (!rawUser) {
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          metadata: {
+            email: dto.email,
+            reason: 'user_not_found',
+          },
+        },
+      });
       throw new UnauthorizedException(
         `user ${dto.email} attempted to log in, but does not exist`,
       );
@@ -72,6 +83,16 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
       )
     ) {
       // if password TTL is expired
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          userId: rawUser.id,
+          metadata: {
+            reason: 'password_outdated',
+          },
+        },
+      });
       throw new UnauthorizedException(
         `user ${rawUser.id} attempted to login, but password is no longer valid`,
       );
@@ -81,6 +102,16 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
         rawUser.failedLoginAttemptsCount + 1,
         rawUser.id,
       );
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          userId: rawUser.id,
+          metadata: {
+            reason: 'invalid_password',
+          },
+        },
+      });
       throw new UnauthorizedException({
         failureCountRemaining:
           Number(process.env.AUTH_LOCK_LOGIN_AFTER_FAILED_ATTEMPTS) -
@@ -88,6 +119,16 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
       });
     } else if (!rawUser.confirmedAt) {
       // if user is not confirmed already
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          userId: rawUser.id,
+          metadata: {
+            reason: 'not_confirmed',
+          },
+        },
+      });
       throw new UnauthorizedException(
         `user ${rawUser.id} attempted to login, but is not confirmed`,
       );
@@ -96,6 +137,16 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
     if (!rawUser.mfaEnabled) {
       // if user is not an mfaEnabled user
       await this.updateStoredUser(null, null, null, 0, rawUser.id);
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login,
+          userId: rawUser.id,
+          metadata: {
+            method: 'password',
+          },
+        },
+      });
       return mapTo(User, rawUser);
     }
 
@@ -139,6 +190,16 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
         rawUser.failedLoginAttemptsCount,
         rawUser.id,
       );
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          userId: rawUser.id,
+          metadata: {
+            reason: 'invalid_mfa_code',
+          },
+        },
+      });
       throw new UnauthorizedException({
         message: 'mfaUnauthorized',
         failureCountRemaining:
@@ -162,6 +223,16 @@ export class MfaStrategy extends PassportStrategy(Strategy, 'mfa') {
       rawUser.failedLoginAttemptsCount,
       rawUser.id,
     );
+    await this.prisma.activityLog.create({
+      data: {
+        module: 'auth',
+        action: ActivityLogAction.login,
+        userId: rawUser.id,
+        metadata: {
+          method: dto.mfaType || 'mfa',
+        },
+      },
+    });
     return mapTo(User, rawUser);
   }
 

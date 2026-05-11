@@ -1779,13 +1779,19 @@ export class ApplicationsService {
   /**
    * trigger the remove PII cron job
    */
-  removePiiCronJob(options: IRequestOptions = {}): Promise<SuccessDTO> {
+  removePiiCronJob(
+    params: {
+      /** requestBody */
+      body?: PaginationDTO
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<SuccessDTO> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/applications/removePIICronJob"
 
       const configs: IRequestConfig = getConfigs("put", "application/json", url, options)
 
-      let data = null
+      let data = params.body
 
       configs.data = data
 
@@ -2250,6 +2256,27 @@ export class UserService {
   ): Promise<User> {
     return new Promise((resolve, reject) => {
       let url = basePath + "/user/{id}"
+      url = url.replace("{id}", params["id"] + "")
+
+      const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
+
+      /** 适配ios13，get请求不允许带body */
+
+      axios(configs, resolve, reject)
+    })
+  }
+  /**
+   * Get user audit log
+   */
+  getAuditLog(
+    params: {
+      /**  */
+      id: string
+    } = {} as any,
+    options: IRequestOptions = {}
+  ): Promise<UserAudit> {
+    return new Promise((resolve, reject) => {
+      let url = basePath + "/user/{id}/audit"
       url = url.replace("{id}", params["id"] + "")
 
       const configs: IRequestConfig = getConfigs("get", "application/json", url, options)
@@ -7422,6 +7449,14 @@ export interface ApplicationCreate {
   preferredUnitTypes: IdDTO[]
 }
 
+export interface PaginationDTO {
+  /**  */
+  page?: number
+
+  /**  */
+  pageSize?: number
+}
+
 export interface ApplicationUpdate {
   /**  */
   id: string
@@ -7831,6 +7866,42 @@ export interface UserUpdate {
   jurisdictions?: IdDTO[]
 }
 
+export interface AuditLogEntry {
+  /**  */
+  createdAt: Date
+
+  /**  */
+  action: ActivityLogAction
+
+  /**  */
+  metadata?: object
+}
+
+export interface AppSubmission {
+  /**  */
+  submissionDate: Date
+
+  /**  */
+  listingName: string
+
+  /**  */
+  confirmationCode: string
+
+  /**  */
+  ranking?: number
+}
+
+export interface UserAudit {
+  /**  */
+  loginAttempts: AuditLogEntry[]
+
+  /**  */
+  appSubmissions: AppSubmission[]
+
+  /**  */
+  passwordChanges: AuditLogEntry[]
+}
+
 export interface Login {
   /**  */
   email: string
@@ -7979,14 +8050,6 @@ export interface CommunityTypeDTO {
 
   /**  */
   description?: string
-}
-
-export interface PaginationDTO {
-  /**  */
-  page?: number
-
-  /**  */
-  pageSize?: number
 }
 
 export interface FeatureFlagAssociate {
@@ -8486,6 +8549,12 @@ export enum ApplicationsFilterEnum {
 export enum ModificationEnum {
   "add" = "add",
   "remove" = "remove",
+}
+
+export enum ActivityLogAction {
+  "login" = "login",
+  "login_failed" = "login_failed",
+  "password_update" = "password_update",
 }
 
 export enum MfaType {

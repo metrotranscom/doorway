@@ -14,6 +14,7 @@ import {
   MultiselectQuestionFilterParams,
   MultiselectQuestionsApplicationSectionEnum,
   OrderByEnum,
+  serviceOptions,
   UserRole,
 } from "@bloom-housing/shared-helpers/src/types/backend-swagger"
 
@@ -40,8 +41,9 @@ interface UseSingleFlaggedApplicationDataProps extends UseSingleApplicationDataP
   search?: string
 }
 
-type UseUserListProps = PaginationProps & {
+export type UseUserListProps = PaginationProps & {
   search?: string
+  filter?: any[]
 }
 
 type UseListingsDataProps = PaginationProps & {
@@ -471,11 +473,11 @@ export function useReservedCommunityTypeList() {
   }
 }
 
-export function useUserList({ page, limit, search = "" }: UseUserListProps) {
+export function useUserList({ page, limit, search = "", filter }: UseUserListProps) {
   const params = {
     page,
     limit,
-    filter: [
+    filter: filter || [
       {
         isPortalUser: true,
         $comparison: EnumListingFilterParamsComparison["="],
@@ -695,4 +697,19 @@ export function useWatchOnFormNumberFieldsChange(
     return () => clearTimeout(timeoutId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fieldToTriggerWatch.join(","), fieldValuesToWatch.join(","), trigger])
+}
+
+export function useUserAudit(userId: string) {
+  const { userService } = useContext(AuthContext)
+  const endpoint = `/user/${userId}/audit`
+
+  const fetcher = () => userService.getAuditLog({ id: userId })
+
+  const { data, error } = useSWR(userId ? endpoint : null, fetcher)
+
+  return {
+    auditData: data,
+    auditLoading: !error && !data,
+    auditError: error,
+  }
 }

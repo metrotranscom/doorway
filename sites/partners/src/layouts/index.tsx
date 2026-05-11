@@ -19,6 +19,12 @@ const Layout = (props) => {
       href: "/",
     })
   }
+  if (profile?.userRoles?.isAdmin) {
+    menuLinks.push({
+      title: t("nav.support", { defaultValue: "Support" }),
+      href: "/support",
+    })
+  }
   if (profile?.userRoles?.isAdmin || profile?.userRoles?.isJurisdictionalAdmin) {
     menuLinks.push({
       title: t("nav.users"),

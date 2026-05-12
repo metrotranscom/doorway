@@ -367,7 +367,7 @@ const Layout = (props: LayoutProps) => {
                 <Markdown>{t("alert.maintenance")}</Markdown>
               </AlertBanner>
               <AlertBanner windowEnv={process.env.siteMessageWindow} variant={"primary"}>
-                <Markdown>{t("siteMessage.achpTranstion")}</Markdown>
+                <Markdown>{t("alert.infraMaintenance")}</Markdown>
               </AlertBanner>
               <DUICSiteHeader
                 logoSrc="/images/doorway-logo.png"

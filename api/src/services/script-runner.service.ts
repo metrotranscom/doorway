@@ -2753,19 +2753,23 @@ export class ScriptRunnerService {
             multiselectOptionId: multiselectOption.id,
           };
 
-          for (const { key, value } of selected.extraData) {
-            if (key === 'addressHolderAddress' || key === 'address') {
-              const address = await this.prisma.address.create({ data: value });
-              selectedOptionBody.addressHolderAddressId = address.id;
-            } else if (key === 'addressHolderName' || key === 'name') {
-              selectedOptionBody.addressHolderName = value;
-            } else if (
-              key === 'addressHolderRelationship' ||
-              key === 'relationship'
-            ) {
-              selectedOptionBody.addressHolderRelationship = value;
-            } else if (key === 'geocodingVerified') {
-              selectedOptionBody.isGeocodingVerified = Boolean(value);
+          if (selected.extraData) {
+            for (const { key, value } of selected.extraData) {
+              if (key === 'addressHolderAddress' || key === 'address') {
+                const address = await this.prisma.address.create({
+                  data: value,
+                });
+                selectedOptionBody.addressHolderAddressId = address.id;
+              } else if (key === 'addressHolderName' || key === 'name') {
+                selectedOptionBody.addressHolderName = value;
+              } else if (
+                key === 'addressHolderRelationship' ||
+                key === 'relationship'
+              ) {
+                selectedOptionBody.addressHolderRelationship = value;
+              } else if (key === 'geocodingVerified') {
+                selectedOptionBody.isGeocodingVerified = Boolean(value);
+              }
             }
           }
           selectedOptions.push(selectedOptionBody);

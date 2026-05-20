@@ -2,6 +2,7 @@ import { Runner, JurisdictionResolver, Extractor, Transformer, Loader, defaultMa
 import { DbConfig, UrlInfo } from "./src/types"
 import { knex } from "knex"
 import axios from "axios"
+import * as fs from "fs"
 
 const jurisdictionIncludeString = process.env.JURISDICTION_INCLUDE_LIST || ""
 const jurisdictionIncludeList = jurisdictionIncludeString.split(",").map((name) => name.trim())
@@ -26,9 +27,21 @@ const listingView = permittedViews.includes(process.env.LISTING_VIEW)
 
 console.log(`Using listing view [${listingView}]; requested [${process.env.LISTING_VIEW}]`)
 
+const certificate = fs.readFileSync("./global-bundle.pem").toString()
+
 const dbConfig: DbConfig = {
   client: "pg",
-  connection: process.env.DATABASE_URL,
+  connection: {
+    host: process.env.DATABASE_HOST,
+    port: 5432,
+    database: "bloom",
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    ssl: {
+      rejectUnauthorized: false,
+      ca: certificate,
+    },
+  },
 }
 
 /* 

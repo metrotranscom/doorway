@@ -16,9 +16,9 @@
   "author": "Chris Casto <chriscasto@google.com>",
   "license": "ISC",
   "dependencies": {
-    "axios": "1.6.4",
-    "knex": "2.5.0",
-    "pg": "8.10.0",
+    "axios": "1.15.0",
+    "knex": "3.2.10",
+    "pg": "8.21.0",
     "typescript": "5.0.4"
   },
   "devDependencies": {

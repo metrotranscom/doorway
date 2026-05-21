@@ -27,7 +27,12 @@ const listingView = permittedViews.includes(process.env.LISTING_VIEW)
 
 console.log(`Using listing view [${listingView}]; requested [${process.env.LISTING_VIEW}]`)
 
-const certificate = fs.readFileSync("./global-bundle.pem").toString()
+let certificate = ""
+try {
+  certificate = fs.readFileSync("./global-bundle.pem").toString()
+} catch (error) {
+  console.warn("Could not read certificate file; proceeding without it")
+}
 
 const dbConfig = {
   client: "pg",

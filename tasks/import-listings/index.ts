@@ -1,5 +1,5 @@
 import { Runner, JurisdictionResolver, Extractor, Transformer, Loader, defaultMap } from "./src/etl"
-import { DbConfig, UrlInfo } from "./src/types"
+import { UrlInfo } from "./src/types"
 import { knex } from "knex"
 import axios from "axios"
 import * as fs from "fs"
@@ -29,7 +29,7 @@ console.log(`Using listing view [${listingView}]; requested [${process.env.LISTI
 
 const certificate = fs.readFileSync("./global-bundle.pem").toString()
 
-const dbConfig: DbConfig = {
+const dbConfig = {
   client: "pg",
   connection: {
     host: process.env.DATABASE_HOST,

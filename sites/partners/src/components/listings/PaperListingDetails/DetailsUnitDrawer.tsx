@@ -158,7 +158,7 @@ const DetailUnitDrawer = ({ unit, setUnitDrawer }: UnitDrawerProps) => {
                 <Grid.Cell>
                   <FieldValue
                     id="unit.accessibilityPriorityType"
-                    label={t("listings.unit.accessibilityPriorityType")}
+                    label={t("listings.unit.accessibilityUnitType")}
                     children={
                       unit?.accessibilityPriorityType
                         ? t(`listings.unit.accessibilityType.${unit.accessibilityPriorityType}`)

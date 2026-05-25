@@ -78,10 +78,12 @@ describe("UnitForm", () => {
     expect(screen.getByRole("textbox", { name: "Unit number" })).toBeInTheDocument()
 
     // Unit type dropdown selector
-    const unitTypeSelector = screen.getByRole("combobox", { name: /unit type/i })
+    const unitTypeSelector = screen.getByRole("combobox", { name: /^unit type/i })
     expect(unitTypeSelector).toBeInTheDocument()
     expect(within(unitTypeSelector).getAllByRole("option")).toHaveLength(8)
-    expect(within(unitTypeSelector).getByRole("option", { name: /unit type/i })).toBeInTheDocument()
+    expect(
+      within(unitTypeSelector).getByRole("option", { name: /^unit type/i })
+    ).toBeInTheDocument()
     expect(within(unitTypeSelector).getByRole("option", { name: "Studio" })).toBeInTheDocument()
     expect(within(unitTypeSelector).getByRole("option", { name: "SRO" })).toBeInTheDocument()
     expect(
@@ -197,9 +199,9 @@ describe("UnitForm", () => {
 
     expect(screen.getByRole("heading", { name: "Accessibility", level: 2 })).toBeInTheDocument()
 
-    // Accessibility priority type selector
+    // Accessibility unit type selector
     const priorityTypeSelector = screen.getByRole("combobox", {
-      name: "Accessibility priority type",
+      name: "Accessibility unit type",
     })
     expect(priorityTypeSelector).toBeInTheDocument()
     expect(within(priorityTypeSelector).getAllByRole("option")).toHaveLength(4)
@@ -398,7 +400,7 @@ describe("UnitForm", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("textbox", { name: "Unit number" })).toHaveValue("A-101")
-      expect(screen.getByRole("combobox", { name: /unit type/i })).toHaveValue(unitTypes[0].id)
+      expect(screen.getByRole("combobox", { name: /^unit type/i })).toHaveValue(unitTypes[0].id)
       expect(screen.getByLabelText(/square footage/i)).toHaveValue(321)
       expect(screen.getByLabelText(/minimum monthly income|monthly minimum income/i)).toHaveValue(
         2208
@@ -454,7 +456,7 @@ describe("UnitForm", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("textbox", { name: "Unit number" })).toHaveValue("B-202")
-      expect(screen.getByRole("combobox", { name: /unit type/i })).toHaveValue(unitTypes[1].id)
+      expect(screen.getByRole("combobox", { name: /^unit type/i })).toHaveValue(unitTypes[1].id)
       expect(screen.getByLabelText(/square footage/i)).toHaveValue(456)
       expect(screen.getByLabelText(/minimum monthly income|monthly minimum income/i)).toHaveValue(
         3200

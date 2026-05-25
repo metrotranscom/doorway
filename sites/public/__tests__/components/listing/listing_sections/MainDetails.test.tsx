@@ -90,7 +90,7 @@ describe("<MainDetails>", () => {
     expect(view.queryByText("Veteran")).toBeNull()
   })
 
-  it("shows accessibility priority type tags when feature flag is enabled", () => {
+  it("shows accessibility unit type tags when feature flag is enabled", () => {
     render(
       <MainDetails
         listing={{
@@ -127,7 +127,7 @@ describe("<MainDetails>", () => {
     expect(screen.getByText("Mobility, hearing and vision units")).toBeInTheDocument()
   })
 
-  it("hides accessibility priority type tags when feature flag is disabled", () => {
+  it("hides accessibility unit type tags when feature flag is disabled", () => {
     render(
       <MainDetails
         listing={{

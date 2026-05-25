@@ -203,7 +203,7 @@ describe("<RentSummary>", () => {
     expect(tableHeaders).toHaveLength(3)
 
     const [unitTypeHeader, rentHeader, availabilityHeader] = tableHeaders
-    expect(unitTypeHeader).toHaveTextContent(/unit type/i)
+    expect(unitTypeHeader).toHaveTextContent(/^unit type/i)
     expect(rentHeader).toHaveTextContent(/rent/i)
     expect(availabilityHeader).toHaveTextContent(/availability/i)
 

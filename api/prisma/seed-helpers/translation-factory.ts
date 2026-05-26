@@ -592,7 +592,7 @@ const translations = (
         accountRemoval: {
           subject: 'Doorway Scheduled Account Removal Due to Inactivity',
           courtesyText:
-            'Este es un correo electrónico de cortesía para informarle que, dado que su cuenta en el Portal de Vivienda Doorway ha permanecido inactiva durante 3 años, su cuenta será eliminada en un plazo de 30 días, de conformidad con nuestros Términos de uso y Política de privacidad. Si desea conservar su cuenta, por favor inicie sesión en algún momento durante el próximo mes; de este modo, consideraremos que su cuenta vuelve a estar activa.',
+            'This is a courtesy email to let you know that because your Doorway Housing Portal account has been inactive for 3 years, your account will be deleted in 30 days per our Terms of Use and Privacy Policy. If you’d like to keep your account, please log in sometime in the next month and we’ll consider your account active again.',
           signIn: 'Sign in to Bloom Housing',
         },
         advocateApproved: {

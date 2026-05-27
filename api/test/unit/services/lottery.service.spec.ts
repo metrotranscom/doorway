@@ -824,6 +824,98 @@ describe('Testing lottery service', () => {
 
       expect(prisma.listingSnapshot.create).toHaveBeenCalled();
     });
+
+    it('should trigger lottery audit if env variable is set', async () => {
+      const mockEndpoint = 'https://example.com/audit';
+      config.get = jest.fn().mockImplementation((key: string) => {
+        if (key === 'LOTTERY_AUDIT_ENDPOINT') return mockEndpoint;
+        return undefined; // or the real value for other keys
+      });
+      const mockWorkQueueItemId = randomUUID();
+
+      const httpService = (service as any).httpService;
+      jest.spyOn(httpService, 'post').mockReturnValue(
+        of({
+          data: { WorkQueueItemID: mockWorkQueueItemId },
+        }),
+      );
+      const listingId = randomUUID();
+      const requestingUser = {
+        firstName: 'requesting fName',
+        lastName: 'requesting lName',
+        email: 'requestingUser@email.com',
+        jurisdictions: [{ id: 'juris id' }],
+        userRoles: { isAdmin: true },
+      } as unknown as User;
+
+      canOrThrowMock.mockResolvedValue(true);
+      prisma.listings.findUnique = jest.fn().mockResolvedValue({
+        id: listingId,
+        jurisdictions: {
+          featureFlags: [],
+        },
+        lotteryLastRunAt: null,
+        lotteryStatus: null,
+        status: ListingsStatusEnum.closed,
+      });
+      const applications = mockApplicationSet(5, new Date());
+      prisma.applications.findMany = jest.fn().mockReturnValue(applications);
+
+      prisma.multiselectQuestions.findMany = jest.fn().mockReturnValue([
+        {
+          ...mockMultiselectQuestion(
+            0,
+            new Date(),
+            MultiselectQuestionsApplicationSectionEnum.preferences,
+          ),
+          options: [
+            { id: 1, text: 'text' },
+            { id: 2, text: 'text', collectAddress: true },
+          ],
+        },
+        {
+          ...mockMultiselectQuestion(
+            1,
+            new Date(),
+            MultiselectQuestionsApplicationSectionEnum.programs,
+          ),
+          options: [{ id: 1, text: 'text' }],
+        },
+      ]);
+
+      prisma.applicationLotteryTotal.create = jest
+        .fn()
+        .mockResolvedValue({ id: randomUUID() });
+
+      prisma.applicationLotteryPositions.createMany = jest
+        .fn()
+        .mockResolvedValue({ id: randomUUID() });
+
+      prisma.applicationLotteryTotal.createMany = jest
+        .fn()
+        .mockResolvedValue({ id: randomUUID() });
+
+      prisma.listings.update = jest.fn().mockResolvedValue({
+        id: listingId,
+        lotteryLastRunAt: null,
+        lotteryStatus: null,
+      });
+      prisma.userAccounts.findMany = jest.fn().mockResolvedValue([]);
+      prisma.listingSnapshot.create = jest
+        .fn()
+        .mockResolvedValue({ id: 'example snapshot id' });
+
+      await service.lotteryGenerate(
+        { user: requestingUser } as unknown as ExpressRequest,
+        {} as unknown as Response,
+        { id: listingId },
+      );
+      expect(httpService.post).toHaveBeenCalledWith(
+        mockEndpoint,
+        { ListingId: listingId },
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+    });
   });
 
   describe('Testing lotteryStatus()', () => {

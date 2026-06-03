@@ -37,7 +37,7 @@ const SupportLayout = ({
 
   useEffect(() => {
     if (profile && !profile.userRoles?.isAdmin) {
-      void router.push("/")
+      void router.push("/unauthorized")
     }
   }, [profile, router])
 

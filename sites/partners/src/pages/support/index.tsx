@@ -72,7 +72,7 @@ const Support = () => {
 
   // Security check: Only admins can view this page
   if (profile && !profile.userRoles?.isAdmin) {
-    void router.push("/")
+    void router.push("/unauthorized")
     return null
   }
 

@@ -50,7 +50,7 @@ const SupportUserApplications = () => {
                     flex: 2,
                   },
                   {
-                    headerName: t("applications.confirmationCode"),
+                    headerName: t("application.details.number"),
                     field: "confirmationCode",
                     flex: 1,
                   },

@@ -112,25 +112,25 @@ const SupportUserDetail = () => {
               <Card.Section>
                 <div className="grid grid-cols-2 gap-x-8 gap-y-6">
                   <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
                       {t("t.firstName")}
                     </div>
                     <div className="font-medium text-lg">{user.firstName}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
                       {t("t.lastName")}
                     </div>
                     <div className="font-medium text-lg">{user.lastName}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
                       {t("t.email")}
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-lg">{user.email}</span>
                       <button
-                        className="text-gray-400 hover:text-primary transition-colors flex items-center justify-center p-1 rounded-md hover:bg-gray-100"
+                        className="text-gray-700 hover:text-primary transition-colors flex items-center justify-center p-1 rounded-md hover:bg-gray-100"
                         onClick={() => copyToClipboard(user.email)}
                         aria-label={`Copy email: ${user.email}`}
                         title={t("t.copy", { defaultValue: "Copy" })}
@@ -143,7 +143,7 @@ const SupportUserDetail = () => {
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
                       {t("t.language")}
                     </div>
                     <div className="font-medium text-lg">
@@ -151,7 +151,7 @@ const SupportUserDetail = () => {
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
                       {t("listings.details.createdDate")}
                     </div>
                     <div className="font-medium text-lg">
@@ -159,7 +159,7 @@ const SupportUserDetail = () => {
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
                       {t("t.status")}
                     </div>
                     <div className="font-medium text-lg">
@@ -187,7 +187,7 @@ const SupportUserDetail = () => {
                 : t("users.resetPassword")}
             </Button>
             {user.updatedAt && (
-              <div className="text-sm text-gray-500 mt-4 text-center">
+              <div className="text-sm text-gray-750 mt-4 text-center">
                 {t("listings.details.editedAt")} <br />
                 {dayjs(user.updatedAt).format("MMMM DD, YYYY, hh:mm A")}
               </div>

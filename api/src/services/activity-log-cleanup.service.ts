@@ -46,6 +46,7 @@ export class ActivityLogCleanupService implements OnModuleInit {
 
     const result = await this.prisma.activityLog.deleteMany({
       where: {
+        module: 'auth',
         createdAt: {
           lt: dayjs().subtract(retentionDays, 'days').toDate(),
         },

@@ -2,6 +2,7 @@ import React, { useContext } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import dayjs from "dayjs"
+import Link from "next/link"
 import { t, Breadcrumbs, BreadcrumbLink, AgTable } from "@bloom-housing/ui-components"
 import { AuthContext } from "@bloom-housing/shared-helpers"
 import SupportLayout from "../../../layouts/SupportLayout"
@@ -48,11 +49,35 @@ const SupportUserApplications = () => {
                     headerName: t("listings.listingName"),
                     field: "listingName",
                     flex: 2,
+                    cellRendererFramework: (params) => {
+                      const submission = params.data
+                      if (!submission.listingId) return params.value
+                      return (
+                        <Link
+                          href={`/listings/${submission.listingId}`}
+                          className="text-blue-700 underline font-medium"
+                        >
+                          {params.value}
+                        </Link>
+                      )
+                    },
                   },
                   {
                     headerName: t("application.details.number"),
                     field: "confirmationCode",
                     flex: 1,
+                    cellRendererFramework: (params) => {
+                      const submission = params.data
+                      if (!submission.applicationId) return params.value
+                      return (
+                        <Link
+                          href={`/application/${submission.applicationId}`}
+                          className="text-blue-700 underline font-medium"
+                        >
+                          {params.value}
+                        </Link>
+                      )
+                    },
                   },
                   {
                     headerName: t("support.ranking"),

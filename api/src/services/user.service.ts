@@ -1219,6 +1219,7 @@ export class UserService {
         listings: {
           select: {
             name: true,
+            id: true,
           },
         },
         applicationLotteryPositions: {
@@ -1248,6 +1249,8 @@ export class UserService {
       appSubmissions: appSubmissions.map((as) => ({
         submissionDate: as.submissionDate,
         listingName: as.listings?.name,
+        listingId: as.listings?.id,
+        applicationId: as.id,
         confirmationCode: as.confirmationCode,
         ranking: as.applicationLotteryPositions?.[0]?.ordinal,
       })),

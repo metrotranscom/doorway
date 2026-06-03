@@ -39,6 +39,16 @@ export class AppSubmissionDto {
 
   @Expose()
   @ApiPropertyOptional()
+  @IsString()
+  listingId?: string;
+
+  @Expose()
+  @ApiPropertyOptional()
+  @IsString()
+  applicationId?: string;
+
+  @Expose()
+  @ApiPropertyOptional()
   ranking?: number;
 }
 

@@ -4,7 +4,7 @@ import { useRouter } from "next/router"
 import dayjs from "dayjs"
 import { t, AlertBox, Breadcrumbs, BreadcrumbLink } from "@bloom-housing/ui-components"
 import { AuthContext, MessageContext } from "@bloom-housing/shared-helpers"
-import { Button, Card, Heading, Icon } from "@bloom-housing/ui-seeds"
+import { Button, Card, FieldValue, Grid, Heading, Icon } from "@bloom-housing/ui-seeds"
 import DocumentDuplicateIcon from "@heroicons/react/24/solid/DocumentDuplicateIcon"
 import SupportLayout from "../../layouts/SupportLayout"
 import useSWR from "swr"
@@ -110,63 +110,53 @@ const SupportUserDetail = () => {
                 </Heading>
               </Card.Header>
               <Card.Section>
-                <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                  <div>
-                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
-                      {t("t.firstName")}
-                    </div>
-                    <div className="font-medium text-lg">{user.firstName}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
-                      {t("t.lastName")}
-                    </div>
-                    <div className="font-medium text-lg">{user.lastName}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
-                      {t("t.email")}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-lg">{user.email}</span>
-                      <button
-                        className="text-gray-700 hover:text-primary transition-colors flex items-center justify-center p-1 rounded-md hover:bg-gray-100"
-                        onClick={() => copyToClipboard(user.email)}
-                        aria-label={`Copy email: ${user.email}`}
-                        title={t("t.copy", { defaultValue: "Copy" })}
-                        style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                      >
-                        <Icon size="sm">
-                          <DocumentDuplicateIcon />
-                        </Icon>
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
-                      {t("t.language")}
-                    </div>
-                    <div className="font-medium text-lg">
-                      {user.language || t("t.notSpecified")}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
-                      {t("listings.details.createdDate")}
-                    </div>
-                    <div className="font-medium text-lg">
-                      {dayjs(user.createdAt).format("MMMM DD, YYYY")}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-750 uppercase tracking-wider mb-1">
-                      {t("t.status")}
-                    </div>
-                    <div className="font-medium text-lg">
-                      {user.confirmedAt ? t("users.confirmed") : t("users.unconfirmed")}
-                    </div>
-                  </div>
-                </div>
+                <Grid spacing="lg">
+                  <Grid.Row columns={2}>
+                    <Grid.Cell>
+                      <FieldValue label={t("t.firstName")}>{user.firstName}</FieldValue>
+                    </Grid.Cell>
+                    <Grid.Cell>
+                      <FieldValue label={t("t.lastName")}>{user.lastName}</FieldValue>
+                    </Grid.Cell>
+                  </Grid.Row>
+                  <Grid.Row columns={2}>
+                    <Grid.Cell>
+                      <FieldValue label={t("t.email")}>
+                        <div className="flex items-center gap-2">
+                          <span>{user.email}</span>
+                          <button
+                            className="text-gray-700 hover:text-primary transition-colors flex items-center justify-center p-1 rounded-md hover:bg-gray-100"
+                            onClick={() => copyToClipboard(user.email)}
+                            aria-label={`Copy email: ${user.email}`}
+                            title={t("t.copy", { defaultValue: "Copy" })}
+                            style={{ background: "transparent", border: "none", cursor: "pointer" }}
+                          >
+                            <Icon size="sm">
+                              <DocumentDuplicateIcon />
+                            </Icon>
+                          </button>
+                        </div>
+                      </FieldValue>
+                    </Grid.Cell>
+                    <Grid.Cell>
+                      <FieldValue label={t("t.language")}>
+                        {user.language || t("t.notSpecified")}
+                      </FieldValue>
+                    </Grid.Cell>
+                  </Grid.Row>
+                  <Grid.Row columns={2}>
+                    <Grid.Cell>
+                      <FieldValue label={t("listings.details.createdDate")}>
+                        {dayjs(user.createdAt).format("MMMM DD, YYYY")}
+                      </FieldValue>
+                    </Grid.Cell>
+                    <Grid.Cell>
+                      <FieldValue label={t("t.status")}>
+                        {user.confirmedAt ? t("users.confirmed") : t("users.unconfirmed")}
+                      </FieldValue>
+                    </Grid.Cell>
+                  </Grid.Row>
+                </Grid>
               </Card.Section>
             </Card>
           </div>

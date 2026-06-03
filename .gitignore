@@ -16,6 +16,7 @@ yarn-error.log*
 
 # Complied Typescript
 dist
+*.tsbuildinfo
 
 # Runtime data
 pids

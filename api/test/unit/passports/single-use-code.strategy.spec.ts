@@ -6,6 +6,7 @@ import { passwordToHash } from '../../../src/utilities/password-helpers';
 import { SingleUseCodeStrategy } from '../../../src/passports/single-use-code.strategy';
 import { LoginViaSingleUseCode } from '../../../src/dtos/auth/login-single-use-code.dto';
 import { OrderByEnum } from '../../../src/enums/shared/order-by-enum';
+import { ActivityLogAction } from '../../../src/enums/shared/activity-log-action-enum';
 
 describe('Testing single-use-code strategy', () => {
   let strategy: SingleUseCodeStrategy;
@@ -20,6 +21,11 @@ describe('Testing single-use-code strategy', () => {
 
     strategy = module.get<SingleUseCodeStrategy>(SingleUseCodeStrategy);
     prisma = module.get<PrismaService>(PrismaService);
+    prisma.activityLog.create = jest.fn().mockResolvedValue({});
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should fail because user does not exist', async () => {
@@ -42,6 +48,17 @@ describe('Testing single-use-code strategy', () => {
     ).rejects.toThrowError(
       `user example@exygy.com attempted to log in, but does not exist`,
     );
+
+    expect(prisma.activityLog.create).toHaveBeenCalledWith({
+      data: {
+        module: 'auth',
+        action: ActivityLogAction.login_failed,
+        metadata: {
+          email: 'example@exygy.com',
+          reason: 'user_not_found',
+        },
+      },
+    });
 
     expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
       include: {
@@ -365,6 +382,17 @@ describe('Testing single-use-code strategy', () => {
       async () => await strategy.validate(request as unknown as Request),
     ).rejects.toThrowError(`singleUseCodeUnauthorized`);
 
+    expect(prisma.activityLog.create).toHaveBeenCalledWith({
+      data: {
+        module: 'auth',
+        action: ActivityLogAction.login_failed,
+        userId: id,
+        metadata: {
+          reason: 'invalid_single_use_code',
+        },
+      },
+    });
+
     expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
       include: {
         userRoles: true,
@@ -607,6 +635,17 @@ describe('Testing single-use-code strategy', () => {
       async () => await strategy.validate(request as unknown as Request),
     ).rejects.toThrowError(`User ${id} has not accepted the terms of service`);
 
+    expect(prisma.activityLog.create).toHaveBeenCalledWith({
+      data: {
+        module: 'auth',
+        action: ActivityLogAction.login_failed,
+        userId: id,
+        metadata: {
+          reason: 'terms_of_service_not_accepted',
+        },
+      },
+    });
+
     expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
       include: {
         userRoles: true,
@@ -666,6 +705,17 @@ describe('Testing single-use-code strategy', () => {
     };
 
     await strategy.validate(request as unknown as Request);
+
+    expect(prisma.activityLog.create).toHaveBeenCalledWith({
+      data: {
+        module: 'auth',
+        action: ActivityLogAction.login,
+        userId: id,
+        metadata: {
+          method: 'single_use_code',
+        },
+      },
+    });
 
     expect(prisma.userAccounts.findFirst).toHaveBeenCalledWith({
       include: {

@@ -13,6 +13,7 @@ import { mapTo } from '../utilities/mapTo';
 import { defaultValidationPipeOptions } from '../utilities/default-validation-pipe-options';
 import { LoginViaSingleUseCode } from '../dtos/auth/login-single-use-code.dto';
 import { OrderByEnum } from '../enums/shared/order-by-enum';
+import { ActivityLogAction } from '../enums/shared/activity-log-action-enum';
 import {
   checkUserLockout,
   singleUseCodePresent,
@@ -81,12 +82,32 @@ export class SingleUseCodeStrategy extends PassportStrategy(
       },
     });
     if (!rawUser) {
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          metadata: {
+            email: dto.email,
+            reason: 'user_not_found',
+          },
+        },
+      });
       throw new UnauthorizedException(
         `user ${dto.email} attempted to log in, but does not exist`,
       );
     }
 
     if (!rawUser.agreedToTermsOfService && !dto.agreedToTermsOfService) {
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          userId: rawUser.id,
+          metadata: {
+            reason: 'terms_of_service_not_accepted',
+          },
+        },
+      });
       throw new BadRequestException(
         `User ${rawUser.id} has not accepted the terms of service`,
       );
@@ -138,6 +159,16 @@ export class SingleUseCodeStrategy extends PassportStrategy(
         rawUser.failedLoginAttemptsCount,
         rawUser.id,
       );
+      await this.prisma.activityLog.create({
+        data: {
+          module: 'auth',
+          action: ActivityLogAction.login_failed,
+          userId: rawUser.id,
+          metadata: {
+            reason: 'invalid_single_use_code',
+          },
+        },
+      });
       throw new UnauthorizedException({
         message: 'singleUseCodeUnauthorized',
         failureCountRemaining:
@@ -156,6 +187,16 @@ export class SingleUseCodeStrategy extends PassportStrategy(
       rawUser.failedLoginAttemptsCount,
       rawUser.id,
     );
+    await this.prisma.activityLog.create({
+      data: {
+        module: 'auth',
+        action: ActivityLogAction.login,
+        userId: rawUser.id,
+        metadata: {
+          method: 'single_use_code',
+        },
+      },
+    });
     return mapTo(User, rawUser);
   }
 

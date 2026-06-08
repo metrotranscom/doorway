@@ -36,6 +36,7 @@ import { JurisdictionService } from '../../../src/services/jurisdiction.service'
 import { GoogleTranslateService } from '../../../src/services/google-translate.service';
 import { PermissionService } from '../../../src/services/permission.service';
 import { SnapshotCreateService } from '../../../src/services/snapshot-create.service';
+import { last } from 'lodash';
 
 jest.mock('@google-cloud/recaptcha-enterprise');
 const mockedRecaptcha =
@@ -1108,6 +1109,7 @@ describe('Testing auth service', () => {
         resetToken: null,
         confirmedAt: expect.anything(),
         confirmationToken: null,
+        lastLoginAt: expect.anything(),
       },
       where: {
         id,

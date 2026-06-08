@@ -1658,7 +1658,11 @@ export class UserService {
       .toDate();
     const usersToBeDeleted = await this.prisma.userAccounts.findMany({
       select: { id: true, wasWarnedOfDeletion: true },
-      where: { lastLoginAt: { lt: deleteBeforeDate }, userRoles: null },
+      where: {
+        lastLoginAt: { lt: deleteBeforeDate },
+        passwordUpdatedAt: { lt: deleteBeforeDate },
+        userRoles: null,
+      },
     });
 
     this.logger.warn(`deleting ${usersToBeDeleted.length} users`);
@@ -1688,6 +1692,7 @@ export class UserService {
       await this.cronJobService.markCronJobAsStarted(
         USER_DELETION_WARN_CRON_JOB_NAME,
       );
+      const LIMIT = 1_000; // set a limit to avoid sending too many emails at once
       // warning the user 30 days before the user account will be deleted
       const warnDateNumber =
         Number(this.configService.get('USERS_DAYS_TILL_EXPIRY')) - 30;
@@ -1700,9 +1705,11 @@ export class UserService {
         },
         where: {
           lastLoginAt: { lte: warnDate },
+          passwordUpdatedAt: { lte: warnDate },
           userRoles: null,
           wasWarnedOfDeletion: false,
         },
+        take: LIMIT,
       });
       this.logger.warn(`warning ${users.length} users of account deletion`);
       for (const user of users) {

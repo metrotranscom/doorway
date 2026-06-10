@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import {
+  ApplicationSubmissionTypeEnum,
   LanguagesEnum,
   ListingEventsTypeEnum,
   ListingsStatusEnum,
@@ -412,6 +413,9 @@ export class LotteryService {
         listingId,
         markedAsDuplicate: {
           not: true,
+        },
+        submissionType: {
+          not: ApplicationSubmissionTypeEnum.paper,
         },
       },
     });

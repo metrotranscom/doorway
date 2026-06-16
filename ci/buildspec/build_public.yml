@@ -86,6 +86,7 @@ phases:
         --build-arg "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}"
         --build-arg "GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID}"
         --build-arg "SHOW_ALL_MAP_PINS=${SHOW_ALL_MAP_PINS}"
+        --build-arg "ALLOW_SEO_INDEXING=${ALLOW_SEO_INDEXING}"
         --target run
         -t sites/public:run-candidate
         .

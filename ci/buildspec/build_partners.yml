@@ -64,6 +64,7 @@ phases:
         --build-arg "LOTTERY_DAYS_TILL_EXPIRY=${LOTTERY_DAYS_TILL_EXPIRY}"
         --build-arg "LIMIT_CLOSED_LISTING_ACTIONS=${LIMIT_CLOSED_LISTING_ACTIONS}"
         --build-arg "USE_SECURE_DOWNLOAD_PATHWAY=${USE_SECURE_DOWNLOAD_PATHWAY}"
+        --build-arg "ALLOW_SEO_INDEXING=${ALLOW_SEO_INDEXING}"
         -t sites/partners:run-candidate
 
       # Tag the run image

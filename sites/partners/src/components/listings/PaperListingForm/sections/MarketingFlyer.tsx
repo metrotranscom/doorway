@@ -260,28 +260,16 @@ const MarketingFlyer = ({ currentData, onSubmit }: MarketingFlyerProps) => {
   ].filter(Boolean)
 
   const pdfUploader = async (file: File) => {
-    if (process.env.cloudinaryCloudName) {
-      // await cloudinaryFileUploader({ file, setCloudinaryData, setProgressValue })
-    } else {
-      await uploadAssetAndSetData(file, "marketing-flyer", setProgressValue, setCloudinaryData)
-    }
+    await uploadAssetAndSetData(file, "marketing-flyer", setProgressValue, setCloudinaryData)
   }
 
   const accessiblePdfUploader = async (file: File) => {
-    if (process.env.cloudinaryCloudName) {
-      // await cloudinaryFileUploader({
-      //   file,
-      //   setCloudinaryData: setAccessibleCloudinaryData,
-      //   setProgressValue: setAccessibleProgressValue,
-      // })
-    } else {
-      await uploadAssetAndSetData(
-        file,
-        "marketing-flyer",
-        setAccessibleProgressValue,
-        setAccessibleCloudinaryData
-      )
-    }
+    await uploadAssetAndSetData(
+      file,
+      "marketing-flyer",
+      setAccessibleProgressValue,
+      setAccessibleCloudinaryData
+    )
   }
 
   const buildPreviewTableRow = (data: CloudinaryData, onDelete: () => void): StandardTableData => {

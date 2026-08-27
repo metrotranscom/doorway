@@ -246,7 +246,7 @@ describe("PaperListingForm", () => {
       // units
       expect(
         screen.getByRole("row", {
-          name: "Unit # Unit type AMI Rent SQ FT Accessibility priority type Actions",
+          name: "Unit # Unit type AMI Rent SQ FT Accessibility unit type Actions",
         })
       ).toBeInTheDocument()
       expect(

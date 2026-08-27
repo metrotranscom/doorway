@@ -87,7 +87,7 @@ describe("<UnitGroupForm>", () => {
     expect(screen.getAllByRole("heading", { level: 2, name: /details/i })).toHaveLength(2)
 
     // Unit Types Section
-    expect(screen.getByText(/unit type/i)).toBeInTheDocument()
+    expect(screen.getByText(/^unit type/i)).toBeInTheDocument()
     expect(await screen.findByLabelText(/studio/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/1 bedroom/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/2 bedroom/i)).toBeInTheDocument()
@@ -319,7 +319,7 @@ describe("<UnitGroupForm>", () => {
     expect(screen.getAllByRole("heading", { level: 2, name: /details/i })).toHaveLength(2)
 
     // Unit Types Section
-    expect(screen.getByText(/unit type/i)).toBeInTheDocument()
+    expect(screen.getByText(/^unit type/i)).toBeInTheDocument()
     expect(await screen.findByRole("checkbox", { name: /studio/i })).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: /1 bedroom/i })).toBeInTheDocument()
     expect(screen.getByRole("checkbox", { name: /2 bedroom/i })).toBeInTheDocument()

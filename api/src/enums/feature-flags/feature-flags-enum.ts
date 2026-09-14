@@ -8,62 +8,88 @@ export enum FeatureFlagEnum {
   disableEthnicityQuestion = 'disableEthnicityQuestion',
   disableJurisdictionalAdmin = 'disableJurisdictionalAdmin',
   disableListingPreferences = 'disableListingPreferences',
+  disablePartnerPublicListingEdits = 'disablePartnerPublicListingEdits',
+  disableReservedCommunityTypeEdit = 'disableReservedCommunityTypeEdit',
   disableWorkInRegion = 'disableWorkInRegion',
   enableAccessibilityFeatures = 'enableAccessibilityFeatures',
   enableAdaOtherOption = 'enableAdaOtherOption',
   enableAdditionalResources = 'enableAdditionalResources',
+  enableApplicationBulkCSVUpdates = 'enableApplicationBulkCSVUpdates',
   enableApplicationStatus = 'enableApplicationStatus',
+  enableAutoOpenDate = 'enableAutoOpenDate',
+  enableAutopublish = 'enableAutopublish',
   enableCompanyWebsite = 'enableCompanyWebsite',
   enableConfigurableRegions = 'enableConfigurableRegions',
   enableCreditScreeningFee = 'enableCreditScreeningFee',
+  enableCustomListingNotifications = 'enableCustomListingNotifications',
+  enableDbDrivenContent = 'enableDbDrivenContent',
+  enableDuplicatesDetailsInEmail = 'enableDuplicatesDetailsInEmail',
+  enableExportTerms = 'enableExportTerms',
   enableFaq = 'enableFaq',
+  enableFilterByBathroom = 'enableFilterByBathroom',
+  enableFilterByCounty = 'enableFilterByCounty',
   enableFullTimeStudentQuestion = 'enableFullTimeStudentQuestion',
+  enableGenderQuestion = 'enableGenderQuestion',
   enableGeocodingPreferences = 'enableGeocodingPreferences',
   enableGeocodingRadiusMethod = 'enableGeocodingRadiusMethod',
   enableHomeType = 'enableHomeType',
+  enableHomePageSearchHero = 'enableHomePageSearchHero',
   enableHousingAdvocate = 'enableHousingAdvocate',
-  enableHousingDeveloperOwner = 'enableHousingDeveloperOwner',
   enableHousingBasics = 'enableHousingBasics',
+  enableHousingDeveloperOwner = 'enableHousingDeveloperOwner',
   enableIsVerified = 'enableIsVerified',
+  enableLandUse = 'enableLandUse',
+  enableLeasingAgentAltText = 'enableLeasingAgentAltText',
   enableLimitedHowDidYouHear = 'enableLimitedHowDidYouHear',
   enableListingFavoriting = 'enableListingFavoriting',
   enableListingFileNumber = 'enableListingFileNumber',
   enableListingFiltering = 'enableListingFiltering',
-  enableLeasingAgentAltText = 'enableLeasingAgentAltText',
   enableListingImageAltText = 'enableListingImageAltText',
+  enableListingMap = 'enableListingMap',
   enableListingOpportunity = 'enableListingOpportunity',
   enableListingPagination = 'enableListingPagination',
   enableListingUpdatedAt = 'enableListingUpdatedAt',
   enableMarketingFlyer = 'enableMarketingFlyer',
   enableMarketingStatus = 'enableMarketingStatus',
   enableMarketingStatusMonths = 'enableMarketingStatusMonths',
+  enableMultiselectVoucherQuestion = 'enableMultiselectVoucherQuestion',
   enableNeighborhoodAmenities = 'enableNeighborhoodAmenities',
   enableNeighborhoodAmenitiesDropdown = 'enableNeighborhoodAmenitiesDropdown',
+  enableNonAdminLotteries = 'enableNonAdminLotteries',
   enableNonRegulatedListings = 'enableNonRegulatedListings',
+  enableOnlyAdminCanAddAppsAfterClose = 'enableOnlyAdminCanAddAppsAfterClose',
+  enableOnlyAdminCanEditListingDates = 'enableOnlyAdminCanEditListingDates',
+  enableOnlyAdminCanManageUsers = 'enableOnlyAdminCanManageUsers',
   enableParkingFee = 'enableParkingFee',
+  enableParkingType = 'enableParkingType',
   enablePartnerDemographics = 'enablePartnerDemographics',
+  enablePartnerLotteryExport = 'enablePartnerLotteryExport',
   enablePartnerSettings = 'enablePartnerSettings',
   enablePetPolicyCheckbox = 'enablePetPolicyCheckbox',
+  enableProfessionalPartnersPage = 'enableProfessionalPartnersPage',
   enableProperties = 'enableProperties',
   enableReasonableAccommodations = 'enableReasonableAccommodations',
+  enableReceivedAtAndByFields = 'enableReceivedAtAndByFields',
   enableReferralQuestionUnits = 'enableReferralQuestionUnits',
   enableRegions = 'enableRegions',
   enableResources = 'enableResources',
   enableSection8Question = 'enableSection8Question',
+  enableSeeOurData = 'enableSeeOurData',
+  enableSexualOrientationQuestion = 'enableSexualOrientationQuestion',
   enableSingleUseCode = 'enableSingleUseCode',
   enableSmokingPolicyRadio = 'enableSmokingPolicyRadio',
   enableSpokenLanguage = 'enableSpokenLanguage',
+  enableStopLights = 'enableStopLights',
   enableSupportAdmin = 'enableSupportAdmin',
   enableUnderConstructionHome = 'enableUnderConstructionHome',
   enableUnitAccessibilityTypeTags = 'enableUnitAccessibilityTypeTags',
   enableUnitGroups = 'enableUnitGroups',
   enableUtilitiesIncluded = 'enableUtilitiesIncluded',
+  enableV2MSQ = 'enableV2MSQ',
   enableVerifyIncome = 'enableVerifyIncome',
   enableWaitlistAdditionalFields = 'enableWaitlistAdditionalFields',
   enableWaitlistLottery = 'enableWaitlistLottery',
   enableWhatToExpectAdditionalField = 'enableWhatToExpectAdditionalField',
-  enableParkingType = 'enableParkingType',
-  enableV2MSQ = 'enableV2MSQ',
   example = 'example', // sample feature flag for testing purposes
   hideCloseListingButton = 'hideCloseListingButton',
   swapCommunityTypeWithPrograms = 'swapCommunityTypeWithPrograms',
@@ -106,6 +132,16 @@ export const featureFlagMap: {
       'When true listings will no longer support preferences section',
   },
   {
+    name: FeatureFlagEnum.disablePartnerPublicListingEdits,
+    description:
+      'When true, partner users cannot edit open or closed listings, or unpublish open listings',
+  },
+  {
+    name: FeatureFlagEnum.disableReservedCommunityTypeEdit,
+    description:
+      'When true, disables editing of reserved community type description in the partners site (shows as plaintext only).',
+  },
+  {
     name: FeatureFlagEnum.disableWorkInRegion,
     description:
       'When true the "Work in Region" question will be removed from the application process',
@@ -131,9 +167,28 @@ export const featureFlagMap: {
       'When true, the application status and notifications feature is enabled on public and partners',
   },
   {
+    name: FeatureFlagEnum.enableAutoOpenDate,
+    description:
+      'When true, partners can set an optional scheduled listing applications open date',
+  },
+  {
+    name: FeatureFlagEnum.enableAutopublish,
+    description:
+      'When true, partners can set an optional scheduled listing publish date',
+  },
+  {
+    name: FeatureFlagEnum.enableApplicationBulkCSVUpdates,
+    description:
+      'When true, allows for the bulk uptake of application statuses',
+  },
+  {
     name: FeatureFlagEnum.enableCompanyWebsite,
     description:
       'When true, allows partners to add company website information',
+  },
+  {
+    name: FeatureFlagEnum.enableCustomListingNotifications,
+    description: 'When true, users have access to custom notification settings',
   },
   {
     name: FeatureFlagEnum.enableConfigurableRegions,
@@ -145,14 +200,44 @@ export const featureFlagMap: {
     description: 'When true, credit screening fee is enabled for listings',
   },
   {
+    name: FeatureFlagEnum.enableDbDrivenContent,
+    description:
+      'When true, the jurisdiction reads its translations and structured content from the database instead of the bundled override files',
+  },
+  {
+    name: FeatureFlagEnum.enableDuplicatesDetailsInEmail,
+    description:
+      'When true, lottery published applicant email contains duplicates details section',
+  },
+  {
+    name: FeatureFlagEnum.enableExportTerms,
+    description:
+      'When true, display terms of use before exporting applications and lotteries from the partner site',
+  },
+  {
     name: FeatureFlagEnum.enableFaq,
     description:
       'When true, a link to the FAQ page is displayed on the get assistance page',
   },
   {
+    name: FeatureFlagEnum.enableFilterByBathroom,
+    description:
+      'When true, the filter drawer on the public site includes the option to filter listings by number of bathrooms',
+  },
+  {
+    name: FeatureFlagEnum.enableFilterByCounty,
+    description:
+      'When true, the filter drawer on the public site includes the option to filter listings by county',
+  },
+  {
     name: FeatureFlagEnum.enableFullTimeStudentQuestion,
     description:
       'When true, the full time student question is displayed in the application form',
+  },
+  {
+    name: FeatureFlagEnum.enableGenderQuestion,
+    description:
+      'When true, the gender identity question is displayed in the public and partner application demographics section',
   },
   {
     name: FeatureFlagEnum.enableGeocodingPreferences,
@@ -167,6 +252,10 @@ export const featureFlagMap: {
   {
     name: FeatureFlagEnum.enableHomeType,
     description: 'When true, home type feature is turned on',
+  },
+  {
+    name: FeatureFlagEnum.enableHomePageSearchHero,
+    description: 'When true, the home page hero has a search form',
   },
   {
     name: FeatureFlagEnum.enableHousingAdvocate,
@@ -186,6 +275,15 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableIsVerified,
     description:
       'When true, the listing can ba have its contents manually verified by a user',
+  },
+  {
+    name: FeatureFlagEnum.enableLandUse,
+    description:
+      'When true, land use listings are displayed in listing creation/edit and public listing view',
+  },
+  {
+    name: FeatureFlagEnum.enableLeasingAgentAltText,
+    description: 'When true, shows alternative text for LA users',
   },
   {
     name: FeatureFlagEnum.enableLimitedHowDidYouHear,
@@ -208,12 +306,12 @@ export const featureFlagMap: {
       'When true, a filter button is shown on listings browse and users can filter with the options in the drawer',
   },
   {
-    name: FeatureFlagEnum.enableLeasingAgentAltText,
-    description: 'When true, shows alternative text for LA users',
-  },
-  {
     name: FeatureFlagEnum.enableListingImageAltText,
     description: 'When true, allows partners to add alt text to listing images',
+  },
+  {
+    name: FeatureFlagEnum.enableListingMap,
+    description: 'When true, a map is displayed on the listings page',
   },
   {
     name: FeatureFlagEnum.enableListingOpportunity,
@@ -245,6 +343,11 @@ export const featureFlagMap: {
       "When true, the 'marketing status' sub-section uses months instead of seasons (functions only if enableMarketingStatus is also true)",
   },
   {
+    name: FeatureFlagEnum.enableMultiselectVoucherQuestion,
+    description:
+      'When true, the vouchers question on the application form becomes a multi-select checkbox experience with Section 8, rental assistance, and none of the above as options',
+  },
+  {
     name: FeatureFlagEnum.enableNeighborhoodAmenities,
     description:
       "When true, the 'neighborhood amenities' section is displayed in listing creation/edit and the public listing view",
@@ -255,9 +358,29 @@ export const featureFlagMap: {
       'When true, neighborhood amenities inputs render as dropdowns with distance options instead of textareas',
   },
   {
+    name: FeatureFlagEnum.enableNonAdminLotteries,
+    description:
+      'When true, the lotteries can be published without the admin confirmation',
+  },
+  {
     name: FeatureFlagEnum.enableNonRegulatedListings,
     description:
       'When true, non-regulated listings are displayed in listing creation/edit and public listing view',
+  },
+  {
+    name: FeatureFlagEnum.enableOnlyAdminCanAddAppsAfterClose,
+    description:
+      'When true, only admin level users are allowed to add paper apps after a listing has closed',
+  },
+  {
+    name: FeatureFlagEnum.enableOnlyAdminCanEditListingDates,
+    description:
+      'When true, only admins level users can edit the application close dates, the review order type or the lottery run date on a published listing',
+  },
+  {
+    name: FeatureFlagEnum.enableOnlyAdminCanManageUsers,
+    description:
+      'When true, only admins can add/edit users on the partner site. Jurisdictional admins can view but not cannot create or edit users other than themselves',
   },
   {
     name: FeatureFlagEnum.enableParkingFee,
@@ -269,6 +392,11 @@ export const featureFlagMap: {
       'When true, demographics data is included in application or lottery exports for partners',
   },
   {
+    name: FeatureFlagEnum.enablePartnerLotteryExport,
+    description:
+      'When true, partner can export lottery immediately after it is run.',
+  },
+  {
     name: FeatureFlagEnum.enablePartnerSettings,
     description: "When true, the 'settings' tab in the partner site is visible",
   },
@@ -278,6 +406,11 @@ export const featureFlagMap: {
       'When true, the pet policy field in the listing form is displayed as checkboxes instead of a text area',
   },
   {
+    name: FeatureFlagEnum.enableProfessionalPartnersPage,
+    description:
+      'When true, the professional partners page will appear in the nav header of the public site and page will be reachable',
+  },
+  {
     name: FeatureFlagEnum.enableProperties,
     description: 'When true, the properties feature is enabled',
   },
@@ -285,6 +418,11 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableReasonableAccommodations,
     description:
       'When true, the reasonable accommodations question is shown in the public and partner application flow',
+  },
+  {
+    name: FeatureFlagEnum.enableReceivedAtAndByFields,
+    description:
+      'When true, partners can view/edit paper application received at/by fields and include them in application exports',
   },
   {
     name: FeatureFlagEnum.enableReferralQuestionUnits,
@@ -305,6 +443,16 @@ export const featureFlagMap: {
     description: 'When true, the Section 8 listing data will be visible',
   },
   {
+    name: FeatureFlagEnum.enableSeeOurData,
+    description:
+      'When true, a see our data card with a link on the home page is displayed',
+  },
+  {
+    name: FeatureFlagEnum.enableSexualOrientationQuestion,
+    description:
+      'When true, the sexual orientation question is displayed in the public and partner application demographics section',
+  },
+  {
     name: FeatureFlagEnum.enableSingleUseCode,
     description:
       'When true, the backend allows for logging into this jurisdiction using the single use code flow',
@@ -318,6 +466,11 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableSpokenLanguage,
     description:
       'When true, the application demographics section displays a spoken language question with options configured on the jurisdiction',
+  },
+  {
+    name: FeatureFlagEnum.enableStopLights,
+    description:
+      'When true, Stop Light eligibility rules enabled for the jurisdiction are evaluated on the public application, blocking (red) or warning (yellow) the applicant',
   },
   {
     name: FeatureFlagEnum.enableSupportAdmin,
@@ -369,7 +522,7 @@ export const featureFlagMap: {
   },
   {
     name: FeatureFlagEnum.enableV2MSQ,
-    description: 'When true, the new mutliselect question logic will be used.',
+    description: 'When true, the new multiselect question logic will be used.',
   },
   {
     name: FeatureFlagEnum.hideCloseListingButton,

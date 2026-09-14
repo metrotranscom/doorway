@@ -87,9 +87,9 @@ const Layout = (props) => {
         </main>
         <SiteFooter>
           <FooterNav copyright={`© ${currentYear} • All Rights Reserved`} />
-          <FooterSection className="bg-black" small>
-            <ExygyFooter />
-          </FooterSection>
+          {/* <FooterSection className="bg-black" small> */}
+          {/* <ExygyFooter /> */}
+          {/* </FooterSection> */}
         </SiteFooter>
       </div>
     </div>

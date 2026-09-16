@@ -6,6 +6,7 @@ export enum FeatureFlagEnum {
   disableBuildingSelectionCriteria = 'disableBuildingSelectionCriteria',
   disableCommonApplication = 'disableCommonApplication',
   disableEthnicityQuestion = 'disableEthnicityQuestion',
+  disableHowToContact = 'disableHowToContact',
   disableJurisdictionalAdmin = 'disableJurisdictionalAdmin',
   disableListingPreferences = 'disableListingPreferences',
   disablePartnerPublicListingEdits = 'disablePartnerPublicListingEdits',
@@ -15,6 +16,7 @@ export enum FeatureFlagEnum {
   enableAdaOtherOption = 'enableAdaOtherOption',
   enableAdditionalResources = 'enableAdditionalResources',
   enableApplicationBulkCSVUpdates = 'enableApplicationBulkCSVUpdates',
+  enableApplicationExpirationNonAdmins = 'enableApplicationExpirationNonAdmins',
   enableApplicationStatus = 'enableApplicationStatus',
   enableAutoOpenDate = 'enableAutoOpenDate',
   enableAutopublish = 'enableAutopublish',
@@ -126,6 +128,11 @@ export const featureFlagMap: {
       'When true, the ethnicity question is hidden in the application demographics section',
   },
   {
+    name: FeatureFlagEnum.disableHowToContact,
+    description:
+      'When true, the "How do you prefer to be contacted?" question will be removed from the application process',
+  },
+  {
     name: FeatureFlagEnum.disableJurisdictionalAdmin,
     description: 'When true, jurisdictional admins cannot be created',
   },
@@ -163,6 +170,11 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableAdditionalResources,
     description:
       "When true, the 'learn more' section is displayed on the home page",
+  },
+  {
+    name: FeatureFlagEnum.enableApplicationExpirationNonAdmins,
+    description:
+      'When true, application data in the partner site will expire for non-admin users after 45 days',
   },
   {
     name: FeatureFlagEnum.enableApplicationStatus,

@@ -31,6 +31,8 @@ export enum FeatureFlagEnum {
   enableGenderQuestion = 'enableGenderQuestion',
   enableGeocodingPreferences = 'enableGeocodingPreferences',
   enableGeocodingRadiusMethod = 'enableGeocodingRadiusMethod',
+  enableGetAssistanceCard = 'enableGetAssistanceCard',
+  enableGetAssistancePage = 'enableGetAssistancePage',
   enableHomeType = 'enableHomeType',
   enableHomePageSearchHero = 'enableHomePageSearchHero',
   enableHousingAdvocate = 'enableHousingAdvocate',
@@ -65,13 +67,16 @@ export enum FeatureFlagEnum {
   enablePartnerLotteryExport = 'enablePartnerLotteryExport',
   enablePartnerSettings = 'enablePartnerSettings',
   enablePetPolicyCheckbox = 'enablePetPolicyCheckbox',
+  enableProfessionalPartnersPage = 'enableProfessionalPartnersPage',
   enableProperties = 'enableProperties',
   enableReasonableAccommodations = 'enableReasonableAccommodations',
   enableReceivedAtAndByFields = 'enableReceivedAtAndByFields',
   enableReferralQuestionUnits = 'enableReferralQuestionUnits',
   enableRegions = 'enableRegions',
   enableResources = 'enableResources',
+  enableResourcesCard = 'enableResourcesCard',
   enableSection8Question = 'enableSection8Question',
+  enableSeeOurData = 'enableSeeOurData',
   enableSexualOrientationQuestion = 'enableSexualOrientationQuestion',
   enableSingleUseCode = 'enableSingleUseCode',
   enableSmokingPolicyRadio = 'enableSmokingPolicyRadio',
@@ -242,6 +247,16 @@ export const featureFlagMap: {
       'When true, preferences can be created with geocoding functionality that verifies via a mile radius',
   },
   {
+    name: FeatureFlagEnum.enableGetAssistanceCard,
+    description:
+      'When true, a resource card will appear on the homepage to link to the get assistance page',
+  },
+  {
+    name: FeatureFlagEnum.enableGetAssistancePage,
+    description:
+      'When true, get assistance will appear in the nav header and page will be reachable',
+  },
+  {
     name: FeatureFlagEnum.enableHomeType,
     description: 'When true, home type feature is turned on',
   },
@@ -274,6 +289,10 @@ export const featureFlagMap: {
       'When true, land use listings are displayed in listing creation/edit and public listing view',
   },
   {
+    name: FeatureFlagEnum.enableLeasingAgentAltText,
+    description: 'When true, shows alternative text for LA users',
+  },
+  {
     name: FeatureFlagEnum.enableLimitedHowDidYouHear,
     description:
       'When true, the Radio Ad and Bus Ad options are removed from the how did you hear section.',
@@ -292,10 +311,6 @@ export const featureFlagMap: {
     name: FeatureFlagEnum.enableListingFiltering,
     description:
       'When true, a filter button is shown on listings browse and users can filter with the options in the drawer',
-  },
-  {
-    name: FeatureFlagEnum.enableLeasingAgentAltText,
-    description: 'When true, shows alternative text for LA users',
   },
   {
     name: FeatureFlagEnum.enableListingImageAltText,
@@ -398,6 +413,11 @@ export const featureFlagMap: {
       'When true, the pet policy field in the listing form is displayed as checkboxes instead of a text area',
   },
   {
+    name: FeatureFlagEnum.enableProfessionalPartnersPage,
+    description:
+      'When true, the professional partners page will appear in the nav header of the public site and page will be reachable',
+  },
+  {
     name: FeatureFlagEnum.enableProperties,
     description: 'When true, the properties feature is enabled',
   },
@@ -426,8 +446,18 @@ export const featureFlagMap: {
       'When true, the public site displays links to resources on various pages',
   },
   {
+    name: FeatureFlagEnum.enableResourcesCard,
+    description:
+      'When true, a resource card will appear on the homepage to link to the additional resources page',
+  },
+  {
     name: FeatureFlagEnum.enableSection8Question,
     description: 'When true, the Section 8 listing data will be visible',
+  },
+  {
+    name: FeatureFlagEnum.enableSeeOurData,
+    description:
+      'When true, a see our data card with a link on the home page is displayed',
   },
   {
     name: FeatureFlagEnum.enableSexualOrientationQuestion,

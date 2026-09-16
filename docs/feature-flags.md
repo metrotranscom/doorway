@@ -56,6 +56,8 @@ The following are all of the feature flags currently available in the Bloom plat
 | [enableGenderQuestion](./feature-flags/enableGenderQuestion.md) | When true, the gender identity question is displayed in the public and partner application demographics section |
 | [enableGeocodingPreferences](./feature-flags/enableGeocodingPreferences.md) | When true, preferences can be created with geocoding functionality and when an application is created/updated on a listing that is geocoding then the application gets geocoded |
 | [enableGeocodingRadiusMethod](./feature-flags/enableGeocodingRadiusMethod.md) | When true, preferences can be created with geocoding functionality that verifies via a mile radius |
+| [enableGetAssistanceCard](./feature-flags/enableGetAssistanceCard.md) | When true, a resource card will appear on the homepage to link to the get assistance page |
+| [enableGetAssistancePage](./feature-flags/enableGetAssistancePage.md) | When true, get assistance will appear in the nav header and page will be reachable |
 | [enableHomePageSearchHero](./feature-flags/enableHomePageSearchHero.md) | When true, the home page hero has a search form |
 | [enableHomeType](./feature-flags/enableHomeType.md) | When true, home type feature is turned on |
 | [enableHousingAdvocate](./feature-flags/enableHousingAdvocate.md) | When true, partners can view housing advocate users |
@@ -90,13 +92,16 @@ The following are all of the feature flags currently available in the Bloom plat
 | [enablePartnerLotteryExport](./feature-flags/enablePartnerLotteryExport.md) | When true, partner can export lottery immediately after it is run. |
 | [enablePartnerSettings](./feature-flags/enablePartnerSettings.md) | When true, the 'settings' tab in the partner site is visible |
 | [enablePetPolicyCheckbox](./feature-flags/enablePetPolicyCheckbox.md) | When true, the pet policy field in the listing form is displayed as checkboxes instead of a text area |
+| [enableProfessionalPartnersPage](./feature-flags/enableProfessionalPartnersPage.md) | When true, the professional partners page will appear in the nav header of the public site and page will be reachable |
 | [enableProperties](./feature-flags/enableProperties.md) | When true, the properties feature is enabled |
 | [enableReasonableAccommodations](./feature-flags/enableReasonableAccommodations.md) | When true, the reasonable accommodations question is shown in the public and partner application flow |
 | [enableReceivedAtAndByFields](./feature-flags/enableReceivedAtAndByFields.md) | When true, partners can view/edit paper application received at/by fields and include them in application exports |
 | [enableReferralQuestionUnits](./feature-flags/enableReferralQuestionUnits.md) | when true, updates the the referral details question labels |
 | [enableRegions](./feature-flags/enableRegions.md) | When true, the region can be defined for the building address |
 | [enableResources](./feature-flags/enableResources.md) | When true, the public site displays links to resources on various pages |
+| [enableResourcesCard](./feature-flags/enableResourcesCard.md) | When true, a resource card will appear on the homepage to link to the additional resources page |
 | [enableSection8Question](./feature-flags/enableSection8Question.md) | When true, the Section 8 listing data will be visible |
+| [enableSeeOurData](./feature-flags/enableSeeOurData.md) | When true, a see our data card with a link on the home page is displayed |
 | [enableSexualOrientationQuestion](./feature-flags/enableSexualOrientationQuestion.md) | When true, the sexual orientation question is displayed in the public and partner application demographics section |
 | [enableSingleUseCode](./feature-flags/enableSingleUseCode.md) | When true, the backend allows for logging into this jurisdiction using the single use code flow |
 | [enableSmokingPolicyRadio](./feature-flags/enableSmokingPolicyRadio.md) | When true, the listing 'Smoking policy' field is a radio group |

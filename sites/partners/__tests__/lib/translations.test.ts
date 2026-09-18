@@ -4,7 +4,7 @@ import { applyTranslations, overrideTranslations, translations } from "../../src
 describe("applyTranslations", () => {
   // Supplied by the bundled Partners override file and by neither shared locale file, so a
   // non-English reader has no translation of it to fall back to.
-  const PARTNERS_ONLY_KEY = "nav.siteTitlePartners"
+  const PARTNERS_ONLY_KEY = "nav.users"
   const BUNDLED_VALUE = overrideTranslations.en[PARTNERS_ONLY_KEY]
   // Supplied by both shared locale files with different values, so precedence is visible.
   const TRANSLATED_KEY = "t.accessibility"

@@ -1,34 +1,55 @@
 -- AlterTable: change income_vouchers from boolean to text array
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'applications'
+      AND column_name = 'income_vouchers'
+      AND data_type = 'ARRAY'
+  ) THEN
+    ALTER TABLE "applications"
+    ADD COLUMN "income_vouchers_new" TEXT[] NOT NULL DEFAULT '{}';
 
-ALTER TABLE "applications"
-ADD COLUMN "income_vouchers_new" TEXT[] NOT NULL DEFAULT '{}';
+    -- Migrate existing true values to ['incomeVoucher'], false/null to ['none']
+    UPDATE "applications"
+    SET "income_vouchers_new" = ARRAY['incomeVoucher']
+    WHERE "income_vouchers" = true;
 
--- Migrate existing true values to ['incomeVoucher'], false/null to ['none']
-UPDATE "applications"
-SET "income_vouchers_new" = ARRAY['incomeVoucher']
-WHERE "income_vouchers" = true;
+    UPDATE "applications"
+    SET "income_vouchers_new" = ARRAY['none']
+    WHERE "income_vouchers" = false;
 
-UPDATE "applications"
-SET "income_vouchers_new" = ARRAY['none']
-WHERE "income_vouchers" = false;
+    ALTER TABLE "applications"
+    DROP COLUMN "income_vouchers";
 
-ALTER TABLE "applications"
-DROP COLUMN "income_vouchers";
-
-ALTER TABLE "applications"
-RENAME COLUMN "income_vouchers_new" TO "income_vouchers";
+    ALTER TABLE "applications"
+    RENAME COLUMN "income_vouchers_new" TO "income_vouchers";
+  END IF;
+END $$;
 
 -- AlterTable: change income_vouchers from boolean to text array on snapshot table
-ALTER TABLE "application_snapshot"
-ADD COLUMN "income_vouchers_new" TEXT[] NOT NULL DEFAULT '{}';
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'application_snapshot'
+      AND column_name = 'income_vouchers'
+      AND data_type = 'ARRAY'
+  ) THEN
+    ALTER TABLE "application_snapshot"
+    ADD COLUMN "income_vouchers_new" TEXT[] NOT NULL DEFAULT '{}';
 
--- Migrate existing true values to ['incomeVoucher'], false/null to empty array
-UPDATE "application_snapshot"
-SET "income_vouchers_new" = ARRAY['incomeVoucher']
-WHERE "income_vouchers" = true;
+    -- Migrate existing true values to ['incomeVoucher'], false/null to empty array
+    UPDATE "application_snapshot"
+    SET "income_vouchers_new" = ARRAY['incomeVoucher']
+    WHERE "income_vouchers" = true;
 
-ALTER TABLE "application_snapshot"
-DROP COLUMN "income_vouchers";
+    ALTER TABLE "application_snapshot"
+    DROP COLUMN "income_vouchers";
 
-ALTER TABLE "application_snapshot"
-RENAME COLUMN "income_vouchers_new" TO "income_vouchers";
+    ALTER TABLE "application_snapshot"
+    RENAME COLUMN "income_vouchers_new" TO "income_vouchers";
+  END IF;
+END $$;

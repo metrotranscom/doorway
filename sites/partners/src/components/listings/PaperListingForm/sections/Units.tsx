@@ -159,7 +159,7 @@ const FormUnits = ({
         amiPercentage: "t.ami",
         monthlyRent: "listings.unit.rent",
         sqFeet: "listings.unit.sqft",
-        accessibilityPriorityType: "listings.unit.accessibilityPriorityType",
+        accessibilityPriorityType: "listings.unit.accessibilityUnitType",
         action: "",
       }
 

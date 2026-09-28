@@ -1762,7 +1762,7 @@ export class ListingCsvExporterService implements CsvExporterServiceInterface {
       },
       {
         path: 'unit.accessibilityPriorityType',
-        label: 'Accessibility Priority Type',
+        label: 'Accessibility Unit Type',
       },
     ];
   }

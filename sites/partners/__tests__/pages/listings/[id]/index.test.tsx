@@ -571,7 +571,7 @@ describe("listing data", () => {
       expect(screen.getByText("AMI")).toBeInTheDocument()
       expect(screen.getByText("Rent")).toBeInTheDocument()
       expect(screen.getByText("SQ FT")).toBeInTheDocument()
-      expect(screen.getByText("Accessibility priority type")).toBeInTheDocument()
+      expect(screen.getByText("Accessibility unit type")).toBeInTheDocument()
 
       expect(screen.getAllByText(/#[1-9]/i)).toHaveLength(6)
       expect(screen.getAllByText("Studio")).toHaveLength(6)
@@ -2089,9 +2089,7 @@ describe("listing data", () => {
     })
     expect(accessibilitySectionHeader).toBeInTheDocument()
     const accessibilitySection = accessibilitySectionHeader.parentElement
-    expect(
-      within(accessibilitySection).getByText("Accessibility priority type")
-    ).toBeInTheDocument()
+    expect(within(accessibilitySection).getByText("Accessibility unit type")).toBeInTheDocument()
     expect(within(accessibilitySection).getByText("Mobility")).toBeInTheDocument()
 
     // Should close on done

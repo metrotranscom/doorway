@@ -666,7 +666,7 @@ const UnitForm = ({
                     <Select
                       id="accessibilityPriorityType"
                       name="accessibilityPriorityType"
-                      label={t("listings.unit.accessibilityPriorityType")}
+                      label={t("listings.unit.accessibilityUnitType")}
                       register={register}
                       controlClassName="control"
                       options={[{ value: "", label: t("t.selectOne") }, ...unitPrioritiesOptions]}

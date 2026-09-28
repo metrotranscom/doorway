@@ -544,7 +544,7 @@
   "listings.streetAddressOrPOBox": "Street address or PO box",
   "listings.totalListings": "Total listings",
   "listings.unit.%incomeRent": "Percentage of income rent",
-  "listings.unit.accessibilityPriorityType": "Accessibility priority type",
+  "listings.unit.accessibilityUnitType": "Accessibility unit type",
   "listings.unit.add": "Add unit",
   "listings.unit.affordableGroupQuantity": "Unit Group Quantity",
   "listings.unit.ami": "AMI",

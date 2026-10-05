@@ -136,7 +136,7 @@ describe("listings", () => {
         <ListingsList />
       </QueryClientProvider>
     )
-    const header = await findByText("Partners Portal")
+    const header = await findByText("Listings")
     expect(header).toBeInTheDocument()
     const exportButton = queryByText("Export to CSV")
     expect(exportButton).not.toBeInTheDocument()

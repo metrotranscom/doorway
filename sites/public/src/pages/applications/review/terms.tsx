@@ -198,7 +198,7 @@ const ApplicationTerms = () => {
 
               <Markdown
                 options={{
-                  disableParsingRawHTML: true,
+                  // disableParsingRawHTML: true,
                   overrides: {
                     li: {
                       component: ({ children, ...props }) => (

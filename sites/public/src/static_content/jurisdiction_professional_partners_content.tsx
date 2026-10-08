@@ -4,7 +4,7 @@ import { ContactCardProps } from "../components/shared/ContactCard"
 import { FaqCategory, FaqContent } from "../patterns/FrequentlyAskedQuestions"
 
 export const getProfessionalPartnersContent = (): FaqContent => {
-  const email = t("resources.contactEmail")
+  const email = t("professionalPartners.contactEmail")
 
   const whatIsHousingPortal: FaqCategory = {
     title: t("professionalPartners.dev.whatIsTheDoorway"),
@@ -180,7 +180,7 @@ export const getProfessionalPartnersContent = (): FaqContent => {
 
 export const getProfessionalPartnersContactContent = (): ContactCardProps => {
   const contactDescription = t("professionalPartners.contactDescription")
-  const email = t("resources.contactEmail")
+  const email = t("professionalPartners.contactEmail")
   const heading = t("footer.contact")
 
   return {

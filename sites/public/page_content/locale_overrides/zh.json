@@ -1,5 +1,6 @@
 {
   "account.settings.disclaimer": "您可以随时联系 BAHFA 删除您的账户信息及相关数据。为此，请联系 %{contactEmail}。",
+  "alert.maintenance": "Doorway房屋门户网站焕然一新！您会注意到一些变化，但别担心，它仍然是Doorway！",
   "application.confirmation.expiredDetailsWarning": "如果您提交申请后家庭成员信息发生变更，请直接联系房产方。家庭成员信息随时间推移而发生变化是很常见的，过时的信息不会对您不利。目前，申请提交后修改申请的功能正在开发中，您将在稍后能够修改已提交的申请。",
   "application.review.confirmation.whatHappensNext.lottery": "### 接下来会发生什么？\n\n* 申请期结束后，符合条件的申请人将根据抽签排名进行排序。\n* 如有住房偏好，将影响抽签排名。\n* 如果您收到面试通知，我们将要求您填写更详细的申请表并提供证明文件。\n* Doorway 通常不接受重复申请。重复申请是指申请人已在同一住房机会的其他申请中出现。有关我们如何处理重复申请的更多详细信息，请参阅我们的<a href='https://mtc.ca.gov/doorway-housing-portal-terms-use' target='_blank'>使用条款</a>。",
   "application.review.demographics.howDidYouHearOptions.developerWebsite": "房产网站",

@@ -1,5 +1,6 @@
 {
   "account.settings.disclaimer": "언제든지 BAHFA에 연락하여 계정 정보 및 관련 데이터를 삭제할 수 있습니다. 삭제를 원하시면 %{contactEmail}로 문의해 주세요.",
+  "alert.maintenance": "Doorway 주택 포털이 새롭게 단장했습니다! 몇 가지 변경 사항이 보이시겠지만, 걱정하지 마세요. 여전히 Doorway입니다!",
   "application.confirmation.expiredDetailsWarning": "신청서를 제출하신 후 가족 구성원 정보에 변경 사항이 있는 경우, 해당 부동산에 직접 연락해 주시기 바랍니다. 가족 구성원 정보는 시간이 지남에 따라 변경되는 경우가 흔하며, 더 이상 최신 정보가 아닌 경우에도 불이익을 받지 않습니다. 신청서 제출 후 수정 기능은 현재 개발 중이며, 추후에 기존 신청서를 수정할 수 있게 될 예정입니다.",
   "application.review.confirmation.whatHappensNext.lottery": "### 다음 단계는 무엇인가요?\n\n* 신청 기간이 종료되면, 자격 요건을 충족하는 신청자는 추첨 순위에 따라 순서대로 배정됩니다.\n* 해당되는 경우, 주거 선호도가 추첨 순위에 영향을 미칠 수 있습니다.\n* 면접 대상자로 선정되시면, 보다 자세한 신청서를 작성하고 관련 서류를 제출해 주셔야 합니다.\n* Doorway는 일반적으로 중복 신청을 허용하지 않습니다. 중복 신청이란 동일한 주거 기회에 대해 다른 곳에도 동일한 신청서를 제출한 사람을 말합니다. 중복 신청 처리 방식에 대한 자세한 내용은 <a href='https://mtc.ca.gov/doorway-housing-portal-terms-use' target='_blank'>이용 약관을</a> 참조하십시오.",
   "application.review.demographics.howDidYouHearOptions.developerWebsite": "부동산 웹사이트",

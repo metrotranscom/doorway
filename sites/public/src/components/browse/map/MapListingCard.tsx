@@ -146,7 +146,7 @@ export const MapListingCard = ({
               )}
               <div
                 className={styles["image-background"]}
-                style={{ backgroundImage: `url(${imageUrl})` }}
+                style={{ backgroundImage: `url(${encodeURI(imageUrl)})` }}
                 role="img"
                 aria-label={
                   listing.listingImages?.[0]?.description || t("listings.buildingImageAltText")

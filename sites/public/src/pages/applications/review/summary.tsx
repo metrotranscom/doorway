@@ -47,6 +47,8 @@ const ApplicationSummary = () => {
 
   const { handleSubmit } = useForm()
 
+  const disableWorkInRegion = isFeatureFlagOn(conductor.config, FeatureFlagEnum.disableWorkInRegion)
+
   useEffect(() => {
     pushGtmEvent<PageView>({
       event: "pageView",
@@ -90,6 +92,11 @@ const ApplicationSummary = () => {
           listing: {
             id: listing.id,
           },
+          householdMember: !disableWorkInRegion
+            ? application.householdMember
+            : application.householdMember?.map((member) => {
+                return { ...member, householdMemberWorkAddress: undefined }
+              }),
           appUrl: window.location.origin,
           ...(profile && {
             user: {

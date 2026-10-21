@@ -94,7 +94,7 @@ const ApplicationSummary = () => {
           },
           householdMember: !disableWorkInRegion
             ? application.householdMember
-            : application.householdMember.map((member) => {
+            : application.householdMember?.map((member) => {
                 return { ...member, householdMemberWorkAddress: undefined }
               }),
           appUrl: window.location.origin,

@@ -88,16 +88,16 @@ const ApplicationSummary = () => {
             application.alternateContact?.type === "noContact"
               ? null
               : application.alternateContact,
-          reviewStatus: ApplicationReviewStatusEnum.pending,
-          listing: {
-            id: listing.id,
-          },
+          appUrl: window.location.origin,
           householdMember: !disableWorkInRegion
             ? application.householdMember
             : application.householdMember?.map((member) => {
-                return { ...member, householdMemberWorkAddress: undefined }
+                return { ...member, householdMemberWorkAddress: undefined, workInRegion: null }
               }),
-          appUrl: window.location.origin,
+          listings: {
+            id: listing.id,
+          },
+          reviewStatus: ApplicationReviewStatusEnum.pending,
           ...(profile && {
             user: {
               id: profile.id,

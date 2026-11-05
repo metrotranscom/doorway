@@ -35,7 +35,6 @@ import {
   useSSE,
   useZipExport,
 } from "../../../../lib/hooks"
-import { isAdminRole } from "../../../../lib/helpers"
 
 interface BulkUploadJobNotification {
   jobId: string

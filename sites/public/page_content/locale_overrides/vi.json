@@ -209,7 +209,7 @@
   "listingResource.additionalCard1.linkLabel": "Xem danh sách",
   "listingResource.additionalCard1.subtext": "Xem danh sách các căn hộ cho thuê tại San Francisco trên Cổng thông tin nhà ở DAHLIA.",
   "listingResource.additionalCard1.title": "Bạn đang tìm nhà ở tại San Francisco?",
-  "listings.additionalFeesDisclaimer": "Không thu phí đối với các điều chỉnh hợp lý cần thiết do khuyết tật, chẳng hạn như động vật hỗ trợ tinh thần. Cũng không thu phí đối với các thiết bị và dịch vụ cần thiết để giao tiếp hiệu quả do khuyết tật. Về việc kiểm tra tín dụng, người nộp đơn nhận trợ cấp thuê nhà của chính phủ có thể lựa chọn cung cấp \"bằng chứng thay thế hợp pháp, có thể kiểm chứng\" về khả năng trả tiền thuê nhà của họ, thay vì dựa vào lịch sử tín dụng.",
+  "listings.amiDisclaimer": "",
   "listings.unitTypes.fiveBdrm": "5 giường",
   "listings.unitTypes.fourBdrm": "4 giường",
   "listings.unitTypes.oneBdrm": "1 phòng ngủ",

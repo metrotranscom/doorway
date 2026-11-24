@@ -209,7 +209,7 @@
   "listingResource.additionalCard1.linkLabel": "اطلع على القوائم",
   "listingResource.additionalCard1.subtext": "اطلع على قوائم العقارات المتاحة في سان فرانسيسكو على بوابة داليا للإسكان.",
   "listingResource.additionalCard1.title": "هل تبحث عن سكن في سان فرانسيسكو؟",
-  "listings.additionalFeesDisclaimer": "لا تُفرض رسوم على التسهيلات المعقولة اللازمة لذوي الإعاقة، مثل حيوانات الدعم العاطفي. كما لا تُفرض رسوم على المعينات والخدمات اللازمة للتواصل الفعال لذوي الإعاقة. وفيما يتعلق بالتحقق من الجدارة الائتمانية، يُتاح للمتقدمين الحاصلين على إعانات الإيجار الحكومية خيار تقديم \"أدلة بديلة قانونية وقابلة للتحقق\" تُثبت قدرتهم على دفع الإيجار، بدلاً من الاعتماد على سجلهم الائتماني.",
+  "listings.amiDisclaimer": "",
   "listings.unitTypes.fiveBdrm": "5 أسرّة",
   "listings.unitTypes.fourBdrm": "4 أسرّة",
   "listings.unitTypes.oneBdrm": "سرير واحد",

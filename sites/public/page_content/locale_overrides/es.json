@@ -209,7 +209,7 @@
   "listingResource.additionalCard1.linkLabel": "Ver listados",
   "listingResource.additionalCard1.subtext": "Consulte las propiedades disponibles en San Francisco en el portal de vivienda de DAHLIA.",
   "listingResource.additionalCard1.title": "¿Buscas vivienda en San Francisco?",
-  "listings.additionalFeesDisclaimer": "No se cobran tarifas por adaptaciones razonables necesarias debido a una discapacidad, como animales de apoyo emocional. Tampoco se cobran tarifas por ayudas y servicios necesarios para una comunicación efectiva debido a una discapacidad. Con respecto a la verificación de crédito, los solicitantes que reciben subsidios gubernamentales para el alquiler tienen la opción de proporcionar \"pruebas alternativas legales y verificables\" de su capacidad de pago, en lugar de basarse en su historial crediticio.",
+  "listings.amiDisclaimer": "",
   "listings.unitTypes.fiveBdrm": "5 camas",
   "listings.unitTypes.fourBdrm": "4 camas",
   "listings.unitTypes.oneBdrm": "1 cama",

@@ -209,7 +209,7 @@
   "listingResource.additionalCard1.linkLabel": "목록 보기",
   "listingResource.additionalCard1.subtext": "DAHLIA 주택 포털에서 샌프란시스코의 매물 목록을 확인하세요.",
   "listingResource.additionalCard1.title": "샌프란시스코에서 거주할 곳을 찾고 계신가요?",
-  "listings.additionalFeesDisclaimer": "장애로 인해 필요한 합리적인 편의 시설(예: 정서적 지원 동물)에 대해서는 수수료가 부과되지 않습니다. 또한 장애로 인해 효과적인 의사소통에 필요한 보조 기구 및 서비스에 대해서도 수수료가 부과되지 않습니다. 신용 조회와 관련하여, 정부 임대료 보조금을 받는 신청자는 신용 기록에 의존하는 대신 임대료 지불 능력을 입증할 수 있는 '합법적이고 검증 가능한 대체 증거'를 제출할 수 있습니다.",
+  "listings.amiDisclaimer": "",
   "listings.unitTypes.fiveBdrm": "침대 5개",
   "listings.unitTypes.fourBdrm": "침대 4개",
   "listings.unitTypes.oneBdrm": "침대 1개",

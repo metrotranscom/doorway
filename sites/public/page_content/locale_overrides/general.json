@@ -209,7 +209,7 @@
   "listingResource.additionalCard1.linkLabel": "See listings",
   "listingResource.additionalCard1.subtext": "See available San Francisco listings on the DAHLIA Housing Portal.",
   "listingResource.additionalCard1.title": "Looking for housing in San Francisco?",
-  "listings.additionalFeesDisclaimer": "Fees are not charged for reasonable accommodations needed due to disability, such as emotional support animals. Fees are also not charged for aids and services needed for effective communication due to a disability. With respect to credit checks, applicants receiving government rent subsidies have the option to provide \"lawful, verifiable alternative evidence\" of their ability to pay rent, instead of relying on their credit history.",
+  "listings.amiDisclaimer": "",
   "listings.unitTypes.fiveBdrm": "5 beds",
   "listings.unitTypes.fourBdrm": "4 beds",
   "listings.unitTypes.oneBdrm": "1 bed",

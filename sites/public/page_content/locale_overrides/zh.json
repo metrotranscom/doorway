@@ -210,7 +210,7 @@
   "listingResource.additionalCard1.linkLabel": "查看列表",
   "listingResource.additionalCard1.subtext": "请在 DAHLIA 住房门户网站上查看旧金山的房源信息。",
   "listingResource.additionalCard1.title": "正在旧金山找房子？",
-  "listings.additionalFeesDisclaimer": "因残障人士需要的合理便利措施，例如情感支持动物，不收取任何费用。因残障人士需要的有效沟通辅助工具和服务也不收取任何费用。关于信用审查，领取政府租金补贴的申请人可以选择提供“合法、可核实的替代证据”来证明其支付租金的能力，而不是依赖其信用记录。",
+  "listings.amiDisclaimer": "",
   "listings.unitTypes.fiveBdrm": "5张床",
   "listings.unitTypes.fourBdrm": "4张床",
   "listings.unitTypes.oneBdrm": "1 间卧室",
